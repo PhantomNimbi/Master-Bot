@@ -131,9 +131,12 @@ export function getLavalinkKeyStatus() {
 
 export function extractYouTubeRefreshToken(line) {
 	// Matches 1/ or 1// starting after whitespace, colon, equals, quote, or parenthesis
-	const match = line.match(/(?:^|[\s:='"(])(1\/[^\s"'<>()\\]+)/);
+	const match = line.match(/(?:^|[\s:='"(])(1\/[a-zA-Z0-9_\-.~/]+)/);
 	if (!match) return null;
-	let token = match[1].replace(/[.,;!)\s]+$/, '');
+
+	// Trim trailing quotes, braces, commas, parentheses, dots, or whitespace
+	let token = match[1].replace(/[}"',.;!)\s]+$/, '');
+
 	if (token.length >= 20 && token.startsWith('1/')) {
 		return token;
 	}
@@ -142,6 +145,12 @@ export function extractYouTubeRefreshToken(line) {
 
 export function saveYouTubeRefreshToken(token) {
 	if (!token || !token.startsWith('1/')) return;
+
+	// Deduplicate: if the exact token is already active in memory, do nothing
+	if (process.env.YOUTUBE_REFRESH_TOKEN === token) {
+		return;
+	}
+
 	process.env.YOUTUBE_REFRESH_TOKEN = token;
 
 	const successBanner = `\n\x1b[1;32m====================================================================\x1b[0m\n\x1b[1;32m✅ [YOUTUBE REFRESH TOKEN CAPTURED IN MEMORY]\x1b[0m\n\x1b[1;36m Token:\x1b[0m ${token}\n\x1b[1;32m The token is active in process memory for this session.\x1b[0m\n\x1b[1;32m====================================================================\x1b[0m\n\n`;
