@@ -100,15 +100,6 @@ export function checkJavaVersion() {
 }
 
 export function clearYouTubeRefreshToken() {
-	const envPath = path.join(rootDir, '.env');
-	if (fs.existsSync(envPath)) {
-		let content = fs.readFileSync(envPath, 'utf-8');
-		content = content.replace(
-			/YOUTUBE_REFRESH_TOKEN\s*=\s*['"]?.*?['"]?/g,
-			() => 'YOUTUBE_REFRESH_TOKEN=""'
-		);
-		fs.writeFileSync(envPath, content, 'utf-8');
-	}
 	delete process.env.YOUTUBE_REFRESH_TOKEN;
 }
 
@@ -120,7 +111,7 @@ export function getLavalinkKeyStatus() {
 	const ytToken = process.env.YOUTUBE_REFRESH_TOKEN?.trim();
 	const validYtToken = ytToken && ytToken.startsWith('1/') ? ytToken : null;
 
-	// If a token exists in env but doesn't start with 1/, auto-clear it
+	// If a token exists in env but doesn't start with 1/, auto-clear it in memory
 	if (ytToken && !validYtToken) {
 		clearYouTubeRefreshToken();
 	}
@@ -151,23 +142,9 @@ export function extractYouTubeRefreshToken(line) {
 
 export function saveYouTubeRefreshToken(token) {
 	if (!token || !token.startsWith('1/')) return;
-	const envPath = path.join(rootDir, '.env');
-	if (!fs.existsSync(envPath)) return;
-
-	let content = fs.readFileSync(envPath, 'utf-8');
-	if (content.includes('YOUTUBE_REFRESH_TOKEN=')) {
-		content = content.replace(
-			/YOUTUBE_REFRESH_TOKEN\s*=\s*['"]?.*?['"]?/g,
-			() => `YOUTUBE_REFRESH_TOKEN="${token}"`
-		);
-	} else {
-		content += `\nYOUTUBE_REFRESH_TOKEN="${token}"\n`;
-	}
-
-	fs.writeFileSync(envPath, content, 'utf-8');
 	process.env.YOUTUBE_REFRESH_TOKEN = token;
 
-	const successBanner = `\n\x1b[1;32m====================================================================\x1b[0m\n\x1b[1;32m✅ [YOUTUBE REFRESH TOKEN AUTOMATICALLY CAPTURED & SAVED TO .ENV]\x1b[0m\n\x1b[1;36m Token:\x1b[0m ${token}\n\x1b[1;32m Future bot launches will now reuse this token automatically!\x1b[0m\n\x1b[1;32m====================================================================\x1b[0m\n\n`;
+	const successBanner = `\n\x1b[1;32m====================================================================\x1b[0m\n\x1b[1;32m✅ [YOUTUBE REFRESH TOKEN CAPTURED IN MEMORY]\x1b[0m\n\x1b[1;36m Token:\x1b[0m ${token}\n\x1b[1;32m The token is active in process memory for this session.\x1b[0m\n\x1b[1;32m====================================================================\x1b[0m\n\n`;
 	process.stdout.write(successBanner);
 }
 
