@@ -280,13 +280,14 @@ export class Queue {
 		if (await this.getEmbed()) {
 			await deletePlayerEmbed(this);
 		}
-		if (this.player && this.client.leaveTimers[this.guildID]) {
+		if (this.client.leaveTimers[this.guildID]) {
 			clearTimeout(this.client.leaveTimers[this.guildID]);
 			delete this.client.leaveTimers[this.guildID];
 		}
-		if (!this.player) return;
-		await this.player.disconnect();
-		await this.destroyPlayer();
+		if (this.player) {
+			await this.player.disconnect();
+			await this.destroyPlayer();
+		}
 		await this.setTextChannelID(null);
 		await this.clear();
 	}

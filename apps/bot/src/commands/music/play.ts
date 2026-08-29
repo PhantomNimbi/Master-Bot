@@ -134,23 +134,18 @@ export class PlayCommand extends Command {
 			tracks.push(...trackTuple[1]);
 		}
 
+		const isPlaying = queue.playing;
+
 		await queue.add(tracks);
 		if (shufflePlaylist == 'Yes') {
 			await queue.shuffleTracks();
 		}
 
-		const current = await queue.getCurrentTrack();
-		if (current) {
-			client.emit(
-				'musicSongPlayMessage',
-				interaction.channel,
-				await queue.getCurrentTrack()
-			);
-			return;
+		if (isPlaying) {
+			return await interaction.followUp({ content: message });
 		}
 
-		await queue.start();
-
+		await queue.next();
 		return await interaction.followUp({ content: message });
 	}
 }
