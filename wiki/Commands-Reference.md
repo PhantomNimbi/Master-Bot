@@ -1,29 +1,61 @@
-# Commands Reference
+# Complete Commands Reference
 
-Master-Bot features over 60 slash commands across multiple categories.
+Master-Bot features over 60 slash commands organized cleanly into categories. Use `/help` in Discord to open the interactive category browser or view specific parameter details.
 
-## 🎵 Music Commands
-- `/play <query>`: Play any song or playlist (YouTube, Spotify metadata, Vimeo, Twitch streams).
-- `/pause` / `/resume`: Control playback.
-- `/skip` / `/skipto`: Skip tracks in queue.
-- `/queue`: Display current queue.
-- `/volume`: Adjust playback volume.
-- `/bassboost`, `/nightcore`, `/vaporwave`, `/karaoke`: Audio filter controls.
-- `/lyrics`: Fetch song lyrics.
-- `/create-playlist`, `/save-to-playlist`, `/my-playlists`: Custom server/user playlist management.
+---
 
-## 🖼️ GIF Commands (Powered by Klipy & Waifu.im)
-- `/gif`: Random gif search.
-- `/anime`, `/amongus`, `/baka`, `/cat`, `/doggo`, `/gintama`, `/hug`, `/jojo`, `/slap`: Category gif searches.
-- `/waifu`: Random waifu images powered by `waifu.im`.
+## 🎵 Music & Audio Commands
 
-## 🎮 Game & Information Commands
-- `/game-search <game>`: Video game information and metadata (Powered by IGDB).
-- `/tv-show-search <query>`: TV show search and details (Powered by TVMaze).
-- `/twitch-status <channel>`: Check live status of a Twitch streamer.
-- `/urban <term>`: Search Urban Dictionary definitions.
+| Command | Description | Usage Example |
+|---|---|---|
+| `/play` | Search and play tracks or playlists from YouTube, Spotify, etc. | `/play query: darude sandstorm` |
+| `/pause` | Pause currently playing track | `/pause` |
+| `/resume` | Resume playback | `/resume` |
+| `/skip` | Skip the current track | `/skip` |
+| `/skipto` | Skip to a specific position in queue | `/skipto position: 4` |
+| `/queue` | View current queue and upcoming tracks | `/queue` |
+| `/nowplaying` | Display current track progress and metadata | `/nowplaying` |
+| `/volume` | Set audio volume (1-100) | `/volume level: 80` |
+| `/lyrics` | Search song lyrics or view lyrics for current track | `/lyrics song: Hotel California` |
+| `/create-playlist` | Create a custom user playlist | `/create-playlist name: Favorites` |
+| `/save-to-playlist` | Save track or URL to custom playlist | `/save-to-playlist name: Favorites url: <url>` |
+| `/my-playlists` | View your saved playlists | `/my-playlists` |
+| `/display-playlist` | Inspect tracks in a custom playlist | `/display-playlist name: Favorites` |
+| `/delete-playlist` | Delete a custom playlist | `/delete-playlist name: Favorites` |
 
-## 🛠️ Utility Commands
-- `/ping`: Check bot latency.
-- `/about`: Bot information and statistics.
-- `/help`: Interactive command guide.
+---
+
+## 🖼️ Reaction GIFs (Powered by Klipy & Waifu.im)
+
+| Command | Description | Usage Example |
+|---|---|---|
+| `/gif` | Search random GIFs | `/gif query: dance` |
+| `/anime` | Search anime reaction GIFs | `/anime` |
+| `/hug` | Send a hug reaction GIF to a user | `/hug user: @User` |
+| `/slap` | Send a slap reaction GIF to a user | `/slap user: @User` |
+| `/pat` | Send a headpat reaction GIF | `/pat user: @User` |
+| `/cat` / `/doggo` | Display cute cat or dog photos | `/cat` |
+| `/waifu` | Fetch random waifu images from waifu.im | `/waifu` |
+
+---
+
+## 🎮 Gaming, Info & Twitch
+
+| Command | Description | Usage Example |
+|---|---|---|
+| `/game-search` | Search video game metadata via IGDB | `/game-search title: Elden Ring` |
+| `/tv-show-search` | Search TV show details via TVMaze | `/tv-show-search query: Breaking Bad` |
+| `/twitch-status` | Check live status of a Twitch channel | `/twitch-status channel: shroud` |
+| `/urban` | Search Urban Dictionary definitions | `/urban term: typescript` |
+
+---
+
+## ⚙️ Utilities & Owner Commands
+
+| Command | Description | Usage Example |
+|---|---|---|
+| `/help` | Open interactive category browser or detailed command help | `/help` |
+| `/youtube-auth` | Re-trigger YouTube OAuth Device Flow (Owner Only) | `/youtube-auth` |
+| `/avatar` | Display user profile picture | `/avatar user: @User` |
+| `/reddit` | Fetch top posts from a subreddit | `/reddit subreddit: memes` |
+| `/activity` | Generate voice channel Discord Activity invite link | `/activity channel: Voice Channel` |

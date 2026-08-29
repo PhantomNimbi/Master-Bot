@@ -96,7 +96,7 @@ export class TwitchAPI {
 				if (!ids.length && !logins.length)
 					throw new Error(`Empty array in the "ids" or "logins" property`);
 
-				const numTotal: number = ids.length ?? 0 + logins.length ?? 0;
+				const numTotal: number = (ids.length ?? 0) + (logins.length ?? 0);
 				let offset: number = 0;
 
 				for (let i = 0; i < numTotal; i += chunk_size) {
@@ -294,7 +294,7 @@ export class TwitchAPI {
 						`Empty array in the "user_ids" or "user_logins" property`
 					);
 
-				const numTotal: number = user_ids.length ?? 0 + user_logins.length ?? 0;
+				const numTotal: number = (user_ids.length ?? 0) + (user_logins.length ?? 0);
 				let offset: number = 0;
 
 				for (let i = 0; i < numTotal; i += chunk_size) {

@@ -7,6 +7,8 @@ import {
 	loadEnv,
 	extractPortFromUrl,
 	freePort,
+	checkJavaVersion,
+	getLavalinkKeyStatus,
 	createLogWriter
 } from './common.mjs';
 
@@ -21,10 +23,10 @@ const dashboardLogFile = path.join(logsDir, 'dashboard.log');
 const lavalinkLogFile = path.join(logsDir, 'lavalink.log');
 const combinedLogFile = path.join(logsDir, 'combined.log');
 
-const botStream = fs.createWriteStream(botLogFile, { flags: 'a' });
-const dashboardStream = fs.createWriteStream(dashboardLogFile, { flags: 'a' });
-const lavalinkStream = fs.createWriteStream(lavalinkLogFile, { flags: 'a' });
-const combinedStream = fs.createWriteStream(combinedLogFile, { flags: 'a' });
+const botStream = fs.createWriteStream(botLogFile, { flags: 'w' });
+const dashboardStream = fs.createWriteStream(dashboardLogFile, { flags: 'w' });
+const lavalinkStream = fs.createWriteStream(lavalinkLogFile, { flags: 'w' });
+const combinedStream = fs.createWriteStream(combinedLogFile, { flags: 'w' });
 
 const writeBotLog = createLogWriter(botStream, combinedStream);
 const writeDashboardLog = createLogWriter(dashboardStream, combinedStream);
@@ -56,11 +58,22 @@ let lavalinkStatus = 'SKIPPED';
 let lavalinkProcess = null;
 
 // 1. Check & Launch Lavalink Server
+const keyStatus = getLavalinkKeyStatus();
+
 if (isLavaExternal) {
 	lavalinkStatus = `EXTERNAL (${lavaHost}:${lavaPort})`;
 	writeLavalinkLog(
 		'SYSTEM',
 		`LAVA_EXTERNAL=true detected. Connecting to external Lavalink server at ${lavaHost}:${lavaPort}.`
+	);
+} else if (!keyStatus.hasAny) {
+	lavalinkStatus = 'DISABLED (No API Keys Configured)';
+	writeLavalinkLog(
+		'SYSTEM',
+		'Lavalink server launch SKIPPED: No music API keys (YouTube, Spotify, or SoundCloud) provided in .env.'
+	);
+	console.log(
+		'\n\x1b[1;33m⚠️  [LAVALINK DISABLED]\x1b[0m No music API keys configured in .env (YouTube, Spotify, or SoundCloud). Internal Lavalink server skipped.\n'
 	);
 } else {
 	const jarPath = path.join(rootDir, 'Lavalink.jar');
@@ -70,9 +83,19 @@ if (isLavaExternal) {
 			'SYSTEM',
 			`Launching internal Lavalink server from ${jarPath}...`
 		);
-		lavalinkProcess = spawn('java', ['-jar', 'Lavalink.jar'], { cwd: rootDir });
-		lavalinkProcess.stdout.on('data', data => writeLavalinkLog('LAVALINK', data));
-		lavalinkProcess.stderr.on('data', data => writeLavalinkLog('LAVALINK-ERR', data));
+		const javaCheck = checkJavaVersion();
+		if (!javaCheck.ok) {
+			console.error(`\n\x1b[1;31m⚠️  [JAVA VERSION ERROR]\x1b[0m\n${javaCheck.error}\n`);
+			lavalinkStatus = 'ERROR (Java missing or too old)';
+		} else {
+			if (javaCheck.version < 21) {
+				console.warn(`\n\x1b[1;33m⚠️  [JAVA VERSION WARNING]\x1b[0m Java ${javaCheck.version} detected. Java 21 LTS is recommended for best stability.\n`);
+			}
+			const javaArgs = ['-jar', 'Lavalink.jar'];
+			lavalinkProcess = spawn('java', javaArgs, { cwd: rootDir });
+			lavalinkProcess.stdout.on('data', data => writeLavalinkLog('LAVALINK', data));
+			lavalinkProcess.stderr.on('data', data => writeLavalinkLog('LAVALINK-ERR', data));
+		}
 	} else {
 		lavalinkStatus = `EXTERNAL/DOCKER (${lavaHost}:${lavaPort})`;
 		writeLavalinkLog(
@@ -82,19 +105,21 @@ if (isLavaExternal) {
 	}
 }
 
-// 2. Launch Bot in DEV mode (no shell: true to prevent DEP0190 warning)
+// 2. Launch Bot in DEV mode
 const botProcess = spawn(pnpmCmd, ['--filter', '@master-bot/bot', 'dev'], {
-	cwd: rootDir
+	cwd: rootDir,
+	shell: true
 });
 botProcess.stdout.on('data', data => writeBotLog('BOT', data));
 botProcess.stderr.on('data', data => writeBotLog('BOT-ERR', data));
 
-// 3. Launch Dashboard in DEV mode (no shell: true to prevent DEP0190 warning)
+// 3. Launch Dashboard in DEV mode
 const dashboardProcess = spawn(
 	pnpmCmd,
 	['--filter', '@master-bot/dashboard', 'dev'],
 	{
-		cwd: rootDir
+		cwd: rootDir,
+		shell: true
 	}
 );
 dashboardProcess.stdout.on('data', data => writeDashboardLog('DASHBOARD', data));
@@ -120,7 +145,7 @@ console.log(`
   Live Owner Web Logs: http://localhost:${dashboardPort}/dashboard/logs
 ====================================================================
   🔑 NOTE: YouTube OAuth / Device Auth prompts are output DIRECTLY 
-  to this console. They are stripped & excluded from log files.
+  to this console. Tokens are auto-saved to .env upon authorization.
 ====================================================================
 `);
 

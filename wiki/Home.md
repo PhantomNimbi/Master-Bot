@@ -1,16 +1,28 @@
 # Welcome to the Master-Bot Wiki
 
-**Master-Bot** is a modern, cross-platform Discord Bot and Next.js Web Dashboard monorepo built with TypeScript, Sapphire, tRPC 11, Prisma, Next.js 14, and Lavalink v4.
-
-## 📖 Wiki Pages
-
-- **[Setup & Deployment](Setup-and-Deployment)**: Complete guide to setting up Master-Bot locally or deploying via Docker Compose.
-- **[Lavalink Setup](Lavalink)**: Detailed Lavalink v4 audio server configuration and links to official releases.
-- **[API Keys & Environment Guide](API-Keys)**: How to acquire and configure required and optional API keys (Discord, Twitch, Klipy, IGDB, etc.).
-- **[Commands Reference](Commands-Reference)**: Detailed list of all slash commands and categories available in the bot.
+**Master-Bot** is a modern, production-grade Discord Bot and Next.js Web Dashboard monorepo built with **TypeScript**, **Sapphire Framework**, **tRPC v11**, **Prisma ORM**, **Next.js 14**, **Redis**, and **Lavalink v4**.
 
 ---
 
-## ⚡ Quick Links
-- **GitHub Repository:** [PhantomNimbi/Master-Bot](https://github.com/PhantomNimbi/Master-Bot)
-- **Lavalink Releases:** [lavalink-devs/Lavalink](https://github.com/lavalink-devs/Lavalink/releases)
+## 📖 Wiki Navigation
+
+- **[Setup & Deployment Guide](Setup-and-Deployment.md)**: Step-by-step local development setup, unified launcher instructions (`pnpm dev` / `pnpm start`), and Docker Compose deployment.
+- **[Lavalink v4 Audio Engine](Lavalink.md)**: In-depth Lavalink v4 configuration, plugin management (`youtube-plugin`, `lavasrc-plugin`), and automatic YouTube OAuth device authorization.
+- **[API Keys & Credentials](API-Keys.md)**: Guide on acquiring and setting up required and optional credentials (Discord, Twitch, Klipy, IGDB, YouTube).
+- **[Commands Reference](Commands-Reference.md)**: Full reference for all available slash commands, interactive help browser, and parameters.
+
+---
+
+## ⚡ Key Highlights
+
+- **Monorepo Architecture:** Managed via `pnpm` workspaces and Turborepo (`apps/bot`, `apps/dashboard`, `packages/api`, `packages/auth`, `packages/db`).
+- **Unified Cross-Platform Launchers:** `scripts/dev.mjs` and `scripts/start.mjs` automatically manage ports (`3000`, `6379`, `2333`), redirect service logs to separate files (`logs/bot.log`, `logs/dashboard.log`, `logs/lavalink.log`), and format YouTube OAuth device codes.
+- **Native YouTube OAuth:** Automatic owner Direct Messages and terminal prompts for YouTube device authorization, with automatic token persistence to `.env`.
+- **Interactive Help System:** Built-in category browser dropdown menu (`StringSelectMenuBuilder`) and detailed command lookup.
+
+---
+
+## 🔗 Quick Links
+
+- **Repository:** [PhantomNimbi/Master-Bot](https://github.com/PhantomNimbi/Master-Bot)
+- **Lavalink v4 Releases:** [lavalink-devs/Lavalink](https://github.com/lavalink-devs/Lavalink/releases)

@@ -67,10 +67,113 @@ export function freePort(port) {
 	} catch {}
 }
 
+/**
+ * Validates that Java >= 17 is installed and accessible on PATH.
+ * Lavalink v4 requires Java 17+; Java 21 LTS is recommended.
+ * Returns { ok: true, version } on success, { ok: false, error } on failure.
+ */
+export function checkJavaVersion() {
+	try {
+		const output = execSync('java -version 2>&1', { encoding: 'utf-8', stdio: 'pipe' });
+		// java -version prints to stderr; execSync captures both via 2>&1
+		const match = output.match(/version\s+"?(\d+)(?:\.(\d+))?/);
+		if (!match) {
+			return { ok: false, error: 'Could not parse Java version output.' };
+		}
+		// Java 9+ uses single-component versioning (e.g. "17", "21")
+		// Java 8 uses "1.8" format
+		const major = parseInt(match[1], 10);
+		const actualMajor = major === 1 ? parseInt(match[2] || '0', 10) : major;
+		if (actualMajor < 17) {
+			return {
+				ok: false,
+				error: `Java ${actualMajor} detected. Lavalink v4 requires Java 17 or higher (Java 21 LTS recommended). Please upgrade: https://www.azul.com/downloads/?package=jdk#zulu`
+			};
+		}
+		return { ok: true, version: actualMajor };
+	} catch {
+		return {
+			ok: false,
+			error: 'Java not found on PATH. Lavalink requires Java 17+ to run. Install Java 21 LTS: https://www.azul.com/downloads/?package=jdk#zulu'
+		};
+	}
+}
+
+export function clearYouTubeRefreshToken() {
+	const envPath = path.join(rootDir, '.env');
+	if (fs.existsSync(envPath)) {
+		let content = fs.readFileSync(envPath, 'utf-8');
+		content = content.replace(
+			/YOUTUBE_REFRESH_TOKEN\s*=\s*['"]?.*?['"]?/g,
+			() => 'YOUTUBE_REFRESH_TOKEN=""'
+		);
+		fs.writeFileSync(envPath, content, 'utf-8');
+	}
+	delete process.env.YOUTUBE_REFRESH_TOKEN;
+}
+
+/**
+ * Checks for configured music API keys in process.env.
+ * Returns boolean flags for youtube, spotify, soundcloud, and hasAny.
+ */
+export function getLavalinkKeyStatus() {
+	const ytToken = process.env.YOUTUBE_REFRESH_TOKEN?.trim();
+	const validYtToken = ytToken && ytToken.startsWith('1/') ? ytToken : null;
+
+	// If a token exists in env but doesn't start with 1/, auto-clear it
+	if (ytToken && !validYtToken) {
+		clearYouTubeRefreshToken();
+	}
+
+	const youtube = !!(process.env.YOUTUBE_API_KEY || validYtToken);
+	const spotify = !!(process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET);
+	const soundcloud = !!(process.env.SOUNDCLOUD_CLIENT_ID && process.env.SOUNDCLOUD_CLIENT_SECRET);
+	const hasAny = youtube || spotify || soundcloud;
+
+	return {
+		youtube,
+		spotify,
+		soundcloud,
+		hasAny
+	};
+}
+
+export function extractYouTubeRefreshToken(line) {
+	// Matches 1/ or 1// starting after whitespace, colon, equals, quote, or parenthesis
+	const match = line.match(/(?:^|[\s:='"(])(1\/[^\s"'<>()\\]+)/);
+	if (!match) return null;
+	let token = match[1].replace(/[.,;!)\s]+$/, '');
+	if (token.length >= 20 && token.startsWith('1/')) {
+		return token;
+	}
+	return null;
+}
+
+export function saveYouTubeRefreshToken(token) {
+	if (!token || !token.startsWith('1/')) return;
+	const envPath = path.join(rootDir, '.env');
+	if (!fs.existsSync(envPath)) return;
+
+	let content = fs.readFileSync(envPath, 'utf-8');
+	if (content.includes('YOUTUBE_REFRESH_TOKEN=')) {
+		content = content.replace(
+			/YOUTUBE_REFRESH_TOKEN\s*=\s*['"]?.*?['"]?/g,
+			() => `YOUTUBE_REFRESH_TOKEN="${token}"`
+		);
+	} else {
+		content += `\nYOUTUBE_REFRESH_TOKEN="${token}"\n`;
+	}
+
+	fs.writeFileSync(envPath, content, 'utf-8');
+	process.env.YOUTUBE_REFRESH_TOKEN = token;
+
+	const successBanner = `\n\x1b[1;32m====================================================================\x1b[0m\n\x1b[1;32m✅ [YOUTUBE REFRESH TOKEN AUTOMATICALLY CAPTURED & SAVED TO .ENV]\x1b[0m\n\x1b[1;36m Token:\x1b[0m ${token}\n\x1b[1;32m Future bot launches will now reuse this token automatically!\x1b[0m\n\x1b[1;32m====================================================================\x1b[0m\n\n`;
+	process.stdout.write(successBanner);
+}
+
 export function isAuthInfo(line) {
 	const lower = line.toLowerCase();
 
-	// Exclude Spring/Lavalink exception stack traces
 	if (
 		lower.includes('exception') ||
 		lower.includes('caused by:') ||
@@ -95,6 +198,18 @@ export function createLogWriter(fileStream, combinedStream) {
 		const lines = data.toString().split(/\r?\n/);
 		for (const line of lines) {
 			if (!line.trim()) continue;
+
+			// Auto-capture YouTube OAuth refresh token output from youtube-plugin
+			const token = extractYouTubeRefreshToken(line);
+			if (token) {
+				saveYouTubeRefreshToken(token);
+			}
+
+			if (line.includes('Invalid status code for oauth2 token fetch: 400')) {
+				clearYouTubeRefreshToken();
+				const errBanner = `\n\x1b[1;31m====================================================================\x1b[0m\n\x1b[1;31m⚠️  [INVALID YOUTUBE REFRESH TOKEN DETECTED]\x1b[0m\n\x1b[1;33m Google rejected the stored YouTube refresh token (HTTP 400 Bad Request).\x1b[0m\n\x1b[1;33m The invalid token has been automatically cleared from .env.\x1b[0m\n\x1b[1;36m Lavalink will now prompt for a fresh YouTube device authorization code.\x1b[0m\n\x1b[1;31m====================================================================\x1b[0m\n\n`;
+				process.stdout.write(errBanner);
+			}
 
 			if (isAuthInfo(line)) {
 				// DO NOT write sensitive auth info to disk log files!

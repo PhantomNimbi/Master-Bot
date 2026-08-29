@@ -24,7 +24,10 @@ export const env = createEnv({
 		YOUTUBE_API_KEY: z.string().optional(),
 		YOUTUBE_REFRESH_TOKEN: z.string().optional(),
 		SPOTIFY_CLIENT_ID: z.string().optional(),
-		SPOTIFY_CLIENT_SECRET: z.string().optional()
+		SPOTIFY_CLIENT_SECRET: z.string().optional(),
+		// SoundCloud (requires SoundCloud Artist Pro account)
+		SOUNDCLOUD_CLIENT_ID: z.string().optional(),
+		SOUNDCLOUD_CLIENT_SECRET: z.string().optional()
 	},
 	client: {},
 	/**

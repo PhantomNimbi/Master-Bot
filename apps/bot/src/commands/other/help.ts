@@ -1,18 +1,32 @@
-import {
-	PaginatedMessage,
-	PaginatedFieldMessageEmbed
-} from '@sapphire/discord.js-utilities';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions, container } from '@sapphire/framework';
 import {
-	ApplicationCommandOption,
+	ActionRowBuilder,
 	AutocompleteInteraction,
-	EmbedBuilder
+	ComponentType,
+	EmbedBuilder,
+	StringSelectMenuBuilder,
+	StringSelectMenuOptionBuilder
 } from 'discord.js';
+
+const CATEGORY_EMOJIS: Record<string, string> = {
+	music: '🎵',
+	gifs: '🖼️',
+	twitch: '🎮',
+	other: '⚙️'
+};
+
+const CATEGORY_NAMES: Record<string, string> = {
+	music: 'Music & Audio',
+	gifs: 'Reaction GIFs',
+	twitch: 'Twitch Live Alerts',
+	other: 'Utilities & General'
+};
 
 @ApplyOptions<CommandOptions>({
 	name: 'help',
-	description: 'Get the Command List or add a command-name to get more info.',
+	description:
+		'Explore the command list or view detailed info for a specific command.',
 	preconditions: ['isCommandDisabled']
 })
 export class HelpCommand extends Command {
@@ -26,136 +40,228 @@ export class HelpCommand extends Command {
 				.addStringOption(option =>
 					option
 						.setName('command-name')
-						.setDescription('Which command would you like to know about?')
+						.setDescription(
+							'Specify a command name to view detailed options and usage.'
+						)
+						.setAutocomplete(true)
 						.setRequired(false)
 				)
 		);
 	}
 
-	public override autocompleteRun(interaction: AutocompleteInteraction) {
-		const commands = interaction.client.application?.commands.cache;
+	public override async autocompleteRun(interaction: AutocompleteInteraction) {
 		const focusedOption = interaction.options.getFocused(true);
+		const commands = container.stores.get('commands');
 		const result = commands
-			?.sorted((a, b) => a.name.localeCompare(b.name))
-			.filter(choice => choice.name.startsWith(focusedOption.value.toString()))
-			.map(choice => ({ name: choice.name, value: choice.name }))
-			.slice(0, 10);
-		interaction;
-		return interaction.respond(result!);
+			.map(cmd => ({
+				name: `/${cmd.name} - ${cmd.description.slice(0, 50)}`,
+				value: cmd.name
+			}))
+			.filter(cmd =>
+				cmd.value
+					.toLowerCase()
+					.startsWith(focusedOption.value.toString().toLowerCase())
+			)
+			.slice(0, 25);
+
+		return interaction.respond(result);
 	}
+
 	public override async chatInputRun(
 		interaction: Command.ChatInputCommandInteraction
 	) {
 		const { client } = container;
+		const query = interaction
+			.options.getString('command-name')
+			?.toLowerCase();
+		const commandsStore = container.stores.get('commands');
 
-		const query = interaction.options.getString('command-name')?.toLowerCase();
-		const array: CommandInfo[] = [];
-
-		const app = client.application;
-		app?.commands.cache.each(command => {
-			array.push({
-				name: command.name,
-				options: command.options,
-				details: command.description
-			});
-		});
-
-		// Sort the array by name
-		const sortedList = array.sort((a, b) => {
-			let fa = a.name.toLowerCase(),
-				fb = b.name.toLowerCase();
-
-			if (fa < fb) {
-				return -1;
-			}
-			if (fa > fb) {
-				return 1;
-			}
-			return 0;
-		});
-
-		if (!query) {
-			let characters = 0;
-			let page = 0;
-			let message: string[] = [];
-			const PaginatedEmbed = new PaginatedMessage();
-			sortedList.forEach((command, index) => {
-				characters += command.details.length + command.details.length;
-				message.push(`> **/${command.name}** - ${command.details}\n`);
-
-				if (characters > 1500 || index == sortedList.length - 1) {
-					page++;
-					characters = 0;
-					PaginatedEmbed.addPageEmbed(
-						new EmbedBuilder()
-							.setTitle(`Command List - Page ${page}`)
-							.setThumbnail(app?.iconURL()!)
-							.setColor('Purple')
-							.setAuthor({
-								name: interaction.user.username + ' - Help Command',
-								iconURL: interaction.user.displayAvatarURL()
-							})
-							.setDescription(message.toString().replaceAll(',> **/', '> **/'))
-					);
-					message = [];
-				}
-			});
-
-			return PaginatedEmbed.run(interaction);
-		} else {
-			const commandMap = new Map();
-			sortedList.reduce(
-				(obj, command) => commandMap.set(command.name, command),
-				{}
-			);
-			if (commandMap.has(query)) {
-				const command: CommandInfo = commandMap.get(query);
-				const optionsList: any[] = [];
-				command.options.forEach(option => {
-					optionsList.push({
-						name: option.name,
-						description: option.description
-					});
+		// 1. Detailed Command Lookup Mode
+		if (query) {
+			const targetCommand = commandsStore.get(query);
+			if (!targetCommand) {
+				return await interaction.reply({
+					content: `:x: Could not find command **/${query}**. Use \`/help\` to browse available commands.`,
+					ephemeral: true
 				});
-				const DetailedPagination = new PaginatedFieldMessageEmbed();
+			}
 
-				const commandDetails = new EmbedBuilder()
-					.setAuthor({
-						name: interaction.user.username + ' - Help Command',
-						iconURL: interaction.user.displayAvatarURL()
+			const appCommand = client.application?.commands.cache.find(
+				c => c.name === query
+			);
+			const category = targetCommand.category?.toLowerCase() || 'other';
+			const categoryName = CATEGORY_NAMES[category] || 'General';
+			const categoryEmoji = CATEGORY_EMOJIS[category] || '⚙️';
+
+			const detailEmbed = new EmbedBuilder()
+				.setTitle(`${categoryEmoji} Command: /${targetCommand.name}`)
+				.setColor(0x5865f2)
+				.setThumbnail(client.user?.displayAvatarURL() || null)
+				.setDescription(`> ${targetCommand.description}`)
+				.addFields(
+					{
+						name: '📂 Category',
+						value: `${categoryEmoji} ${categoryName}`,
+						inline: true
+					},
+					{
+						name: '💻 Usage',
+						value: `\`/${targetCommand.name}${
+							appCommand?.options.length ? ' [options]' : ''
+						}\``,
+						inline: true
+					}
+				)
+				.setFooter({
+					text: 'Master-Bot Command Reference',
+					iconURL: client.user?.displayAvatarURL()
+				})
+				.setTimestamp();
+
+			if (appCommand && appCommand.options.length > 0) {
+				const optionsFormatted = appCommand.options
+					.map((opt: any) => {
+						const req = opt.required ? '`[Required]`' : '`[Optional]`';
+						return `• **${opt.name}** ${req}\n  ${opt.description}`;
 					})
-					.setThumbnail(app?.iconURL()!)
-					.setTitle(
-						`${
-							command.name.charAt(0).toUpperCase() +
-							command.name.slice(1).toLowerCase()
-						} - Details`
-					)
-					.setColor('Purple')
-					.setDescription(`**Description**\n> ${command.details}`);
+					.join('\n\n');
 
-				if (!command.options.length)
-					return await interaction.reply({ embeds: [commandDetails] });
+				detailEmbed.addFields({
+					name: '⚙️ Parameters & Options',
+					value: optionsFormatted
+				});
+			}
 
-				DetailedPagination.setTemplate(commandDetails)
-					.setTitleField('Options')
-					.setItems(command.options)
-					.formatItems(
-						(option: any) => `**${option.name}**\n> ${option.description}`
-					)
-					.setItemsPerPage(5)
-					.make();
-
-				return DetailedPagination.run(interaction);
-			} else
-				return await interaction.reply(
-					`:x: Command: **${query}** was not found`
-				);
+			return await interaction.reply({ embeds: [detailEmbed] });
 		}
-		interface CommandInfo {
-			name: string;
-			options: ApplicationCommandOption[];
-			details: string;
-		}
+
+		// 2. Full Overview & Interactive Category Browsing Mode
+		const categoriesMap = new Map<
+			string,
+			Array<{ name: string; description: string }>
+		>();
+
+		commandsStore.forEach(cmd => {
+			const category = cmd.category?.toLowerCase() || 'other';
+			if (!categoriesMap.has(category)) {
+				categoriesMap.set(category, []);
+			}
+			categoriesMap.get(category)?.push({
+				name: cmd.name,
+				description: cmd.description
+			});
+		});
+
+		const totalCommands = commandsStore.size;
+
+		const mainEmbed = new EmbedBuilder()
+			.setTitle('🤖 Master-Bot Command Center')
+			.setColor(0x5865f2)
+			.setThumbnail(client.user?.displayAvatarURL() || null)
+			.setDescription(
+				`Welcome to **Master-Bot**! Use the select menu below to explore commands by category or type \`/help [command-name]\` for specific usage details.\n\n` +
+					`**📊 Quick Stats:**\n` +
+					`• Total Commands: **${totalCommands}**\n` +
+					`• Categories: **${categoriesMap.size}**\n` +
+					`• Latency: **${client.ws.ping}ms**`
+			)
+			.setFooter({
+				text: 'Select a category below to view commands • Master-Bot',
+				iconURL: client.user?.displayAvatarURL()
+			})
+			.setTimestamp();
+
+		categoriesMap.forEach((cmds, cat) => {
+			const emoji = CATEGORY_EMOJIS[cat] || '⚙️';
+			const label = CATEGORY_NAMES[cat] || 'General';
+			mainEmbed.addFields({
+				name: `${emoji} ${label} (${cmds.length})`,
+				value: cmds.map(c => `\`/${c.name}\``).join('  '),
+				inline: false
+			});
+		});
+
+		const selectMenu = new StringSelectMenuBuilder()
+			.setCustomId('help_category_select')
+			.setPlaceholder('📂 Browse commands by category...')
+			.addOptions(
+				new StringSelectMenuOptionBuilder()
+					.setLabel('All Categories Overview')
+					.setValue('overview')
+					.setDescription('Return to the main help overview')
+					.setEmoji('🏠')
+			);
+
+		categoriesMap.forEach((cmds, cat) => {
+			const emoji = CATEGORY_EMOJIS[cat] || '⚙️';
+			const label = CATEGORY_NAMES[cat] || 'General';
+			selectMenu.addOptions(
+				new StringSelectMenuOptionBuilder()
+					.setLabel(label)
+					.setValue(cat)
+					.setDescription(`View all ${cmds.length} commands in ${label}`)
+					.setEmoji(emoji)
+			);
+		});
+
+		const row =
+			new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+				selectMenu
+			);
+
+		const response = await interaction.reply({
+			embeds: [mainEmbed],
+			components: [row],
+			fetchReply: true
+		});
+
+		const collector = response.createMessageComponentCollector({
+			componentType: ComponentType.StringSelect,
+			time: 60000
+		});
+
+		collector.on('collect', async i => {
+			if (i.user.id !== interaction.user.id) {
+				await i.reply({
+					content: '❌ Only the command initiator can use this menu.',
+					ephemeral: true
+				});
+				return;
+			}
+
+			const selectedCategory = i.values[0];
+
+			if (selectedCategory === 'overview') {
+				await i.update({ embeds: [mainEmbed] });
+				return;
+			}
+
+			const cmds = categoriesMap.get(selectedCategory) || [];
+			const emoji = CATEGORY_EMOJIS[selectedCategory] || '⚙️';
+			const label = CATEGORY_NAMES[selectedCategory] || 'General';
+
+			const categoryEmbed = new EmbedBuilder()
+				.setTitle(`${emoji} ${label} Commands (${cmds.length})`)
+				.setColor(0x5865f2)
+				.setThumbnail(client.user?.displayAvatarURL() || null)
+				.setDescription(
+					cmds
+						.map(c => `• **/${c.name}**\n  > ${c.description}`)
+						.join('\n\n')
+				)
+				.setFooter({
+					text: `Category: ${label} • Type /help [command] for options`,
+					iconURL: client.user?.displayAvatarURL()
+				})
+				.setTimestamp();
+
+			await i.update({ embeds: [categoryEmbed] });
+		});
+
+		collector.on('end', () => {
+			interaction.editReply({ components: [] }).catch(() => {});
+		});
+
+		return;
 	}
 }

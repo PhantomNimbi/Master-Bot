@@ -149,7 +149,7 @@ export class PlayCommand extends Command {
 			return;
 		}
 
-		queue.start();
+		await queue.start();
 
 		return await interaction.followUp({ content: message });
 	}

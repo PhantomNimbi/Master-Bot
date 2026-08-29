@@ -3,7 +3,6 @@ import '@sapphire/plugin-hmr/register';
 import { QueueClient } from '../music/classes/QueueClient';
 import Redis from 'ioredis';
 import {
-	GatewayDispatchEvents,
 	IntentsBitField,
 	NewsChannel,
 	TextChannel,
@@ -67,17 +66,17 @@ export class ExtendedClient extends SapphireClient {
 			clientId: process.env.DISCORD_CLIENT_ID
 		});
 
-		this.ws.on(GatewayDispatchEvents.VoiceServerUpdate, async data => {
-			await this.music.sendRawData(data);
-		});
-
-		this.ws.on(GatewayDispatchEvents.VoiceStateUpdate, async data => {
-			// handle if a mod right-clicks disconnect on the bot
-			if (!data.channel_id && data.user_id === this.application?.id) {
-				const queue = this.music.queues.get(data.guild_id);
-				await deletePlayerEmbed(queue);
-				await queue.clear();
-				queue.destroyPlayer();
+		this.on('raw', async (data: any) => {
+			if (data.t === 'VOICE_STATE_UPDATE') {
+				const d = data.d;
+				if (!d.channel_id && d.user_id === this.application?.id) {
+					const queue = this.music.queues.get(d.guild_id);
+					if (queue) {
+						await deletePlayerEmbed(queue);
+						await queue.clear();
+						await queue.destroyPlayer();
+					}
+				}
 			}
 			await this.music.sendRawData(data);
 		});

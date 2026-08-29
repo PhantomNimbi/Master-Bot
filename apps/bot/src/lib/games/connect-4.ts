@@ -87,7 +87,7 @@ export class Connect4Game {
 				.setFooter({ text: 'Incase of invisible board click 🔄' })
 				.setTimestamp();
 
-			await interaction.channel
+			await (interaction.channel as any)
 				?.send({ embeds: [Embed] })
 				.then(async (message: Message) => {
 					const embed = new EmbedBuilder(message.embeds[0].data);
@@ -311,7 +311,7 @@ export class Connect4Game {
 					}
 				}
 
-				return await interaction.channel
+				return await (interaction.channel as any)
 					?.send({
 						files: [
 							new AttachmentBuilder(canvas.toBuffer('image/png'), {
@@ -320,8 +320,7 @@ export class Connect4Game {
 						]
 					})
 					.then(async (result: Message) => {
-						boardImageURL = await result.attachments.entries().next().value[1]
-							.url;
+						boardImageURL = result.attachments.first()?.url ?? '';
 
 						result.delete();
 					})

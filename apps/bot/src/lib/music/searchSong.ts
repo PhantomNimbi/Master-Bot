@@ -1,6 +1,26 @@
 import { container } from '@sapphire/framework';
 import { Song } from './classes/Song';
 import type { User } from 'discord.js';
+import { env } from '../../env';
+
+/**
+ * Helper check functions for configured API keys / tokens.
+ */
+function hasSoundCloudKeys(): boolean {
+	return !!(env.SOUNDCLOUD_CLIENT_ID && env.SOUNDCLOUD_CLIENT_SECRET);
+}
+
+function hasSpotifyKeys(): boolean {
+	return !!(env.SPOTIFY_CLIENT_ID && env.SPOTIFY_CLIENT_SECRET);
+}
+
+function hasYouTubeKeys(): boolean {
+	return !!(env.YOUTUBE_API_KEY || env.YOUTUBE_REFRESH_TOKEN);
+}
+
+function hasAnyAudioKeys(): boolean {
+	return hasSoundCloudKeys() || hasSpotifyKeys() || hasYouTubeKeys();
+}
 
 export default async function searchSong(
 	query: string,
@@ -17,6 +37,13 @@ export default async function searchSong(
 		name: displayName
 	};
 
+	// 1. Check if any music API keys are configured. If none, Lavalink is disabled.
+	if (!hasAnyAudioKeys()) {
+		displayMessage =
+			':x: Lavalink audio engine is disabled because no music API keys (YouTube, Spotify, or SoundCloud) are configured in `.env`.';
+		return [displayMessage, tracks];
+	}
+
 	try {
 		const node = client.music.nodeManager.nodes.values().next().value;
 		if (!node) {
@@ -24,39 +51,96 @@ export default async function searchSong(
 			return [displayMessage, tracks];
 		}
 
-		const searchResult = await node.search(
-			query.startsWith('http') ? { query } : { query, source: 'ytsearch' },
-			requester
-		);
+		// 2. URL gating & direct resolution
+		if (query.startsWith('http')) {
+			const lowerQuery = query.toLowerCase();
+			if (lowerQuery.includes('spotify.com') && !hasSpotifyKeys()) {
+				displayMessage =
+					':x: Spotify playback is disabled because `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` are not set in `.env`.';
+				return [displayMessage, tracks];
+			}
+			if (lowerQuery.includes('soundcloud.com') && !hasSoundCloudKeys()) {
+				displayMessage =
+					':x: SoundCloud playback is disabled because `SOUNDCLOUD_CLIENT_ID` and `SOUNDCLOUD_CLIENT_SECRET` are not set in `.env`.';
+				return [displayMessage, tracks];
+			}
+			if (
+				(lowerQuery.includes('youtube.com') || lowerQuery.includes('youtu.be')) &&
+				!hasYouTubeKeys()
+			) {
+				displayMessage =
+					':x: YouTube playback is disabled because no `YOUTUBE_API_KEY` or `YOUTUBE_REFRESH_TOKEN` is configured in `.env`.';
+				return [displayMessage, tracks];
+			}
 
-		if (
-			!searchResult ||
-			!searchResult.tracks ||
-			searchResult.tracks.length === 0 ||
-			searchResult.loadType === 'empty' ||
-			searchResult.loadType === 'error'
-		) {
-			displayMessage = ":x: Couldn't find what you were looking for :(";
-			return [displayMessage, tracks];
+			// Direct URL search
+			const searchResult = await node.search({ query }, requester);
+			return processSearchResult(searchResult, query, requester, tracks);
 		}
 
-		if (searchResult.loadType === 'playlist') {
-			searchResult.tracks.forEach(track =>
-				tracks.push(new Song(track, Date.now(), requester))
+		// 3. Plain text query: determine search source order based on available keys
+		// Order of preference: YouTube -> SoundCloud -> Spotify (only including sources with keys)
+		const searchSources: string[] = [];
+		if (hasYouTubeKeys()) searchSources.push('ytsearch');
+		if (hasSoundCloudKeys()) searchSources.push('scsearch');
+		if (hasSpotifyKeys()) searchSources.push('spsearch');
+
+		for (const source of searchSources) {
+			const searchResult = await node.search(
+				{ query, source: source as any },
+				requester
 			);
-			displayMessage = `Queued playlist [**${
-				searchResult.playlist?.name || 'Playlist'
-			}**](${query}), it has a total of **${tracks.length}** tracks.`;
-		} else if (
-			searchResult.loadType === 'search' ||
-			searchResult.loadType === 'track'
-		) {
-			const track = searchResult.tracks[0];
-			tracks.push(new Song(track, Date.now(), requester));
-			displayMessage = `Queued [**${track.info.title}**](${track.info.uri})`;
+			if (
+				searchResult &&
+				searchResult.tracks &&
+				searchResult.tracks.length > 0 &&
+				searchResult.loadType !== 'empty' &&
+				searchResult.loadType !== 'error'
+			) {
+				return processSearchResult(searchResult, query, requester, tracks);
+			}
 		}
+
+		displayMessage = ":x: Couldn't find what you were looking for :(";
 	} catch (err) {
 		displayMessage = ":x: Couldn't find what you were looking for :(";
+	}
+
+	return [displayMessage, tracks];
+}
+
+function processSearchResult(
+	searchResult: any,
+	query: string,
+	requester: any,
+	tracks: Song[]
+): [string, Song[]] {
+	let displayMessage = '';
+	if (
+		!searchResult ||
+		!searchResult.tracks ||
+		searchResult.tracks.length === 0 ||
+		searchResult.loadType === 'empty' ||
+		searchResult.loadType === 'error'
+	) {
+		displayMessage = ":x: Couldn't find what you were looking for :(";
+		return [displayMessage, tracks];
+	}
+
+	if (searchResult.loadType === 'playlist') {
+		searchResult.tracks.forEach((track: any) =>
+			tracks.push(new Song(track, Date.now(), requester))
+		);
+		displayMessage = `Queued playlist [**${
+			searchResult.playlist?.name || 'Playlist'
+		}**](${query}), it has a total of **${tracks.length}** tracks.`;
+	} else if (
+		searchResult.loadType === 'search' ||
+		searchResult.loadType === 'track'
+	) {
+		const track = searchResult.tracks[0];
+		tracks.push(new Song(track, Date.now(), requester));
+		displayMessage = `Queued [**${track.info.title}**](${track.info.uri})`;
 	}
 
 	return [displayMessage, tracks];

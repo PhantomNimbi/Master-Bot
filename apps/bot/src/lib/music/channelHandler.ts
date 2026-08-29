@@ -10,9 +10,12 @@ export async function manageStageChannel(
 	if (voiceChannel.type !== ChannelType.GuildStageVoice) return;
 	// Stage Channel Permissions From Discord.js Doc's
 	if (
-		!botUser?.permissions.has(
-			('ManageChannels' && 'MuteMembers' && 'MoveMembers') || 'ADMINISTRATOR'
-		)
+		!botUser?.permissions.has([
+			'ManageChannels',
+			'MuteMembers',
+			'MoveMembers'
+		]) &&
+		!botUser?.permissions.has('Administrator')
 	)
 		if (botUser.voice.suppress)
 			return await instance.getTextChannel().then(
