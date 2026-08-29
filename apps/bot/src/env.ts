@@ -16,6 +16,7 @@ export const env = createEnv({
 		REDIS_PASSWORD: z.string().optional(),
 		REDIS_DB: z.string().optional(),
 		// Lavalink
+		LAVA_EXTERNAL: z.string().optional(),
 		LAVA_HOST: z.string().optional(),
 		LAVA_PORT: z.string().optional(),
 		LAVA_PASS: z.string().optional(),
