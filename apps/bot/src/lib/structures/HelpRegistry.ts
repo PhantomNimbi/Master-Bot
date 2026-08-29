@@ -1,0 +1,91 @@
+import { container } from '@sapphire/framework';
+import { isCommandNameGloballyDisabled } from '../../preconditions/isCommandDisabled';
+import type { CommandHelp } from './CommandHelp';
+
+export class HelpRegistry {
+	/**
+	 * Retrieves all enabled commands formatted as CommandHelp items.
+	 * Dynamically pulls from Sapphire's active command store and validates against
+	 * isCommandDisabled state (including LAVA_ENABLED).
+	 */
+	public static getEnabledCommands(): CommandHelp[] {
+		const commandsStore = container.stores.get('commands');
+		const result: CommandHelp[] = [];
+
+		commandsStore.forEach(cmd => {
+			const category = cmd.category?.toLowerCase() || 'other';
+
+			// Filter out disabled commands or categories using central isCommandDisabled check
+			if (!cmd.enabled) return;
+			if (isCommandNameGloballyDisabled(cmd.name) || isCommandNameGloballyDisabled(category)) {
+				return;
+			}
+
+			// Extract metadata from command instance or attached help property
+			const helpMeta = (cmd as any).help as CommandHelp | undefined;
+
+			result.push({
+				name: cmd.name,
+				category,
+				description: helpMeta?.description || cmd.description || `${cmd.name} command`,
+				usage: helpMeta?.usage || `/${cmd.name}`,
+				examples: helpMeta?.examples || [`/${cmd.name}`],
+				options: helpMeta?.options || [],
+				disabled: false
+			});
+		});
+
+		return result.sort((a, b) => a.name.localeCompare(b.name));
+	}
+
+	/**
+	 * Retrieves enabled commands grouped by category.
+	 */
+	public static getCategoriesMap(): Map<string, CommandHelp[]> {
+		const commands = this.getEnabledCommands();
+		const map = new Map<string, CommandHelp[]>();
+
+		for (const cmd of commands) {
+			if (!map.has(cmd.category)) {
+				map.set(cmd.category, []);
+			}
+			map.get(cmd.category)!.push(cmd);
+		}
+
+		return map;
+	}
+
+	/**
+	 * Finds a specific command help item by name, checking enablement against isCommandDisabled.
+	 */
+	public static getCommand(name: string): { help: CommandHelp | null; disabled: boolean } {
+		const cleanName = name.toLowerCase().replace(/^\//, '');
+		const commandsStore = container.stores.get('commands');
+		const cmd = commandsStore.get(cleanName);
+
+		if (!cmd) {
+			return { help: null, disabled: false };
+		}
+
+		const category = cmd.category?.toLowerCase() || 'other';
+		const isDisabled =
+			!cmd.enabled ||
+			isCommandNameGloballyDisabled(cmd.name) ||
+			isCommandNameGloballyDisabled(category);
+
+		const helpMeta = (cmd as any).help as CommandHelp | undefined;
+
+		return {
+			help: {
+				name: cmd.name,
+				category,
+				description: helpMeta?.description || cmd.description || `${cmd.name} command`,
+				usage: helpMeta?.usage || `/${cmd.name}`,
+				examples: helpMeta?.examples || [`/${cmd.name}`],
+				options: helpMeta?.options || [],
+				disabled: isDisabled
+			},
+			disabled: isDisabled
+		};
+	}
+}

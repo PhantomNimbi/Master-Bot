@@ -29,6 +29,23 @@ export class QueueClient extends LavalinkManager {
 			this,
 			options.redis instanceof Redis ? options.redis : new Redis(options.redis)
 		);
+
+		const patchNode = (node: any) => {
+			const originalUpdatePlayer = node.updatePlayer.bind(node);
+			node.updatePlayer = async (data: any) => {
+				if (data?.playerOptions?.voice && !data.playerOptions.voice.channelId) {
+					const player = this.getPlayer(data.guildId);
+					data.playerOptions.voice.channelId =
+						player?.voiceChannelId || player?.options?.voiceChannelId || '';
+				}
+				return originalUpdatePlayer(data);
+			};
+		};
+
+		for (const node of this.nodeManager.nodes.values()) {
+			patchNode(node);
+		}
+		this.nodeManager.on('create', node => patchNode(node));
 	}
 
 	public override destroyPlayer(guildId: string, destroyReason?: string) {

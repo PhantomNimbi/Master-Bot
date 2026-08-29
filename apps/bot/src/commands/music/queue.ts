@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
@@ -48,3 +49,12 @@ export class QueueCommand extends Command {
 			.run(interaction);
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'queue',
+	category: 'music',
+	description: 'Get a List of the Music Queue',
+	usage: '/queue',
+	examples: ['/queue'],
+	options: []
+};

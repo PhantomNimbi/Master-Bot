@@ -5,6 +5,7 @@ import {
 	ApplicationCommandPermissionType
 } from 'discord-api-types/v10';
 import { useState } from 'react';
+import { useParams } from 'next/navigation';
 import { api } from '~/utils/api';
 import { useToast } from '~/components/ui/use-toast';
 import {
@@ -21,14 +22,12 @@ interface Role {
 	color: number;
 }
 
-export default function CommandPage({
-	params
-}: {
-	params: {
+export default function CommandPage() {
+	const params = useParams<{
 		server_id: string;
 		command_id: string;
-	};
-}) {
+	}>();
+
 	const { data, isLoading } = api.command.getCommandAndGuildChannels.useQuery(
 		{
 			guildId: params.server_id,

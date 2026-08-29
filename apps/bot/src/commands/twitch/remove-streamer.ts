@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions, container } from '@sapphire/framework';
 import type { GuildChannel } from 'discord.js';
@@ -147,3 +148,23 @@ export class RemoveStreamerCommand extends Command {
 		);
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'remove-streamer',
+	category: 'twitch',
+	description: 'Add a Stream alert from your favorite Twitch streamer',
+	usage: '/remove-streamer <streamer-name> <channel-name>',
+	examples: ['/remove-streamer streamer-name: value channel-name: value'],
+	options: [
+		{
+				"name": "streamer-name",
+				"description": "What is the name of the Twitch streamer?",
+				"required": true
+		},
+		{
+				"name": "channel-name",
+				"description": "What is the name of the Channel you would like the Alert to be removed from?",
+				"required": true
+		}
+]
+};

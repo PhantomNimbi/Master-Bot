@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
@@ -52,3 +53,12 @@ export class BassboostCommand extends Command {
 		);
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'bassboost',
+	category: 'music',
+	description: 'Boost the bass of the playing track',
+	usage: '/bassboost',
+	examples: ['/bassboost'],
+	options: []
+};

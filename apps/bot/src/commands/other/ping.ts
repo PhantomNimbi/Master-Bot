@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 
@@ -19,3 +20,12 @@ export class PingCommand extends Command {
 		return interaction.reply({ content: 'Pong!' });
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'ping',
+	category: 'other',
+	description: 'Replies with pong!',
+	usage: '/ping',
+	examples: ['/ping'],
+	options: []
+};

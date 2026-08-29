@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
@@ -57,3 +58,18 @@ export class UrbanCommand extends Command {
 			});
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'urban',
+	category: 'other',
+	description: 'Get definitions from urban dictionary',
+	usage: '/urban <query>',
+	examples: ['/urban query: value'],
+	options: [
+		{
+				"name": "query",
+				"description": "What term do you want to look up?",
+				"required": true
+		}
+]
+};

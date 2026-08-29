@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
@@ -43,3 +44,23 @@ export class RandomCommand extends Command {
 		return await interaction.reply({ embeds: [rngEmbed] });
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'random',
+	category: 'other',
+	description: 'Generate a random number between two inputs!',
+	usage: '/random <min> <max>',
+	examples: ['/random min: value max: value'],
+	options: [
+		{
+				"name": "min",
+				"description": "What is the minimum number?",
+				"required": true
+		},
+		{
+				"name": "max",
+				"description": "What is the maximum number?",
+				"required": true
+		}
+]
+};

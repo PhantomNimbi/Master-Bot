@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
@@ -49,3 +50,12 @@ export class FortuneCommand extends Command {
 		}
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'fortune',
+	category: 'other',
+	description: 'Replies with a fortune cookie tip!',
+	usage: '/fortune',
+	examples: ['/fortune'],
+	options: []
+};

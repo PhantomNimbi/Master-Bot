@@ -11,7 +11,14 @@ const config = {
 	eslint: { ignoreDuringBuilds: true },
 	typescript: { ignoreBuildErrors: true },
 	images: {
-		domains: ['cdn.discordapp.com']
+		remotePatterns: [
+			{
+				protocol: 'https',
+				hostname: 'cdn.discordapp.com',
+				port: '',
+				pathname: '/**'
+			}
+		]
 	}
 };
 

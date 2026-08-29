@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
@@ -33,3 +34,12 @@ export class ResumeCommand extends Command {
 		await queue.resume(interaction);
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'resume',
+	category: 'music',
+	description: 'Resume the music',
+	usage: '/resume',
+	examples: ['/resume'],
+	options: []
+};

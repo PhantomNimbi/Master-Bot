@@ -28,29 +28,35 @@ Place `Lavalink.jar` in the root workspace directory alongside `application.yml`
 ## 3. Configuration (`application.yml`)
 
 The repository includes a preconfigured `application.yml` supporting:
-- `youtube-plugin` (`dev.lavalink.youtube:youtube-plugin:1.18.2`): Modern YouTube playback engine supporting OAuth 2.0 device flow with all active YouTube clients (`MUSIC`, `WEB`, `WEBEMBEDDED`, `ANDROID_VR`, `TVHTML5`).
-- `lavasrc-plugin` (`com.github.topi314.lavasrc:lavasrc-plugin:4.8.3`): Spotify, Deezer, Apple Music metadata resolution.
+- `youtube-plugin` (`dev.lavalink.youtube:youtube-plugin:1.18.2`): Modern YouTube playback engine supporting OAuth 2.0 device flow with multi-client InnerTube failover:
+  - `MUSIC` (`WEB_REMIX`): YouTube Music endpoints (bypasses video player ciphers).
+  - `ANDROID_VR`: Android VR streaming client.
+  - `WEB`: Standard Web player client.
+  - `WEBEMBEDDED` (`WEB_EMBEDDED_PLAYER`): Embedded player for restricted content.
+  - `IOS`: Direct audio stream extraction from iOS InnerTube endpoints.
+  - `TV` (`TVHTML5`): OAuth 2.0 device flow authentication endpoint.
+- `lavasrc-plugin` (`com.github.topi314.lavasrc:lavasrc-plugin:4.8.3`): Spotify metadata resolution via ISRC/query search fallback.
 
 > [!NOTE]
-> The `TVHTML5_SIMPLY` client was removed in youtube-plugin v1.14.0+ as Google deprecated it. The current client list is correct and should not be modified.
+> The built-in SoundCloud source (free, no API keys required) is used for SoundCloud playback with `filterOutPreviewTracks: true` to ensure only full-length tracks are returned. The `lavasrc` SoundCloud source (which requires paid Artist Pro API keys) is disabled.
 
 ---
 
-## 4. Automated YouTube OAuth Device Flow
+## 4. Automated YouTube OAuth Device Flow & Token Persistence
 
 YouTube playback requires OAuth 2.0 authentication to prevent IP rate limits and bot verification blocks.
 
 ### Initial Setup Authorization
-1. On launch, if `YOUTUBE_REFRESH_TOKEN` is missing in `.env`, Lavalink's `youtube-plugin` triggers a device authorization flow.
+1. On launch, if `YOUTUBE_REFRESH_TOKEN` is missing from `.env` and `.youtube-oauth.json`, Lavalink's `youtube-plugin` triggers a device authorization flow.
 2. The launcher prints a formatted banner directly to the **terminal console** containing:
    - Verification Link: `https://www.google.com/device`
    - User Code: `XXXX-XXXX`
 3. Visit the link in your browser and enter the code to grant authorization.
-4. The launcher automatically intercepts the issued token, saves `YOUTUBE_REFRESH_TOKEN` into `.env`, and updates runtime environment variables.
-5. On future launches, `pnpm dev` and `pnpm start` supply `-Dplugins.youtube.oauth.refreshToken=...` to Lavalink automatically via JVM argument.
+4. The launcher automatically intercepts the issued token and writes it atomically to `.youtube-oauth.json` (gitignored), setting `process.env.YOUTUBE_REFRESH_TOKEN` for the session.
+5. Lavalink binds the token natively via `refreshToken: "${YOUTUBE_REFRESH_TOKEN}"` in `application.yml`, eliminating `.env` disk corruption while surviving reboots.
 
 ### Token Auto-Refresh
-Once a valid `YOUTUBE_REFRESH_TOKEN` is stored, Lavalink's youtube-plugin handles short-lived access token refresh internally every ~60 minutes. No manual intervention is required.
+Once a valid `YOUTUBE_REFRESH_TOKEN` is present, Lavalink's `youtube-plugin` handles short-lived access token refresh internally every ~60 minutes. No manual intervention is required.
 
 ---
 

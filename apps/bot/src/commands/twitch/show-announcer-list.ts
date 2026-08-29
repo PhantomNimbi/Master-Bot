@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions, container } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
@@ -98,3 +99,12 @@ export class ShowAnnouncerListCommand extends Command {
 		);
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'show-announcer-list',
+	category: 'twitch',
+	description: 'Display the Guilds Twitch notification list',
+	usage: '/show-announcer-list',
+	examples: ['/show-announcer-list'],
+	options: []
+};

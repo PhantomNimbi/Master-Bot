@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
@@ -56,3 +57,18 @@ export class SeekCommand extends Command {
 		return await interaction.reply(`Seeked to ${seconds} seconds`);
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'seek',
+	category: 'music',
+	description: 'Seek to a desired point in a track',
+	usage: '/seek <seconds>',
+	examples: ['/seek seconds: value'],
+	options: [
+		{
+				"name": "seconds",
+				"description": "To what point in the track do you want to seek? (in seconds)",
+				"required": true
+		}
+]
+};

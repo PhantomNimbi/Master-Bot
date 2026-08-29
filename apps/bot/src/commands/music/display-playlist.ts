@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
@@ -76,3 +77,18 @@ export class DisplayPlaylistCommand extends Command {
 		return;
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'display-playlist',
+	category: 'music',
+	description: 'Display a saved playlist',
+	usage: '/display-playlist <playlist-name>',
+	examples: ['/display-playlist playlist-name: value'],
+	options: [
+		{
+				"name": "playlist-name",
+				"description": "What is the name of the playlist you want to display?",
+				"required": true
+		}
+]
+};

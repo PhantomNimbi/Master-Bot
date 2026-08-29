@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
@@ -49,3 +50,18 @@ export class VolumeCommand extends Command {
 		);
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'volume',
+	category: 'music',
+	description: 'Set the Volume',
+	usage: '/volume <setting>',
+	examples: ['/volume setting: value'],
+	options: [
+		{
+				"name": "setting",
+				"description": "What Volume? (0 to 200)",
+				"required": true
+		}
+]
+};

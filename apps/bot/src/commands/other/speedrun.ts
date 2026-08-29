@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { PaginatedMessage } from '@sapphire/discord.js-utilities';
 import { Command, CommandOptions } from '@sapphire/framework';
@@ -340,3 +341,23 @@ export class SpeedRunCommand extends Command {
 		return str;
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'speedrun',
+	category: 'other',
+	description: 'Look for the world record of a game!',
+	usage: '/speedrun <game> [category]',
+	examples: ['/speedrun game: value category: value'],
+	options: [
+		{
+				"name": "game",
+				"description": "Video Game Title?",
+				"required": true
+		},
+		{
+				"name": "category",
+				"description": "speed run Category?",
+				"required": false
+		}
+]
+};

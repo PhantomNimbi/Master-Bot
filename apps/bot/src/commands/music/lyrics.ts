@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
@@ -79,3 +80,18 @@ export class LyricsCommand extends Command {
 		}
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'lyrics',
+	category: 'music',
+	description: 'Get the lyrics of any song or the lyrics of the currently playing song!',
+	usage: '/lyrics <title>',
+	examples: ['/lyrics title: value'],
+	options: [
+		{
+				"name": "title",
+				"description": ":mag: What song lyrics would you like to get?",
+				"required": true
+		}
+]
+};

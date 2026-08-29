@@ -8,18 +8,19 @@ export default async function Layout({
 	params,
 	children
 }: {
-	params: { server_id: string };
+	params: Promise<{ server_id: string }>;
 	children: React.ReactNode;
 }) {
+	const { server_id } = await params;
 	const session = await auth();
 
-	if (!session?.user) {
+	if (!session?.user?.discordId) {
 		redirect('/');
 	}
 
 	const guild = await prisma.guild.findUnique({
 		where: {
-			id: params.server_id,
+			id: server_id,
 			ownerId: session.user.discordId
 		}
 	});
@@ -31,7 +32,7 @@ export default async function Layout({
 	return (
 		<div className="flex h-screen">
 			<section className="border-r border-slate-600 px-6 py-4">
-				<Sidebar server_id={params.server_id} />
+				<Sidebar server_id={server_id} />
 			</section>
 			<section className="flex-1 flex flex-col">
 				<header className="flex justify-end px-6 py-4">

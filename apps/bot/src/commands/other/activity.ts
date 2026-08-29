@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { ChannelType, GuildMember, VoiceChannel } from 'discord.js';
@@ -69,3 +70,23 @@ export class ActivityCommand extends Command {
 		}
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'activity',
+	category: 'other',
+	description: 'Generate an invite link to your voice channel',
+	usage: '/activity <channel> <activity>',
+	examples: ['/activity channel: value activity: value'],
+	options: [
+		{
+				"name": "channel",
+				"description": "Channel to invite to",
+				"required": true
+		},
+		{
+				"name": "activity",
+				"description": "Activity to invite to",
+				"required": true
+		}
+]
+};

@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { MessageChannel } from '../../lib/structures/ExtendedClient';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions, container } from '@sapphire/framework';
@@ -181,3 +182,23 @@ export class AddStreamerCommand extends Command {
 		);
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'add-streamer',
+	category: 'twitch',
+	description: 'Add a Stream alert from your favorite Twitch streamer',
+	usage: '/add-streamer <streamer-name> <channel-name>',
+	examples: ['/add-streamer streamer-name: value channel-name: value'],
+	options: [
+		{
+				"name": "streamer-name",
+				"description": "What is the name of the Twitch streamer?",
+				"required": true
+		},
+		{
+				"name": "channel-name",
+				"description": "What is the name of the Channel you would like the alert to be sent to?",
+				"required": true
+		}
+]
+};

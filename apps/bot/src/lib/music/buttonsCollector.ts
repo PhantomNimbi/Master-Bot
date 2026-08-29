@@ -117,15 +117,19 @@ export async function deletePlayerEmbed(queue: Queue) {
 		const embedID = await queue.getEmbed();
 		if (embedID) {
 			const channel = await queue.getTextChannel();
-			await channel?.messages.fetch(embedID).then(async oldMessage => {
-				if (oldMessage)
-					await oldMessage.delete().catch(error => {
-						Logger.error('Failed to Delete Old Message. ' + error);
-					});
-				await queue.deleteEmbed();
-			});
+			if (channel) {
+				try {
+					const oldMessage = await channel.messages.fetch(embedID);
+					if (oldMessage && oldMessage.deletable) {
+						await oldMessage.delete();
+					}
+				} catch {
+					// Message already deleted by user or channel purged
+				}
+			}
+			await queue.deleteEmbed();
 		}
 	} catch (error) {
-		Logger.error('Failed to Delete Player Embed. ' + error);
+		Logger.error('Failed to Delete Player Embed: ', error);
 	}
 }

@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
@@ -48,3 +49,12 @@ export class TrumpCommand extends Command {
 			});
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'trump',
+	category: 'other',
+	description: 'Replies with a random Trump quote',
+	usage: '/trump',
+	examples: ['/trump'],
+	options: []
+};

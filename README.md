@@ -7,6 +7,9 @@
 
 **Master-Bot** is a production-ready, high-performance Discord Music and Utility Bot monorepo featuring a full-featured **Next.js Web Dashboard**. Built with **TypeScript**, **Sapphire Framework**, **discord.js v14**, **Next.js 14**, **tRPC v11**, **Prisma ORM**, **Redis**, and **Lavalink v4**.
 
+> [!NOTE]
+> **Audio Engine Status Notice:** Music playback commands are currently disabled while comprehensive cross-platform YouTube audio engine upgrades and custom plugin developments are underway. All web dashboard features, moderation tools, utilities, and guild management systems remain fully operational.
+
 ---
 
 ## 🏗️ Architecture & Monorepo Structure
@@ -37,14 +40,14 @@ Master-Bot/
 
 ## ⚡ Key Features
 
-- **🎵 High-Performance Audio Engine:** Powered by **Lavalink v4** with support for YouTube, Spotify metadata resolution (`lavasrc-plugin`), Vimeo, Twitch, and direct audio streams.
-- **🔑 Native YouTube Device Flow OAuth:**
-  - Automated detection and prompt display directly in the unified terminal console.
-  - Automatic owner Direct Message prompt on bot startup if unauthenticated.
-  - `/youtube-auth` slash command for bot application owners.
-  - Automatic interception and persistence of `YOUTUBE_REFRESH_TOKEN` into `.env`.
+- **🎵 High-Performance Audio Engine:** Powered by **Lavalink v4** with support for YouTube, Spotify metadata resolution (`lavasrc-plugin`), SoundCloud fallback, Vimeo, Twitch, and direct audio streams.
+- **🗄️ Automatic Database Migrations:** `pnpm dev` and `pnpm start` automatically execute `prisma db push` on launch before the bot process starts.
+- **🔑 Native YouTube Device Flow OAuth & In-Memory Protection:**
+  - Automated detection and formatted device code prompt displayed directly in the terminal console.
+  - Runtime token capture updates `process.env.YOUTUBE_REFRESH_TOKEN` strictly in process memory.
+  - Native Spring environment variable binding (`refreshToken: "${YOUTUBE_REFRESH_TOKEN}"` in `application.yml`) prevents file mutation and `.env` disk corruption.
 - **🌐 Interactive Web Dashboard:** Next.js 14 dashboard with Discord OAuth login, live command logs, server settings, and real-time audio statistics.
-- **🚀 Cross-Platform Unified Launchers:** `pnpm dev` and `pnpm start` automatically manage ports (`3000`, `6379`, `2333`), clear lingering processes, route output to isolated log files, and present a clean unified console UI.
+- **🚀 Cross-Platform Unified Launchers:** `pnpm dev` and `pnpm start` automatically manage ports (`3000`, `6379`, `2333`), clear lingering processes, route output to isolated log files (`logs/`), and present a clean console status UI.
 - **🖼️ Reaction GIFs & Media:** Powered by Klipy API and Waifu.im.
 - **🎮 Gaming & Info:** Live Twitch channel alerts, IGDB game search, and TVMaze TV show info.
 
@@ -78,7 +81,7 @@ Copy `.env.example` to `.env` in the root folder:
 cp .env.example .env
 ```
 
-Ensure the following key variables are configured:
+Ensure key environment variables are configured:
 
 ```env
 # Database & Redis
@@ -101,17 +104,11 @@ LAVA_PORT=2333
 LAVA_PASS="youshallnotpass"
 ```
 
-### 3. Initialize Database Schema
-
-```bash
-pnpm db:push
-```
-
-### 4. Download Lavalink v4 Server
+### 3. Download Lavalink v4 Server
 
 Download the latest `Lavalink.jar` release from [lavalink-devs/Lavalink Releases](https://github.com/lavalink-devs/Lavalink/releases) and place it in the project root directory alongside `application.yml`.
 
-### 5. Launch Development Services
+### 4. Launch Development Services
 
 Run the unified launcher:
 
@@ -119,7 +116,8 @@ Run the unified launcher:
 pnpm dev
 ```
 
-The unified console will start all services simultaneously:
+The launcher will automatically execute `prisma db push` to synchronize the database schema before launching all services simultaneously:
+- 🗄️ **Database Sync:** Applied automatically on launch
 - 🤖 **Bot Service:** Logs written to `logs/bot.log`
 - 🌐 **Web Dashboard:** Running at [http://localhost:3000](http://localhost:3000) (Logs: `logs/dashboard.log`)
 - 🎵 **Lavalink Audio Server:** Running at `localhost:2333` (Logs: `logs/lavalink.log`)
@@ -127,14 +125,14 @@ The unified console will start all services simultaneously:
 
 ---
 
-## 🔑 YouTube OAuth Setup
+## 🔑 YouTube OAuth Device Flow
 
-When launching for the first time without a refresh token:
-1. The bot will send a **Direct Message** to the bot owner (and print a prominent banner in the terminal console) with a verification URL (`https://www.google.com/device`) and code (`XXXX-XXXX`).
-2. Visit the URL, enter the code, and grant approval in your browser.
-3. The launcher automatically intercepts the issued token and saves `YOUTUBE_REFRESH_TOKEN` into your `.env` file.
-4. Future runs will reuse this saved token automatically.
-5. You can also re-trigger authorization at any time using the owner-only `/youtube-auth` slash command in Discord.
+When launching for the first time without a YouTube refresh token:
+1. Lavalink's `youtube-plugin` triggers the OAuth device flow.
+2. The launcher displays a prompt in the terminal console containing the link (`https://www.google.com/device`) and user code (`XXXX-XXXX`).
+3. Visit the link in your browser and authorize the device code.
+4. The launcher automatically captures the issued token into process memory (`process.env.YOUTUBE_REFRESH_TOKEN`).
+5. Lavalink binds the in-memory token natively via `${YOUTUBE_REFRESH_TOKEN}` in `application.yml` without modifying disk files.
 
 ---
 

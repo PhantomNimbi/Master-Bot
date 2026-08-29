@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
@@ -68,3 +69,23 @@ export class MoveCommand extends Command {
 		return;
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'move',
+	category: 'music',
+	description: 'Move a track to a different position in queue',
+	usage: '/move <current-position> <new-position>',
+	examples: ['/move current-position: value new-position: value'],
+	options: [
+		{
+				"name": "current-position",
+				"description": "What is the position of the song you want to move?",
+				"required": true
+		},
+		{
+				"name": "new-position",
+				"description": "What is the position you want to move the song to?",
+				"required": true
+		}
+]
+};

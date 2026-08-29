@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
@@ -35,3 +36,12 @@ export class LeaveCommand extends Command {
 		await interaction.reply({ content: 'Left the voice channel.' });
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'leave',
+	category: 'music',
+	description: 'Make the bot leave its voice channel and stop playing music',
+	usage: '/leave',
+	examples: ['/leave'],
+	options: []
+};

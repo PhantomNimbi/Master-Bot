@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
@@ -29,3 +30,12 @@ export class AboutCommand extends Command {
 		return interaction.reply({ embeds: [embed] });
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'about',
+	category: 'other',
+	description: 'Display info about the bot!',
+	usage: '/about',
+	examples: ['/about'],
+	options: []
+};

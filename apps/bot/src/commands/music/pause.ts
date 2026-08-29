@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
@@ -33,3 +34,12 @@ export class PauseCommand extends Command {
 		await queue.pause(interaction);
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'pause',
+	category: 'music',
+	description: 'Pause the music',
+	usage: '/pause',
+	examples: ['/pause'],
+	options: []
+};

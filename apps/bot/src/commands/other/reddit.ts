@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import {
@@ -229,3 +230,23 @@ const optionsArray = [
 		value: 'all'
 	}
 ];
+
+export const help: CommandHelp = {
+	name: 'reddit',
+	category: 'other',
+	description: 'Get posts from reddit by specifying a subreddit',
+	usage: '/reddit <subreddit> <sort>',
+	examples: ['/reddit subreddit: value sort: value'],
+	options: [
+		{
+				"name": "subreddit",
+				"description": "Subreddit name",
+				"required": true
+		},
+		{
+				"name": "sort",
+				"description": "What posts do you want to see? Select from best/hot/top/new/controversial/rising",
+				"required": true
+		}
+]
+};

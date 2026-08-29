@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { TicTacToeGame } from '../../lib/games/tic-tac-toe';
 import { Connect4Game } from '../../lib/games/connect-4';
 import { GameInvite } from '../../lib/games/inviteEmbed';
@@ -146,3 +147,12 @@ export class GamesCommand extends Command {
 		);
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'games',
+	category: 'other',
+	description: 'Play games like Connect 4 and Tic Tac Toe with another person',
+	usage: '/games',
+	examples: ['/games'],
+	options: []
+};

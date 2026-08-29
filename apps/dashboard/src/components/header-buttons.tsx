@@ -27,19 +27,29 @@ export default async function HeaderButtons() {
 				<Button>Code on Github</Button>
 			</a>
 
-			{session ? (
+			{session?.user ? (
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<div className="flex items-center gap-3 hover:cursor-pointer">
-							<Image
-								src={`https://cdn.discordapp.com/avatars/${session.user.discordId}/${session.user.image}.webp?size=512`}
-								className="h-8 w-8 rounded-full"
-								width={32}
-								height={32}
-								alt="user avatar"
-							/>
+							{session.user.image ? (
+								<Image
+									src={
+										session.user.image.startsWith('http')
+											? session.user.image
+											: `https://cdn.discordapp.com/avatars/${session.user.discordId}/${session.user.image}.webp?size=512`
+									}
+									className="h-8 w-8 rounded-full"
+									width={32}
+									height={32}
+									alt="user avatar"
+								/>
+							) : (
+								<div className="h-8 w-8 rounded-full bg-slate-600 flex items-center justify-center text-xs text-white">
+									{session.user.name?.[0] || 'U'}
+								</div>
+							)}
 							<h1 className="dark:text-white text-black">
-								{session.user.name}
+								{session.user.name || 'User'}
 							</h1>
 						</div>
 					</DropdownMenuTrigger>

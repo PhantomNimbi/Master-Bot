@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
@@ -39,3 +40,12 @@ export class VaporWaveCommand extends Command {
 		);
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'vaporwave',
+	category: 'music',
+	description: 'Apply vaporwave on the playing track!',
+	usage: '/vaporwave',
+	examples: ['/vaporwave'],
+	options: []
+};

@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
@@ -48,3 +49,12 @@ export class KanyeCommand extends Command {
 		});
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'kanye',
+	category: 'other',
+	description: 'Replies with a random Kanye quote',
+	usage: '/kanye',
+	examples: ['/kanye'],
+	options: []
+};

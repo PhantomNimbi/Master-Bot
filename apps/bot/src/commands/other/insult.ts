@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
@@ -50,3 +51,12 @@ export class InsultCommand extends Command {
 		}
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'insult',
+	category: 'other',
+	description: 'Replies with a mean insult',
+	usage: '/insult',
+	examples: ['/insult'],
+	options: []
+};

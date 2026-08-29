@@ -17,7 +17,6 @@ const getBaseUrl = () => {
 
 export function TRPCReactProvider(props: {
 	children: React.ReactNode;
-	headers?: Headers;
 }) {
 	const [queryClient] = useState(
 		() =>
@@ -42,9 +41,7 @@ export function TRPCReactProvider(props: {
 					transformer: superjson,
 					url: `${getBaseUrl()}/api/trpc`,
 					headers() {
-						const headers = new Map(props.headers);
-						headers.set('x-trpc-source', 'nextjs-react');
-						return Object.fromEntries(headers);
+						return { 'x-trpc-source': 'nextjs-react' };
 					}
 				})
 			]

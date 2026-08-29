@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { PaginatedFieldMessageEmbed } from '@sapphire/discord.js-utilities';
@@ -60,3 +61,12 @@ export class MyPlaylistsCommand extends Command {
 		return;
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'my-playlists',
+	category: 'music',
+	description: 'Display your custom playlists',
+	usage: '/my-playlists',
+	examples: ['/my-playlists'],
+	options: []
+};

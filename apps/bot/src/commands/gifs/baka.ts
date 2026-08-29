@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { searchGif } from '../../lib/gifs/searchGif';
@@ -27,3 +28,12 @@ export class BakaCommand extends Command {
 		return await interaction.reply({ content: gifUrl });
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'baka',
+	category: 'gifs',
+	description: 'Replies with a random baka gif!',
+	usage: '/baka',
+	examples: ['/baka'],
+	options: []
+};

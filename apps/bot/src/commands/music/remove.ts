@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
@@ -50,3 +51,18 @@ export class RemoveCommand extends Command {
 		});
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'remove',
+	category: 'music',
+	description: 'Remove a track from the queue',
+	usage: '/remove <position>',
+	examples: ['/remove position: value'],
+	options: [
+		{
+				"name": "position",
+				"description": "What is the position of the song you want to remove from the queue?",
+				"required": true
+		}
+]
+};

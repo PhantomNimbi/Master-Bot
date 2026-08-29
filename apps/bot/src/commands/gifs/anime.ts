@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { searchGif } from '../../lib/gifs/searchGif';
@@ -27,3 +28,12 @@ export class AnimeCommand extends Command {
 		return await interaction.reply({ content: gifUrl });
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'anime',
+	category: 'gifs',
+	description: 'Replies with a random anime gif!',
+	usage: '/anime',
+	examples: ['/anime'],
+	options: []
+};

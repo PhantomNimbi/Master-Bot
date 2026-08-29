@@ -2,6 +2,7 @@ import { ExtendedClient } from './lib/structures/ExtendedClient';
 import { env } from './env';
 import {
 	ApplicationCommandRegistries,
+	Events,
 	RegisterBehavior
 } from '@sapphire/framework';
 import { ActivityType } from 'discord.js';
@@ -15,85 +16,178 @@ ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
 
 const client = new ExtendedClient();
 
-client.on('ready', async () => {
-	await client.music.init({
-		id: client.user!.id,
-		username: client.user!.username
-	});
-	client.user?.setActivity('/', {
+const isLavalinkEnabled =
+	(env.LAVA_ENABLED || process.env.LAVA_ENABLED)?.toLowerCase() === 'true';
+
+client.on(Events.ClientReady, async () => {
+	if (!client.user) return;
+
+	if (isLavalinkEnabled) {
+		try {
+			await client.music.init({
+				id: client.user.id,
+				username: client.user.username
+			});
+			Logger.info('Lavalink client initialized successfully.');
+		} catch (err) {
+			Logger.error('Failed to initialize Lavalink client: ', err);
+		}
+	} else {
+		Logger.info(
+			'Lavalink audio engine is currently disabled while music commands undergo upgrades.'
+		);
+	}
+
+	client.user.setActivity('/', {
 		type: ActivityType.Watching
 	});
+	client.user.setStatus('online');
 
-	client.user?.setStatus('online');
-	const token = client.twitch.auth.access_token;
-	if (!token) return;
+	// Twitch notification setup
+	const isTwitchEnabled =
+		(env.TWITCH_ENABLED || process.env.TWITCH_ENABLED)?.toLowerCase() !==
+		'false';
 
-	// happens to be the first DB call at start up
-	try {
-		const notifyDB = await trpcNode.twitch.getAll.query();
+	if (
+		isTwitchEnabled &&
+		process.env.TWITCH_CLIENT_ID &&
+		process.env.TWITCH_CLIENT_SECRET
+	) {
+		const initTwitch = async () => {
+			try {
+				const notifyDB = await trpcNode.twitch.getAll.query();
+				const query = notifyDB.notifications.map(user => {
+					client.twitch.notifyList[user.twitchId] = {
+						sendTo: user.channelIds,
+						logo: user.logo,
+						live: user.live,
+						messageSent: user.sent,
+						messageHandler: {}
+					};
+					return user.twitchId;
+				});
 
-		const query: string[] = [];
-		for (const user of notifyDB.notifications) {
-			query.push(user.twitchId);
-			client.twitch.notifyList[user.twitchId] = {
-				sendTo: user.channelIds,
-				logo: user.logo,
-				live: user.live,
-				messageSent: user.sent,
-				messageHandler: {}
-			};
-		}
-		await notify(query).then(() =>
-			setInterval(async () => {
-				const newQuery: string[] = [];
-				// pickup newly added entries
-				for (const key in client.twitch.notifyList) {
-					newQuery.push(key);
+				if (query.length > 0) {
+					await notify(query);
 				}
-				await notify(newQuery);
-			}, 60 * 1000)
-		);
-	} catch (err) {
-		Logger.error('Prisma ' + err);
+
+				setInterval(async () => {
+					try {
+						const newQuery = Object.keys(client.twitch.notifyList);
+						if (newQuery.length > 0) {
+							await notify(newQuery);
+						}
+					} catch (intervalErr) {
+						Logger.error('Twitch notification polling error: ', intervalErr);
+					}
+				}, 60 * 1000);
+			} catch (err) {
+				Logger.error('Twitch database sync error: ', err);
+			}
+		};
+
+		// If access token is already available, run immediately; otherwise wait briefly for auth
+		if (client.twitch.auth.access_token) {
+			void initTwitch();
+		} else {
+			setTimeout(() => void initTwitch(), 3000);
+		}
 	}
 });
 
-client.on('chatInputCommandError', err => {
-	console.log('Command Chat Input ' + err);
-});
-client.on('contextMenuCommandError', err => {
-	console.log('Command Context Menu ' + err);
-});
-client.on('commandAutocompleteInteractionError', err => {
-	console.log('Command Autocomplete ' + err);
-});
-client.on('commandApplicationCommandRegistryError', err => {
-	console.log('Command Registry ' + err);
-});
-client.on('messageCommandError', err => {
-	console.log('Command ' + err);
-});
-client.on('interactionHandlerError', err => {
-	console.log('Interaction ' + err);
-});
-client.on('interactionHandlerParseError', err => {
-	console.log('Interaction Parse ' + err);
+// Sapphire Framework Error Events
+client.on(Events.ChatInputCommandError, (error, payload) => {
+	Logger.error(`Command Chat Input Error [${payload?.command?.name || 'unknown'}]: `, error);
 });
 
-client.on('listenerError', err => {
-	console.log('Client Listener ' + err);
+client.on(Events.ContextMenuCommandError, (error, payload) => {
+	Logger.error(`Command Context Menu Error [${payload?.command?.name || 'unknown'}]: `, error);
 });
 
-// LavaLink
-client.music.nodeManager.on('error', (node, err) => {
-	console.log('LavaLink ' + err);
+client.on(Events.CommandAutocompleteInteractionError, (error, payload) => {
+	Logger.error(`Command Autocomplete Error [${payload?.command?.name || 'unknown'}]: `, error);
 });
+
+client.on(Events.CommandApplicationCommandRegistryError, (error, command) => {
+	Logger.error(`Command Registry Error [${command?.name || 'unknown'}]: `, error);
+});
+
+client.on(Events.MessageCommandError, (error, payload) => {
+	Logger.error(`Message Command Error [${payload?.command?.name || 'unknown'}]: `, error);
+});
+
+client.on(Events.InteractionHandlerError, (error, payload) => {
+	Logger.error(`Interaction Handler Error [${payload?.handler?.name || 'unknown'}]: `, error);
+});
+
+client.on(Events.InteractionHandlerParseError, (error, payload) => {
+	Logger.error(`Interaction Handler Parse Error [${payload?.handler?.name || 'unknown'}]: `, error);
+});
+
+client.on(Events.ListenerError, (error, payload) => {
+	Logger.error(`Client Listener Error [${payload?.piece?.name || 'unknown'}]: `, error);
+});
+
+// Lavalink Node & Track Event Handlers (Gated behind isLavalinkEnabled)
+if (isLavalinkEnabled) {
+	client.music.nodeManager.on('connect', node => {
+		Logger.info(`Lavalink Node [${node?.id || 'main'}] connected successfully.`);
+	});
+
+	client.music.nodeManager.on('error', (node, err) => {
+		const errMsg = String((err as any)?.message || err);
+		if (errMsg.includes('ECONNREFUSED')) {
+			Logger.warn(`Lavalink Node [${node?.id || 'main'}] initial connection pending (server starting up)...`);
+		} else {
+			Logger.error(`Lavalink Node Error [${node?.id || 'unknown'}]: `, err);
+		}
+	});
+
+	client.music.on('trackError', async (player, track, payload) => {
+		Logger.error(`Playback Error on Guild [${player.guildId}] for track "${track?.info?.title || 'Unknown'}": `, payload?.error || payload);
+		const queue = client.music.queues.get(player.guildId);
+		if (queue) {
+			const channel = await queue.getTextChannel();
+			if (channel) {
+				await channel.send({
+					content: `:x: Playback failed for [**${track?.info?.title || 'Track'}**](<${track?.info?.uri || ''}>). Skipping to next track...`,
+					flags: ['SuppressEmbeds']
+				}).catch(() => {});
+			}
+			await queue.next();
+		}
+	});
+
+	client.music.on('trackStuck', async (player, track, payload) => {
+		Logger.warn(`Track Stuck on Guild [${player.guildId}] for track "${track?.info?.title || 'Unknown'}": `, payload);
+		const queue = client.music.queues.get(player.guildId);
+		if (queue) {
+			const channel = await queue.getTextChannel();
+			if (channel) {
+				await channel.send({
+					content: `:warning: Track [**${track?.info?.title || 'Track'}**](<${track?.info?.uri || ''}>) became stuck. Skipping to next track...`,
+					flags: ['SuppressEmbeds']
+				}).catch(() => {});
+			}
+			await queue.next();
+		}
+	});
+
+	client.music.on('trackEnd', async (player, _track, payload) => {
+		if (payload?.reason === 'finished') {
+			const queue = client.music.queues.get(player.guildId);
+			if (queue) {
+				await queue.next();
+			}
+		}
+	});
+}
 
 const main = async () => {
 	try {
 		await client.login(env.DISCORD_TOKEN);
 	} catch (error) {
-		console.log('Bot errored out', error);
+		Logger.error('Bot failed to login / errored out: ', error);
 		client.destroy();
 		process.exit(1);
 	}

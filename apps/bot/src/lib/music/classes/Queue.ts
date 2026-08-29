@@ -125,6 +125,9 @@ export class Queue {
 				voiceChannelId: voiceChannelId || '',
 				selfDeaf: true
 			});
+		} else if (voiceChannelId) {
+			player.options.voiceChannelId = voiceChannelId;
+			player.voiceChannelId = voiceChannelId;
 		}
 		return player;
 	}
@@ -271,6 +274,7 @@ export class Queue {
 	// connect to a voice channel
 	public async connect(channelID: string): Promise<void> {
 		const player = this.createPlayer(channelID);
+		player.options.voiceChannelId = channelID;
 		player.voiceChannelId = channelID;
 		await player.connect();
 	}

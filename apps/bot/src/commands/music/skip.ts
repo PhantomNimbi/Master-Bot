@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
@@ -38,3 +39,12 @@ export class SkipCommand extends Command {
 		return;
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'skip',
+	category: 'music',
+	description: 'Skip the current song playing',
+	usage: '/skip',
+	examples: ['/skip'],
+	options: []
+};

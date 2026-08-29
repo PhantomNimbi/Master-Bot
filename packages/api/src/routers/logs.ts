@@ -8,13 +8,15 @@ export const logsRouter = createTRPCRouter({
 	getLogs: protectedProcedure
 		.input(
 			z.object({
-				type: z.enum(['bot', 'dashboard', 'lavalink', 'combined']).default('combined'),
+				type: z
+					.enum(['bot', 'dashboard', 'lavalink', 'redis', 'combined'])
+					.default('combined'),
 				lines: z.number().optional().default(200)
 			})
 		)
 		.query(async ({ ctx, input }) => {
 			const ownerId = process.env.OWNER_ID || process.env.DISCORD_OWNER_ID;
-			if (ownerId && ctx.session?.user?.id !== ownerId) {
+			if (ownerId && ctx.session?.user?.discordId !== ownerId) {
 				throw new TRPCError({
 					code: 'FORBIDDEN',
 					message: 'Only the bot owner can view system logs.'
@@ -41,12 +43,12 @@ export const logsRouter = createTRPCRouter({
 	clearLogs: protectedProcedure
 		.input(
 			z.object({
-				type: z.enum(['bot', 'dashboard', 'lavalink', 'combined'])
+				type: z.enum(['bot', 'dashboard', 'lavalink', 'redis', 'combined'])
 			})
 		)
 		.mutation(async ({ ctx, input }) => {
 			const ownerId = process.env.OWNER_ID || process.env.DISCORD_OWNER_ID;
-			if (ownerId && ctx.session?.user?.id !== ownerId) {
+			if (ownerId && ctx.session?.user?.discordId !== ownerId) {
 				throw new TRPCError({
 					code: 'FORBIDDEN',
 					message: 'Only the bot owner can clear system logs.'

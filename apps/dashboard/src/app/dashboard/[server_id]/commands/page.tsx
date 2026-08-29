@@ -18,18 +18,55 @@ async function getApplicationCommands() {
 	return (await response.json()) as APIApplicationCommand[];
 }
 
+const MUSIC_COMMAND_NAMES = [
+	'play',
+	'pause',
+	'resume',
+	'skip',
+	'skipto',
+	'queue',
+	'volume',
+	'bassboost',
+	'nightcore',
+	'vaporwave',
+	'karaoke',
+	'seek',
+	'shuffle',
+	'remove',
+	'leave',
+	'lyrics',
+	'move',
+	'create-playlist',
+	'delete-playlist',
+	'display-playlist',
+	'my-playlists',
+	'save-to-playlist',
+	'remove-from-playlist'
+];
+
 export default async function CommandsPage({
 	params
 }: {
-	params: { server_id: string };
+	params: Promise<{ server_id: string }>;
 }) {
+	const { server_id } = await params;
 	// get disabled commands
 	const guild = await prisma.guild.findUnique({
-		where: { id: params.server_id },
+		where: { id: server_id },
 		select: { disabledCommands: true }
 	});
 
-	const commands = await getApplicationCommands();
+	const rawCommands = await getApplicationCommands();
+	const isLavaEnabled =
+		process.env.LAVA_ENABLED?.toLowerCase() === 'true';
+
+	const commands = Array.isArray(rawCommands)
+		? rawCommands.filter(
+				cmd =>
+					isLavaEnabled ||
+					!MUSIC_COMMAND_NAMES.includes(cmd.name.toLowerCase())
+		  )
+		: [];
 
 	return (
 		<div>
@@ -53,7 +90,7 @@ export default async function CommandsPage({
 							>
 								<div className="flex flex-col gap-1">
 									<Link
-										href={`/dashboard/${params.server_id}/commands/${command.id}`}
+										href={`/dashboard/${server_id}/commands/${command.id}`}
 									>
 										<h3 className="text-lg">{command.name}</h3>
 									</Link>
@@ -62,7 +99,7 @@ export default async function CommandsPage({
 								<div>
 									<CommandToggleSwitch
 										commandEnabled={isCommandEnabled}
-										serverId={params.server_id}
+										serverId={server_id}
 										commandId={command.id}
 									/>
 								</div>

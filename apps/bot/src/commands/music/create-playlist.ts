@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { trpcNode } from '../../trpc';
@@ -61,3 +62,18 @@ export class CreatePlaylistCommand extends Command {
 		return;
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'create-playlist',
+	category: 'music',
+	description: 'Create a custom playlist that you can play anytime',
+	usage: '/create-playlist <playlist-name>',
+	examples: ['/create-playlist playlist-name: value'],
+	options: [
+		{
+				"name": "playlist-name",
+				"description": "What is the name of the playlist you want to create?",
+				"required": true
+		}
+]
+};

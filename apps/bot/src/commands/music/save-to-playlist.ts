@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import searchSong from '../../lib/music/searchSong';
@@ -94,3 +95,23 @@ export class SaveToPlaylistCommand extends Command {
 		}
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'save-to-playlist',
+	category: 'music',
+	description: 'Save a song or a playlist to a custom playlist',
+	usage: '/save-to-playlist <playlist-name> <url>',
+	examples: ['/save-to-playlist playlist-name: value url: value'],
+	options: [
+		{
+				"name": "playlist-name",
+				"description": "What is the name of the playlist you want to save to?",
+				"required": true
+		},
+		{
+				"name": "url",
+				"description": "What do you want to save to the custom playlist?",
+				"required": true
+		}
+]
+};

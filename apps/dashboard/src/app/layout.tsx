@@ -4,7 +4,6 @@ import { Inter } from 'next/font/google';
 import '~/styles/globals.css';
 
 import { TRPCReactProvider } from './providers';
-import { headers } from 'next/headers';
 import { ThemeProvider } from '~/components/theme-provider';
 import { Toaster } from '~/components/ui/toaster';
 
@@ -20,14 +19,14 @@ export const metadata: Metadata = {
 
 export default function Layout(props: { children: React.ReactNode }) {
 	return (
-		<html lang="en">
+		<html lang="en" suppressHydrationWarning>
 			<body
 				className={[
 					'font-sans dark:bg-slate-900 bg-white h-screen',
 					fontSans.variable
 				].join(' ')}
 			>
-				<TRPCReactProvider headers={headers()}>
+				<TRPCReactProvider>
 					<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
 						<>{props.children}</>
 						<Toaster />

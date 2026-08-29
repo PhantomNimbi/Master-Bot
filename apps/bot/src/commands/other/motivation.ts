@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
@@ -49,3 +50,12 @@ export class MotivationCommand extends Command {
 		}
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'motivation',
+	category: 'other',
+	description: 'Replies with a motivational quote!',
+	usage: '/motivation',
+	examples: ['/motivation'],
+	options: []
+};

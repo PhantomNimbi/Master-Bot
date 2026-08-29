@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { trpcNode } from '../../trpc';
@@ -92,3 +93,23 @@ export class RemoveFromPlaylistCommand extends Command {
 		return;
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'remove-from-playlist',
+	category: 'music',
+	description: 'Remove a song from a saved playlist',
+	usage: '/remove-from-playlist <playlist-name> <location>',
+	examples: ['/remove-from-playlist playlist-name: value location: value'],
+	options: [
+		{
+				"name": "playlist-name",
+				"description": "What is the name of the playlist you want to remove from?",
+				"required": true
+		},
+		{
+				"name": "location",
+				"description": "What is the index of the video you would like to delete from your saved playlist?",
+				"required": true
+		}
+]
+};

@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import axios from 'axios';
@@ -66,3 +67,23 @@ export class TranslateCommand extends Command {
 			});
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'translate',
+	category: 'other',
+	description: 'Translate from any language to any language using Google Translate',
+	usage: '/translate <target> <text>',
+	examples: ['/translate target: value text: value'],
+	options: [
+		{
+				"name": "target",
+				"description": "What is the target language?(language you want to translate to)",
+				"required": true
+		},
+		{
+				"name": "text",
+				"description": "What text do you want to translate?",
+				"required": true
+		}
+]
+};

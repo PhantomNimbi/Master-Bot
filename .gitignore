@@ -4,9 +4,16 @@
 *.pem
 .env
 .env*.local
+.youtube-oauth.json
+.youtube-oauth.json.tmp
+.youtube-oauth*.json
+*.youtube-oauth.json
 
 # Local tracking plan (never commit)
 PLAN.md
+AGENTS.md
+agents/
+.agents/
 
 # Turbo
 .turbo

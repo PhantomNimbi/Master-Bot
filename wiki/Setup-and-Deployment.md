@@ -41,11 +41,14 @@ cp .env.example .env
 Configure mandatory environment variables:
 - `DISCORD_TOKEN`: Discord Bot Token from [Discord Developer Portal](https://discord.com/developers/applications).
 - `DISCORD_CLIENT_ID` & `DISCORD_CLIENT_SECRET`: Application OAuth2 credentials.
-- `DATABASE_URL`: PostgreSQL connection string.
+- `DATABASE_URL` & `SHADOW_DB_URL`: PostgreSQL connection strings.
 - `REDIS_HOST` & `REDIS_PORT`: Redis connection details.
+- `LAVA_ENABLED`: Set to `true` when enabling audio features (defaults to `false`).
 - `LAVA_HOST`, `LAVA_PORT`, `LAVA_PASS`: Lavalink connection parameters.
 
-### 4. Push Database Schema
+### 4. Push Database Schema (Automatic)
+
+Running `pnpm dev` or `pnpm start` automatically executes `prisma db push` before launching services. You can also run it manually if needed:
 
 ```bash
 pnpm db:push
@@ -62,14 +65,15 @@ pnpm dev
 ```
 
 The unified cross-platform launcher will:
-1. Automatically free configured ports (`3000` for Dashboard, `6379` for Redis, `2333` for Lavalink).
-2. Spawn Lavalink Server, Discord Bot, and Next.js Web Dashboard concurrently.
-3. Isolate service log streams:
+1. Automatically execute `prisma db push` to ensure database schema synchronization.
+2. Automatically free configured ports (`3000` for Dashboard, `6379` for Redis, `2333` for Lavalink).
+3. Spawn Lavalink Server, Discord Bot, and Next.js Web Dashboard concurrently.
+4. Isolate service log streams with clean overwrite flags (`{ flags: 'w' }`):
    - Bot Logs: `logs/bot.log`
    - Dashboard Logs: `logs/dashboard.log`
    - Lavalink Logs: `logs/lavalink.log`
    - Combined System Logs: `logs/combined.log`
-4. Render a unified interactive status console.
+5. Render a unified interactive status console.
 
 ---
 

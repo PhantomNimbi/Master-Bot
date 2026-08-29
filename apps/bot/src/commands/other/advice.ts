@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
@@ -46,3 +47,12 @@ export class AdviceCommand extends Command {
 		}
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'advice',
+	category: 'other',
+	description: 'Get some advice!',
+	usage: '/advice',
+	examples: ['/advice'],
+	options: []
+};

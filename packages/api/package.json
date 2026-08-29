@@ -13,7 +13,7 @@
 	"dependencies": {
 		"@master-bot/auth": "^0.1.0",
 		"@master-bot/db": "^0.1.0",
-		"@t3-oss/env-core": "0.7.1",
+		"@t3-oss/env-core": "^0.13.11",
 		"@trpc/client": "^11.18.0",
 		"@trpc/server": "^11.18.0",
 		"axios": "^1.20.0",

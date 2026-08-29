@@ -9,7 +9,12 @@ export const env = createEnv({
 	server: {
 		DATABASE_URL: z.string().url(),
 		DISCORD_TOKEN: z.string(),
-		DISCORD_CLIENT_ID: z.string()
+		DISCORD_CLIENT_ID: z.string(),
+		LAVA_ENABLED: z.string().optional(),
+		GIFS_ENABLED: z.string().optional(),
+		TWITCH_ENABLED: z.string().optional(),
+		NEWS_ENABLED: z.string().optional(),
+		IGDB_ENABLED: z.string().optional()
 	},
 	/**
 	 * Specify your client-side environment variables schema here.
@@ -25,6 +30,11 @@ export const env = createEnv({
 		DATABASE_URL: process.env.DATABASE_URL,
 		DISCORD_TOKEN: process.env.DISCORD_TOKEN,
 		DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
+		LAVA_ENABLED: process.env.LAVA_ENABLED,
+		GIFS_ENABLED: process.env.GIFS_ENABLED,
+		TWITCH_ENABLED: process.env.TWITCH_ENABLED,
+		NEWS_ENABLED: process.env.NEWS_ENABLED,
+		IGDB_ENABLED: process.env.IGDB_ENABLED,
 		NEXT_PUBLIC_INVITE_URL: process.env.NEXT_PUBLIC_INVITE_URL
 	},
 	skipValidation: !!process.env.CI || !!process.env.SKIP_ENV_VALIDATION

@@ -6,10 +6,6 @@ import { env } from '../../env';
 /**
  * Helper check functions for configured API keys / tokens.
  */
-function hasSoundCloudKeys(): boolean {
-	return !!(env.SOUNDCLOUD_CLIENT_ID && env.SOUNDCLOUD_CLIENT_SECRET);
-}
-
 function hasSpotifyKeys(): boolean {
 	return !!(env.SPOTIFY_CLIENT_ID && env.SPOTIFY_CLIENT_SECRET);
 }
@@ -19,7 +15,9 @@ function hasYouTubeKeys(): boolean {
 }
 
 function hasAnyAudioKeys(): boolean {
-	return hasSoundCloudKeys() || hasSpotifyKeys() || hasYouTubeKeys();
+	// SoundCloud uses Lavalink's built-in source (no API keys required).
+	// Only YouTube and Spotify require keys to determine if Lavalink should launch.
+	return hasSpotifyKeys() || hasYouTubeKeys();
 }
 
 export default async function searchSong(
@@ -40,7 +38,7 @@ export default async function searchSong(
 	// 1. Check if any music API keys are configured. If none, Lavalink is disabled.
 	if (!hasAnyAudioKeys()) {
 		displayMessage =
-			':x: Lavalink audio engine is disabled because no music API keys (YouTube, Spotify, or SoundCloud) are configured in `.env`.';
+			':x: Lavalink audio engine is disabled because no music API keys (YouTube or Spotify) are configured in `.env`.';
 		return [displayMessage, tracks];
 	}
 
@@ -59,11 +57,6 @@ export default async function searchSong(
 					':x: Spotify playback is disabled because `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` are not set in `.env`.';
 				return [displayMessage, tracks];
 			}
-			if (lowerQuery.includes('soundcloud.com') && !hasSoundCloudKeys()) {
-				displayMessage =
-					':x: SoundCloud playback is disabled because `SOUNDCLOUD_CLIENT_ID` and `SOUNDCLOUD_CLIENT_SECRET` are not set in `.env`.';
-				return [displayMessage, tracks];
-			}
 			if (
 				(lowerQuery.includes('youtube.com') || lowerQuery.includes('youtu.be')) &&
 				!hasYouTubeKeys()
@@ -73,16 +66,19 @@ export default async function searchSong(
 				return [displayMessage, tracks];
 			}
 
-			// Direct URL search
+			// Direct URL search (SoundCloud URLs handled natively by built-in source)
 			const searchResult = await node.search({ query }, requester);
 			return processSearchResult(searchResult, query, requester, tracks);
 		}
 
 		// 3. Plain text query: determine search source order based on available keys
-		// Order of preference: YouTube -> SoundCloud -> Spotify (only including sources with keys)
+		// Order of preference: YouTube Music -> YouTube Video -> SoundCloud (free fallback) -> Spotify
 		const searchSources: string[] = [];
-		if (hasYouTubeKeys()) searchSources.push('ytsearch');
-		if (hasSoundCloudKeys()) searchSources.push('scsearch');
+		if (hasYouTubeKeys()) {
+			searchSources.push('ytmsearch');
+			searchSources.push('ytsearch');
+		}
+		searchSources.push('scsearch'); // Built-in source, no API keys needed
 		if (hasSpotifyKeys()) searchSources.push('spsearch');
 
 		for (const source of searchSources) {
@@ -133,14 +129,14 @@ function processSearchResult(
 		);
 		displayMessage = `Queued playlist [**${
 			searchResult.playlist?.name || 'Playlist'
-		}**](${query}), it has a total of **${tracks.length}** tracks.`;
+		}**](<${query}>), it has a total of **${tracks.length}** tracks.`;
 	} else if (
 		searchResult.loadType === 'search' ||
 		searchResult.loadType === 'track'
 	) {
 		const track = searchResult.tracks[0];
 		tracks.push(new Song(track, Date.now(), requester));
-		displayMessage = `Queued [**${track.info.title}**](${track.info.uri})`;
+		displayMessage = `Queued [**${track.info.title}**](<${track.info.uri}>)`;
 	}
 
 	return [displayMessage, tracks];

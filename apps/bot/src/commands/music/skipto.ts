@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
@@ -55,3 +56,18 @@ export class SkipToCommand extends Command {
 		return;
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'skipto',
+	category: 'music',
+	description: 'Skip to a track in queue',
+	usage: '/skipto <position>',
+	examples: ['/skipto position: value'],
+	options: [
+		{
+				"name": "position",
+				"description": "What is the position of the song you want to skip to in queue?",
+				"required": true
+		}
+]
+};

@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
@@ -142,10 +143,41 @@ export class PlayCommand extends Command {
 		}
 
 		if (isPlaying) {
-			return await interaction.followUp({ content: message });
+			return await interaction.followUp({
+				content: message,
+				flags: ['SuppressEmbeds']
+			});
 		}
 
 		await queue.next();
-		return await interaction.followUp({ content: message });
+		return await interaction.followUp({
+			content: message,
+			flags: ['SuppressEmbeds']
+		});
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'play',
+	category: 'music',
+	description: 'Play any song or playlist from YouTube, Spotify and more!',
+	usage: '/play <query> [is-custom-playlist] [shuffle-playlist]',
+	examples: ['/play query: value is-custom-playlist: value shuffle-playlist: value'],
+	options: [
+		{
+				"name": "query",
+				"description": "What song or playlist would you like to listen to?",
+				"required": true
+		},
+		{
+				"name": "is-custom-playlist",
+				"description": "Is it a custom playlist?",
+				"required": false
+		},
+		{
+				"name": "shuffle-playlist",
+				"description": "Would you like to shuffle the playlist?",
+				"required": false
+		}
+]
+};

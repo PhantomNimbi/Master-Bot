@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
@@ -39,3 +40,12 @@ export class LeaveCommand extends Command {
 		return await interaction.reply(':white_check_mark: Shuffled queue!');
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'shuffle',
+	category: 'music',
+	description: 'Shuffle the music queue',
+	usage: '/shuffle',
+	examples: ['/shuffle'],
+	options: []
+};

@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
@@ -70,3 +71,18 @@ const answers = [
 	'You can rely on it.',
 	'As I see it, yes.'
 ];
+
+export const help: CommandHelp = {
+	name: '8ball',
+	category: 'other',
+	description: 'Get the answer to anything!',
+	usage: '/8ball <question>',
+	examples: ['/8ball question: value'],
+	options: [
+		{
+				"name": "question",
+				"description": "The question you want to ask the 8ball",
+				"required": true
+		}
+]
+};

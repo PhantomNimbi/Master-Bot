@@ -15,9 +15,10 @@ function getGuildById(id: string) {
 export default async function WelcomeMessagePage({
 	params
 }: {
-	params: { server_id: string };
+	params: Promise<{ server_id: string }>;
 }) {
-	const guild = await getGuildById(params.server_id);
+	const { server_id } = await params;
+	const guild = await getGuildById(server_id);
 
 	if (!guild) {
 		return <div>Error loading guild</div>;
@@ -36,13 +37,13 @@ export default async function WelcomeMessagePage({
 					)}
 					<WelcomeMessageToggle
 						welcomeMessageEnabled={guild.welcomeMessageEnabled}
-						serverId={params.server_id}
+						serverId={server_id}
 					/>
 				</div>
 				{guild.welcomeMessageEnabled && (
 					<div className="flex flex-col gap-4">
 						<form action={setWelcomeMessage}>
-							<input type="hidden" name="guildId" value={params.server_id} />
+							<input type="hidden" name="guildId" value={server_id} />
 							<textarea
 								name="message"
 								placeholder="welcome message"
@@ -51,7 +52,7 @@ export default async function WelcomeMessagePage({
 							/>
 							<Button type="submit">Submit</Button>
 						</form>
-						<WelcomeMessageChannelSet guildId={params.server_id} />
+						<WelcomeMessageChannelSet guildId={server_id} />
 					</div>
 				)}
 			</div>

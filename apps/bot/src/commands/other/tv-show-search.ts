@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { PaginatedMessage } from '@sapphire/discord.js-utilities';
@@ -187,3 +188,18 @@ type InfoObject = {
 type Genres = string | Array<string>;
 
 type ResponseData = string | Array<any>;
+
+export const help: CommandHelp = {
+	name: 'tv-show-search',
+	category: 'other',
+	description: 'Get TV shows information',
+	usage: '/tv-show-search <query>',
+	examples: ['/tv-show-search query: value'],
+	options: [
+		{
+				"name": "query",
+				"description": "What TV show do you want to look up?",
+				"required": true
+		}
+]
+};

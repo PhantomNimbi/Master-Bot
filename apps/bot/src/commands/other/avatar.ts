@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
@@ -34,3 +35,18 @@ export class AvatarCommand extends Command {
 		return interaction.reply({ embeds: [embed] });
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'avatar',
+	category: 'other',
+	description: 'Responds with a user',
+	usage: '/avatar <user>',
+	examples: ['/avatar user: value'],
+	options: [
+		{
+				"name": "user",
+				"description": "The user to get the avatar of",
+				"required": true
+		}
+]
+};

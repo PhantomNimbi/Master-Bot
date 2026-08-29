@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 
@@ -42,3 +43,12 @@ export class WaifuCommand extends Command {
 		}
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'waifu',
+	category: 'gifs',
+	description: 'Replies with a random waifu image!',
+	usage: '/waifu',
+	examples: ['/waifu'],
+	options: []
+};

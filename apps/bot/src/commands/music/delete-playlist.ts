@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { trpcNode } from '../../trpc';
@@ -63,3 +64,18 @@ export class DeletePlaylistCommand extends Command {
 		return await interaction.reply(`:wastebasket: Deleted **${playlistName}**`);
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'delete-playlist',
+	category: 'music',
+	description: 'Delete a playlist from your saved playlists',
+	usage: '/delete-playlist <playlist-name>',
+	examples: ['/delete-playlist playlist-name: value'],
+	options: [
+		{
+				"name": "playlist-name",
+				"description": "What is the name of the playlist you want to delete?",
+				"required": true
+		}
+]
+};

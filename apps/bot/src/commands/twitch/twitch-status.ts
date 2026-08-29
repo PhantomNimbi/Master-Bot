@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions, container } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
@@ -160,3 +161,18 @@ export class TwitchStatusCommand extends Command {
 		);
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'twitch-status',
+	category: 'twitch',
+	description: 'Check the status of your favorite streamer',
+	usage: '/twitch-status <streamer>',
+	examples: ['/twitch-status streamer: value'],
+	options: [
+		{
+				"name": "streamer",
+				"description": "The Streamers Name",
+				"required": true
+		}
+]
+};

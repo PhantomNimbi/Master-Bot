@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
@@ -39,3 +40,12 @@ export class KaraokeCommand extends Command {
 		);
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'karaoke',
+	category: 'music',
+	description: 'Turn the playing track to karaoke',
+	usage: '/karaoke',
+	examples: ['/karaoke'],
+	options: []
+};

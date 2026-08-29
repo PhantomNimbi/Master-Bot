@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { PaginatedMessage } from '@sapphire/discord.js-utilities';
@@ -165,3 +166,18 @@ export class GameSearchCommand extends Command {
 		}
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'game-search',
+	category: 'other',
+	description: 'Search for video game information using IGDB',
+	usage: '/game-search <game>',
+	examples: ['/game-search game: value'],
+	options: [
+		{
+				"name": "game",
+				"description": "The game you want to look up?",
+				"required": true
+		}
+]
+};

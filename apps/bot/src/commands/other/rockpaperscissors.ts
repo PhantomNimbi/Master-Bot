@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { Colors, EmbedBuilder } from 'discord.js';
@@ -78,3 +79,18 @@ export class RockPaperScissorsCommand extends Command {
 		}
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'rockpaperscissors',
+	category: 'other',
+	description: 'Play rock paper scissors with me!',
+	usage: '/rockpaperscissors <move>',
+	examples: ['/rockpaperscissors move: value'],
+	options: [
+		{
+				"name": "move",
+				"description": "What is your move?",
+				"required": true
+		}
+]
+};

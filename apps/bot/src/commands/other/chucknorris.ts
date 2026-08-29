@@ -1,3 +1,4 @@
+import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
@@ -49,3 +50,12 @@ export class ChuckNorrisCommand extends Command {
 		}
 	}
 }
+
+export const help: CommandHelp = {
+	name: 'chucknorris',
+	category: 'other',
+	description: 'Get a satirical fact about Chuck Norris!',
+	usage: '/chucknorris',
+	examples: ['/chucknorris'],
+	options: []
+};
