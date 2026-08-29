@@ -91,15 +91,17 @@ export function runProcesses(mode = 'dev') {
 			combinedStream.write(entry);
 
 			// Print YouTube OAuth device flow authentication prompts directly to terminal console
-			if (
+			const isDeviceFlow =
 				line.includes('google.com/device') ||
+				line.includes('https://www.google.com/device') ||
 				(line.toLowerCase().includes('device') && line.toLowerCase().includes('code')) ||
-				line.toLowerCase().includes('youshallnotpass') ||
-				(line.toLowerCase().includes('oauth') && line.toLowerCase().includes('code'))
-			) {
-				process.stdout.write(
-					`\n🔑 [YOUTUBE OAUTH AUTHENTICATION REQUIRED]\n   ${line}\n\n`
-				);
+				(line.toLowerCase().includes('oauth') && line.toLowerCase().includes('code')) ||
+				line.includes('To authenticate') ||
+				line.includes('enter code');
+
+			if (isDeviceFlow) {
+				const box = `\n\x1b[1;33m====================================================================\x1b[0m\n\x1b[1;32m🔑 [YOUTUBE OAUTH DEVICE AUTHENTICATION REQUIRED]\x1b[0m\n\x1b[1;37m   ${line.trim()}\x1b[0m\n\x1b[1;33m====================================================================\x1b[0m\n\n`;
+				process.stdout.write(box);
 			}
 		}
 	}
@@ -196,8 +198,7 @@ export function runProcesses(mode = 'dev') {
 		writeLogToFile('DASHBOARD-ERR', data, dashboardStream)
 	);
 
-	// Display Clean Terminal Status Banner (No raw logs to console)
-	console.clear();
+	// Display Clean Terminal Status Banner (Console screen clearing removed so auth codes are never erased)
 	console.log(`
 ====================================================================
                🤖 MASTER-BOT UNIFIED CONTROL PANEL                   
