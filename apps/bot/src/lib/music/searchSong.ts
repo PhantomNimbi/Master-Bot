@@ -20,37 +20,38 @@ export default async function searchSong(
 	try {
 		const node = client.music.nodeManager.nodes.values().next().value;
 		if (!node) {
-			displayMessage = ":x: Lavalink node unavailable.";
+			displayMessage = ':x: Lavalink node unavailable.';
 			return [displayMessage, tracks];
 		}
 
-		const identifier = /^https?:\/\//.test(query) ? query : `ytsearch:${query}`;
-		const results: any = await node.makeRequest(
-			`/v4/loadtracks?identifier=${encodeURIComponent(identifier)}`
+		const searchResult = await node.search(
+			query.startsWith('http') ? { query } : { query, source: 'ytsearch' },
+			requester
 		);
 
-		if (!results || results.loadType === 'empty' || results.loadType === 'error') {
+		if (
+			!searchResult ||
+			!searchResult.tracks ||
+			searchResult.tracks.length === 0 ||
+			searchResult.loadType === 'empty' ||
+			searchResult.loadType === 'error'
+		) {
 			displayMessage = ":x: Couldn't find what you were looking for :(";
 			return [displayMessage, tracks];
 		}
 
-		if (results.loadType === 'playlist') {
-			const playlistTracks = results.data?.tracks || [];
-			playlistTracks.forEach((track: any) =>
+		if (searchResult.loadType === 'playlist') {
+			searchResult.tracks.forEach(track =>
 				tracks.push(new Song(track, Date.now(), requester))
 			);
 			displayMessage = `Queued playlist [**${
-				results.data?.info?.name || 'Playlist'
+				searchResult.playlist?.name || 'Playlist'
 			}**](${query}), it has a total of **${tracks.length}** tracks.`;
-		} else if (results.loadType === 'search') {
-			const searchTracks = Array.isArray(results.data) ? results.data : [];
-			if (searchTracks.length > 0) {
-				const track = searchTracks[0];
-				tracks.push(new Song(track, Date.now(), requester));
-				displayMessage = `Queued [**${track.info.title}**](${track.info.uri})`;
-			}
-		} else if (results.loadType === 'track') {
-			const track = results.data;
+		} else if (
+			searchResult.loadType === 'search' ||
+			searchResult.loadType === 'track'
+		) {
+			const track = searchResult.tracks[0];
 			tracks.push(new Song(track, Date.now(), requester));
 			displayMessage = `Queued [**${track.info.title}**](${track.info.uri})`;
 		}

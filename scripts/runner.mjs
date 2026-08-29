@@ -89,6 +89,18 @@ export function runProcesses(mode = 'dev') {
 			const entry = `[${timestamp}] [${prefix}] ${line}\n`;
 			fileStream.write(entry);
 			combinedStream.write(entry);
+
+			// Print YouTube OAuth device flow authentication prompts directly to terminal console
+			if (
+				line.includes('google.com/device') ||
+				(line.toLowerCase().includes('device') && line.toLowerCase().includes('code')) ||
+				line.toLowerCase().includes('youshallnotpass') ||
+				(line.toLowerCase().includes('oauth') && line.toLowerCase().includes('code'))
+			) {
+				process.stdout.write(
+					`\n🔑 [YOUTUBE OAUTH AUTHENTICATION REQUIRED]\n   ${line}\n\n`
+				);
+			}
 		}
 	}
 

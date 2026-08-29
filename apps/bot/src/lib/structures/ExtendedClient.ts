@@ -55,7 +55,10 @@ export class ExtendedClient extends SapphireClient {
 				db: Number.parseInt(process.env.REDIS_DB!) || 0
 			}),
 			node: {
-				host: process.env.LAVA_HOST || 'localhost',
+				host:
+					process.env.LAVA_HOST && process.env.LAVA_HOST !== '0.0.0.0'
+						? process.env.LAVA_HOST
+						: '127.0.0.1',
 				authorization: process.env.LAVA_PASS || 'youshallnotpass',
 				port: process.env.LAVA_PORT ? +process.env.LAVA_PORT : 2333,
 				secure: process.env.LAVA_SECURE === 'true',
