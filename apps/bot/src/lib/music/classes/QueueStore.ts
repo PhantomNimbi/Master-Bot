@@ -1,5 +1,5 @@
 import { Collection } from 'discord.js';
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import type { Redis, RedisKey } from 'ioredis';
 import { join, resolve } from 'path';
 import { Queue } from './Queue';
@@ -38,6 +38,24 @@ export interface ExtendedRedis extends Redis {
 	rpopset: (source: RedisKey, destination: RedisKey) => Promise<string | null>;
 }
 
+function getLuaScript(name: string): string {
+	const candidates = [
+		resolve(join(__dirname, '..', '..', '..'), 'audio', `${name}.lua`),
+		resolve(join(__dirname, '..', '..', '..'), 'scripts', 'audio', `${name}.lua`),
+		resolve(process.cwd(), 'scripts', 'audio', `${name}.lua`),
+		resolve(process.cwd(), 'dist', 'audio', `${name}.lua`),
+		resolve(process.cwd(), 'apps', 'bot', 'scripts', 'audio', `${name}.lua`)
+	];
+
+	for (const candidate of candidates) {
+		if (existsSync(candidate)) {
+			return readFileSync(candidate, 'utf-8');
+		}
+	}
+	Logger.error(`Could not find Lua script ${name}.lua`);
+	return '';
+}
+
 export class QueueStore extends Collection<string, Queue> {
 	public redis: ExtendedRedis;
 
@@ -53,16 +71,13 @@ export class QueueStore extends Collection<string, Queue> {
 		});
 
 		for (const command of commands) {
-			this.redis.defineCommand(command.name, {
-				numberOfKeys: command.keys,
-				lua: readFileSync(
-					resolve(
-						join(__dirname, '..', '..', '..'),
-						'audio',
-						`${command.name}.lua`
-					)
-				).toString()
-			});
+			const luaCode = getLuaScript(command.name);
+			if (luaCode) {
+				this.redis.defineCommand(command.name, {
+					numberOfKeys: command.keys,
+					lua: luaCode
+				});
+			}
 		}
 	}
 
@@ -85,9 +100,6 @@ export class QueueStore extends Collection<string, Queue> {
 
 		let cursor = '0';
 		do {
-			// `scan` returns a tuple with the next cursor (which must be used for the
-			// next iteration) and an array of the matching keys. The iterations end when
-			// cursor becomes '0' again.
 			const response = await this.redis.scan(
 				cursor,
 				'MATCH',
@@ -96,7 +108,6 @@ export class QueueStore extends Collection<string, Queue> {
 			[cursor] = response;
 
 			for (const key of response[1]) {
-				// Slice 'skyra.a.' from the start, and '.p' from the end:
 				const id = key.slice(8, -2);
 				guilds.add(id);
 			}

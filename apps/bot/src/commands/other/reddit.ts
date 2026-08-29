@@ -7,7 +7,6 @@ import {
 } from 'discord.js';
 import { PaginatedMessage } from '@sapphire/discord.js-utilities';
 import axios from 'axios';
-import Logger from '../../lib/logger';
 
 @ApplyOptions<CommandOptions>({
 	name: 'reddit',
@@ -111,13 +110,14 @@ export class RedditCommand extends Command {
 				} else {
 					collector.stop();
 					const timeFilter = i.values[0];
-					this.fetchFromReddit(interaction, subreddit, sort, timeFilter);
+					await this.fetchFromReddit(interaction, subreddit, sort, timeFilter);
 					return;
 				}
 			});
+
+			return menu;
 		} else {
-			this.fetchFromReddit(interaction, subreddit, sort);
-			return;
+			return await this.fetchFromReddit(interaction, subreddit, sort);
 		}
 	}
 
