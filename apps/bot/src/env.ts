@@ -9,8 +9,7 @@ export const env = createEnv({
 	clientPrefix: 'PUBLIC_',
 	server: {
 		DISCORD_TOKEN: z.string(),
-		TENOR_API: z.string(),
-		RAWG_API: z.string().optional(),
+		KLIPY_API: z.string().optional(),
 		// Redis
 		REDIS_HOST: z.string().optional(),
 		REDIS_PORT: z.string().optional(),

@@ -83,7 +83,7 @@ TWITCH_CLIENT_ID=""
 TWITCH_CLIENT_SECRET=""
 
 # Other APIs
-TENOR_API=""
+KLIPY_API=""
 NEWS_API=""
 GENIUS_API=""
 RAWG_API=""
@@ -208,13 +208,11 @@ A full list of commands for use with Master Bot
 
 ## Resources
 
-[Getting a Tenor API key](https://developers.google.com/tenor/guides/quickstart)
+[Getting a Klipy API key](https://klipy.com/developers)
 
 [Getting a NewsAPI API key](https://newsapi.org/)
 
 [Getting a Genius API key](https://genius.com/api-clients/new)
-
-[Getting a rawg API key](https://rawg.io/apidocs)
 
 [Getting a Twitch API key](https://github.com/Bacon-Fixation/Master-Bot/wiki/Getting-Your-Twitch-API-Info)
 

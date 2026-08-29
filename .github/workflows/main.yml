@@ -1,11 +1,38 @@
-on: [pull_request]
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-  prettier:
+  build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
-      - uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Build App
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8.6.7
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Code Formatting Check
         run: npx prettier . --check
+
+      - name: Type Check
+        run: pnpm type-check
+
+      - name: Build
+        run: pnpm build

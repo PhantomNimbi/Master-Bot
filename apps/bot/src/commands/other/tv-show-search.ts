@@ -78,7 +78,6 @@ export class TVShowSearchCommand extends Command {
 			);
 		}
 
-		await interaction.reply('Show info');
 		return PaginatedEmbed.run(interaction);
 	}
 

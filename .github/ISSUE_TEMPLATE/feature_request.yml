@@ -1,0 +1,21 @@
+name: Feature Request
+description: Suggest an idea or new feature for Master-Bot
+title: '[Feature]: '
+labels: ['enhancement']
+body:
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature Description
+      description: Explain your suggestion or proposed feature in detail.
+      placeholder: Describe what feature you would like to see and why.
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case / Problem Statement
+      description: Is your feature request related to a problem or specific workflow?
+    validations:
+      required: false

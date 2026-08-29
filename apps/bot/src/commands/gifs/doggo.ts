@@ -1,6 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
-import { env } from '../../env';
+import { searchGif } from '../../lib/gifs/searchGif';
 
 @ApplyOptions<Command.Options>({
 	name: 'doggo',
@@ -17,21 +17,13 @@ export class DoggoCommand extends Command {
 	public override async chatInputRun(
 		interaction: Command.ChatInputCommandInteraction
 	) {
-		try {
-			const response = await fetch(
-				`https://tenor.googleapis.com/v2/search?key=${env.TENOR_API}&q=doggo&limit=1&random=true`
-			);
-			const json = await response.json();
-			if (!json.results)
-				return await interaction.reply({
-					content: 'Something went wrong! Please try again later.'
-				});
-
-			return await interaction.reply({ content: json.results[0].url });
-		} catch (e) {
+		const gifUrl = await searchGif('doggo');
+		if (!gifUrl) {
 			return await interaction.reply({
-				content: 'Something went wrong! Please try again later.'
+				content: 'Something went wrong or Klipy API key is not configured!'
 			});
 		}
+
+		return await interaction.reply({ content: gifUrl });
 	}
 }

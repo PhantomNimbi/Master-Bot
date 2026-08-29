@@ -1,15 +1,14 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { PaginatedMessage } from '@sapphire/discord.js-utilities';
-import { env } from '../../env';
 import axios from 'axios';
 
 @ApplyOptions<Command.Options>({
 	name: 'game-search',
-	description: 'Search for video game information',
+	description: 'Search for video game information using IGDB',
 	preconditions: ['isCommandDisabled']
 })
-export class ChuckNorrisCommand extends Command {
+export class GameSearchCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {
 		registry.registerChatInputCommand(builder =>
 			builder
@@ -27,208 +26,142 @@ export class ChuckNorrisCommand extends Command {
 	public override async chatInputRun(
 		interaction: Command.ChatInputCommandInteraction
 	) {
-		if (!env.RAWG_API) {
+		const clientId = process.env.TWITCH_CLIENT_ID;
+		const clientSecret = process.env.TWITCH_CLIENT_SECRET;
+
+		if (!clientId || !clientSecret) {
 			return interaction.reply({
-				content: 'This command is disabled because the RAWG API key is not set.'
+				content:
+					'This command requires TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET to be configured for IGDB access.'
 			});
 		}
 
 		const title = interaction.options.getString('game', true);
-		const filteredTitle = this.filterTitle(title);
+		await interaction.deferReply();
 
-		const game = await this.getGameDetails(filteredTitle);
+		try {
+			const tokenRes = await axios.post(
+				`https://id.twitch.tv/oauth2/token?client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`
+			);
+			const accessToken = tokenRes.data.access_token;
 
-		if (!game) {
-			return interaction.reply({
-				content: 'No game found with that name'
+			const igdbRes = await axios.post(
+				'https://api.igdb.com/v4/games',
+				`search "${title.replace(/"/g, '')}"; fields name, summary, cover.url, first_release_date, total_rating, genres.name, platforms.name, involved_companies.company.name, involved_companies.developer, involved_companies.publisher; limit 1;`,
+				{
+					headers: {
+						'Client-ID': clientId,
+						Authorization: `Bearer ${accessToken}`,
+						'Content-Type': 'text/plain'
+					}
+				}
+			);
+
+			const game = igdbRes.data?.[0];
+			if (!game) {
+				return interaction.followUp({
+					content: `No game found matching "${title}"`
+				});
+			}
+
+			const releaseDate = game.first_release_date
+				? `<t:${game.first_release_date}:D>`
+				: 'None Listed';
+			const score = game.total_rating
+				? `${Math.round(game.total_rating)}/100`
+				: 'None Listed';
+
+			const coverUrl = game.cover?.url
+				? `https:${game.cover.url.replace('/t_thumb/', '/t_cover_big/')}`
+				: undefined;
+
+			const genres =
+				game.genres?.map((g: any) => g.name).join(', ') || 'None Listed';
+			const platforms =
+				game.platforms?.map((p: any) => p.name).join(', ') || 'None Listed';
+
+			const developers =
+				game.involved_companies
+					?.filter((c: any) => c.developer)
+					.map((c: any) => c.company?.name)
+					.filter(Boolean)
+					.join(', ') || 'None Listed';
+
+			const publishers =
+				game.involved_companies
+					?.filter((c: any) => c.publisher)
+					.map((c: any) => c.company?.name)
+					.filter(Boolean)
+					.join(', ') || 'None Listed';
+
+			const PaginatedEmbed = new PaginatedMessage();
+
+			PaginatedEmbed.addPageEmbed(embed => {
+				embed
+					.setTitle(`Game Info: ${game.name}`)
+					.setDescription(
+						game.summary
+							? `>>> **Game Overview**\n${game.summary.slice(0, 2000)}`
+							: 'No summary available.'
+					)
+					.setColor('#9146FF');
+
+				if (coverUrl) embed.setThumbnail(coverUrl);
+
+				embed
+					.addFields(
+						{ name: 'Release Date', value: `> ${releaseDate}`, inline: true },
+						{
+							name: 'Platforms',
+							value: `> ${platforms.slice(0, 1024)}`,
+							inline: true
+						},
+						{ name: 'IGDB Rating', value: `> ${score}`, inline: true }
+					)
+					.setTimestamp();
+
+				return embed;
+			});
+
+			PaginatedEmbed.addPageEmbed(embed => {
+				embed
+					.setTitle(`Game Details: ${game.name}`)
+					.setColor('#9146FF');
+
+				if (coverUrl) embed.setThumbnail(coverUrl);
+
+				embed
+					.addFields(
+						{
+							name: 'Developer(s)',
+							value: `> ${developers.slice(0, 1024)}`,
+							inline: true
+						},
+						{
+							name: 'Publisher(s)',
+							value: `> ${publishers.slice(0, 1024)}`,
+							inline: true
+						},
+						{
+							name: 'Genre(s)',
+							value: `> ${genres.slice(0, 1024)}`,
+							inline: true
+						}
+					)
+					.setTimestamp();
+
+				return embed;
+			});
+
+			if (PaginatedEmbed.actions.size > 0) {
+				PaginatedEmbed.actions.delete('@sapphire/paginated-messages.goToPage');
+			}
+
+			return PaginatedEmbed.run(interaction);
+		} catch (error: any) {
+			return interaction.followUp({
+				content: 'An error occurred while fetching game details from IGDB.'
 			});
 		}
-
-		const PaginatedEmbed = new PaginatedMessage();
-
-		const firstPageTuple: string[] = []; // releaseDate, esrbRating, userRating
-
-		if (game.tba) {
-			firstPageTuple.push('TBA');
-		} else if (!game.released) {
-			firstPageTuple.push('None Listed');
-		} else {
-			firstPageTuple.push(game.released);
-		}
-
-		if (!game.esrb_rating) {
-			firstPageTuple.push('None Listed');
-		} else {
-			firstPageTuple.push(game.esrb_rating.name);
-		}
-
-		if (!game.rating) {
-			firstPageTuple.push('None Listed');
-		} else {
-			firstPageTuple.push(game.rating + '/5');
-		}
-
-		PaginatedEmbed.addPageEmbed(embed =>
-			embed
-				.setTitle(`Game Info: ${game.name}`)
-				.setDescription(
-					'>>> ' +
-						'**Game Description**\n' +
-						game.description_raw.slice(0, 2000) +
-						'...'
-				)
-				.setColor('Grey')
-				.setThumbnail(game.background_image)
-				.addFields(
-					{ name: 'Released', value: '> ' + firstPageTuple[0], inline: true },
-					{
-						name: 'ESRB Rating',
-						value: '> ' + firstPageTuple[1],
-						inline: true
-					},
-					{ name: 'Score', value: '> ' + firstPageTuple[2], inline: true }
-				)
-				.setTimestamp()
-		);
-
-		const developerArray: string[] = [];
-		if (game.developers.length) {
-			for (let i = 0; i < game.developers.length; ++i) {
-				developerArray.push(game.developers[i].name);
-			}
-		} else {
-			developerArray.push('None Listed');
-		}
-
-		const publisherArray: string[] = [];
-		if (game.publishers.length) {
-			for (let i = 0; i < game.publishers.length; ++i) {
-				publisherArray.push(game.publishers[i].name);
-			}
-		} else {
-			publisherArray.push('None Listed');
-		}
-
-		const platformArray: string[] = [];
-		if (game.platforms.length) {
-			for (let i = 0; i < game.platforms.length; ++i) {
-				platformArray.push(game.platforms[i].platform.name);
-			}
-		} else {
-			platformArray.push('None Listed');
-		}
-
-		const genreArray: string[] = [];
-		if (game.genres.length) {
-			for (let i = 0; i < game.genres.length; ++i) {
-				genreArray.push(game.genres[i].name);
-			}
-		} else {
-			genreArray.push('None Listed');
-		}
-
-		const retailerArray: string[] = [];
-		if (game.stores.length) {
-			for (let i = 0; i < game.stores.length; ++i) {
-				retailerArray.push(
-					`[${game.stores[i].store.name}](${game.stores[i].url})`
-				);
-			}
-		} else {
-			retailerArray.push('None Listed');
-		}
-
-		PaginatedEmbed.addPageEmbed(embed =>
-			embed
-				.setTitle(`Game Info: ${game.name}`)
-				.setColor('Grey')
-				.setThumbnail(game.background_image_additional ?? game.background_image)
-				// Row 1
-				.addFields(
-					{
-						name: developerArray.length == 1 ? 'Developer' : 'Developers',
-						value: '> ' + developerArray.toString().replace(/,/g, ', '),
-						inline: true
-					},
-					{
-						name: publisherArray.length == 1 ? 'Publisher' : 'Publishers',
-						value: '> ' + publisherArray.toString().replace(/,/g, ', '),
-						inline: true
-					},
-					{
-						name: platformArray.length == 1 ? 'Platform' : 'Platforms',
-						value: '> ' + platformArray.toString().replace(/,/g, ', '),
-						inline: true
-					}
-				)
-				// Row 2
-				.addFields(
-					{
-						name: genreArray.length == 1 ? 'Genre' : 'Genres',
-						value: '> ' + genreArray.toString().replace(/,/g, ', '),
-						inline: true
-					},
-					{
-						name: retailerArray.length == 1 ? 'Retailer' : 'Retailers',
-						value:
-							'> ' +
-							retailerArray.toString().replace(/,/g, ', ').replace(/`/g, '')
-					}
-				)
-				.setTimestamp()
-		);
-		if (PaginatedEmbed.actions.size > 0)
-			PaginatedEmbed.actions.delete('@sapphire/paginated-messages.goToPage');
-		return PaginatedEmbed.run(interaction);
-	}
-
-	private filterTitle(title: string) {
-		return title.replace(/ /g, '-').replace(/' /g, '').toLowerCase();
-	}
-
-	private getGameDetails(query: string): Promise<any> {
-		return new Promise(async function (resolve, reject) {
-			const url = `https://api.rawg.io/api/games/${encodeURIComponent(
-				query
-			)}?key=${env.RAWG_API}`;
-			try {
-				const response = await axios.get(url);
-				if (response.status === 429) {
-					reject(':x: Rate Limit exceeded. Please try again in a few minutes.');
-				}
-				if (response.status === 503) {
-					reject(
-						':x: The service is currently unavailable. Please try again later.'
-					);
-				}
-				if (response.status === 404) {
-					reject(`:x: Error: ${query} was not found`);
-				}
-				if (response.status !== 200) {
-					reject(
-						':x: There was a problem getting game from the API, make sure you entered a valid game tittle'
-					);
-				}
-
-				let body = response.data;
-				if (body.redirect) {
-					const redirect = await axios.get(
-						`https://api.rawg.io/api/games/${body.slug}?key=${env.RAWG_API}`
-					);
-					body = redirect.data;
-				}
-				// 'id' is the only value that must be present to all valid queries
-				if (!body.id) {
-					reject(
-						':x: There was a problem getting data from the API, make sure you entered a valid game title'
-					);
-				}
-				resolve(body);
-			} catch (e) {
-				reject(
-					'There was a problem getting data from the API, make sure you entered a valid game title'
-				);
-			}
-		});
 	}
 }
