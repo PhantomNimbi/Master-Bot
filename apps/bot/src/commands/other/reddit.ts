@@ -70,7 +70,9 @@ export class RedditCommand extends Command {
 	) {
 		await interaction.deferReply();
 		const channel = interaction.channel;
-		if (!channel) return await interaction.reply('Something went wrong :('); // type guard
+		if (!channel) {
+			return await interaction.followUp('Something went wrong :(');
+		}
 		const subreddit = interaction.options.getString('subreddit', true);
 		const sort = interaction.options.getString('sort', true);
 
@@ -80,12 +82,11 @@ export class RedditCommand extends Command {
 				.setPlaceholder('Please select an option')
 				.addOptions(optionsArray);
 
-			const menu = await channel.send({
+			const menu = await interaction.editReply({
 				content: `:loud_sound: Do you want to get the ${sort} posts from past hour/week/month/year or all?`,
 				components: [
 					{
 						type: ComponentType.ActionRow,
-
 						components: [row]
 					}
 				]
@@ -93,11 +94,11 @@ export class RedditCommand extends Command {
 
 			const collector = menu.createMessageComponentCollector({
 				componentType: ComponentType.StringSelect,
-				time: 30000 // 30 sec
+				time: 30000
 			});
 
 			collector.on('end', () => {
-				if (menu) menu.delete().catch(Logger.error);
+				if (menu) menu.delete().catch(() => {});
 			});
 
 			collector.on('collect', async i => {
@@ -118,7 +119,6 @@ export class RedditCommand extends Command {
 			this.fetchFromReddit(interaction, subreddit, sort);
 			return;
 		}
-		return;
 	}
 
 	private async fetchFromReddit(
@@ -133,15 +133,24 @@ export class RedditCommand extends Command {
 			return interaction.followUp(error);
 		}
 
-		// interaction.followUp('Fetching data from reddit');
+		const isNsfwChannel =
+			interaction.channel &&
+			'nsfw' in interaction.channel &&
+			Boolean((interaction.channel as any).nsfw);
 
 		const paginatedEmbed = new PaginatedMessage();
-		for (let i = 1; i <= data.children.length; i++) {
+		let addedPages = 0;
+
+		for (let i = 0; i < data.children.length; i++) {
 			let color: ColorResolvable = 'Orange';
-			let redditPost = data.children[i - 1];
+			let redditPost = data.children[i];
+
+			if (redditPost.data.over_18 && !isNsfwChannel) {
+				continue; // Skip NSFW posts in SFW channels
+			}
 
 			if (redditPost.data.title.length > 255) {
-				redditPost.data.title = redditPost.data.title.substring(0, 252) + '...'; // max title length is 256
+				redditPost.data.title = redditPost.data.title.substring(0, 252) + '...';
 			}
 
 			if (redditPost.data.selftext.length > 1024) {
@@ -150,7 +159,7 @@ export class RedditCommand extends Command {
 					`[Read More...](https://www.reddit.com${redditPost.data.permalink})`;
 			}
 
-			if (redditPost.data.over_18) color = 'Red'; // red - nsfw
+			if (redditPost.data.over_18) color = 'Red';
 
 			paginatedEmbed.addPageEmbed(embed =>
 				embed
@@ -160,10 +169,17 @@ export class RedditCommand extends Command {
 					.setDescription(
 						`${
 							redditPost.data.over_18 ? '' : redditPost.data.selftext + '\n\n'
-						}Upvotes: ${redditPost.data.score} :thumbsup: `
+						}Upvotes: ${redditPost.data.score} :thumbsup:`
 					)
 					.setAuthor({ name: redditPost.data.author })
 			);
+			addedPages++;
+		}
+
+		if (addedPages === 0) {
+			return interaction.followUp({
+				content: 'No SFW posts found for this subreddit in an age-restricted channel filter.'
+			});
 		}
 
 		return paginatedEmbed.run(interaction);

@@ -1,6 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
-import { GuildMember, VoiceChannel } from 'discord.js';
+import { ChannelType, GuildMember, VoiceChannel } from 'discord.js';
 
 @ApplyOptions<Command.Options>({
 	name: 'activity',
@@ -34,10 +34,7 @@ export class ActivityCommand extends Command {
 		const channel = interaction.options.getChannel('channel', true);
 		const activity = interaction.options.getString('activity', true);
 
-		if (
-			channel.type.toString() !== 'GUILD_VOICE' ||
-			channel.type.toString() === 'GUILD_CATEGORY'
-		) {
+		if (channel.type !== ChannelType.GuildVoice) {
 			return interaction.reply({
 				content: 'You can only invite to voice channels!'
 			});

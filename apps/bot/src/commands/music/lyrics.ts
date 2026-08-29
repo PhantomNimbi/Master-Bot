@@ -42,13 +42,12 @@ export class LyricsCommand extends Command {
 		await interaction.deferReply();
 
 		if (!title) {
-			if (!player) {
+			if (!player || !player.queue.current) {
 				return await interaction.followUp(
 					'Please provide a valid song name or start playing one and try again!'
 				);
 			}
-			//title = player.queue.current?.title as string;
-			title = 'hi';
+			title = player.queue.current.info.title;
 		}
 
 		try {
@@ -71,7 +70,6 @@ export class LyricsCommand extends Command {
 				}
 			}
 
-			await interaction.followUp('Lyrics generated');
 			return paginatedLyrics.run(interaction);
 		} catch (e) {
 			Logger.error(e);

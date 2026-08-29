@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawn, execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,6 +22,52 @@ if (fs.existsSync(envPath)) {
 
 if (!fs.existsSync(logsDir)) {
 	fs.mkdirSync(logsDir, { recursive: true });
+}
+
+function extractPortFromUrl(urlStr, defaultPort) {
+	if (!urlStr) return defaultPort;
+	try {
+		const parsed = new URL(urlStr);
+		if (parsed.port) return parseInt(parsed.port, 10);
+		return parsed.protocol === 'https:' ? 443 : 80;
+	} catch {
+		const match = urlStr.match(/:(\d+)/);
+		if (match) return parseInt(match[1], 10);
+		return defaultPort;
+	}
+}
+
+function freePort(port) {
+	if (!port) return;
+	const isWindows = process.platform === 'win32';
+	try {
+		if (isWindows) {
+			const stdout = execSync(`netstat -ano | findstr :${port}`, {
+				encoding: 'utf-8',
+				stdio: ['pipe', 'pipe', 'ignore']
+			});
+			const lines = stdout.split(/\r?\n/);
+			const pidsToKill = new Set();
+			for (const line of lines) {
+				if (line.includes('LISTENING')) {
+					const parts = line.trim().split(/\s+/);
+					const pid = parts[parts.length - 1];
+					if (pid && pid !== '0' && /^\d+$/.test(pid)) {
+						pidsToKill.add(pid);
+					}
+				}
+			}
+			for (const pid of pidsToKill) {
+				try {
+					execSync(`taskkill /F /PID ${pid}`, { stdio: 'ignore' });
+				} catch {}
+			}
+		} else {
+			execSync(`lsof -ti:${port} | xargs kill -9 2>/dev/null || true`, {
+				stdio: 'ignore'
+			});
+		}
+	} catch {}
 }
 
 export function runProcesses(mode = 'dev') {
@@ -49,9 +95,32 @@ export function runProcesses(mode = 'dev') {
 	const isWindows = process.platform === 'win32';
 	const pnpmCmd = isWindows ? 'pnpm.cmd' : 'pnpm';
 
-	const isLavaExternal = process.env.LAVA_EXTERNAL?.toLowerCase() === 'true';
+	const dashboardPort = process.env.PORT
+		? parseInt(process.env.PORT, 10)
+		: extractPortFromUrl(
+				process.env.NEXTAUTH_URL_INTERNAL || process.env.NEXTAUTH_URL,
+				3000
+		  );
 	const lavaHost = process.env.LAVA_HOST || '0.0.0.0';
-	const lavaPort = process.env.LAVA_PORT || '2333';
+	const lavaPort = parseInt(process.env.LAVA_PORT || '2333', 10);
+	const redisPort = parseInt(process.env.REDIS_PORT || '6379', 10);
+
+	const isLavaExternal = process.env.LAVA_EXTERNAL?.toLowerCase() === 'true';
+
+	// Free up configured ports before launching services
+	writeLogToFile(
+		'SYSTEM',
+		`Clearing active processes on configured ports (Dashboard: ${dashboardPort}, Redis: ${redisPort}${
+			isLavaExternal ? '' : `, Lavalink: ${lavaPort}`
+		})...`,
+		combinedStream
+	);
+
+	freePort(dashboardPort);
+	freePort(redisPort);
+	if (!isLavaExternal) {
+		freePort(lavaPort);
+	}
 
 	let lavalinkStatus = 'SKIPPED';
 	let lavalinkProcess = null;
@@ -123,16 +192,17 @@ export function runProcesses(mode = 'dev') {
 ====================================================================
   Execution Mode:    ${mode.toUpperCase()}
   Lavalink Mode:     ${isLavaExternal ? 'EXTERNAL' : 'INTERNAL'} (${lavaHost}:${lavaPort})
+  Configured Ports:  Dashboard: ${dashboardPort} | Redis: ${redisPort} | Lavalink: ${lavaPort}
   
   Active Services:
     • 🤖 Bot Service:       RUNNING  └─ Log: logs/bot.log
-    • 🌐 Web Dashboard:      RUNNING (http://localhost:3000)
+    • 🌐 Web Dashboard:      RUNNING (http://localhost:${dashboardPort})
                                      └─ Log: logs/dashboard.log
     • 🎵 Lavalink Audio:     ${lavalinkStatus}
                                      └─ Log: logs/lavalink.log
   
   Combined System Log: logs/combined.log
-  Live Owner Web Logs: http://localhost:3000/dashboard/logs
+  Live Owner Web Logs: http://localhost:${dashboardPort}/dashboard/logs
 ====================================================================
   All console logs are piped to file. Press Ctrl+C to stop services.
 ====================================================================
