@@ -35,7 +35,7 @@ services:
       - ./logs:/Master-Bot/apps/bot/logs
   lavalink:
     restart: always
-    image: fredboat/lavalink:3-alpine
+    image: ghcr.io/lavalink-devs/lavalink:4-alpine
     healthcheck:
       test: 'echo lavalink'
       interval: 10s

@@ -18,8 +18,10 @@ globalAny.fetch = fetch;
 export const trpcNode = createTRPCProxyClient<AppRouter>({
 	links: [
 		httpBatchLink({
-			url: 'http://localhost:3000/api/trpc'
+			transformer: superjson,
+			url: process.env.NEXTAUTH_URL_INTERNAL
+				? `${process.env.NEXTAUTH_URL_INTERNAL}/api/trpc`
+				: 'http://localhost:3000/api/trpc'
 		})
-	],
-	transformer: superjson
+	]
 });

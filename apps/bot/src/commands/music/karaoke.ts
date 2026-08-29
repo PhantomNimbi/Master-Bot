@@ -1,7 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
-import type { Node, Player } from 'lavaclient';
 
 @ApplyOptions<CommandOptions>({
 	name: 'karaoke',
@@ -29,22 +28,14 @@ export class KaraokeCommand extends Command {
 	) {
 		const { client } = container;
 
-		const player = client.music.players.get(
-			interaction.guild!.id
-		) as Player<Node>;
+		const player = client.music.getPlayer(interaction.guild!.id);
+		if (!player) return interaction.reply({ content: 'No active player.', ephemeral: true });
 
-		player.filters.karaoke = (player.karaoke = !player.karaoke)
-			? {
-					level: 1,
-					monoLevel: 1,
-					filterBand: 220,
-					filterWidth: 100
-			  }
-			: undefined;
+		const enabled = await player.filterManager.toggleKaraoke();
+		(player as any).karaoke = enabled;
 
-		await player.setFilters();
 		return await interaction.reply(
-			`Karaoke ${player.karaoke ? 'enabled' : 'disabled'}`
+			`Karaoke ${enabled ? 'enabled' : 'disabled'}`
 		);
 	}
 }

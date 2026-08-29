@@ -5,6 +5,9 @@
 .env
 .env*.local
 
+# Local tracking plan (never commit)
+PLAN.md
+
 # Turbo
 .turbo
 

@@ -37,7 +37,7 @@ export class LyricsCommand extends Command {
 		const { client } = container;
 		let title = interaction.options.getString('title');
 
-		const player = client.music.players.get(interaction.guild!.id);
+		const player = client.music.getPlayer(interaction.guild!.id);
 
 		await interaction.deferReply();
 

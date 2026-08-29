@@ -1,6 +1,5 @@
 import { ExtendedClient } from './lib/structures/ExtendedClient';
 import { env } from './env';
-import { load } from '@lavaclient/spotify';
 import {
 	ApplicationCommandRegistries,
 	RegisterBehavior
@@ -14,20 +13,13 @@ ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
 	RegisterBehavior.Overwrite
 );
 
-if (env.SPOTIFY_CLIENT_ID && env.SPOTIFY_CLIENT_SECRET) {
-	load({
-		client: {
-			id: env.SPOTIFY_CLIENT_ID,
-			secret: env.SPOTIFY_CLIENT_SECRET
-		},
-		autoResolveYoutubeTracks: true
-	});
-}
-
 const client = new ExtendedClient();
 
 client.on('ready', async () => {
-	client.music.connect(client.user!.id);
+	await client.music.init({
+		id: client.user!.id,
+		username: client.user!.username
+	});
 	client.user?.setActivity('/', {
 		type: ActivityType.Watching
 	});
@@ -93,7 +85,7 @@ client.on('listenerError', err => {
 });
 
 // LavaLink
-client.music.on('error', err => {
+client.music.nodeManager.on('error', (node, err) => {
 	console.log('LavaLink ' + err);
 });
 

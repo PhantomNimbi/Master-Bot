@@ -1,7 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
-import type { Node, Player } from 'lavaclient';
 
 @ApplyOptions<CommandOptions>({
 	name: 'bassboost',
@@ -28,25 +27,28 @@ export class BassboostCommand extends Command {
 	) {
 		const { client } = container;
 
-		const player = client.music.players.get(
-			interaction.guild!.id
-		) as Player<Node>;
+		const player = client.music.getPlayer(interaction.guild!.id);
+		if (!player) return interaction.reply({ content: 'No active player.', ephemeral: true });
 
-		player.filters.equalizer = (player.bassboost = !player.bassboost)
-			? [
-					{ band: 0, gain: 0.55 },
-					{ band: 1, gain: 0.45 },
-					{ band: 2, gain: 0.4 },
-					{ band: 3, gain: 0.3 },
-					{ band: 4, gain: 0.15 },
-					{ band: 5, gain: 0 },
-					{ band: 6, gain: 0 }
-			  ]
-			: undefined;
+		const enabled = !(player as any).bassboost;
+		(player as any).bassboost = enabled;
 
-		await player.setFilters();
+		if (enabled) {
+			await player.filterManager.setEQ([
+				{ band: 0, gain: 0.55 },
+				{ band: 1, gain: 0.45 },
+				{ band: 2, gain: 0.4 },
+				{ band: 3, gain: 0.3 },
+				{ band: 4, gain: 0.15 },
+				{ band: 5, gain: 0 },
+				{ band: 6, gain: 0 }
+			]);
+		} else {
+			await player.filterManager.clearEQ();
+		}
+
 		return await interaction.reply(
-			`Bassboost ${player.bassboost ? 'enabled' : 'disabled'}`
+			`Bassboost ${enabled ? 'enabled' : 'disabled'}`
 		);
 	}
 }

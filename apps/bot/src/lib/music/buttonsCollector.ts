@@ -42,12 +42,12 @@ export default async function buttonsCollector(message: Message, song: Song) {
 			const tracks = await queue.tracks();
 			const NowPlaying = new NowPlayingEmbed(
 				song,
-				queue.player.accuratePosition,
-				queue.player.trackData?.length ?? 0,
-				queue.player.volume,
+				queue.player?.position ?? 0,
+				song.length,
+				queue.player?.volume ?? 100,
 				tracks,
 				tracks.at(-1),
-				queue.player.paused
+				queue.player?.paused ?? false
 			);
 			collector.empty();
 			await i.update({
@@ -72,12 +72,12 @@ export default async function buttonsCollector(message: Message, song: Song) {
 			const tracks = await queue.tracks();
 			const NowPlaying = new NowPlayingEmbed(
 				song,
-				queue.player.accuratePosition,
-				queue.player.trackData?.length ?? 0,
-				queue.player.volume,
+				queue.player?.position ?? 0,
+				song.length,
+				queue.player?.volume ?? 100,
 				tracks,
 				tracks.at(-1),
-				queue.player.paused
+				queue.player?.paused ?? false
 			);
 			collector.empty();
 			await i.update({
@@ -92,12 +92,12 @@ export default async function buttonsCollector(message: Message, song: Song) {
 			const tracks = await queue.tracks();
 			const NowPlaying = new NowPlayingEmbed(
 				song,
-				queue.player.accuratePosition,
-				queue.player.trackData?.length ?? 0,
-				queue.player.volume,
+				queue.player?.position ?? 0,
+				song.length,
+				queue.player?.volume ?? 100,
 				tracks,
 				tracks.at(-1),
-				queue.player.paused
+				queue.player?.paused ?? false
 			);
 			collector.empty();
 			await i.update({ embeds: [await NowPlaying.NowPlayingEmbed()] });

@@ -5,7 +5,7 @@
 	"types": "./index.ts",
 	"license": "ISC",
 	"scripts": {
-		"clean": "rm -rf .turbo node_modules",
+		"clean": "git clean -xdf .turbo node_modules",
 		"lint": "eslint .",
 		"lint:fix": "pnpm lint --fix",
 		"type-check": "tsc --noEmit"
@@ -14,8 +14,8 @@
 		"@master-bot/auth": "^0.1.0",
 		"@master-bot/db": "^0.1.0",
 		"@t3-oss/env-core": "^0.7.1",
-		"@trpc/client": "next",
-		"@trpc/server": "next",
+		"@trpc/client": "^11.15.1",
+		"@trpc/server": "^11.15.1",
 		"axios": "^1.6.2",
 		"discord-api-types": "^0.37.64",
 		"superjson": "1.13.3",

@@ -1,5 +1,4 @@
 import { container } from '@sapphire/framework';
-import { SpotifyItemType } from '@lavaclient/spotify';
 import { Song } from './classes/Song';
 import type { User } from 'discord.js';
 
@@ -8,102 +7,56 @@ export default async function searchSong(
 	user: User
 ): Promise<[string, Song[]]> {
 	const { client } = container;
-	let tracks: Song[] = [];
-	let response;
+	const tracks: Song[] = [];
 	let displayMessage = '';
 	const { avatar, defaultAvatarURL, id, displayName } = user;
+	const requester = {
+		avatar,
+		defaultAvatarURL,
+		id,
+		name: displayName
+	};
 
-	if (client.music.spotify.isSpotifyUrl(query)) {
-		const item = await client.music.spotify.load(query);
-		switch (item?.type) {
-			case SpotifyItemType.Track:
-				const track = await item.resolveYoutubeTrack();
-				tracks = [
-					new Song(track, Date.now(), {
-						avatar,
-						defaultAvatarURL,
-						id,
-						name: displayName
-					})
-				];
-				displayMessage = `Queued track [**${item.name}**](${query}).`;
-				break;
-			case SpotifyItemType.Artist:
-				response = await item.resolveYoutubeTracks();
-				response.forEach(track =>
-					tracks.push(
-						new Song(track, Date.now(), {
-							avatar,
-							defaultAvatarURL,
-							id,
-							name: displayName
-						})
-					)
-				);
-				displayMessage = `Queued the **Top ${tracks.length} tracks** for [**${item.name}**](${query}).`;
-				break;
-			case SpotifyItemType.Album:
-			case SpotifyItemType.Playlist:
-				response = await item.resolveYoutubeTracks();
-				response.forEach(track =>
-					tracks.push(
-						new Song(track, Date.now(), {
-							avatar,
-							defaultAvatarURL,
-							id,
-							name: displayName
-						})
-					)
-				);
-				displayMessage = `Queued **${
-					tracks.length
-				} tracks** from ${SpotifyItemType[item.type].toLowerCase()} [**${
-					item.name
-				}**](${query}).`;
-				break;
-			default:
-				displayMessage = ":x: Couldn't find what you were looking for :(";
-				return [displayMessage, tracks];
+	try {
+		const node = client.music.nodeManager.nodes.values().next().value;
+		if (!node) {
+			displayMessage = ":x: Lavalink node unavailable.";
+			return [displayMessage, tracks];
 		}
-		return [displayMessage, tracks];
-	} else {
-		const results = await client.music.rest.loadTracks(
-			/^https?:\/\//.test(query) ? query : `ytsearch:${query}`
+
+		const identifier = /^https?:\/\//.test(query) ? query : `ytsearch:${query}`;
+		const results: any = await node.makeRequest(
+			`/v4/loadtracks?identifier=${encodeURIComponent(identifier)}`
 		);
 
-		switch (results.loadType) {
-			case 'LOAD_FAILED':
-			case 'NO_MATCHES':
-				displayMessage = ":x: Couldn't find what you were looking for :(";
-				return [displayMessage, tracks];
-			case 'PLAYLIST_LOADED':
-				results.tracks.forEach((track: any) =>
-					tracks.push(
-						new Song(track, Date.now(), {
-							avatar,
-							defaultAvatarURL,
-							id,
-							name: displayName
-						})
-					)
-				);
-				displayMessage = `Queued playlist [**${results.playlistInfo.name}**](${query}), it has a total of **${tracks.length}** tracks.`;
-				break;
-			case 'TRACK_LOADED':
-			case 'SEARCH_RESULT':
-				const [track] = results.tracks;
-				tracks = [
-					new Song(track, Date.now(), {
-						avatar,
-						defaultAvatarURL,
-						id,
-						name: displayName
-					})
-				];
-				displayMessage = `Queued [**${track.info.title}**](${track.info.uri})`;
-				break;
+		if (!results || results.loadType === 'empty' || results.loadType === 'error') {
+			displayMessage = ":x: Couldn't find what you were looking for :(";
+			return [displayMessage, tracks];
 		}
 
-		return [displayMessage, tracks];
+		if (results.loadType === 'playlist') {
+			const playlistTracks = results.data?.tracks || [];
+			playlistTracks.forEach((track: any) =>
+				tracks.push(new Song(track, Date.now(), requester))
+			);
+			displayMessage = `Queued playlist [**${
+				results.data?.info?.name || 'Playlist'
+			}**](${query}), it has a total of **${tracks.length}** tracks.`;
+		} else if (results.loadType === 'search') {
+			const searchTracks = Array.isArray(results.data) ? results.data : [];
+			if (searchTracks.length > 0) {
+				const track = searchTracks[0];
+				tracks.push(new Song(track, Date.now(), requester));
+				displayMessage = `Queued [**${track.info.title}**](${track.info.uri})`;
+			}
+		} else if (results.loadType === 'track') {
+			const track = results.data;
+			tracks.push(new Song(track, Date.now(), requester));
+			displayMessage = `Queued [**${track.info.title}**](${track.info.uri})`;
+		}
+	} catch (err) {
+		displayMessage = ":x: Couldn't find what you were looking for :(";
 	}
+
+	return [displayMessage, tracks];
 }

@@ -22,13 +22,11 @@ export async function manageStageChannel(
 					})
 			);
 	const tracks = await instance.tracks();
+	const currentTitle = tracks.at(0)?.title ?? '';
 	const title =
-		instance.player.trackData?.title.length! > 114
-			? `🎶 ${
-					instance.player.trackData?.title.slice(0, 114) ??
-					tracks.at(0)?.title.slice(0, 114)
-			  }...`
-			: `🎶 ${instance.player.trackData?.title ?? tracks.at(0)?.title ?? ''}`;
+		currentTitle.length > 114
+			? `🎶 ${currentTitle.slice(0, 114)}...`
+			: `🎶 ${currentTitle}`;
 
 	if (!voiceChannel.stageInstance) {
 		await voiceChannel

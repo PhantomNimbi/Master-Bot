@@ -1,7 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
-import type { Node, Player } from 'lavaclient';
 
 @ApplyOptions<CommandOptions>({
 	name: 'vaporwave',
@@ -29,30 +28,14 @@ export class VaporWaveCommand extends Command {
 	) {
 		const { client } = container;
 
-		const player = client.music.players.get(
-			interaction.guild!.id
-		) as Player<Node>;
+		const player = client.music.getPlayer(interaction.guild!.id);
+		if (!player) return interaction.reply({ content: 'No active player.', ephemeral: true });
 
-		player.filters = (player.vaporwave = !player.vaporwave)
-			? {
-					...player.filters,
-					equalizer: [
-						{ band: 1, gain: 0.7 },
-						{ band: 0, gain: 0.6 }
-					],
-					timescale: { pitch: 0.7, speed: 1, rate: 1 },
-					tremolo: { depth: 0.6, frequency: 14 }
-			  }
-			: {
-					...player.filters,
-					equalizer: undefined,
-					timescale: undefined,
-					tremolo: undefined
-			  };
+		const enabled = await player.filterManager.toggleVaporwave();
+		(player as any).vaporwave = enabled;
 
-		await player.setFilters();
 		return await interaction.reply(
-			`Vaporwave ${player.vaporwave ? 'enabled' : 'disabled'}`
+			`Vaporwave ${enabled ? 'enabled' : 'disabled'}`
 		);
 	}
 }

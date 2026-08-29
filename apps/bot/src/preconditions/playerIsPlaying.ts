@@ -15,7 +15,7 @@ export class PlayerIsPlaying extends Precondition {
 		interaction: ChatInputCommandInteraction
 	): PreconditionResult {
 		const { client } = container;
-		const player = client.music.players.get(interaction.guildId as string);
+		const player = client.music.getPlayer(interaction.guildId as string);
 
 		if (!player) {
 			return this.error({ message: 'There is nothing playing at the moment!' });

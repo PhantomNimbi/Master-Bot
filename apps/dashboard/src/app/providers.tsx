@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { ReactQueryStreamedHydration } from '@tanstack/react-query-next-experimental';
 import { loggerLink, unstable_httpBatchStreamLink } from '@trpc/client';
 import superjson from 'superjson';
 
@@ -13,7 +12,7 @@ const getBaseUrl = () => {
 	if (typeof window !== 'undefined') return ''; // browser should use relative url
 	// if (env.VERCEL_URL) return env.VERCEL_URL; // SSR should use vercel url
 
-	return `http://localhost:3000`; // dev SSR should use localhost
+	return process.env.NEXTAUTH_URL_INTERNAL || `http://localhost:3000`; // dev SSR should use internal url
 };
 
 export function TRPCReactProvider(props: {
@@ -33,7 +32,6 @@ export function TRPCReactProvider(props: {
 
 	const [trpcClient] = useState(() =>
 		api.createClient({
-			transformer: superjson,
 			links: [
 				loggerLink({
 					enabled: opts =>
@@ -41,6 +39,7 @@ export function TRPCReactProvider(props: {
 						(opts.direction === 'down' && opts.result instanceof Error)
 				}),
 				unstable_httpBatchStreamLink({
+					transformer: superjson,
 					url: `${getBaseUrl()}/api/trpc`,
 					headers() {
 						const headers = new Map(props.headers);
@@ -55,9 +54,7 @@ export function TRPCReactProvider(props: {
 	return (
 		<api.Provider client={trpcClient} queryClient={queryClient}>
 			<QueryClientProvider client={queryClient}>
-				<ReactQueryStreamedHydration transformer={superjson}>
-					{props.children}
-				</ReactQueryStreamedHydration>
+				{props.children}
 				<ReactQueryDevtools initialIsOpen={false} />
 			</QueryClientProvider>
 		</api.Provider>

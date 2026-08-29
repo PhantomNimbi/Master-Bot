@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:18-slim
+FROM --platform=linux/amd64 node:20-slim
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 ENV NEXT_TELEMETRY_DISABLED 1
@@ -12,11 +12,11 @@ ENV PORT 3000
 RUN apt-get update && apt-get upgrade -y -q && \
     apt-get install -y -q openssl && \
     apt-get install -y -q --no-install-recommends libfontconfig1 && \ 
-    npm install -g pnpm 
+    npm install -g pnpm@8.6.7 
 
 # Copy files to Container (Excluding whats in .dockerignore)
 COPY ./ ./
-RUN pnpm install --ignore-scripts && pnpm -F * build 
+RUN pnpm install --ignore-scripts && pnpm build 
 
 # If you are running Master-Bot in a Standalone Container and need to connect to a service on localhost uncomment the following ENV for each service running on the containers host
 # ENV POSTGRES_HOST="host.docker.internal"

@@ -1,6 +1,20 @@
 import { decode } from '@lavalink/encoding';
-import type { Track, TrackInfo } from '@lavaclient/types/v3';
 import * as MetadataFilter from 'metadata-filter';
+
+export interface TrackInfo {
+	track: string;
+	length: number;
+	identifier: string;
+	author: string;
+	isStream: boolean;
+	position: number;
+	title: string;
+	uri: string;
+	isSeekable: boolean;
+	sourceName: string;
+	thumbnail: string;
+	added: number;
+}
 
 export class Song implements TrackInfo {
 	readonly track: string;
@@ -18,11 +32,10 @@ export class Song implements TrackInfo {
 	added: number;
 
 	constructor(
-		track: string | Track,
+		track: string | any,
 		added?: number,
 		requester?: RequesterInfo
 	) {
-		this.track = typeof track === 'string' ? track : track.track;
 		this.requester = requester;
 		this.added = added ?? Date.now();
 		const filterSet = {
@@ -37,18 +50,20 @@ export class Song implements TrackInfo {
 		};
 		const filter = MetadataFilter.createFilter(filterSet);
 
-		// TODO: make this less shitty
 		if (typeof track !== 'string') {
-			this.length = track.info.length;
-			this.identifier = track.info.identifier;
-			this.author = track.info.author;
-			this.isStream = track.info.isStream;
-			this.position = track.info.position;
-			this.title = filter.filterField('song', track.info.title);
-			this.uri = track.info.uri;
-			this.isSeekable = track.info.isSeekable;
-			this.sourceName = track.info.sourceName;
+			this.track = track.encoded ?? track.track ?? '';
+			this.length = track.info?.length ?? 0;
+			this.identifier = track.info?.identifier ?? '';
+			this.author = track.info?.author ?? '';
+			this.isStream = track.info?.isStream ?? false;
+			this.position = track.info?.position ?? 0;
+			this.title = filter.filterField('song', track.info?.title ?? '');
+			this.uri = track.info?.uri ?? '';
+			this.isSeekable = track.info?.isSeekable ?? true;
+			this.sourceName = track.info?.sourceName ?? 'youtube';
+			this.thumbnail = track.info?.artworkUrl || this.getThumbnailFallback();
 		} else {
+			this.track = track;
 			const decoded = decode(this.track);
 			this.length = Number(decoded.length);
 			this.identifier = decoded.identifier;
@@ -59,32 +74,20 @@ export class Song implements TrackInfo {
 			this.uri = decoded.uri!;
 			this.isSeekable = !decoded.isStream;
 			this.sourceName = decoded.source;
+			this.thumbnail = this.getThumbnailFallback();
 		}
-		// Thumbnails
+	}
+
+	private getThumbnailFallback(): string {
 		switch (this.sourceName) {
-			case 'soundcloud': {
-				this.thumbnail =
-					'https://a-v2.sndcdn.com/assets/images/sc-icons/fluid-b4e7a64b8b.png'; // SoundCloud Logo
-				break;
-			}
-			case 'vimeo': {
-				this.thumbnail = 'https://i.imgur.com/npxyTWi.png'; // Vimeo Logo
-				break;
-			}
-
-			case 'youtube': {
-				this.thumbnail = `https://img.youtube.com/vi/${this.identifier}/hqdefault.jpg`; // Track Thumbnail
-				break;
-			}
-			case 'twitch': {
-				this.thumbnail = 'https://i.imgur.com/nO3f4jq.png'; // large Twitch Logo
-				break;
-			}
-
-			default: {
-				this.thumbnail = 'https://cdn.discordapp.com/embed/avatars/1.png'; // Discord Default Avatar
-				break;
-			}
+			case 'vimeo':
+				return 'https://i.imgur.com/npxyTWi.png';
+			case 'youtube':
+				return `https://img.youtube.com/vi/${this.identifier}/hqdefault.jpg`;
+			case 'twitch':
+				return 'https://i.imgur.com/nO3f4jq.png';
+			default:
+				return 'https://cdn.discordapp.com/embed/avatars/1.png';
 		}
 	}
 }

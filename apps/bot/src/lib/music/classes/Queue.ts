@@ -7,8 +7,7 @@ import type {
 	VoiceChannel
 } from 'discord.js';
 import type { Song } from './Song';
-import type { Track } from '@lavaclient/types/v3';
-import type { DiscordResource, Player, Snowflake } from 'lavaclient';
+import type { Player } from 'lavalink-client';
 import { container } from '@sapphire/framework';
 import type { QueueStore } from './QueueStore';
 import { Time } from '@sapphire/time-utilities';
@@ -38,13 +37,13 @@ export interface Loop {
 }
 
 export interface AddOptions {
-	requester?: Snowflake | DiscordResource;
+	requester?: string;
 	userInfo?: GuildMember;
 	added?: number;
 	next?: boolean;
 }
 
-export type Addable = string | Track | Song;
+export type Addable = string | Song;
 
 interface NowPlaying {
 	song: Song;
@@ -65,7 +64,7 @@ interface QueueKeys {
 
 export class Queue {
 	public readonly keys: QueueKeys;
-	private skipped: boolean;
+	public skipped: boolean;
 
 	public constructor(
 		public readonly store: QueueStore,
@@ -91,15 +90,15 @@ export class Queue {
 	}
 
 	public get player(): Player {
-		return this.store.client.players.get(this.guildID)!;
+		return this.store.client.getPlayer(this.guildID)!;
 	}
 
 	public get playing(): boolean {
-		return this.player.playing;
+		return Boolean(this.player?.playing);
 	}
 
 	public get paused(): boolean {
-		return this.player.paused;
+		return Boolean(this.player?.paused);
 	}
 
 	public get guild(): Guild {
@@ -115,26 +114,24 @@ export class Queue {
 
 	public get voiceChannelID(): string | null {
 		if (!this.player) return null;
-		return this.player.channelId ?? null;
+		return this.player.voiceChannelId ?? null;
 	}
 
-	public createPlayer(): Player {
+	public createPlayer(voiceChannelId?: string): Player {
 		let player = this.player;
 		if (!player) {
-			player = this.store.client.createPlayer(this.guildID);
-			player.on('trackEnd', async () => {
-				if (!this.skipped) {
-					await this.next();
-				}
-				this.skipped = false;
+			player = this.store.client.createPlayer({
+				guildId: this.guildID,
+				voiceChannelId: voiceChannelId || '',
+				selfDeaf: true
 			});
 		}
 		return player;
 	}
 
-	public destroyPlayer(): void {
+	public async destroyPlayer(): Promise<void> {
 		if (this.player) {
-			this.store.client.destroyPlayer(this.guildID);
+			await this.player.destroy();
 		}
 	}
 
@@ -144,8 +141,8 @@ export class Queue {
 		if (!np) return this.next();
 
 		try {
-			this.player.setVolume(await this.getVolume());
-			await this.player.play(np.song as Song);
+			await this.player.setVolume(await this.getVolume());
+			await this.player.play({ track: { encoded: (np.song as Song).track } });
 		} catch (err) {
 			Logger.error(err);
 			await this.leave();
@@ -183,7 +180,7 @@ export class Queue {
 	}
 
 	public async pause(interaction?: CommandInteraction) {
-		await this.player.pause(true);
+		await this.player.pause();
 		await this.setSystemPaused(false);
 		if (interaction) {
 			this.client.emit('musicSongPause', interaction);
@@ -191,7 +188,7 @@ export class Queue {
 	}
 
 	public async resume(interaction?: CommandInteraction) {
-		await this.player.pause(false);
+		await this.player.resume();
 		await this.setSystemPaused(false);
 		if (interaction) {
 			this.client.emit('musicSongResume', interaction);
@@ -273,7 +270,9 @@ export class Queue {
 
 	// connect to a voice channel
 	public async connect(channelID: string): Promise<void> {
-		await this.player.connect(channelID, { deafened: true });
+		const player = this.createPlayer(channelID);
+		player.voiceChannelId = channelID;
+		await player.connect();
 	}
 
 	// leave the voice channel
@@ -281,9 +280,9 @@ export class Queue {
 		if (await this.getEmbed()) {
 			await deletePlayerEmbed(this);
 		}
-		if (this.client.leaveTimers[this.guildID]) {
-			clearTimeout(this.client.leaveTimers[this.player.guildId]);
-			delete this.client.leaveTimers[this.player.guildId];
+		if (this.player && this.client.leaveTimers[this.guildID]) {
+			clearTimeout(this.client.leaveTimers[this.guildID]);
+			delete this.client.leaveTimers[this.guildID];
 		}
 		if (!this.player) return;
 		await this.player.disconnect();
@@ -388,7 +387,7 @@ export class Queue {
 	}
 
 	public async stop(): Promise<void> {
-		await this.player.stop();
+		await this.destroyPlayer();
 	}
 
 	public async clearTracks(): Promise<void> {

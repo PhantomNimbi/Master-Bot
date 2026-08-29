@@ -2,7 +2,7 @@ import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
 import searchSong from '../../lib/music/searchSong';
-import type { Song } from '../../lib/music/classes/Song';
+import { Song } from '../../lib/music/classes/Song';
 import { trpcNode } from '../../trpc';
 import { GuildMember } from 'discord.js';
 
@@ -101,8 +101,7 @@ export class PlayCommand extends Command {
 		await queue.setTextChannelID(interaction.channel!.id);
 
 		if (!queue.player) {
-			const player = queue.createPlayer();
-			await player.connect(voiceChannel.id, { deafened: true });
+			await queue.connect(voiceChannel.id);
 		}
 
 		let tracks: Song[] = [];
@@ -124,7 +123,7 @@ export class PlayCommand extends Command {
 			}
 
 			const { songs } = playlist;
-			tracks.push(...songs);
+			tracks.push(...songs.map(song => new Song(song)));
 			message = `Added songs from **${playlist}** to the queue!`;
 		} else {
 			const trackTuple = await searchSong(query, interaction.user);

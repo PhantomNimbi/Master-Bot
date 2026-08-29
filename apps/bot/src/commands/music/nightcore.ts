@@ -1,7 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
-import type { Node, Player } from 'lavaclient';
 
 @ApplyOptions<CommandOptions>({
 	name: 'nightcore',
@@ -29,17 +28,14 @@ export class NightcoreCommand extends Command {
 	) {
 		const { client } = container;
 
-		const player = client.music.players.get(
-			interaction.guild!.id
-		) as Player<Node>;
+		const player = client.music.getPlayer(interaction.guild!.id);
+		if (!player) return interaction.reply({ content: 'No active player.', ephemeral: true });
 
-		player.filters.timescale = (player.nightcore = !player.nightcore)
-			? { speed: 1.125, pitch: 1.125, rate: 1 }
-			: undefined;
+		const enabled = await player.filterManager.toggleNightcore();
+		(player as any).nightcore = enabled;
 
-		await player.setFilters();
 		return await interaction.reply(
-			`Nightcore ${player.nightcore ? 'enabled' : 'disabled'}`
+			`Nightcore ${enabled ? 'enabled' : 'disabled'}`
 		);
 	}
 }
