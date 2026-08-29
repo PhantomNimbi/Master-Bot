@@ -19,9 +19,9 @@ Master-Bot integrates with several services. Below is a guide on how to acquire 
 - **Klipy Partner Panel:** [Klipy Developers](https://klipy.com/developers)
 - Obtain an API key and set `KLIPY_API` in `.env`.
 
-### YouTube Refresh Token (Music Engine)
-- Used for persistent authentication with YouTube plugins in Lavalink v4.
-- Set `YOUTUBE_REFRESH_TOKEN` in `.env`.
+### YouTube Data V3 API & Refresh Token (Music Engine)
+- **YouTube API Key (`YOUTUBE_API_KEY`):** Required for YouTube Data V3 API device flow to obtain tokens.
+- **YouTube Refresh Token (`YOUTUBE_REFRESH_TOKEN`):** Used for persistent authentication with YouTube plugins in Lavalink v4.
 
 ### Genius API (Song Lyrics)
 - **Genius API Portal:** [Genius API Clients](https://genius.com/api-clients/new)

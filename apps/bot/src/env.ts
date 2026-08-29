@@ -21,6 +21,7 @@ export const env = createEnv({
 		LAVA_PORT: z.string().optional(),
 		LAVA_PASS: z.string().optional(),
 		LAVA_SECURE: z.string().optional(),
+		YOUTUBE_API_KEY: z.string().optional(),
 		YOUTUBE_REFRESH_TOKEN: z.string().optional(),
 		SPOTIFY_CLIENT_ID: z.string().optional(),
 		SPOTIFY_CLIENT_SECRET: z.string().optional()
