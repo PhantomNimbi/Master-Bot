@@ -69,18 +69,23 @@ export function freePort(port) {
 
 export function isAuthInfo(line) {
 	const lower = line.toLowerCase();
+
+	// Exclude Spring/Lavalink exception stack traces
+	if (
+		lower.includes('exception') ||
+		lower.includes('caused by:') ||
+		lower.includes('unsatisfieddependencyexception') ||
+		lower.includes('beancreationexception')
+	) {
+		return false;
+	}
+
 	return (
 		line.includes('google.com/device') ||
 		line.includes('https://www.google.com/device') ||
 		line.includes('To authenticate') ||
-		line.includes('enter code') ||
-		(lower.includes('device') && lower.includes('code')) ||
-		(lower.includes('oauth') && lower.includes('code')) ||
-		lower.includes('user_code') ||
-		lower.includes('verification_url') ||
-		lower.includes('access_token') ||
-		lower.includes('refresh_token') ||
-		lower.includes('discord_token')
+		(lower.includes('device') && lower.includes('code') && lower.includes('enter')) ||
+		(lower.includes('user_code') && lower.includes('verification_url'))
 	);
 }
 
@@ -94,7 +99,7 @@ export function createLogWriter(fileStream, combinedStream) {
 			if (isAuthInfo(line)) {
 				// DO NOT write sensitive auth info to disk log files!
 				// Display directly in custom console output for the user:
-				const authBanner = `\n\x1b[1;33m====================================================================\x1b[0m\n\x1b[1;32m🔑 [DIRECT CONSOLE AUTHENTICATION PROMPT]\x1b[0m\n\x1b[1;36m Source:\x1b[0m [${prefix}]\n\x1b[1;37m ${line.trim()}\x1b[0m\n\x1b[1;33m====================================================================\x1b[0m\n\n`;
+				const authBanner = `\n\x1b[1;33m====================================================================\x1b[0m\n\x1b[1;32m🔑 [YOUTUBE OAUTH DEVICE AUTHENTICATION REQUIRED]\x1b[0m\n\x1b[1;36m Source:\x1b[0m [${prefix}]\n\x1b[1;37m ${line.trim()}\x1b[0m\n\x1b[1;33m====================================================================\x1b[0m\n\n`;
 				process.stdout.write(authBanner);
 			} else {
 				const entry = `[${timestamp}] [${prefix}] ${line}\n`;

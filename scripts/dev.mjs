@@ -82,21 +82,19 @@ if (isLavaExternal) {
 	}
 }
 
-// 2. Launch Bot in DEV mode
+// 2. Launch Bot in DEV mode (no shell: true to prevent DEP0190 warning)
 const botProcess = spawn(pnpmCmd, ['--filter', '@master-bot/bot', 'dev'], {
-	cwd: rootDir,
-	shell: isWindows
+	cwd: rootDir
 });
 botProcess.stdout.on('data', data => writeBotLog('BOT', data));
 botProcess.stderr.on('data', data => writeBotLog('BOT-ERR', data));
 
-// 3. Launch Dashboard in DEV mode
+// 3. Launch Dashboard in DEV mode (no shell: true to prevent DEP0190 warning)
 const dashboardProcess = spawn(
 	pnpmCmd,
 	['--filter', '@master-bot/dashboard', 'dev'],
 	{
-		cwd: rootDir,
-		shell: isWindows
+		cwd: rootDir
 	}
 );
 dashboardProcess.stdout.on('data', data => writeDashboardLog('DASHBOARD', data));

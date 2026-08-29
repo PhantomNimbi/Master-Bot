@@ -82,21 +82,19 @@ if (isLavaExternal) {
 	}
 }
 
-// 2. Launch Bot in START (Production) mode
+// 2. Launch Bot in START (Production) mode (no shell: true to prevent DEP0190 warning)
 const botProcess = spawn(pnpmCmd, ['--filter', '@master-bot/bot', 'start'], {
-	cwd: rootDir,
-	shell: isWindows
+	cwd: rootDir
 });
 botProcess.stdout.on('data', data => writeBotLog('BOT', data));
 botProcess.stderr.on('data', data => writeBotLog('BOT-ERR', data));
 
-// 3. Launch Dashboard in START (Production) mode
+// 3. Launch Dashboard in START (Production) mode (no shell: true to prevent DEP0190 warning)
 const dashboardProcess = spawn(
 	pnpmCmd,
 	['--filter', '@master-bot/dashboard', 'start'],
 	{
-		cwd: rootDir,
-		shell: isWindows
+		cwd: rootDir
 	}
 );
 dashboardProcess.stdout.on('data', data => writeDashboardLog('DASHBOARD', data));

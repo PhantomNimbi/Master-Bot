@@ -30,6 +30,7 @@ out
 
 # Lavalink
 Lavalink.jar
+plugins/
 application.yml
 application.yaml
 
