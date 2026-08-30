@@ -76,3 +76,36 @@ Master-Bot features over 60 slash commands organized cleanly into categories. Us
 | `/ping` | Check bot gateway latency | `/ping` |
 | `/about` | View Master-Bot version, uptime, and system info | `/about` |
 | `/activity` | Generate voice channel Discord Activity invite link | `/activity channel: Voice Channel` |
+
+---
+
+## 🔧 Server Settings (`/set` Subcommands)
+
+| Subcommand | Description | Example |
+|---|---|---|
+| `/set view` | Display comprehensive server configuration embed | `/set view` |
+| `/set welcome-channel` | Designate target channel for member welcome greetings | `/set welcome-channel channel: #welcome` |
+| `/set welcome-message` | Set custom welcome message (`{user}`, `{username}`, `{server}`, `{position}`) | `/set welcome-message message: Welcome {user}!` |
+| `/set welcome-toggle` | Enable or disable automatic welcome greetings | `/set welcome-toggle enabled: true` |
+| `/set welcome-test` | Test welcome greeting formatting in the current channel | `/set welcome-test` |
+| `/set log-channel` | Designate target channel for server audit & event logging | `/set log-channel channel: #mod-logs` |
+| `/set log-toggle` | Enable or disable server audit & event logging | `/set log-toggle enabled: true` |
+| `/set log-disable` | Disable audit logging | `/set log-disable` |
+| `/set ticket-channel` | Set channel for support ticket panel and spawn threads | `/set ticket-channel channel: #support` |
+| `/set ticket-toggle` | Enable or disable support ticket system | `/set ticket-toggle enabled: true` |
+| `/set ticket-panel` | Post/update interactive ticket creation panel with button | `/set ticket-panel` |
+| `/set ticket-transcript` | Designate channel for closed ticket transcript archival | `/set ticket-transcript channel: #ticket-transcripts` |
+| `/set ticket-transcript-disable` | Disable ticket transcript archiving | `/set ticket-transcript-disable` |
+| `/set twitch-add` | Add Twitch streamer to live notification monitor | `/set twitch-add streamer: shroud channel: #streams` |
+| `/set twitch-remove` | Remove Twitch streamer from monitor | `/set twitch-remove streamer: shroud` |
+| `/set twitch-list` | Display monitored Twitch channels | `/set twitch-list` |
+| `/set default-volume` | Set default audio playback volume (1 - 100) | `/set default-volume volume: 80` |
+| `/set reset` | Reset server settings to default | `/set reset` |
+
+---
+
+## 🎫 Support Ticket Buttons & Thread Workflow
+
+Master-Bot utilizes button listeners to eliminate command bloat:
+1. **Open Ticket (`ticket_create`):** Clicking the button on the panel creates a dedicated Discord Thread (`🎫・ticket-username`), mentions the ticket creator, and presents the greeting embed with a **Close Ticket** button.
+2. **Close Ticket (`ticket_close`):** Clicking the button marks the ticket closed, compiles a full `.txt` chat transcript if a transcript channel is configured, posts it with audit metadata, and locks/archives the thread.

@@ -38,12 +38,15 @@ Master-Bot/
 ## ⚡ Key Features
 
 - **🎵 High-Performance Audio Engine:** Powered by **Lavalink v4** with support for YouTube, Spotify metadata resolution (`lavasrc-plugin`), SoundCloud fallback, Vimeo, Twitch, and direct audio streams.
+- **🔨 Full Moderation Suite:** Dedicated slash commands (`/ban`, `/kick`, `/slowmode`, `/timeout`, `/purge`) with permission hierarchy validation and safety checks.
+- **🎫 Thread-Based Support Ticket System:** Interactive ticket panel with auto-posting buttons (`ticket_create`, `ticket_close`), thread management, dynamic greeting templates (`{user}`, `{username}`, `{server}`), and secure transcript archiving.
+- **📜 Granular Event & Audit Logging:** Multi-category logging system supporting 18 event triggers with customizable channel targets.
 - **🗄️ Automatic Database Migrations:** `pnpm dev` and `pnpm start` automatically execute `prisma db push` on launch before the bot process starts.
 - **🔑 Native YouTube Device Flow OAuth & In-Memory Protection:**
   - Automated detection and formatted device code prompt displayed directly in the terminal console.
   - Runtime token capture updates `process.env.YOUTUBE_REFRESH_TOKEN` strictly in process memory.
   - Native Spring environment variable binding (`refreshToken: "${YOUTUBE_REFRESH_TOKEN}"` in `application.yml`) prevents file mutation and `.env` disk corruption.
-- **🌐 Interactive Web Dashboard:** Next.js 14 dashboard with Discord OAuth login, live command logs, server settings, and real-time audio statistics.
+- **🌐 Interactive Web Dashboard:** Modern **Next.js 15** App Router dashboard with Discord OAuth login, server settings, custom welcome & ticket message editors with live previews, and audit log controls.
 - **🚀 Cross-Platform Unified Launchers:** `pnpm dev` and `pnpm start` automatically manage ports (`3000`, `6379`, `2333`), clear lingering processes, route output to isolated log files (`logs/`), and present a clean console status UI.
 - **🖼️ Reaction GIFs & Media:** Powered by Klipy API and Waifu.im.
 - **🎮 Gaming & Info:** Live Twitch channel alerts, IGDB game search, and TVMaze TV show info.
