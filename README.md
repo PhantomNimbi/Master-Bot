@@ -115,7 +115,7 @@ You can also re-trigger authorization any time with the `/youtube-auth` command 
 
 ## 📖 Available Commands
 
-> Master-Bot ships with **66 slash commands** across Music, Moderation, GIFs, Utilities, and more. For the complete, up-to-date list and the `/set` subcommands, see the [Commands Reference](wiki/Commands-Reference.md).
+> Master-Bot ships with **67 slash commands** across Music, Moderation, GIFs, Utilities, and more. For the complete, up-to-date list and the `/set` subcommands, see the [Commands Reference](wiki/Commands-Reference.md).
 
 ### 🎵 Music
 | Command | Description |
@@ -141,6 +141,7 @@ You can also re-trigger authorization any time with the `/youtube-auth` command 
 | `/youtube-auth` | Re-trigger YouTube OAuth (Owner Only) |
 | `/game-search` | Search video game info via IGDB |
 | `/twitch-status` | Check a Twitch streamer's live status |
+| `/dashboard` | Get a link to the web dashboard |
 
 ---
 

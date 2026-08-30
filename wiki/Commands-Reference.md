@@ -1,6 +1,6 @@
 # Complete Commands Reference
 
-Master-Bot features **66 slash commands** organized cleanly into categories. Use `/help` in Discord to open the interactive category browser or view specific parameter details.
+Master-Bot features **67 slash commands** organized cleanly into categories. Use `/help` in Discord to open the interactive category browser or view specific parameter details.
 
 ---
 
@@ -100,7 +100,8 @@ Master-Bot features **66 slash commands** organized cleanly into categories. Use
 | `/set` | Configure server settings (Welcome, Logging, Tickets, Twitch, Volume) | `/set <subcommand>` |
 | `/youtube-auth` | Authorize YouTube playback via Device Flow (Owner Only) | `/youtube-auth` |
 | `/avatar` | Reply with a user's Discord avatar | `/avatar user: @User` |
-| `/about` | Display info about the bot | `/about` |
+| `/about` | Get detailed information about the bot, server, or a user | `/about` |
+| `/dashboard` | Get a link to the web dashboard | `/dashboard` |
 | `/ping` | Reply with pong! | `/ping` |
 
 ---
