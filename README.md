@@ -146,6 +146,8 @@ When launching for the first time without a YouTube refresh token:
 | `/nowplaying` | Show playback progress and track details | `/nowplaying` |
 | `/volume` | Adjust playback volume (1-100) | `/volume level: 80` |
 | `/lyrics` | Fetch song lyrics | `/lyrics song: Bohemian Rhapsody` |
+| `/music-trivia` | Start an interactive voice channel music trivia game | `/music-trivia rounds: 5 category: 90s` |
+| `/stop-trivia` | Stop an ongoing music trivia game | `/stop-trivia` |
 | `/help` | Interactive command directory & detailed help | `/help` |
 
 ### ⚙️ Utility & Owner Commands

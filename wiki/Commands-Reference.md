@@ -22,6 +22,8 @@ Master-Bot features over 60 slash commands organized cleanly into categories. Us
 | `/my-playlists` | View your saved playlists | `/my-playlists` |
 | `/display-playlist` | Inspect tracks in a custom playlist | `/display-playlist name: Favorites` |
 | `/delete-playlist` | Delete a custom playlist | `/delete-playlist name: Favorites` |
+| `/music-trivia` | Start an interactive voice channel music trivia game | `/music-trivia rounds: 5 category: 90s` |
+| `/stop-trivia` | Stop an ongoing music trivia game | `/stop-trivia` |
 
 ---
 

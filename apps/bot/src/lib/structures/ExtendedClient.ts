@@ -12,10 +12,12 @@ import { deletePlayerEmbed } from '../music/buttonsCollector';
 import type { ClientTwitchExtension } from './../../lib/twitch/twitchAPI-types';
 import { TwitchAPI } from '../twitch/twitchAPI';
 import Logger from '../logger';
+import type { TriviaSession } from '../music/classes/TriviaSession';
 
 export class ExtendedClient extends SapphireClient {
 	readonly music: QueueClient;
 	leaveTimers: { [key: string]: NodeJS.Timeout };
+	triviaSessions: Map<string, TriviaSession> = new Map();
 	twitch: ClientTwitchExtension = {
 		api: new TwitchAPI(
 			process.env.TWITCH_CLIENT_ID,
@@ -121,6 +123,7 @@ declare module '@sapphire/framework' {
 	interface SapphireClient {
 		readonly music: QueueClient;
 		leaveTimers: { [key: string]: NodeJS.Timeout };
+		triviaSessions: Map<string, TriviaSession>;
 		twitch: ClientTwitchExtension;
 	}
 }
