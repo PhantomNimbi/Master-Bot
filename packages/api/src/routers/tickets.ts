@@ -1,6 +1,81 @@
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 
+const DEFAULT_PANEL_MESSAGE =
+	'👋 Welcome to **{server}** Support!\n\n' +
+	'Need assistance, have an inquiry, or want to speak with server staff?\n' +
+	'• Please have any relevant screenshots, error logs, or details ready.\n' +
+	'• A support representative or moderator will assist you shortly.\n\n' +
+	'Click the **Open Ticket** button below to create your private support thread.';
+
+async function postTicketPanel(
+	channelId: string,
+	guildName?: string,
+	customMessage?: string | null
+) {
+	const token = process.env.DISCORD_TOKEN;
+	if (!token || !channelId) return;
+
+	try {
+		const rawText =
+			customMessage && customMessage.trim().length > 0
+				? customMessage
+				: DEFAULT_PANEL_MESSAGE;
+
+		const description = rawText
+			.replace(/\{server\}|\{guild\}/g, guildName || 'Server')
+			.replace(/\{user\}|\{mention\}/g, 'you')
+			.replace(/\{username\}/g, 'you');
+
+		const payload = {
+			embeds: [
+				{
+					title: `🎫 ${guildName || 'Server'} Support Tickets`,
+					description,
+					color: 0x5865f2,
+					footer: { text: 'Support Ticket System • Master-Bot' }
+				}
+			],
+			components: [
+				{
+					type: 1,
+					components: [
+						{
+							type: 2,
+							style: 1,
+							label: 'Open Ticket',
+							custom_id: 'ticket_create',
+							emoji: { name: '🎫' }
+						}
+					]
+				}
+			]
+		};
+
+		const res = await fetch(
+			`https://discord.com/api/v10/channels/${channelId}/messages`,
+			{
+				method: 'POST',
+				headers: {
+					Authorization: `Bot ${token}`,
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(payload)
+			}
+		);
+
+		if (!res.ok) {
+			const errText = await res.text();
+			console.error(
+				`Failed to post ticket panel to Discord (HTTP ${res.status}):`,
+				errText
+			);
+		}
+	} catch (err) {
+		console.error('Failed to post ticket panel:', err);
+	}
+}
+
 export const ticketsRouter = createTRPCRouter({
 	getConfig: publicProcedure
 		.input(
@@ -48,6 +123,10 @@ export const ticketsRouter = createTRPCRouter({
 				}
 			});
 
+			if (channelId) {
+				await postTicketPanel(channelId, guild.name, guild.ticketMessage);
+			}
+
 			return { guild };
 		}),
 
@@ -86,6 +165,14 @@ export const ticketsRouter = createTRPCRouter({
 				data: { ticketEnabled: status }
 			});
 
+			if (status && guild.ticketChannel) {
+				await postTicketPanel(
+					guild.ticketChannel,
+					guild.name,
+					guild.ticketMessage
+				);
+			}
+
 			return { guild };
 		}),
 
@@ -103,6 +190,10 @@ export const ticketsRouter = createTRPCRouter({
 				where: { id: guildId },
 				data: { ticketMessage: message }
 			});
+
+			if (guild.ticketChannel && guild.ticketEnabled) {
+				await postTicketPanel(guild.ticketChannel, guild.name, message);
+			}
 
 			return { guild };
 		}),

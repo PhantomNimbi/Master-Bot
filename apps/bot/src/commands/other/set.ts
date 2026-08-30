@@ -633,18 +633,31 @@ export class SetCommand extends Command {
 						channelId: channel.id
 					});
 
+					const ticketConfig = await trpcNode.tickets.getConfig.query({ guildId });
+					const template =
+						ticketConfig.guild?.ticketMessage &&
+						ticketConfig.guild.ticketMessage.trim().length > 0
+							? ticketConfig.guild.ticketMessage
+							: '👋 Welcome to **{server}** Support!\n\n' +
+								'Need assistance, have an inquiry, or want to speak with server staff?\n' +
+								'• Please have any relevant screenshots, error logs, or details ready.\n' +
+								'• A support representative or moderator will assist you shortly.\n\n' +
+								'Click the **Open Ticket** button below to create your private support thread.';
+
+					const formatted = template
+						.replace(/\{server\}|\{guild\}/g, interaction.guild?.name || 'Server')
+						.replace(/\{user\}|\{mention\}|\{username\}/g, 'you');
+
 					// Automatically send the ticket panel message to the configured channel
 					const panelEmbed = new EmbedBuilder()
-						.setTitle(`🎫 ${interaction.guild?.name} Support Tickets`)
-						.setDescription(
-							'Need help, have an inquiry, or want to speak with server staff?\n\n' +
-								'Click the **Open Ticket** button below to create a private support thread with our moderation team.'
-						)
+						.setTitle(`🎫 ${interaction.guild?.name || 'Server'} Support Tickets`)
+						.setDescription(formatted)
 						.setColor(0x5865f2)
 						.setFooter({
 							text: 'Support Ticket System • Master-Bot',
 							iconURL: interaction.guild?.iconURL() || undefined
-						});
+						})
+						.setTimestamp();
 
 					const openButton = new ButtonBuilder()
 						.setCustomId('ticket_create')
@@ -684,17 +697,29 @@ export class SetCommand extends Command {
 								.catch(() => null)) as TextChannel | null;
 
 							if (targetChannel) {
+								const template =
+									ticketConfig.guild?.ticketMessage &&
+									ticketConfig.guild.ticketMessage.trim().length > 0
+										? ticketConfig.guild.ticketMessage
+										: '👋 Welcome to **{server}** Support!\n\n' +
+											'Need assistance, have an inquiry, or want to speak with server staff?\n' +
+											'• Please have any relevant screenshots, error logs, or details ready.\n' +
+											'• A support representative or moderator will assist you shortly.\n\n' +
+											'Click the **Open Ticket** button below to create your private support thread.';
+
+								const formatted = template
+									.replace(/\{server\}|\{guild\}/g, interaction.guild.name)
+									.replace(/\{user\}|\{mention\}|\{username\}/g, 'you');
+
 								const panelEmbed = new EmbedBuilder()
 									.setTitle(`🎫 ${interaction.guild.name} Support Tickets`)
-									.setDescription(
-										'Need help, have an inquiry, or want to speak with server staff?\n\n' +
-											'Click the **Open Ticket** button below to create a private support thread with our moderation team.'
-									)
+									.setDescription(formatted)
 									.setColor(0x5865f2)
 									.setFooter({
 										text: 'Support Ticket System • Master-Bot',
 										iconURL: interaction.guild.iconURL() || undefined
-									});
+									})
+									.setTimestamp();
 
 								const openButton = new ButtonBuilder()
 									.setCustomId('ticket_create')
@@ -742,17 +767,29 @@ export class SetCommand extends Command {
 						});
 					}
 
+					const template =
+						ticketConfig.guild?.ticketMessage &&
+						ticketConfig.guild.ticketMessage.trim().length > 0
+							? ticketConfig.guild.ticketMessage
+							: '👋 Welcome to **{server}** Support!\n\n' +
+								'Need assistance, have an inquiry, or want to speak with server staff?\n' +
+								'• Please have any relevant screenshots, error logs, or details ready.\n' +
+								'• A support representative or moderator will assist you shortly.\n\n' +
+								'Click the **Open Ticket** button below to create your private support thread.';
+
+					const formatted = template
+						.replace(/\{server\}|\{guild\}/g, interaction.guild?.name || 'Server')
+						.replace(/\{user\}|\{mention\}|\{username\}/g, 'you');
+
 					const panelEmbed = new EmbedBuilder()
-						.setTitle(`🎫 ${interaction.guild?.name} Support Tickets`)
-						.setDescription(
-							'Need help, have an inquiry, or want to speak with server staff?\n\n' +
-								'Click the **Open Ticket** button below to create a private support thread with our moderation team.'
-						)
+						.setTitle(`🎫 ${interaction.guild?.name || 'Server'} Support Tickets`)
+						.setDescription(formatted)
 						.setColor(0x5865f2)
 						.setFooter({
 							text: 'Support Ticket System • Master-Bot',
 							iconURL: interaction.guild?.iconURL() || undefined
-						});
+						})
+						.setTimestamp();
 
 					const openButton = new ButtonBuilder()
 						.setCustomId('ticket_create')
