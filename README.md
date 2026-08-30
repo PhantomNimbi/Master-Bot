@@ -5,10 +5,7 @@
 [![pnpm](https://img.shields.io/badge/Package_Manager-pnpm-orange)](https://pnpm.io/)
 [![Lavalink](https://img.shields.io/badge/Lavalink-v4.x-purple)](https://github.com/lavalink-devs/Lavalink)
 
-**Master-Bot** is a production-ready, high-performance Discord Music and Utility Bot monorepo featuring a full-featured **Next.js Web Dashboard**. Built with **TypeScript**, **Sapphire Framework**, **discord.js v14**, **Next.js 14**, **tRPC v11**, **Prisma ORM**, **Redis**, and **Lavalink v4**.
-
-> [!NOTE]
-> **Audio Engine Status Notice:** Music playback commands are currently disabled while comprehensive cross-platform YouTube audio engine upgrades and custom plugin developments are underway. All web dashboard features, moderation tools, utilities, and guild management systems remain fully operational.
+**Master-Bot** is a production-ready, high-performance Discord Music and Utility Bot monorepo featuring a full-featured **Next.js Web Dashboard**. Built with **TypeScript**, **Sapphire Framework**, **discord.js v14**, **Next.js 15**, **tRPC v11**, **Prisma ORM**, **Redis**, and **Lavalink v4**.
 
 ---
 
@@ -20,7 +17,7 @@ Master-Bot is organized as a Turbo monorepo managed with `pnpm` workspaces:
 Master-Bot/
 ├── apps/
 │   ├── bot/           # Sapphire & Discord.js v14 Bot Application
-│   └── dashboard/     # Next.js 14 Web Dashboard (Tailwind CSS, NextAuth, tRPC)
+│   └── dashboard/     # Next.js 15 Web Dashboard (Tailwind CSS, NextAuth, tRPC)
 ├── packages/
 │   ├── api/           # Shared tRPC v11 Routers & API Procedures
 │   ├── auth/          # Shared NextAuth.js Configuration
@@ -131,8 +128,8 @@ When launching for the first time without a YouTube refresh token:
 1. Lavalink's `youtube-plugin` triggers the OAuth device flow.
 2. The launcher displays a prompt in the terminal console containing the link (`https://www.google.com/device`) and user code (`XXXX-XXXX`).
 3. Visit the link in your browser and authorize the device code.
-4. The launcher automatically captures the issued token into process memory (`process.env.YOUTUBE_REFRESH_TOKEN`).
-5. Lavalink binds the in-memory token natively via `${YOUTUBE_REFRESH_TOKEN}` in `application.yml` without modifying disk files.
+4. The launcher automatically captures the issued token, saves it atomically to `.youtube-oauth.json`, and updates `process.env.YOUTUBE_REFRESH_TOKEN`.
+5. Lavalink binds the token natively via `${YOUTUBE_REFRESH_TOKEN}` in `application.yml` and Java system properties without modifying `.env` on disk.
 
 ---
 
@@ -144,6 +141,7 @@ When launching for the first time without a YouTube refresh token:
 | `/play` | Play a song or playlist from YouTube, Spotify, etc. | `/play query: darude sandstorm` |
 | `/pause` / `/resume` | Pause or resume audio playback | `/pause` |
 | `/skip` | Skip the current track | `/skip` |
+| `/skipto` | Skip directly to a specific track number in the queue | `/skipto position: 3` |
 | `/queue` | Display current track queue | `/queue` |
 | `/nowplaying` | Show playback progress and track details | `/nowplaying` |
 | `/volume` | Adjust playback volume (1-100) | `/volume level: 80` |

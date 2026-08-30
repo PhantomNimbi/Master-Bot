@@ -22,7 +22,7 @@ Master-Bot integrates with multiple external services. Below is a complete guide
 > Lavalink audio streaming is **gated behind API keys/credentials**. If no API keys for YouTube, Spotify, or SoundCloud are provided in `.env`, the internal Lavalink server launch is automatically skipped and Lavalink is disabled.
 
 ### 1. YouTube Audio Engine (`YOUTUBE_API_KEY` / `YOUTUBE_REFRESH_TOKEN`)
-- **Automated OAuth Capture:** On launch, Lavalink's `youtube-plugin` outputs a Google OAuth device code prompt to the terminal console. Completing authorization at `https://www.google.com/device` automatically saves `YOUTUBE_REFRESH_TOKEN` into `.env`.
+- **Automated OAuth Capture:** On launch, Lavalink's `youtube-plugin` outputs a Google OAuth device code prompt to the terminal console (or triggered via `/youtube-auth`). Completing authorization at `https://www.google.com/device` automatically saves the refresh token atomically into `.youtube-oauth.json`.
 - **Variables:** `YOUTUBE_REFRESH_TOKEN` or `YOUTUBE_API_KEY`
 
 ### 2. Spotify Developer API (`SPOTIFY_CLIENT_ID` & `SPOTIFY_CLIENT_SECRET`)
