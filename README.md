@@ -4,6 +4,7 @@
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D20.0.0-green)](https://nodejs.org/)
 [![pnpm](https://img.shields.io/badge/Package_Manager-pnpm-orange)](https://pnpm.io/)
 [![Lavalink](https://img.shields.io/badge/Lavalink-v4.x-purple)](https://github.com/lavalink-devs/Lavalink)
+[![Deploy to Heroku](https://img.shields.io/badge/Deploy%20to-Heroku-430098?logo=heroku&logoColor=white)](https://heroku.com/deploy?template=https://github.com/PhantomNimbi/Master-Bot)
 
 **Master-Bot** is a production-ready, high-performance Discord Music and Utility Bot monorepo featuring a full-featured **Next.js Web Dashboard**. Built with **TypeScript**, **Sapphire Framework**, **discord.js v14**, **Next.js 15**, **tRPC v11**, **Prisma ORM**, **Redis**, and **Lavalink v4**.
 
@@ -173,6 +174,24 @@ When launching for the first time without a YouTube refresh token:
 | `/game-search` | Search video game info via IGDB | `/game-search title: Metroid` |
 | `/tv-show-search` | Search TV show details via TVMaze | `/tv-show-search query: Office` |
 | `/twitch-status` | Check live status of a Twitch streamer | `/twitch-status channel: shroud` |
+
+---
+
+## 🚀 1-Click Heroku Deployment
+
+Deploy a complete instance of Master-Bot (Discord Bot, Next.js 15 Dashboard, Lavalink v4 Audio Engine, PostgreSQL, and Redis) directly to Heroku with one click:
+
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/PhantomNimbi/Master-Bot)
+
+### How It Works:
+1. Click the **Deploy to Heroku** button above.
+2. Enter your Discord Bot credentials (`DISCORD_TOKEN`, `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`).
+3. Heroku automatically provisions:
+   - **Heroku Postgres** database addon (auto-populates `DATABASE_URL`).
+   - **Heroku Redis** cache addon (auto-populates `REDIS_URL`).
+   - **NextAuth Secret** generation (`NEXTAUTH_SECRET`).
+   - **Postdeploy Migration**: Automatically executes `pnpm db:push` to apply all database tables on initial setup.
+4. Click **Deploy App** — your bot and web dashboard will be live in minutes!
 
 ---
 

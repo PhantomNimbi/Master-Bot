@@ -62,8 +62,15 @@ const dashboardPort = process.env.PORT
 	  );
 const lavaHost = process.env.LAVA_HOST || '0.0.0.0';
 const lavaPort = parseInt(process.env.LAVA_PORT || '2333', 10);
-const redisHost = process.env.REDIS_HOST || '127.0.0.1';
-const redisPort = parseInt(process.env.REDIS_PORT || '6379', 10);
+let redisHost = process.env.REDIS_HOST || '127.0.0.1';
+let redisPort = parseInt(process.env.REDIS_PORT || '6379', 10);
+if (process.env.REDIS_URL) {
+	try {
+		const parsed = new URL(process.env.REDIS_URL);
+		redisHost = parsed.hostname || '127.0.0.1';
+		redisPort = parsed.port ? parseInt(parsed.port, 10) : 6379;
+	} catch {}
+}
 
 const postgresPort = extractPortFromUrl(process.env.DATABASE_URL, 5432);
 let postgresHost = '127.0.0.1';

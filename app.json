@@ -1,0 +1,127 @@
+{
+  "name": "Master-Bot",
+  "description": "Production-ready Discord Music and Utility Bot featuring Next.js 15 Web Dashboard, Lavalink v4 Audio Engine, PostgreSQL, and Redis.",
+  "keywords": [
+    "discord-bot",
+    "lavalink",
+    "music-bot",
+    "nextjs",
+    "trpc",
+    "prisma",
+    "typescript"
+  ],
+  "website": "https://github.com/PhantomNimbi/Master-Bot",
+  "repository": "https://github.com/PhantomNimbi/Master-Bot",
+  "logo": "https://raw.githubusercontent.com/PhantomNimbi/Master-Bot/main/apps/dashboard/public/favicon.ico",
+  "success_url": "/dashboard",
+  "stack": "heroku-24",
+  "buildpacks": [
+    {
+      "url": "heroku/jvm"
+    },
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "addons": [
+    {
+      "plan": "heroku-postgresql:essential-0",
+      "as": "DATABASE"
+    },
+    {
+      "plan": "heroku-redis:mini",
+      "as": "REDIS"
+    }
+  ],
+  "env": {
+    "DISCORD_TOKEN": {
+      "description": "Discord Bot Token from the Discord Developer Portal (Bot tab).",
+      "required": true
+    },
+    "DISCORD_CLIENT_ID": {
+      "description": "Discord Application Client ID (General Information tab).",
+      "required": true
+    },
+    "DISCORD_CLIENT_SECRET": {
+      "description": "Discord Application Client Secret (OAuth2 tab).",
+      "required": true
+    },
+    "NEXTAUTH_SECRET": {
+      "description": "Encryption secret for NextAuth.js sessions (auto-generated).",
+      "generator": "secret"
+    },
+    "NEXTAUTH_URL": {
+      "description": "Canonical public URL of your Heroku web dashboard application.",
+      "value": "https://.herokuapp.com"
+    },
+    "NEXTAUTH_URL_INTERNAL": {
+      "description": "Internal server-to-server NextAuth loopback URL.",
+      "value": "http://localhost:3000"
+    },
+    "NEXT_PUBLIC_INVITE_URL": {
+      "description": "Discord Bot OAuth2 server invite URL.",
+      "value": "https://discord.com/api/oauth2/authorize?client_id=&permissions=8&scope=bot%20applications.commands"
+    },
+    "LAVA_ENABLED": {
+      "description": "Enable Lavalink v4 high-performance audio engine.",
+      "value": "true"
+    },
+    "LAVA_HOST": {
+      "description": "Lavalink server host address.",
+      "value": "127.0.0.1"
+    },
+    "LAVA_PORT": {
+      "description": "Lavalink server port.",
+      "value": "2333"
+    },
+    "LAVA_PASS": {
+      "description": "Lavalink server authorization password.",
+      "value": "youshallnotpass"
+    },
+    "YOUTUBE_CIPHER_URL": {
+      "description": "Remote signature cipher extraction endpoint.",
+      "value": "https://cipher.kikkia.dev/"
+    },
+    "YOUTUBE_CIPHER_PASSWORD": {
+      "description": "Remote cipher authorization password.",
+      "value": "youshallnotpass"
+    },
+    "YOUTUBE_REFRESH_TOKEN": {
+      "description": "Optional YouTube OAuth 2.0 refresh token for authenticated streaming.",
+      "required": false
+    },
+    "SPOTIFY_CLIENT_ID": {
+      "description": "Optional Spotify Developer Client ID for Spotify URL track resolution.",
+      "required": false
+    },
+    "SPOTIFY_CLIENT_SECRET": {
+      "description": "Optional Spotify Developer Client Secret.",
+      "required": false
+    },
+    "TWITCH_CLIENT_ID": {
+      "description": "Optional Twitch Developer Client ID for live alerts and IGDB game search.",
+      "required": false
+    },
+    "TWITCH_CLIENT_SECRET": {
+      "description": "Optional Twitch Developer Client Secret.",
+      "required": false
+    },
+    "KLIPY_API": {
+      "description": "Optional Klipy API key for GIF reaction commands.",
+      "required": false
+    },
+    "GENIUS_API": {
+      "description": "Optional Genius API key for song lyrics search.",
+      "required": false
+    }
+  },
+  "scripts": {
+    "postdeploy": "pnpm db:push"
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  }
+}
