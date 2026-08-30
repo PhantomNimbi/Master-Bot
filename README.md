@@ -196,6 +196,21 @@ For detailed architecture guides, deployment steps, and API credential instructi
 
 ---
 
+## 👥 Contributors ❤️
+
+**⭐ [Bacon Fixation](https://github.com/Bacon-Fixation) ⭐ - Countless contributions**
+
+- [ModoSN](https://github.com/ModoSN) - 'resolve-ip', 'rps', '8ball', 'bored', 'trump', 'advice', 'kanye', 'urban dictionary' commands and visual updates
+- [PhantomNimbi](https://github.com/PhantomNimbi) - gif commands, Lavalink config tweaks, Next.js 15 migration, moderation suite, and support ticket system
+- [rafaeldamasceno](https://github.com/rafaeldamasceno) - 'music-trivia' and Dockerfile improvements, minor tweaks
+- [navidmafi](https://github.com/navidmafi) - 'LeaveTimeOut' and 'MaxResponseTime' options, update issue template, fix leave command
+- [Kyoyo](https://github.com/NotKyoyo) - added back 'now-playing'
+- [MontejoJorge](https://github.com/MontejoJorge) - added back 'remind'
+- [malokdev](https://github.com/malokdev) - 'uptime' command
+- [chimaerra](https://github.com/chimaerra) - minor command tweaks
+
+---
+
 ## 📄 License
 
 Distributed under the MIT License. See `LICENSE` for more information.
