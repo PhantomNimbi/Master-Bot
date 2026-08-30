@@ -28,7 +28,8 @@ Place `Lavalink.jar` in the root workspace directory alongside `application.yml`
 ## 3. Configuration (`application.yml`)
 
 The repository includes a preconfigured `application.yml` supporting:
-- `youtube-plugin` (`dev.lavalink.youtube:youtube-plugin:1.18.2`): Modern YouTube playback engine supporting OAuth 2.0 device flow with multi-client InnerTube failover:
+- `youtube-plugin` (`dev.lavalink.youtube:youtube-plugin:1.18.2`): Modern YouTube playback engine supporting OAuth 2.0 device flow with multi-client InnerTube failover and remote signature deciphering:
+  - `remoteCipher`: Offloads YouTube signature deciphering to a remote cipher server (`https://cipher.kikkia.dev/` or custom `YOUTUBE_CIPHER_URL`), preventing playback stalls when YouTube rolls out player cipher updates.
   - `MUSIC` (`WEB_REMIX`): YouTube Music endpoints (bypasses video player ciphers).
   - `ANDROID_VR`: Android VR streaming client.
   - `WEB`: Standard Web player client.

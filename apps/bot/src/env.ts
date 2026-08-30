@@ -22,6 +22,8 @@ const envSchema = z.object({
 	LAVA_SECURE: z.string().optional(),
 	YOUTUBE_API_KEY: z.string().optional(),
 	YOUTUBE_REFRESH_TOKEN: z.string().optional(),
+	YOUTUBE_CIPHER_URL: z.string().optional(),
+	YOUTUBE_CIPHER_PASSWORD: z.string().optional(),
 	SPOTIFY_CLIENT_ID: z.string().optional(),
 	SPOTIFY_CLIENT_SECRET: z.string().optional(),
 	// SoundCloud (optional — built-in Lavalink source is free; keys only needed for lavasrc plugin)

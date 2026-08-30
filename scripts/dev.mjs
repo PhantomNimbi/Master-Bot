@@ -14,6 +14,7 @@ import {
 	waitForPort,
 	checkJavaVersion,
 	getLavalinkKeyStatus,
+	getLavalinkJavaArgs,
 	createLogWriter
 } from './common.mjs';
 
@@ -149,8 +150,11 @@ if (!isLavalinkEnabled) {
 				if (javaCheck.version < 21) {
 					console.warn(`\n\x1b[1;33m⚠️  [JAVA VERSION WARNING]\x1b[0m Java ${javaCheck.version} detected. Java 21 LTS is recommended for best stability.\n`);
 				}
-				const javaArgs = ['-jar', 'Lavalink.jar'];
-				lavalinkProcess = spawn('java', javaArgs, { cwd: rootDir });
+				const javaArgs = getLavalinkJavaArgs();
+				lavalinkProcess = spawn('java', javaArgs, {
+					cwd: rootDir,
+					env: { ...process.env }
+				});
 				lavalinkProcess.stdout.on('data', data => writeLavalinkLog('LAVALINK', data));
 				lavalinkProcess.stderr.on('data', data => writeLavalinkLog('LAVALINK-ERR', data));
 				console.log('\n⏳ Waiting for Lavalink audio engine to become ready...');
@@ -202,8 +206,9 @@ const activeServices = [
 ];
 
 if (isLavalinkEnabled && !lavalinkStatus.startsWith('DISABLED')) {
+	const cipherInfo = process.env.YOUTUBE_CIPHER_URL?.trim() || 'https://cipher.kikkia.dev/';
 	activeServices.push(
-		`    • 🎵 Lavalink Audio:     ${lavalinkStatus}\n                                     └─ Log: logs/lavalink.log`
+		`    • 🎵 Lavalink Audio:     ${lavalinkStatus}\n                                     └─ Cipher: ${cipherInfo}\n                                     └─ Log: logs/lavalink.log`
 	);
 }
 

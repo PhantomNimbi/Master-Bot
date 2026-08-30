@@ -16,7 +16,13 @@ export const env = createEnv({
 		GIFS_ENABLED: z.string().optional(),
 		TWITCH_ENABLED: z.string().optional(),
 		NEWS_ENABLED: z.string().optional(),
-		IGDB_ENABLED: z.string().optional()
+		IGDB_ENABLED: z.string().optional(),
+		YOUTUBE_API_KEY: z.string().optional(),
+		YOUTUBE_REFRESH_TOKEN: z.string().optional(),
+		YOUTUBE_CIPHER_URL: z.string().optional(),
+		YOUTUBE_CIPHER_PASSWORD: z.string().optional(),
+		SPOTIFY_CLIENT_ID: z.string().optional(),
+		SPOTIFY_CLIENT_SECRET: z.string().optional()
 	},
 	/**
 	 * Specify your client-side environment variables schema here.
@@ -37,7 +43,13 @@ export const env = createEnv({
 		GIFS_ENABLED: process.env.GIFS_ENABLED,
 		TWITCH_ENABLED: process.env.TWITCH_ENABLED,
 		NEWS_ENABLED: process.env.NEWS_ENABLED,
-		IGDB_ENABLED: process.env.IGDB_ENABLED
+		IGDB_ENABLED: process.env.IGDB_ENABLED,
+		YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY,
+		YOUTUBE_REFRESH_TOKEN: process.env.YOUTUBE_REFRESH_TOKEN,
+		YOUTUBE_CIPHER_URL: process.env.YOUTUBE_CIPHER_URL,
+		YOUTUBE_CIPHER_PASSWORD: process.env.YOUTUBE_CIPHER_PASSWORD,
+		SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
+		SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET
 	},
 	skipValidation: !!process.env.CI || !!process.env.SKIP_ENV_VALIDATION
 });

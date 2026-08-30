@@ -364,6 +364,36 @@ export function clearYouTubeRefreshToken() {
 }
 
 /**
+ * Builds JVM arguments array for launching Lavalink with deterministic
+ * System Properties (-D) for YouTube OAuth, remote cipher, and Spotify credentials.
+ */
+export function getLavalinkJavaArgs() {
+	const args = [];
+
+	const ytToken = process.env.YOUTUBE_REFRESH_TOKEN?.trim() || '';
+	const hasValidToken = ytToken.startsWith('1/');
+
+	args.push(`-DYOUTUBE_REFRESH_TOKEN=${hasValidToken ? ytToken : ''}`);
+	args.push(`-DYOUTUBE_SKIP_INIT=${hasValidToken ? 'true' : 'false'}`);
+
+	const cipherUrl =
+		process.env.YOUTUBE_CIPHER_URL?.trim() || 'https://cipher.kikkia.dev/';
+	args.push(`-DYOUTUBE_CIPHER_URL=${cipherUrl}`);
+
+	const cipherPassword = process.env.YOUTUBE_CIPHER_PASSWORD?.trim() || '';
+	args.push(`-DYOUTUBE_CIPHER_PASSWORD=${cipherPassword}`);
+
+	const spotifyId = process.env.SPOTIFY_CLIENT_ID?.trim() || '';
+	const spotifySecret = process.env.SPOTIFY_CLIENT_SECRET?.trim() || '';
+	args.push(`-DSPOTIFY_CLIENT_ID=${spotifyId}`);
+	args.push(`-DSPOTIFY_CLIENT_SECRET=${spotifySecret}`);
+
+	args.push('-jar', 'Lavalink.jar');
+
+	return args;
+}
+
+/**
  * Checks for configured music API keys in process.env.
  * Returns boolean flags for youtube, spotify, and hasAny.
  * SoundCloud uses Lavalink's built-in free source — no keys needed.
