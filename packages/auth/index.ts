@@ -163,6 +163,24 @@ export const {
 					discordId: discordId || ''
 				}
 			};
+		},
+		redirect: async ({ url, baseUrl }: any) => {
+			if (url.startsWith('/')) return `${baseUrl}${url}`;
+			try {
+				const target = new URL(url);
+				const base = new URL(baseUrl);
+				if (target.origin === base.origin) return url;
+				// Allow local development host redirects
+				if (
+					(target.hostname === 'localhost' || target.hostname === '127.0.0.1') &&
+					(base.hostname === 'localhost' || base.hostname === '127.0.0.1')
+				) {
+					return url;
+				}
+			} catch {
+				return baseUrl;
+			}
+			return baseUrl;
 		}
 
 		// @TODO - if you wanna have auth on the edge

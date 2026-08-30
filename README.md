@@ -150,11 +150,20 @@ When launching for the first time without a YouTube refresh token:
 | `/stop-trivia` | Stop an ongoing music trivia game | `/stop-trivia` |
 | `/help` | Interactive command directory & detailed help | `/help` |
 
+### 🔨 Moderation Commands
+| Command | Description | Usage |
+|---|---|---|
+| `/ban` | Ban a member with optional reason and message purge | `/ban user: @User reason: Spam delete-messages: 24h` |
+| `/kick` | Kick a member from the server | `/kick user: @User reason: Rule violation` |
+| `/timeout` | Timeout (mute) a member or remove timeout | `/timeout user: @User duration: 5m reason: Spam` |
+| `/slowmode` | Set text channel rate limit (0 to disable) | `/slowmode seconds: 10 channel: #general` |
+| `/purge` | Bulk delete recent messages (optional user filter) | `/purge amount: 25 user: @User` |
+
 ### ⚙️ Utility & Owner Commands
 | Command | Description | Usage |
 |---|---|---|
 | `/help` | Category browser and command details | `/help` |
-| `/set` | Configure server settings (Welcome, Twitch, Logging, Volume) | `/set <subcommand>` |
+| `/set` | Configure server settings (Welcome, Twitch, Logging, Tickets, Volume) | `/set <subcommand>` |
 | `/youtube-auth` | Re-trigger YouTube OAuth Device Flow (Owner Only) | `/youtube-auth` |
 | `/avatar` | Display a user's Discord avatar | `/avatar user: @User` |
 | `/reddit` | Fetch posts from a subreddit | `/reddit subreddit: memes` |

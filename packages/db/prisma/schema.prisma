@@ -101,10 +101,27 @@ model Guild {
     welcomeMessageChannel String?       @map("welcome_message_channel")
     welcomeMessage        String?       @map("welcome_message")
     welcomeMessageEnabled Boolean       @default(false) @map("welcome_message_enabled")
+    // Support Tickets
+    ticketChannel           String?       @map("ticket_channel")
+    ticketTranscriptChannel String?       @map("ticket_transcript_channel")
+    ticketEnabled           Boolean       @default(false) @map("ticket_enabled")
+    ticketMessage           String?       @map("ticket_message")
+    tickets                 Ticket[]
     // Temp Channels
     hub                   String?
     hubChannel            String?       @map("hub_channel") // The channel that users enter to get redirected
     tempChannels          TempChannel[]
+}
+
+model Ticket {
+    id        String    @id @default(cuid())
+    guildId   String    @map("guild_id")
+    guild     Guild     @relation(fields: [guildId], references: [id])
+    threadId  String    @unique @map("thread_id")
+    creatorId String    @map("creator_id")
+    closed    Boolean   @default(false)
+    createdAt DateTime  @default(now()) @map("created_at")
+    closedAt  DateTime? @map("closed_at")
 }
 
 model TempChannel {

@@ -3,6 +3,9 @@ import { MessageChannel } from '../../lib/structures/ExtendedClient';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions, container } from '@sapphire/framework';
 import {
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
 	ChannelType,
 	EmbedBuilder,
 	PermissionFlagsBits,
@@ -117,6 +120,60 @@ export class SetCommand extends Command {
 					sub
 						.setName('log-disable')
 						.setDescription('Disable server audit / event logging')
+				)
+				// Ticket System Settings
+				.addSubcommand(sub =>
+					sub
+						.setName('ticket-channel')
+						.setDescription(
+							'Set the text channel where the ticket panel will be located'
+						)
+						.addChannelOption(opt =>
+							opt
+								.setName('channel')
+								.setDescription('Target text channel')
+								.setRequired(true)
+								.addChannelTypes(ChannelType.GuildText)
+						)
+				)
+				.addSubcommand(sub =>
+					sub
+						.setName('ticket-toggle')
+						.setDescription('Enable or disable the support ticket system')
+						.addBooleanOption(opt =>
+							opt
+								.setName('enabled')
+								.setDescription('Set ticket system active or inactive')
+								.setRequired(true)
+						)
+				)
+				.addSubcommand(sub =>
+					sub
+						.setName('ticket-panel')
+						.setDescription(
+							'Post the interactive support ticket panel embed with button'
+						)
+				)
+				.addSubcommand(sub =>
+					sub
+						.setName('ticket-transcript')
+						.setDescription(
+							'Set channel where closed ticket transcript logs are archived'
+						)
+						.addChannelOption(opt =>
+							opt
+								.setName('channel')
+								.setDescription('Target transcript channel')
+								.setRequired(true)
+								.addChannelTypes(ChannelType.GuildText)
+						)
+				)
+				.addSubcommand(sub =>
+					sub
+						.setName('ticket-transcript-disable')
+						.setDescription(
+							'Disable automatic ticket transcript archival'
+						)
 				)
 				// Volume Setting
 				.addSubcommand(sub =>
@@ -568,6 +625,176 @@ export class SetCommand extends Command {
 					});
 				}
 
+				// --- TICKETS ---
+				case 'ticket-channel': {
+					const channel = interaction.options.getChannel('channel', true) as TextChannel;
+					await trpcNode.tickets.setChannel.mutate({
+						guildId,
+						channelId: channel.id
+					});
+
+					// Automatically send the ticket panel message to the configured channel
+					const panelEmbed = new EmbedBuilder()
+						.setTitle(`🎫 ${interaction.guild?.name} Support Tickets`)
+						.setDescription(
+							'Need help, have an inquiry, or want to speak with server staff?\n\n' +
+								'Click the **Open Ticket** button below to create a private support thread with our moderation team.'
+						)
+						.setColor(0x5865f2)
+						.setFooter({
+							text: 'Support Ticket System • Master-Bot',
+							iconURL: interaction.guild?.iconURL() || undefined
+						});
+
+					const openButton = new ButtonBuilder()
+						.setCustomId('ticket_create')
+						.setLabel('Open Ticket')
+						.setStyle(ButtonStyle.Primary)
+						.setEmoji('🎫');
+
+					const row =
+						new ActionRowBuilder<ButtonBuilder>().addComponents(openButton);
+
+					await channel.send({
+						embeds: [panelEmbed],
+						components: [row]
+					}).catch(() => {});
+
+					return await interaction.editReply({
+						content: `:white_check_mark: Support ticket channel set to <#${channel.id}> and the interactive ticket panel has been posted!`
+					});
+				}
+
+				case 'ticket-toggle': {
+					const enabled = interaction.options.getBoolean('enabled', true);
+					await trpcNode.tickets.toggle.mutate({
+						guildId,
+						status: enabled
+					});
+
+					if (enabled && interaction.guild) {
+						const ticketConfig = await trpcNode.tickets.getConfig.query({
+							guildId
+						});
+						const channelId = ticketConfig.guild?.ticketChannel;
+
+						if (channelId) {
+							const targetChannel = (await interaction.guild.channels
+								.fetch(channelId)
+								.catch(() => null)) as TextChannel | null;
+
+							if (targetChannel) {
+								const panelEmbed = new EmbedBuilder()
+									.setTitle(`🎫 ${interaction.guild.name} Support Tickets`)
+									.setDescription(
+										'Need help, have an inquiry, or want to speak with server staff?\n\n' +
+											'Click the **Open Ticket** button below to create a private support thread with our moderation team.'
+									)
+									.setColor(0x5865f2)
+									.setFooter({
+										text: 'Support Ticket System • Master-Bot',
+										iconURL: interaction.guild.iconURL() || undefined
+									});
+
+								const openButton = new ButtonBuilder()
+									.setCustomId('ticket_create')
+									.setLabel('Open Ticket')
+									.setStyle(ButtonStyle.Primary)
+									.setEmoji('🎫');
+
+								const row =
+									new ActionRowBuilder<ButtonBuilder>().addComponents(openButton);
+
+								await targetChannel.send({
+									embeds: [panelEmbed],
+									components: [row]
+								}).catch(() => {});
+							}
+						}
+					}
+
+					return await interaction.editReply({
+						content: `:white_check_mark: Support ticket system is now **${
+							enabled ? 'ENABLED' : 'DISABLED'
+						}**${enabled ? ' and the ticket panel has been posted to the ticket channel.' : '.'}`
+					});
+				}
+
+				case 'ticket-panel': {
+					const ticketConfig = await trpcNode.tickets.getConfig.query({
+						guildId
+					});
+					const channelId = ticketConfig.guild?.ticketChannel;
+
+					if (!channelId) {
+						return await interaction.editReply({
+							content:
+								':x: No ticket channel configured yet. Use `/set ticket-channel` first.'
+						});
+					}
+
+					const targetChannel = (await interaction.guild?.channels.fetch(
+						channelId
+					)) as TextChannel;
+					if (!targetChannel) {
+						return await interaction.editReply({
+							content: ':x: Configured ticket channel could not be found.'
+						});
+					}
+
+					const panelEmbed = new EmbedBuilder()
+						.setTitle(`🎫 ${interaction.guild?.name} Support Tickets`)
+						.setDescription(
+							'Need help, have an inquiry, or want to speak with server staff?\n\n' +
+								'Click the **Open Ticket** button below to create a private support thread with our moderation team.'
+						)
+						.setColor(0x5865f2)
+						.setFooter({
+							text: 'Support Ticket System • Master-Bot',
+							iconURL: interaction.guild?.iconURL() || undefined
+						});
+
+					const openButton = new ButtonBuilder()
+						.setCustomId('ticket_create')
+						.setLabel('Open Ticket')
+						.setStyle(ButtonStyle.Primary)
+						.setEmoji('🎫');
+
+					const row =
+						new ActionRowBuilder<ButtonBuilder>().addComponents(openButton);
+
+					await targetChannel.send({
+						embeds: [panelEmbed],
+						components: [row]
+					});
+
+					return await interaction.editReply({
+						content: `:white_check_mark: Interactive ticket panel has been posted in <#${channelId}>!`
+					});
+				}
+
+				case 'ticket-transcript': {
+					const channel = interaction.options.getChannel('channel', true);
+					await trpcNode.tickets.setTranscriptChannel.mutate({
+						guildId,
+						channelId: channel.id
+					});
+					return await interaction.editReply({
+						content: `:white_check_mark: Ticket transcripts will now be saved and posted to <#${channel.id}> when tickets are closed.`
+					});
+				}
+
+				case 'ticket-transcript-disable': {
+					await trpcNode.tickets.setTranscriptChannel.mutate({
+						guildId,
+						channelId: null
+					});
+					return await interaction.editReply({
+						content:
+							':white_check_mark: Ticket transcript archival has been **DISABLED**.'
+					});
+				}
+
 				// --- VOLUME ---
 				case 'default-volume': {
 					const volume = interaction.options.getInteger('volume', true);
@@ -585,7 +812,11 @@ export class SetCommand extends Command {
 					const guildData = await trpcNode.guild.getGuild.query({
 						id: guildId
 					});
+					const ticketConfig = await trpcNode.tickets.getConfig.query({
+						guildId
+					});
 					const g = guildData?.guild;
+					const t = ticketConfig?.guild;
 					const twitchActive = checkTwitchEnabled();
 
 					const embed = new EmbedBuilder()
@@ -614,6 +845,23 @@ export class SetCommand extends Command {
 										: g?.logChannel
 										? `🔴 <#${g.logChannel}> *(Paused)*`
 										: '*Disabled*',
+								inline: true
+							},
+							{
+								name: '🎫 Support Tickets',
+								value:
+									t?.ticketEnabled && t?.ticketChannel
+										? `🟢 <#${t.ticketChannel}>`
+										: t?.ticketChannel
+										? `🔴 <#${t.ticketChannel}> *(Disabled)*`
+										: '*Not configured*',
+								inline: true
+							},
+							{
+								name: '📑 Transcript Channel',
+								value: t?.ticketTranscriptChannel
+									? `🟢 <#${t.ticketTranscriptChannel}>`
+									: '*Not set*',
 								inline: true
 							},
 							{
@@ -665,7 +913,7 @@ export class SetCommand extends Command {
 export const help: CommandHelp = {
 	name: 'set',
 	category: 'other',
-	description: 'Configure server settings (Welcome, Twitch, Logging, Volume)',
+	description: 'Configure server settings (Welcome, Twitch, Logging, Tickets, Volume)',
 	usage: '/set <subcommand>',
 	examples: [
 		'/set welcome-channel channel: #welcome',
@@ -674,6 +922,9 @@ export const help: CommandHelp = {
 		'/set twitch-add streamer: shroud channel: #streams',
 		'/set log-channel channel: #mod-logs',
 		'/set log-toggle enabled: True',
+		'/set ticket-channel channel: #support',
+		'/set ticket-toggle enabled: True',
+		'/set ticket-panel',
 		'/set default-volume volume: 80',
 		'/set view'
 	],

@@ -15,6 +15,7 @@ const CATEGORY_EMOJIS: Record<string, string> = {
 	music: '🎵',
 	gifs: '🖼️',
 	twitch: '🎮',
+	moderation: '🔨',
 	other: '⚙️'
 };
 
@@ -22,6 +23,7 @@ const CATEGORY_NAMES: Record<string, string> = {
 	music: 'Music & Audio',
 	gifs: 'Reaction GIFs',
 	twitch: 'Twitch Live Alerts',
+	moderation: 'Moderation & Server Management',
 	other: 'Utilities & General'
 };
 

@@ -8,6 +8,7 @@ import { songRouter } from './routers/song';
 import { twitchRouter } from './routers/twitch';
 import { userRouter } from './routers/user';
 import { welcomeRouter } from './routers/welcome';
+import { ticketsRouter } from './routers/tickets';
 import { logsRouter } from './routers/logs';
 import { createTRPCRouter } from './trpc';
 
@@ -19,6 +20,7 @@ export const appRouter = createTRPCRouter({
 	twitch: twitchRouter,
 	channel: channelRouter,
 	welcome: welcomeRouter,
+	tickets: ticketsRouter,
 	command: commandRouter,
 	hub: hubRouter,
 	reminder: reminderRouter,

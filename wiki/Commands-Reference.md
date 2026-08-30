@@ -52,13 +52,27 @@ Master-Bot features over 60 slash commands organized cleanly into categories. Us
 
 ---
 
+## 🔨 Moderation & Server Management
+
+| Command | Description | Usage Example |
+|---|---|---|
+| `/ban` | Ban a member with optional reason and message purge | `/ban user: @User reason: Spam delete-messages: Previous 24 Hours` |
+| `/kick` | Kick a member from the server | `/kick user: @User reason: Rule violation` |
+| `/timeout` | Timeout (mute) a member or remove active timeout | `/timeout user: @User duration: 5 Minutes reason: Spam` |
+| `/slowmode` | Set text channel rate limit (0 to disable) | `/slowmode seconds: 10 channel: #general` |
+| `/purge` | Bulk delete recent messages (optional user filter) | `/purge amount: 25 user: @User` |
+
+---
+
 ## ⚙️ Utilities & Owner Commands
 
 | Command | Description | Usage Example |
 |---|---|---|
 | `/help` | Open interactive category browser or detailed command help | `/help` |
-| `/set` | Configure server settings (Welcome, Twitch, Logging, Volume) | `/set <subcommand>` |
-| `/youtube-auth` | Re-trigger YouTube OAuth Device Flow (Owner Only) | `/youtube-auth` |
-| `/avatar` | Display user profile picture | `/avatar user: @User` |
-| `/reddit` | Fetch top posts from a subreddit | `/reddit subreddit: memes` |
+| `/set` | Configure server settings (Welcome, Twitch, Logging, Tickets, Volume) | `/set <subcommand>` |
+| `/youtube-auth` | Re-trigger YouTube OAuth Device Authorization (Owner Only) | `/youtube-auth` |
+| `/avatar` | View a user's Discord profile avatar | `/avatar user: @User` |
+| `/reddit` | Fetch hot posts from a subreddit | `/reddit subreddit: memes` |
+| `/ping` | Check bot gateway latency | `/ping` |
+| `/about` | View Master-Bot version, uptime, and system info | `/about` |
 | `/activity` | Generate voice channel Discord Activity invite link | `/activity channel: Voice Channel` |

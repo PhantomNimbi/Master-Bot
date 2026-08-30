@@ -11,7 +11,8 @@ import {
 	Gamepad2,
 	Sparkles,
 	SlidersHorizontal,
-	Info
+	Info,
+	Shield
 } from 'lucide-react';
 
 async function getApplicationCommands() {
@@ -87,6 +88,8 @@ const TWITCH_COMMANDS = [
 
 const NEWS_COMMANDS = ['news'];
 
+const MODERATION_COMMANDS = ['ban', 'kick', 'slowmode', 'timeout', 'purge'];
+
 const GAME_COMMANDS = [
 	'game-search',
 	'games',
@@ -133,6 +136,17 @@ export default async function CommandsPage({
 		rawIgdb !== undefined ? rawIgdb.toLowerCase() !== 'false' : isTwitchEnabled;
 
 	const categories: CommandCategoryDef[] = [
+		{
+			id: 'moderation',
+			title: 'Moderation & Management',
+			description:
+				'Server management tools, member bans, kicks, timeouts, slowmode, and message purging.',
+			icon: Shield,
+			isGloballyEnabled: true,
+			envFlag: '',
+			matchCommand: (name: string) =>
+				MODERATION_COMMANDS.includes(name.toLowerCase())
+		},
 		{
 			id: 'music',
 			title: 'Music & Audio',
@@ -189,6 +203,7 @@ export default async function CommandsPage({
 			isGloballyEnabled: true,
 			envFlag: '',
 			matchCommand: (name: string) =>
+				!MODERATION_COMMANDS.includes(name.toLowerCase()) &&
 				!MUSIC_COMMANDS.includes(name.toLowerCase()) &&
 				!GIF_COMMANDS.includes(name.toLowerCase()) &&
 				!TWITCH_COMMANDS.includes(name.toLowerCase()) &&
