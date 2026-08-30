@@ -34,9 +34,16 @@ export class SkipCommand extends Command {
 		const track = await queue.getCurrentTrack();
 		await queue.next({ skipped: true });
 
-		client.emit('musicSongSkipNotify', interaction, track);
+		if (track) {
+			return interaction.reply({
+				content: `:white_check_mark: Skipped [**${track.title}**](<${track.uri}>).`,
+				flags: ['SuppressEmbeds']
+			});
+		}
 
-		return;
+		return interaction.reply({
+			content: ':white_check_mark: Skipped the current track.'
+		});
 	}
 }
 

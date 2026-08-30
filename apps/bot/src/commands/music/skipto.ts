@@ -43,17 +43,23 @@ export class SkipToCommand extends Command {
 		const length = await queue.count();
 		if (position > length || position < 1) {
 			return await interaction.reply(
-				':x: Please enter a valid track position.'
+				`:x: Please enter a valid track position between 1 and ${length}.`
 			);
 		}
 
+		const targetSong = await queue.getAt(position - 1);
 		await queue.skipTo(position);
 
-		await interaction.reply(
-			`:white_check_mark: Skipped to track number ${position}!`
-		);
+		if (targetSong) {
+			return await interaction.reply({
+				content: `:white_check_mark: Skipped to track #${position}: [**${targetSong.title}**](<${targetSong.uri}>)!`,
+				flags: ['SuppressEmbeds']
+			});
+		}
 
-		return;
+		return await interaction.reply(
+			`:white_check_mark: Skipped to track #${position}!`
+		);
 	}
 }
 

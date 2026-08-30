@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawn, execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import {
@@ -20,6 +20,15 @@ import {
 
 loadEnv();
 
+const nextBuildId = path.join(rootDir, 'apps', 'dashboard', '.next', 'BUILD_ID');
+const botDist = path.join(rootDir, 'apps', 'bot', 'dist', 'index.js');
+
+if (!fs.existsSync(nextBuildId) || !fs.existsSync(botDist)) {
+	console.log('\n📦 Production build not detected. Building packages before launch...');
+	execSync('pnpm build', { cwd: rootDir, stdio: 'inherit' });
+	console.log('✅ Production build completed successfully.\n');
+}
+
 const isLavalinkEnabled =
 	(process.env.LAVA_ENABLED || process.env.ENABLE_LAVALINK)?.toLowerCase() ===
 	'true';
@@ -27,6 +36,8 @@ const isLavalinkEnabled =
 if (isLavalinkEnabled) {
 	loadYouTubeToken();
 }
+
+const keyStatus = getLavalinkKeyStatus();
 
 if (!fs.existsSync(logsDir)) {
 	fs.mkdirSync(logsDir, { recursive: true });
@@ -198,9 +209,14 @@ const oauthNote = isLavalinkEnabled
 	: `
 ====================================================================`;
 
+const dashboardPublicUrl = process.env.NEXTAUTH_URL?.trim();
+const dashboardUrlDisplay = dashboardPublicUrl
+	? `http://localhost:${dashboardPort} | Public: ${dashboardPublicUrl}`
+	: `http://localhost:${dashboardPort}`;
+
 const activeServices = [
 	`    • 🤖 Bot Service:       RUNNING  └─ Log: logs/bot.log`,
-	`    • 🌐 Web Dashboard:      RUNNING (http://localhost:${dashboardPort})\n                                     └─ Log: logs/dashboard.log`,
+	`    • 🌐 Web Dashboard:      RUNNING (${dashboardUrlDisplay})\n                                     └─ Log: logs/dashboard.log`,
 	`    • 🐘 PostgreSQL DB:      ${postgresStatus}`,
 	`    • 🗄️  Redis Cache:       ${redisStatus}${redisProcess ? '\n                                     └─ Log: logs/redis.log' : ''}`
 ];

@@ -19,9 +19,11 @@ export const trpcNode = createTRPCProxyClient<AppRouter>({
 	links: [
 		httpBatchLink({
 			transformer: superjson,
-			url: process.env.NEXTAUTH_URL_INTERNAL
-				? `${process.env.NEXTAUTH_URL_INTERNAL}/api/trpc`
-				: 'http://localhost:3000/api/trpc'
+			url: `${(
+				process.env.NEXTAUTH_URL_INTERNAL ||
+				process.env.NEXTAUTH_URL ||
+				'http://localhost:3000'
+			).replace(/\/+$/, '')}/api/trpc`
 		})
 	]
 });

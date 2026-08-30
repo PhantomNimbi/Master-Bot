@@ -28,6 +28,8 @@ if (isLavalinkEnabled) {
 	loadYouTubeToken();
 }
 
+const keyStatus = getLavalinkKeyStatus();
+
 if (!fs.existsSync(logsDir)) {
 	fs.mkdirSync(logsDir, { recursive: true });
 }
@@ -198,9 +200,14 @@ const oauthNote = isLavalinkEnabled
 	: `
 ====================================================================`;
 
+const dashboardPublicUrl = process.env.NEXTAUTH_URL?.trim();
+const dashboardUrlDisplay = dashboardPublicUrl
+	? `http://localhost:${dashboardPort} | Public: ${dashboardPublicUrl}`
+	: `http://localhost:${dashboardPort}`;
+
 const activeServices = [
 	`    • 🤖 Bot Service:       RUNNING  └─ Log: logs/bot.log`,
-	`    • 🌐 Web Dashboard:      RUNNING (http://localhost:${dashboardPort})\n                                     └─ Log: logs/dashboard.log`,
+	`    • 🌐 Web Dashboard:      RUNNING (${dashboardUrlDisplay})\n                                     └─ Log: logs/dashboard.log`,
 	`    • 🐘 PostgreSQL DB:      ${postgresStatus}`,
 	`    • 🗄️  Redis Cache:       ${redisStatus}${redisProcess ? '\n                                     └─ Log: logs/redis.log' : ''}`
 ];

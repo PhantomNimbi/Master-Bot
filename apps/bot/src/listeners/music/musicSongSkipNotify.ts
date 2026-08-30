@@ -11,7 +11,10 @@ export class MusicSongSkipNotifyListener extends Listener {
 		interaction: ChatInputCommandInteraction,
 		track: Song
 	): Promise<void> {
-		if (!track) return;
-		await interaction.reply({ content: `${track.title} has been skipped.` });
+		if (interaction.replied || interaction.deferred) return;
+		const message = track
+			? `:white_check_mark: Skipped [**${track.title}**](<${track.uri}>).`
+			: ':white_check_mark: Skipped the current track.';
+		await interaction.reply({ content: message });
 	}
 }

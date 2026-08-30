@@ -145,7 +145,13 @@ export class Queue {
 
 		try {
 			await this.player.setVolume(await this.getVolume());
-			await this.player.play({ track: { encoded: (np.song as Song).track } });
+			const trackString = (np.song as Song).track;
+			await this.player.play({
+				track: {
+					encodedTrack: trackString,
+					encoded: trackString
+				} as any
+			});
 		} catch (err) {
 			Logger.error(err);
 			await this.leave();
@@ -400,7 +406,7 @@ export class Queue {
 	}
 
 	public async skipTo(position: number): Promise<void> {
-		await this.store.redis.ltrim(this.keys.next, 0, position - 1);
+		await this.store.redis.ltrim(this.keys.next, 0, -position);
 		await this.next({ skipped: true });
 	}
 

@@ -15,10 +15,31 @@ export function loadEnv() {
 	const envPath = path.join(rootDir, '.env');
 	if (fs.existsSync(envPath)) {
 		const envContent = fs.readFileSync(envPath, 'utf-8');
-		for (const line of envContent.split(/\r?\n/)) {
-			const match = line.match(/^\s*([\w.-]+)\s*=\s*['"]?(.*?)['"]?\s*$/);
-			if (match && !process.env[match[1]]) {
-				process.env[match[1]] = match[2];
+		for (const rawLine of envContent.split(/\r?\n/)) {
+			const line = rawLine.trim();
+			if (!line || line.startsWith('#')) continue;
+
+			const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)$/);
+			if (match) {
+				const key = match[1];
+				let val = match[2].trim();
+
+				if (val.startsWith('"')) {
+					const quoteEnd = val.indexOf('"', 1);
+					val = quoteEnd !== -1 ? val.substring(1, quoteEnd) : val.substring(1);
+				} else if (val.startsWith("'")) {
+					const quoteEnd = val.indexOf("'", 1);
+					val = quoteEnd !== -1 ? val.substring(1, quoteEnd) : val.substring(1);
+				} else {
+					const hashIndex = val.indexOf('#');
+					if (hashIndex !== -1) {
+						val = val.substring(0, hashIndex).trim();
+					}
+				}
+
+				if (!process.env[key]) {
+					process.env[key] = val;
+				}
 			}
 		}
 	}
