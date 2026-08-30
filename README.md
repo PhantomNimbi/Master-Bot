@@ -21,15 +21,16 @@ Master-Bot/
 ├── packages/
 │   ├── api/           # Shared tRPC v11 Routers & API Procedures
 │   ├── auth/          # Shared NextAuth.js Configuration
-│   ├── db/            # Shared Prisma ORM Client & Database Schemas
-│   ├── eslint-config/ # Workspace ESLint Rules
-│   └── tailwind-config/# Workspace Tailwind CSS Configuration
+│   ├── config/        # Shared Tooling Config (eslint/, tailwind/)
+│   └── db/            # Shared Prisma ORM Client & Database Schemas
 ├── scripts/
 │   ├── common.mjs     # Shared cross-platform port management & log writers
 │   ├── dev.mjs        # Unified Development Launcher & Service Manager
 │   └── start.mjs      # Unified Production Launcher & Service Manager
+├── wiki/              # Project documentation (Setup, Lavalink, API keys, Commands)
 ├── logs/              # Service-specific log files (bot.log, dashboard.log, lavalink.log)
 ├── application.yml    # Lavalink v4 Audio Engine Configuration
+├── docker-compose.yml # Containerized deployment (Bot, Dashboard, PostgreSQL, Redis, Lavalink)
 └── Lavalink.jar       # Lavalink v4 Server Executable
 ```
 
@@ -37,19 +38,21 @@ Master-Bot/
 
 ## ⚡ Key Features
 
-- **🎵 High-Performance Audio Engine:** Powered by **Lavalink v4** with support for YouTube, Spotify metadata resolution (`lavasrc-plugin`), SoundCloud fallback, Vimeo, Twitch, and direct audio streams.
+- **🎵 High-Performance Audio Engine:** Powered by **Lavalink v4** with support for YouTube (multi-client failover), Spotify metadata resolution (`lavasrc-plugin`), free built-in SoundCloud, Twitch, Vimeo, and direct audio streams. Includes audio filters (`/bassboost`, `/karaoke`, `/nightcore`, `/vaporwave`).
+- **📚 Custom Playlists:** Per-user saved playlists via `/create-playlist`, `/save-to-playlist`, `/my-playlists`, `/display-playlist`, and `/delete-playlist`.
 - **🔨 Full Moderation Suite:** Dedicated slash commands (`/ban`, `/kick`, `/slowmode`, `/timeout`, `/purge`) with permission hierarchy validation and safety checks.
-- **🎫 Thread-Based Support Ticket System:** Interactive ticket panel with auto-posting buttons (`ticket_create`, `ticket_close`), thread management, dynamic greeting templates (`{user}`, `{username}`, `{server}`), and secure transcript archiving.
-- **📜 Granular Event & Audit Logging:** Multi-category logging system supporting 18 event triggers with customizable channel targets.
+- **🎫 Thread-Based Support Ticket System:** Interactive ticket panel with auto-posting buttons (`ticket_create`, `ticket_close`), thread management, dynamic greeting templates (`{user}`, `{username}`, `{server}`), and secure `.txt` transcript archiving.
+- **📜 Granular Event & Audit Logging:** Multi-category logging system supporting 18 event triggers with customizable channel targets, managed via `/set` or the web dashboard.
 - **🗄️ Automatic Database Migrations:** `pnpm dev` and `pnpm start` automatically execute `prisma db push` on launch before the bot process starts.
-- **🔑 Native YouTube Device Flow OAuth & In-Memory Protection:**
-  - Automated detection and formatted device code prompt displayed directly in the terminal console.
-  - Runtime token capture updates `process.env.YOUTUBE_REFRESH_TOKEN` strictly in process memory.
-  - Native Spring environment variable binding (`refreshToken: "${YOUTUBE_REFRESH_TOKEN}"` in `application.yml`) prevents file mutation and `.env` disk corruption.
-- **🌐 Interactive Web Dashboard:** Modern **Next.js 15** App Router dashboard with Discord OAuth login, server settings, custom welcome & ticket message editors with live previews, and audit log controls.
-- **🚀 Cross-Platform Unified Launchers:** `pnpm dev` and `pnpm start` automatically manage ports (`3000`, `6379`, `2333`), clear lingering processes, route output to isolated log files (`logs/`), and present a clean console status UI.
-- **🖼️ Reaction GIFs & Media:** Powered by Klipy API and Waifu.im.
-- **🎮 Gaming & Info:** Live Twitch channel alerts, IGDB game search, and TVMaze TV show info.
+- **🔑 Native YouTube Device Flow OAuth:**
+  - Automated device-code prompt displayed directly in the terminal console, plus the `/youtube-auth` slash command (Owner only).
+  - Tokens persist atomically to `.youtube-oauth.json` (via write-to-temp + atomic rename), so no re-authentication is needed after restart.
+  - Native Spring environment variable binding (`refreshToken: "${YOUTUBE_REFRESH_TOKEN}"` in `application.yml`) prevents `.env` disk corruption.
+- **🌐 Interactive Web Dashboard:** Modern **Next.js 15** App Router dashboard with Discord OAuth login, server settings, custom welcome & ticket message editors with live previews, audit log controls, command panel, and an owner log viewer.
+- **🎯 Feature Flags:** Individual bot modules (Lavalink audio, GIFs, Twitch, News, IGDB) can be enabled or disabled dynamically via environment variables.
+- **🚀 Cross-Platform Unified Launchers:** `pnpm dev` and `pnpm start` automatically manage ports, clear lingering processes, route output to isolated log files (`logs/`), and present a clean console status UI.
+- **🖼️ Reaction GIFs & Media:** Powered by Klipy API and Waifu.im (`/gif`, `/hug`, `/waifu`, `/cat`, `/doggo`, and more).
+- **🎮 Gaming & Info:** Live Twitch channel alerts, IGDB game search, TVMaze TV show info, and a suite of fun utilities (`/8ball`, `/urban`, `/trump`, `/kanye`, `/translate`, and more).
 
 ---
 
@@ -107,23 +110,28 @@ When launching for the first time without a YouTube refresh token:
 4. The launcher automatically captures the issued token, saves it atomically to `.youtube-oauth.json`, and updates `process.env.YOUTUBE_REFRESH_TOKEN`.
 5. Lavalink binds the token natively via `${YOUTUBE_REFRESH_TOKEN}` in `application.yml` and Java system properties without modifying `.env` on disk.
 
+You can also re-trigger authorization any time with the `/youtube-auth` command (Owner only).
+
 ---
 
 ## 📖 Available Commands
+
+> For the complete, up-to-date list of all 66 slash commands and the `/set` subcommands, see the [Commands Reference](wiki/Commands-Reference.md).
 
 ### 🎵 Music Commands
 | Command | Description | Usage |
 |---|---|---|
 | `/play` | Play a song or playlist from YouTube, Spotify, etc. | `/play query: darude sandstorm` |
 | `/pause` / `/resume` | Pause or resume audio playback | `/pause` |
-| `/skip` | Skip the current track | `/skip` |
-| `/skipto` | Skip directly to a specific track number in the queue | `/skipto position: 3` |
+| `/skip` / `/skipto` | Skip the current track or jump to a queue position | `/skipto position: 3` |
 | `/queue` | Display current track queue | `/queue` |
-| `/nowplaying` | Show playback progress and track details | `/nowplaying` |
-| `/volume` | Adjust playback volume (1-100) | `/volume level: 80` |
-| `/lyrics` | Fetch song lyrics | `/lyrics song: Bohemian Rhapsody` |
-| `/music-trivia` | Start an interactive voice channel music trivia game | `/music-trivia rounds: 5 category: 90s` |
-| `/stop-trivia` | Stop an ongoing music trivia game | `/stop-trivia` |
+| `/shuffle` | Shuffle the current queue | `/shuffle` |
+| `/lyrics` | Fetch song lyrics | `/lyrics title: Bohemian Rhapsody` |
+| `/bassboost` / `/nightcore` / `/karaoke` / `/vaporwave` | Toggle audio playback filters | `/bassboost` |
+| `/create-playlist` | Create a custom user playlist | `/create-playlist playlist-name: Favorites` |
+| `/save-to-playlist` | Save a track or URL to a custom playlist | `/save-to-playlist playlist-name: Favorites url: <url>` |
+| `/my-playlists` | View your saved playlists | `/my-playlists` |
+| `/music-trivia` / `/stop-trivia` | Start or stop an interactive voice channel music trivia game | `/music-trivia rounds: 5 category: 90s` |
 | `/help` | Interactive command directory & detailed help | `/help` |
 
 ### 🔨 Moderation Commands
@@ -139,13 +147,13 @@ When launching for the first time without a YouTube refresh token:
 | Command | Description | Usage |
 |---|---|---|
 | `/help` | Category browser and command details | `/help` |
-| `/set` | Configure server settings (Welcome, Twitch, Logging, Tickets, Volume) | `/set <subcommand>` |
+| `/set` | Configure server settings (Welcome, Logging, Tickets, Twitch, Volume) | `/set <subcommand>` |
 | `/youtube-auth` | Re-trigger YouTube OAuth Device Flow (Owner Only) | `/youtube-auth` |
 | `/avatar` | Display a user's Discord avatar | `/avatar user: @User` |
 | `/reddit` | Fetch posts from a subreddit | `/reddit subreddit: memes` |
-| `/game-search` | Search video game info via IGDB | `/game-search title: Metroid` |
+| `/game-search` | Search video game info via IGDB | `/game-search game: Metroid` |
 | `/tv-show-search` | Search TV show details via TVMaze | `/tv-show-search query: Office` |
-| `/twitch-status` | Check live status of a Twitch streamer | `/twitch-status channel: shroud` |
+| `/twitch-status` | Check live status of a Twitch streamer | `/twitch-status streamer: shroud` |
 
 ---
 

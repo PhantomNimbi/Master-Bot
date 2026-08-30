@@ -1,106 +1,131 @@
 # Complete Commands Reference
 
-Master-Bot features over 60 slash commands organized cleanly into categories. Use `/help` in Discord to open the interactive category browser or view specific parameter details.
+Master-Bot features **66 slash commands** organized cleanly into categories. Use `/help` in Discord to open the interactive category browser or view specific parameter details.
 
 ---
 
 ## 🎵 Music & Audio Commands
 
-| Command | Description | Usage Example |
+| Command | Description | Usage |
 |---|---|---|
-| `/play` | Search and play tracks or playlists from YouTube, Spotify, etc. | `/play query: darude sandstorm` |
-| `/pause` | Pause currently playing track | `/pause` |
-| `/resume` | Resume playback | `/resume` |
-| `/skip` | Skip the current track | `/skip` |
-| `/skipto` | Skip to a specific position in queue | `/skipto position: 4` |
-| `/queue` | View current queue and upcoming tracks | `/queue` |
-| `/nowplaying` | Display current track progress and metadata | `/nowplaying` |
-| `/volume` | Set audio volume (1-100) | `/volume level: 80` |
-| `/lyrics` | Search song lyrics or view lyrics for current track | `/lyrics song: Hotel California` |
-| `/create-playlist` | Create a custom user playlist | `/create-playlist name: Favorites` |
-| `/save-to-playlist` | Save track or URL to custom playlist | `/save-to-playlist name: Favorites url: <url>` |
-| `/my-playlists` | View your saved playlists | `/my-playlists` |
-| `/display-playlist` | Inspect tracks in a custom playlist | `/display-playlist name: Favorites` |
-| `/delete-playlist` | Delete a custom playlist | `/delete-playlist name: Favorites` |
-| `/music-trivia` | Start an interactive voice channel music trivia game | `/music-trivia rounds: 5 category: 90s` |
-| `/stop-trivia` | Stop an ongoing music trivia game | `/stop-trivia` |
+| `/play` | Play any song or playlist from YouTube, Spotify and more | `/play query: darude sandstorm` |
+| `/pause` | Pause the music | `/pause` |
+| `/resume` | Resume the music | `/resume` |
+| `/skip` | Skip the current song playing | `/skip` |
+| `/skipto` | Skip to a track in queue | `/skipto position: 4` |
+| `/queue` | Get a list of the music queue | `/queue` |
+| `/shuffle` | Shuffle the music queue | `/shuffle` |
+| `/seek` | Seek to a desired point in a track | `/seek` |
+| `/remove` | Remove a track from the queue | `/remove position: 3` |
+| `/move` | Move a track to a different position in queue | `/move` |
+| `/leave` | Make the bot leave its voice channel and stop playing music | `/leave` |
+| `/volume` | Set the volume | `/volume setting: 80` |
+| `/lyrics` | Get the lyrics of any song or the currently playing song | `/lyrics title: Hotel California` |
+| `/bassboost` | Boost the bass of the playing track | `/bassboost` |
+| `/karaoke` | Turn the playing track into karaoke | `/karaoke` |
+| `/nightcore` | Enable or disable the Nightcore filter | `/nightcore` |
+| `/vaporwave` | Apply vaporwave to the playing track | `/vaporwave` |
+| `/create-playlist` | Create a custom playlist that you can play anytime | `/create-playlist playlist-name: Favorites` |
+| `/save-to-playlist` | Save a song or playlist to a custom playlist | `/save-to-playlist playlist-name: Favorites url: <url>` |
+| `/my-playlists` | Display your custom playlists | `/my-playlists` |
+| `/display-playlist` | Display a saved playlist | `/display-playlist playlist-name: Favorites` |
+| `/delete-playlist` | Delete a playlist from your saved playlists | `/delete-playlist playlist-name: Favorites` |
+| `/remove-from-playlist` | Remove a song from a saved playlist | `/remove-from-playlist` |
+| `/music-trivia` | Start an interactive Music Trivia game in your voice channel | `/music-trivia rounds: 5 category: 90s` |
+| `/stop-trivia` | Stop the active Music Trivia game in this server | `/stop-trivia` |
 
 ---
 
-## 🖼️ Reaction GIFs (Powered by Klipy & Waifu.im)
+## 🖼️ Reaction GIFs & Media (Powered by Klipy & Waifu.im)
 
-| Command | Description | Usage Example |
+| Command | Description | Usage |
 |---|---|---|
-| `/gif` | Search random GIFs | `/gif query: dance` |
-| `/anime` | Search anime reaction GIFs | `/anime` |
-| `/hug` | Send a hug reaction GIF to a user | `/hug user: @User` |
-| `/slap` | Send a slap reaction GIF to a user | `/slap user: @User` |
-| `/pat` | Send a headpat reaction GIF | `/pat user: @User` |
-| `/cat` / `/doggo` | Display cute cat or dog photos | `/cat` |
-| `/waifu` | Fetch random waifu images from waifu.im | `/waifu` |
-
----
-
-## 🎮 Gaming, Info & Twitch
-
-| Command | Description | Usage Example |
-|---|---|---|
-| `/game-search` | Search video game metadata via IGDB | `/game-search title: Elden Ring` |
-| `/tv-show-search` | Search TV show details via TVMaze | `/tv-show-search query: Breaking Bad` |
-| `/twitch-status` | Check live status of a Twitch channel | `/twitch-status channel: shroud` |
-| `/urban` | Search Urban Dictionary definitions | `/urban term: typescript` |
+| `/gif` | Reply with a random GIF | `/gif` |
+| `/anime` | Reply with a random anime GIF | `/anime` |
+| `/amongus` | Reply with a random Among Us GIF | `/amongus` |
+| `/baka` | Reply with a random baka GIF | `/baka` |
+| `/gintama` | Reply with a random Gintama GIF | `/gintama` |
+| `/jojo` | Reply with a random JoJo GIF | `/jojo` |
+| `/hug` | Reply with a random hug GIF | `/hug` |
+| `/slap` | Reply with a random slap GIF | `/slap` |
+| `/cat` | Reply with a random cat GIF | `/cat` |
+| `/doggo` | Reply with a random doggo GIF | `/doggo` |
+| `/waifu` | Reply with a random waifu image (waifu.im) | `/waifu` |
 
 ---
 
 ## 🔨 Moderation & Server Management
 
-| Command | Description | Usage Example |
+| Command | Description | Usage |
 |---|---|---|
-| `/ban` | Ban a member with optional reason and message purge | `/ban user: @User reason: Spam delete-messages: Previous 24 Hours` |
+| `/ban` | Ban a member from the server | `/ban user: @User reason: Spam delete-messages: 24h` |
 | `/kick` | Kick a member from the server | `/kick user: @User reason: Rule violation` |
-| `/timeout` | Timeout (mute) a member or remove active timeout | `/timeout user: @User duration: 5 Minutes reason: Spam` |
-| `/slowmode` | Set text channel rate limit (0 to disable) | `/slowmode seconds: 10 channel: #general` |
-| `/purge` | Bulk delete recent messages (optional user filter) | `/purge amount: 25 user: @User` |
+| `/timeout` | Timeout (mute) a member or remove an active timeout | `/timeout user: @User duration: 5m reason: Spam` |
+| `/slowmode` | Set the slowmode message rate limit for a text channel | `/slowmode seconds: 10 channel: #general` |
+| `/purge` | Bulk delete messages from the current channel | `/purge amount: 25 user: @User` |
+
+---
+
+## 🎮 Gaming, Info & Fun Utilities
+
+| Command | Description | Usage |
+|---|---|---|
+| `/game-search` | Search for video game information using IGDB | `/game-search game: Elden Ring` |
+| `/tv-show-search` | Get TV show information (TVMaze) | `/tv-show-search query: Breaking Bad` |
+| `/twitch-status` | Check the status of your favorite streamer | `/twitch-status streamer: shroud` |
+| `/speedrun` | Look for the world record of a game | `/speedrun game: Mario` |
+| `/urban` | Get definitions from Urban Dictionary | `/urban query: typescript` |
+| `/translate` | Translate text using Google Translate | `/translate target: es text: Hello` |
+| `/8ball` | Get the answer to anything | `/8ball question: Will I win?` |
+| `/reddit` | Get posts from Reddit by subreddit | `/reddit subreddit: memes sort: hot` |
+| `/random` | Generate a random number between two inputs | `/random min: 1 max: 10` |
+| `/games` | Play games like Connect 4 and Tic Tac Toe | `/games` |
+| `/rockpaperscissors` | Play rock paper scissors | `/rockpaperscissors` |
+| `/activity` | Generate an invite link to your voice channel | `/activity` |
+| `/kanye` | Reply with a random Kanye quote | `/kanye` |
+| `/trump` | Reply with a random Trump quote | `/trump` |
+| `/advice` | Get some advice | `/advice` |
+| `/motivation` | Reply with a motivational quote | `/motivation` |
+| `/fortune` | Reply with a fortune cookie tip | `/fortune` |
+| `/chucknorris` | Get a satirical fact about Chuck Norris | `/chucknorris` |
+| `/insult` | Reply with a mean insult | `/insult` |
 
 ---
 
 ## ⚙️ Utilities & Owner Commands
 
-| Command | Description | Usage Example |
+| Command | Description | Usage |
 |---|---|---|
-| `/help` | Open interactive category browser or detailed command help | `/help` |
-| `/set` | Configure server settings (Welcome, Twitch, Logging, Tickets, Volume) | `/set <subcommand>` |
-| `/youtube-auth` | Re-trigger YouTube OAuth Device Authorization (Owner Only) | `/youtube-auth` |
-| `/avatar` | View a user's Discord profile avatar | `/avatar user: @User` |
-| `/reddit` | Fetch hot posts from a subreddit | `/reddit subreddit: memes` |
-| `/ping` | Check bot gateway latency | `/ping` |
-| `/about` | View Master-Bot version, uptime, and system info | `/about` |
-| `/activity` | Generate voice channel Discord Activity invite link | `/activity channel: Voice Channel` |
+| `/help` | Explore the command list or view detailed info for a specific command | `/help` |
+| `/set` | Configure server settings (Welcome, Logging, Tickets, Twitch, Volume) | `/set <subcommand>` |
+| `/youtube-auth` | Authorize YouTube playback via Device Flow (Owner Only) | `/youtube-auth` |
+| `/avatar` | Reply with a user's Discord avatar | `/avatar user: @User` |
+| `/about` | Display info about the bot | `/about` |
+| `/ping` | Reply with pong! | `/ping` |
 
 ---
 
 ## 🔧 Server Settings (`/set` Subcommands)
 
-| Subcommand | Description | Example |
-|---|---|---|
-| `/set view` | Display comprehensive server configuration embed | `/set view` |
-| `/set welcome-channel` | Designate target channel for member welcome greetings | `/set welcome-channel channel: #welcome` |
-| `/set welcome-message` | Set custom welcome message (`{user}`, `{username}`, `{server}`, `{position}`) | `/set welcome-message message: Welcome {user}!` |
-| `/set welcome-toggle` | Enable or disable automatic welcome greetings | `/set welcome-toggle enabled: true` |
-| `/set welcome-test` | Test welcome greeting formatting in the current channel | `/set welcome-test` |
-| `/set log-channel` | Designate target channel for server audit & event logging | `/set log-channel channel: #mod-logs` |
-| `/set log-toggle` | Enable or disable server audit & event logging | `/set log-toggle enabled: true` |
-| `/set log-disable` | Disable audit logging | `/set log-disable` |
-| `/set ticket-channel` | Set channel for support ticket panel and spawn threads | `/set ticket-channel channel: #support` |
-| `/set ticket-toggle` | Enable or disable support ticket system | `/set ticket-toggle enabled: true` |
-| `/set ticket-panel` | Post/update interactive ticket creation panel with button | `/set ticket-panel` |
-| `/set ticket-transcript` | Designate channel for closed ticket transcript archival | `/set ticket-transcript channel: #ticket-transcripts` |
-| `/set ticket-transcript-disable` | Disable ticket transcript archiving | `/set ticket-transcript-disable` |
-| `/set twitch-add` | Add Twitch streamer to live notification monitor | `/set twitch-add streamer: shroud channel: #streams` |
-| `/set twitch-remove` | Remove Twitch streamer from monitor | `/set twitch-remove streamer: shroud` |
-| `/set twitch-list` | Display monitored Twitch channels | `/set twitch-list` |
-| `/set default-volume` | Set default audio playback volume (1 - 100) | `/set default-volume volume: 80` |
-| `/set reset` | Reset server settings to default | `/set reset` |
+| Subcommand | Description |
+|---|---|
+| `/set view` | Display the current server settings overview |
+| `/set welcome-channel` | Set the channel for member welcome greetings |
+| `/set welcome-message` | Set a custom welcome message (`{user}`, `{username}`, `{server}`, `{position}`) |
+| `/set welcome-toggle` | Enable or disable automatic welcome greetings |
+| `/set welcome-test` | Test the welcome greeting in the current channel |
+| `/set log-channel` | Set the channel for server audit & event logging |
+| `/set log-toggle` | Enable or disable audit & event logging |
+| `/set log-disable` | Disable audit logging and clear the channel |
+| `/set ticket-channel` | Set the channel for the support ticket panel |
+| `/set ticket-toggle` | Enable or disable the support ticket system |
+| `/set ticket-panel` | Post or update the interactive ticket creation panel |
+| `/set ticket-transcript` | Set the channel for closed ticket transcript archival |
+| `/set ticket-transcript-disable` | Disable ticket transcript archiving |
+| `/set twitch-add` | Add a Twitch streamer to the live notification monitor |
+| `/set twitch-remove` | Remove a Twitch streamer from the monitor |
+| `/set twitch-list` | Display monitored Twitch channels |
+| `/set default-volume` | Set the default audio playback volume |
 
 ---
 

@@ -19,7 +19,7 @@ Master-Bot integrates with multiple external services. Below is a complete guide
 ## 🎵 Music & Lavalink Engine Credentials
 
 > [!IMPORTANT]
-> Lavalink audio streaming is **gated behind API keys/credentials**. If no API keys for YouTube, Spotify, or SoundCloud are provided in `.env`, the internal Lavalink server launch is automatically skipped and Lavalink is disabled.
+> Lavalink audio streaming is **gated behind API keys/credentials**. If no API keys for YouTube or Spotify are provided in `.env`, the internal Lavalink server launch is automatically skipped and Lavalink is disabled.
 
 ### 1. YouTube Audio Engine (`YOUTUBE_API_KEY` / `YOUTUBE_REFRESH_TOKEN`)
 - **Automated OAuth Capture:** On launch, Lavalink's `youtube-plugin` outputs a Google OAuth device code prompt to the terminal console (or triggered via `/youtube-auth`). Completing authorization at `https://www.google.com/device` automatically saves the refresh token atomically into `.youtube-oauth.json`.
@@ -30,10 +30,9 @@ Master-Bot integrates with multiple external services. Below is a complete guide
 - **Variables:** `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET`
 - **Features:** Enables Lavalink `lavasrc-plugin` to search and resolve Spotify track/album/playlist URLs directly into playable audio streams. Gated behind credentials.
 
-### 3. SoundCloud Artist Pro API (`SOUNDCLOUD_CLIENT_ID` & `SOUNDCLOUD_CLIENT_SECRET`)
-- **Requirement:** Requires a SoundCloud Artist Pro account to register and obtain API client credentials.
-- **Variables:** `SOUNDCLOUD_CLIENT_ID` and `SOUNDCLOUD_CLIENT_SECRET`
-- **Features:** Enables full-track SoundCloud search (`scsearch`) without 30-second preview limitations. Automatically used as a search source when configured. Gated behind credentials.
+### 3. SoundCloud (Built-In Free Source — No API Keys Required)
+- **Features:** Uses Lavalink's **built-in** SoundCloud source (`filterOutPreviewTracks: true`) for full-length track search and playback (`scsearch`) — **no paid SoundCloud Artist Pro API keys are required**. SoundCloud is enabled by default.
+- **Optional Variables:** `SOUNDCLOUD_CLIENT_ID` and `SOUNDCLOUD_CLIENT_SECRET` — only needed if you re-enable the `lavasrc` SoundCloud source (paid), which is disabled by default.
 
 ---
 
