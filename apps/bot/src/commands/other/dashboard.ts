@@ -40,8 +40,8 @@ export class DashboardCommand extends Command {
 			)
 			.setColor('Purple')
 			.addFields({
-				name: '🔗 Link',
-				value: dashboardUrl,
+				name: '🔗 Open the Dashboard',
+				value: `[Click here to open the dashboard](${dashboardUrl})`,
 				inline: false
 			})
 			.setFooter({
