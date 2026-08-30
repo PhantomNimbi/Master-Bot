@@ -116,44 +116,32 @@ You can also re-trigger authorization any time with the `/youtube-auth` command 
 
 ## 📖 Available Commands
 
-> For the complete, up-to-date list of all 66 slash commands and the `/set` subcommands, see the [Commands Reference](wiki/Commands-Reference.md).
+> Master-Bot ships with **66 slash commands** across Music, Moderation, GIFs, Utilities, and more. For the complete, up-to-date list and the `/set` subcommands, see the [Commands Reference](wiki/Commands-Reference.md).
 
-### 🎵 Music Commands
-| Command | Description | Usage |
-|---|---|---|
-| `/play` | Play a song or playlist from YouTube, Spotify, etc. | `/play query: darude sandstorm` |
-| `/pause` / `/resume` | Pause or resume audio playback | `/pause` |
-| `/skip` / `/skipto` | Skip the current track or jump to a queue position | `/skipto position: 3` |
-| `/queue` | Display current track queue | `/queue` |
-| `/shuffle` | Shuffle the current queue | `/shuffle` |
-| `/lyrics` | Fetch song lyrics | `/lyrics title: Bohemian Rhapsody` |
-| `/bassboost` / `/nightcore` / `/karaoke` / `/vaporwave` | Toggle audio playback filters | `/bassboost` |
-| `/create-playlist` | Create a custom user playlist | `/create-playlist playlist-name: Favorites` |
-| `/save-to-playlist` | Save a track or URL to a custom playlist | `/save-to-playlist playlist-name: Favorites url: <url>` |
-| `/my-playlists` | View your saved playlists | `/my-playlists` |
-| `/music-trivia` / `/stop-trivia` | Start or stop an interactive voice channel music trivia game | `/music-trivia rounds: 5 category: 90s` |
-| `/help` | Interactive command directory & detailed help | `/help` |
+### 🎵 Music
+| Command | Description |
+|---|---|
+| `/play` | Play a song, playlist, or search query |
+| `/music-trivia` | Start an interactive music trivia game |
+| `/create-playlist` | Create a custom user playlist |
+| `/help` | Browse commands & detailed help |
 
-### 🔨 Moderation Commands
-| Command | Description | Usage |
-|---|---|---|
-| `/ban` | Ban a member with optional reason and message purge | `/ban user: @User reason: Spam delete-messages: 24h` |
-| `/kick` | Kick a member from the server | `/kick user: @User reason: Rule violation` |
-| `/timeout` | Timeout (mute) a member or remove timeout | `/timeout user: @User duration: 5m reason: Spam` |
-| `/slowmode` | Set text channel rate limit (0 to disable) | `/slowmode seconds: 10 channel: #general` |
-| `/purge` | Bulk delete recent messages (optional user filter) | `/purge amount: 25 user: @User` |
+### 🔨 Moderation
+| Command | Description |
+|---|---|
+| `/ban` | Ban a member |
+| `/kick` | Kick a member |
+| `/timeout` | Timeout (mute) a member |
+| `/slowmode` | Set channel slowmode |
+| `/purge` | Bulk delete messages |
 
-### ⚙️ Utility & Owner Commands
-| Command | Description | Usage |
-|---|---|---|
-| `/help` | Category browser and command details | `/help` |
-| `/set` | Configure server settings (Welcome, Logging, Tickets, Twitch, Volume) | `/set <subcommand>` |
-| `/youtube-auth` | Re-trigger YouTube OAuth Device Flow (Owner Only) | `/youtube-auth` |
-| `/avatar` | Display a user's Discord avatar | `/avatar user: @User` |
-| `/reddit` | Fetch posts from a subreddit | `/reddit subreddit: memes` |
-| `/game-search` | Search video game info via IGDB | `/game-search game: Metroid` |
-| `/tv-show-search` | Search TV show details via TVMaze | `/tv-show-search query: Office` |
-| `/twitch-status` | Check live status of a Twitch streamer | `/twitch-status streamer: shroud` |
+### ⚙️ Utility & Owner
+| Command | Description |
+|---|---|
+| `/set` | Configure server settings |
+| `/youtube-auth` | Re-trigger YouTube OAuth (Owner Only) |
+| `/game-search` | Search video game info via IGDB |
+| `/twitch-status` | Check a Twitch streamer's live status |
 
 ---
 
