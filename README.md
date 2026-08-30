@@ -4,7 +4,6 @@
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D20.0.0-green)](https://nodejs.org/)
 [![pnpm](https://img.shields.io/badge/Package_Manager-pnpm-orange)](https://pnpm.io/)
 [![Lavalink](https://img.shields.io/badge/Lavalink-v4.x-purple)](https://github.com/lavalink-devs/Lavalink)
-[![Deploy to Heroku](https://img.shields.io/badge/Deploy%20to-Heroku-430098?logo=heroku&logoColor=white)](https://heroku.com/deploy?template=https://github.com/PhantomNimbi/Master-Bot)
 
 **Master-Bot** is a production-ready, high-performance Discord Music and Utility Bot monorepo featuring a full-featured **Next.js Web Dashboard**. Built with **TypeScript**, **Sapphire Framework**, **discord.js v14**, **Next.js 15**, **tRPC v11**, **Prisma ORM**, **Redis**, and **Lavalink v4**.
 
@@ -76,57 +75,30 @@ pnpm install
 
 ### 2. Configure Environment Variables
 
-Copy `.env.example` to `.env` in the root folder:
+Create `.env` in the root workspace directory from `.env.example`:
 
 ```bash
 cp .env.example .env
 ```
 
-Ensure key environment variables are configured:
+Fill in your mandatory Discord and database credentials:
+- `DISCORD_TOKEN`: Bot token from Discord Developer Portal
+- `DISCORD_CLIENT_ID` & `DISCORD_CLIENT_SECRET`: Application OAuth2 credentials
+- `DATABASE_URL` & `SHADOW_DB_URL`: PostgreSQL connection strings
+- `REDIS_HOST` & `REDIS_PORT`: Redis cache connection details
+- `LAVA_ENABLED`: Set to `true` to enable Lavalink audio playback (defaults to `false`)
 
-```env
-# Database & Redis
-DATABASE_URL="postgresql://user:password@localhost:5432/masterbot?schema=public"
-REDIS_HOST="localhost"
-REDIS_PORT=6379
-
-# Discord Application Credentials
-DISCORD_TOKEN="YOUR_BOT_TOKEN"
-DISCORD_CLIENT_ID="YOUR_CLIENT_ID"
-DISCORD_CLIENT_SECRET="YOUR_CLIENT_SECRET"
-
-# Dashboard & NextAuth
-NEXTAUTH_SECRET="your-super-secret-key"
-NEXTAUTH_URL="http://localhost:3000"
-
-# Lavalink Server Settings
-LAVA_HOST="localhost"
-LAVA_PORT=2333
-LAVA_PASS="youshallnotpass"
-```
-
-### 3. Download Lavalink v4 Server
-
-Download the latest `Lavalink.jar` release from [lavalink-devs/Lavalink Releases](https://github.com/lavalink-devs/Lavalink/releases) and place it in the project root directory alongside `application.yml`.
-
-### 4. Launch Development Services
-
-Run the unified launcher:
+### 3. Run Development Stack
 
 ```bash
 pnpm dev
 ```
 
-The launcher will automatically execute `prisma db push` to synchronize the database schema before launching all services simultaneously:
-- 🗄️ **Database Sync:** Applied automatically on launch
-- 🤖 **Bot Service:** Logs written to `logs/bot.log`
-- 🌐 **Web Dashboard:** Running at [http://localhost:3000](http://localhost:3000) (Logs: `logs/dashboard.log`)
-- 🎵 **Lavalink Audio Server:** Running at `localhost:2333` (Logs: `logs/lavalink.log`)
-- 📄 **Combined System Log:** Written to `logs/combined.log`
+The unified launcher will automatically synchronize your Prisma schema (`prisma db push`), clear lingering ports, and start all services concurrently.
 
 ---
 
-## 🔑 YouTube OAuth Device Flow
+## 🎵 YouTube OAuth Setup
 
 When launching for the first time without a YouTube refresh token:
 1. Lavalink's `youtube-plugin` triggers the OAuth device flow.
@@ -174,24 +146,6 @@ When launching for the first time without a YouTube refresh token:
 | `/game-search` | Search video game info via IGDB | `/game-search title: Metroid` |
 | `/tv-show-search` | Search TV show details via TVMaze | `/tv-show-search query: Office` |
 | `/twitch-status` | Check live status of a Twitch streamer | `/twitch-status channel: shroud` |
-
----
-
-## 🚀 1-Click Heroku Deployment
-
-Deploy a complete instance of Master-Bot (Discord Bot, Next.js 15 Dashboard, Lavalink v4 Audio Engine, PostgreSQL, and Redis) directly to Heroku with one click:
-
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/PhantomNimbi/Master-Bot)
-
-### How It Works:
-1. Click the **Deploy to Heroku** button above.
-2. Enter your Discord Bot credentials (`DISCORD_TOKEN`, `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`).
-3. Heroku automatically provisions:
-   - **Heroku Postgres** database addon (auto-populates `DATABASE_URL`).
-   - **Heroku Redis** cache addon (auto-populates `REDIS_URL`).
-   - **NextAuth Secret** generation (`NEXTAUTH_SECRET`).
-   - **Postdeploy Migration**: Automatically executes `pnpm db:push` to apply all database tables on initial setup.
-4. Click **Deploy App** — your bot and web dashboard will be live in minutes!
 
 ---
 

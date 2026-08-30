@@ -102,20 +102,3 @@ To view logs or stop services:
 docker compose logs -f
 docker compose down
 ```
-
----
-
-### Option C: 1-Click Heroku Deployment (Zero Server Management)
-
-Deploy Master-Bot directly to Heroku with pre-configured internal databases and automatic schema migrations:
-
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/PhantomNimbi/Master-Bot)
-
-1. Click the button above to launch the Heroku App Creator.
-2. Supply your Discord Bot credentials (`DISCORD_TOKEN`, `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`).
-3. Heroku automatically provisions:
-   - **Heroku PostgreSQL Addon** (`DATABASE_URL`)
-   - **Heroku Redis Addon** (`REDIS_URL`)
-   - **Multi-Buildpack JVM & Node.js**
-   - **Postdeploy Migration**: Runs `pnpm db:push` automatically.
-4. Click **Deploy App**.
