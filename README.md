@@ -154,6 +154,7 @@ When launching for the first time without a YouTube refresh token:
 | Command | Description | Usage |
 |---|---|---|
 | `/help` | Category browser and command details | `/help` |
+| `/set` | Configure server settings (Welcome, Twitch, Logging, Volume) | `/set <subcommand>` |
 | `/youtube-auth` | Re-trigger YouTube OAuth Device Flow (Owner Only) | `/youtube-auth` |
 | `/avatar` | Display a user's Discord avatar | `/avatar user: @User` |
 | `/reddit` | Fetch posts from a subreddit | `/reddit subreddit: memes` |

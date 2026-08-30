@@ -1,6 +1,13 @@
 import Link from 'next/link';
 import { prisma } from '@master-bot/db';
-import { Terminal, MessageCircle, Server, CheckCircle2, XCircle } from 'lucide-react';
+import {
+	Terminal,
+	MessageCircle,
+	Server,
+	CheckCircle2,
+	XCircle,
+	ScrollText
+} from 'lucide-react';
 import { Button } from '~/components/ui/button';
 
 export default async function ServerIndexPage({
@@ -17,6 +24,8 @@ export default async function ServerIndexPage({
 			id: true,
 			disabledCommands: true,
 			welcomeMessageEnabled: true,
+			logChannelEnabled: true,
+			logChannel: true,
 			volume: true
 		}
 	});
@@ -87,6 +96,34 @@ export default async function ServerIndexPage({
 					<div className="mt-4">
 						<Button asChild size="sm" variant="outline" className="w-full">
 							<Link href={`/dashboard/${server_id}/welcome-message`}>Edit Welcome Settings</Link>
+						</Button>
+					</div>
+				</div>
+
+				<div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60 rounded-xl p-5 shadow-sm">
+					<div className="flex items-center justify-between">
+						<span className="text-sm font-medium text-slate-500 dark:text-slate-400">Audit & Log Channel</span>
+						<ScrollText className="h-5 w-5 text-blue-500" />
+					</div>
+					<div className="mt-3 flex items-center gap-2">
+						{guild.logChannelEnabled && guild.logChannel ? (
+							<>
+								<CheckCircle2 className="h-5 w-5 text-emerald-500" />
+								<span className="text-2xl font-bold text-slate-900 dark:text-white">Active</span>
+							</>
+						) : (
+							<>
+								<XCircle className="h-5 w-5 text-rose-500" />
+								<span className="text-2xl font-bold text-slate-900 dark:text-white">Inactive</span>
+							</>
+						)}
+					</div>
+					<p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+						{guild.logChannelEnabled && guild.logChannel ? 'Routing moderation logs to channel' : 'Logging is disabled'}
+					</p>
+					<div className="mt-4">
+						<Button asChild size="sm" variant="outline" className="w-full">
+							<Link href={`/dashboard/${server_id}/log-channel`}>Edit Log Settings</Link>
 						</Button>
 					</div>
 				</div>

@@ -100,6 +100,80 @@ export const guildRouter = createTRPCRouter({
 				data: { volume }
 			});
 		}),
+	setLogChannel: publicProcedure
+		.input(
+			z.object({
+				guildId: z.string(),
+				channelId: z.string().nullable()
+			})
+		)
+		.mutation(async ({ ctx, input }) => {
+			const { guildId, channelId } = input;
+
+			const guild = await ctx.prisma.guild.update({
+				where: { id: guildId },
+				data: {
+					logChannel: channelId,
+					logChannelEnabled: Boolean(channelId)
+				}
+			});
+
+			return { guild };
+		}),
+	toggleLogChannel: publicProcedure
+		.input(
+			z.object({
+				guildId: z.string(),
+				status: z.boolean()
+			})
+		)
+		.mutation(async ({ ctx, input }) => {
+			const { guildId, status } = input;
+
+			const guild = await ctx.prisma.guild.update({
+				where: { id: guildId },
+				data: { logChannelEnabled: status }
+			});
+
+			return { guild };
+		}),
+	updateLogEvents: publicProcedure
+		.input(
+			z.object({
+				guildId: z.string(),
+				events: z.array(z.string())
+			})
+		)
+		.mutation(async ({ ctx, input }) => {
+			const { guildId, events } = input;
+
+			const guild = await ctx.prisma.guild.update({
+				where: { id: guildId },
+				data: { logEvents: events }
+			});
+
+			return { guild };
+		}),
+	getLogConfig: publicProcedure
+		.input(
+			z.object({
+				guildId: z.string()
+			})
+		)
+		.query(async ({ ctx, input }) => {
+			const { guildId } = input;
+
+			const guild = await ctx.prisma.guild.findUnique({
+				where: { id: guildId },
+				select: {
+					logChannel: true,
+					logChannelEnabled: true,
+					logEvents: true
+				}
+			});
+
+			return { guild };
+		}),
 	getRoles: publicProcedure
 		.input(
 			z.object({

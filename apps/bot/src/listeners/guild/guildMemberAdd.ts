@@ -18,21 +18,34 @@ export class GuildMemberListener extends Listener {
 		const { welcomeMessage, welcomeMessageEnabled, welcomeMessageChannel } =
 			guildQuery.guild;
 
-		if (
-			!welcomeMessageEnabled ||
-			!welcomeMessage ||
-			!welcomeMessage.length ||
-			!welcomeMessageChannel
-		) {
+		if (!welcomeMessageEnabled || !welcomeMessageChannel) {
 			return;
 		}
 
-		const channel = (await member.guild.channels.fetch(
-			welcomeMessageChannel
-		)) as TextChannel;
+		try {
+			const channel = (await member.guild.channels.fetch(
+				welcomeMessageChannel
+			)) as TextChannel;
 
-		if (channel) {
-			await channel.send({ content: `@${member.id} ${welcomeMessage}` });
+			if (channel && channel.isTextBased()) {
+				const rawMessage =
+					welcomeMessage && welcomeMessage.trim().length > 0
+						? welcomeMessage
+						: '👋 Welcome {user} to **{server}**! You are member #{memberCount}.';
+
+				const formatted = rawMessage
+					.replace(/\{user\}|\{mention\}/g, `<@${member.id}>`)
+					.replace(/\{username\}/g, member.user.username)
+					.replace(/\{server\}|\{guild\}/g, member.guild.name)
+					.replace(
+						/\{memberCount\}|\{position\}/g,
+						String(member.guild.memberCount || 1)
+					);
+
+				await channel.send({ content: formatted });
+			}
+		} catch (error) {
+			this.container.logger.error('Failed to send welcome message: ', error);
 		}
 	}
 }

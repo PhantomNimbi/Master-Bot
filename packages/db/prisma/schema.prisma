@@ -96,6 +96,8 @@ model Guild {
     // Settings
     disabledCommands      String[]      @map("disabled_commands")
     logChannel            String?       @map("log_channel")
+    logChannelEnabled     Boolean       @default(false) @map("log_channel_enabled")
+    logEvents             String[]      @default([]) @map("log_events")
     welcomeMessageChannel String?       @map("welcome_message_channel")
     welcomeMessage        String?       @map("welcome_message")
     welcomeMessageEnabled Boolean       @default(false) @map("welcome_message_enabled")

@@ -57,6 +57,7 @@ Master-Bot features over 60 slash commands organized cleanly into categories. Us
 | Command | Description | Usage Example |
 |---|---|---|
 | `/help` | Open interactive category browser or detailed command help | `/help` |
+| `/set` | Configure server settings (Welcome, Twitch, Logging, Volume) | `/set <subcommand>` |
 | `/youtube-auth` | Re-trigger YouTube OAuth Device Flow (Owner Only) | `/youtube-auth` |
 | `/avatar` | Display user profile picture | `/avatar user: @User` |
 | `/reddit` | Fetch top posts from a subreddit | `/reddit subreddit: memes` |
