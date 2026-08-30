@@ -16,21 +16,21 @@ Master-Bot is organized as a Turbo monorepo managed with `pnpm` workspaces:
 ```text
 Master-Bot/
 ├── apps/
-│   ├── bot/           # Sapphire & Discord.js v14 Bot Application
-│   └── dashboard/     # Next.js 15 Web Dashboard (Tailwind CSS, NextAuth, tRPC)
+│   ├── bot/                 # Sapphire & Discord.js v14 Bot Application
+│   └── dashboard/           # Next.js 15 Web Dashboard (Tailwind CSS, NextAuth, tRPC)
 ├── packages/
-│   ├── api/           # Shared tRPC v11 Routers & API Procedures
-│   ├── auth/          # Shared NextAuth.js Configuration
-│   ├── config/        # Shared Tooling Config (eslint/, tailwind/)
-│   └── db/            # Shared Prisma ORM Client & Database Schemas
+│   ├── api/                 # Shared tRPC v11 Routers & API Procedures
+│   ├── auth/                # Shared NextAuth.js Configuration
+│   ├── config/              # Shared Tooling Config (eslint/, tailwind/)
+│   └── db/                  # Shared Prisma ORM Client & Database Schemas
 ├── scripts/
-│   ├── common.mjs     # Shared cross-platform port management & log writers
-│   ├── dev.mjs        # Unified Development Launcher & Service Manager
-│   └── start.mjs      # Unified Production Launcher & Service Manager
-├── wiki/              # Project documentation (Setup, Lavalink, API keys, Commands)
-├── logs/              # Service-specific log files (bot.log, dashboard.log, lavalink.log)
-├── application.yml.example # Lavalink v4 Configuration Template (copy to application.yml)
-├── docker-compose.yml # Containerized deployment (Bot, Dashboard, PostgreSQL, Redis, Lavalink)
+│   ├── common.mjs           # Shared cross-platform port management & log writers
+│   ├── dev.mjs              # Unified Development Launcher & Service Manager
+│   └── start.mjs            # Unified Production Launcher & Service Manager
+├── wiki/                    # Project documentation (Setup, Lavalink, API keys, Commands)
+├── logs/                    # Service-specific log files (bot.log, dashboard.log, lavalink.log)
+├── application.yml.example  # Lavalink v4 Configuration Template (copy to application.yml)
+├── docker-compose.yml       # Containerized deployment (Bot, Dashboard, PostgreSQL, Redis, Lavalink)
 ```
 
 ---
