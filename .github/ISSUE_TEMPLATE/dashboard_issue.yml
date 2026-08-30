@@ -1,0 +1,62 @@
+name: Dashboard / Web Issue
+description: Report a problem with the web dashboard, authentication, or API
+title: '[Dashboard]: '
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Instructions
+        Describe the web dashboard, authentication, or API issue you encountered.
+
+  - type: input
+    id: url
+    attributes:
+      label: Page / Route
+      description: The dashboard page or API route affected.
+      placeholder: "e.g., /dashboard/[server_id]/welcome-message"
+    validations:
+      required: false
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the Issue
+      description: What happened? Include any error messages.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Navigate to ...
+        2. Click ...
+        3. See error
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Authentication / Sign-In
+        - Server Settings
+        - Welcome Message Editor
+        - Ticket Panel
+        - Log Viewer
+        - Commands Panel
+        - Other
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Browser / Server Console
+      description: Paste any console errors or dashboard log output.
+    validations:
+      required: false
