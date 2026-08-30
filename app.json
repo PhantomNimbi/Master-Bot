@@ -52,7 +52,7 @@
     },
     "NEXTAUTH_URL": {
       "description": "Canonical public URL of your Heroku web dashboard application.",
-      "value": "https://.herokuapp.com"
+      "value": "https://${HEROKU_APP_NAME}.herokuapp.com"
     },
     "NEXTAUTH_URL_INTERNAL": {
       "description": "Internal server-to-server NextAuth loopback URL.",
@@ -60,7 +60,7 @@
     },
     "NEXT_PUBLIC_INVITE_URL": {
       "description": "Discord Bot OAuth2 server invite URL.",
-      "value": "https://discord.com/api/oauth2/authorize?client_id=&permissions=8&scope=bot%20applications.commands"
+      "value": "https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&permissions=8&scope=bot%20applications.commands"
     },
     "LAVA_ENABLED": {
       "description": "Enable Lavalink v4 high-performance audio engine.",
@@ -77,6 +77,10 @@
     "LAVA_PASS": {
       "description": "Lavalink server authorization password.",
       "value": "youshallnotpass"
+    },
+    "YOUTUBE_API_KEY": {
+      "description": "YouTube Data API v3 key (Used for YouTube metadata fetching and OAuth token generation).",
+      "required": false
     },
     "YOUTUBE_CIPHER_URL": {
       "description": "Remote signature cipher extraction endpoint.",
