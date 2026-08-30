@@ -27,5 +27,5 @@
 
 ## 🔗 Quick Links
 
-- **Repository:** [PhantomNimbi/Master-Bot](https://github.com/PhantomNimbi/Master-Bot)
+- **Repository:** [galnir/Master-Bot](https://github.com/galnir/Master-Bot)
 - **Lavalink v4 Releases:** [lavalink-devs/Lavalink](https://github.com/lavalink-devs/Lavalink/releases)

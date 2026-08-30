@@ -20,7 +20,7 @@ This guide covers setting up Master-Bot for development or production deployment
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/PhantomNimbi/Master-Bot.git
+git clone https://github.com/galnir/Master-Bot.git
 cd Master-Bot
 ```
 

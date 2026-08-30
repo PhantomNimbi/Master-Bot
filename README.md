@@ -68,7 +68,7 @@ Master-Bot/
 ### 1. Clone & Install Dependencies
 
 ```bash
-git clone https://github.com/PhantomNimbi/Master-Bot.git
+git clone https://github.com/galnir/Master-Bot.git
 cd Master-Bot
 pnpm install
 ```
