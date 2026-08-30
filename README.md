@@ -30,6 +30,7 @@ Master-Bot/
 ├── wiki/              # Project documentation (Setup, Lavalink, API keys, Commands)
 ├── logs/              # Service-specific log files (bot.log, dashboard.log, lavalink.log)
 ├── application.yml    # Lavalink v4 Audio Engine Configuration
+├── application.yml.example # Lavalink v4 Configuration Template
 ├── docker-compose.yml # Containerized deployment (Bot, Dashboard, PostgreSQL, Redis, Lavalink)
 └── Lavalink.jar       # Lavalink v4 Server Executable
 ```

@@ -58,6 +58,12 @@ pnpm db:push
 
 Download the latest `Lavalink.jar` release from [Lavalink Releases](https://github.com/lavalink-devs/Lavalink/releases) and place it directly into the root workspace folder alongside `application.yml`.
 
+A preconfigured template is provided — copy `application.yml.example` to `application.yml`:
+
+```bash
+cp application.yml.example application.yml
+```
+
 ### 6. Run Unified Development Launcher
 
 ```bash

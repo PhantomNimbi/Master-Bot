@@ -23,6 +23,13 @@ Lavalink v4 requires **Java 17 or higher**. The **Java 21 LTS** release is the r
 
 Place `Lavalink.jar` in the root workspace directory alongside `application.yml`.
 
+> [!TIP]
+> A preconfigured template is provided at `application.yml.example`. Copy it to `application.yml` to get started:
+>
+> ```bash
+> cp application.yml.example application.yml
+> ```
+
 ---
 
 ## 3. Configuration (`application.yml`)
