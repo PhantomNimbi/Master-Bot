@@ -11,7 +11,7 @@ docker-compose.yaml
 .git
 .github
 .gitignore
-LICENSE
+LICENSE*
 README.md
 
 # Node Modules and lint settings
