@@ -191,6 +191,12 @@ For detailed architecture guides, deployment steps, and API credential instructi
 
 ---
 
+## 🤝 Contributing
+
+We welcome contributions of all kinds! Please read our [Contributing Guidelines](CONTRIBUTING.md) to get started with local setup, coding standards, and pull request workflows.
+
+---
+
 ## 📄 License
 
 Distributed under the MIT License. See `LICENSE` for more information.
