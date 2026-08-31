@@ -1,6 +1,6 @@
 # Complete Commands Reference
 
-Master-Bot features **70 slash commands** organized cleanly into categories. Use `/help` in Discord to open the interactive category browser or view specific parameter details.
+Master-Bot features **75 slash commands** organized cleanly into categories. Use `/help` in Discord to open the interactive category browser or view specific parameter details.
 
 ---
 
@@ -9,6 +9,7 @@ Master-Bot features **70 slash commands** organized cleanly into categories. Use
 | Command | Description | Usage |
 |---|---|---|
 | `/play` | Play any song or playlist from YouTube, Spotify, and more | `/play query: darude sandstorm [is-custom-playlist: True] [shuffle-playlist: True]` |
+| `/now-playing` | Display the currently playing song and interactive music controls | `/now-playing` |
 | `/jump` | Jump directly to a specific track position in the queue | `/jump position: 4` |
 | `/pause` | Pause music playback | `/pause` |
 | `/resume` | Resume paused music playback | `/resume` |
@@ -48,6 +49,7 @@ Master-Bot features **70 slash commands** organized cleanly into categories. Use
 | `/gintama` | Send a Gintama reaction GIF | `/gintama` |
 | `/jojo` | Send a JoJo's Bizarre Adventure GIF | `/jojo` |
 | `/hug` | Send a warm hug GIF to a friend | `/hug [target: @User]` |
+| `/pat` | Give someone or yourself a gentle head pat | `/pat [target: @User]` |
 | `/slap` | Send a slap reaction GIF | `/slap [target: @User]` |
 | `/cat` | Send a cute random cat GIF | `/cat` |
 | `/doggo` | Send an adorable doggo GIF | `/doggo` |
@@ -73,8 +75,10 @@ Master-Bot features **70 slash commands** organized cleanly into categories. Use
 |---|---|---|
 | `/game-search` | Search video game releases and ratings (IGDB) | `/game-search game: Elden Ring` |
 | `/tv-show-search` | Search TV show information and schedules (TVMaze) | `/tv-show-search query: Breaking Bad` |
+| `/weather` | Get current weather and 3-day forecast for any location | `/weather location: Tokyo` |
 | `/twitch-status` | Check if a Twitch broadcaster is currently live | `/twitch-status streamer: shroud` |
 | `/world-news` | Fetch world news headlines by category or keyword (NewsAPI) | `/world-news [category: technology] [query: AI] [country: us]` |
+| `/poll` | Create an interactive multi-choice poll with button voting | `/poll question: Lunch? options: Pizza, Tacos [duration: 30]` |
 | `/reminder` | Schedule, list, or delete personal/server reminders | `/reminder set time: 10m event: Pizza [description: Notes]` |
 | `/connect-four` | Play Connect 4 interactively with Discord buttons | `/connect-four [opponent: @User]` |
 | `/tic-tac-toe` | Play Tic-Tac-Toe interactively with Discord buttons | `/tic-tac-toe [opponent: @User]` |
@@ -90,6 +94,7 @@ Master-Bot features **70 slash commands** organized cleanly into categories. Use
 | `/kanye` | Quote a random Kanye West statement | `/kanye` |
 | `/trump` | Quote a random Donald Trump statement | `/trump` |
 | `/advice` | Receive helpful advice | `/advice` |
+| `/bored` | Generate a fun, random activity to cure your boredom | `/bored [type: Category] [participants: Number]` |
 | `/motivation` | Receive a motivational quote | `/motivation` |
 | `/fortune` | Open a fortune cookie | `/fortune` |
 | `/chucknorris` | Receive a satirical Chuck Norris fact | `/chucknorris` |

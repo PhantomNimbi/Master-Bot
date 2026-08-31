@@ -115,12 +115,13 @@ You can also re-trigger authorization any time with the `/youtube-auth` command 
 
 ## 📖 Available Commands
 
-> Master-Bot ships with **70 slash commands** across Music, Moderation, GIFs, Games, Utilities, News, Reminders, and more. For the complete, up-to-date list and the `/set` subcommands, see the [Commands Reference](wiki/Commands-Reference.md).
+> Master-Bot ships with **75 slash commands** across Music, Moderation, GIFs, Games, Utilities, News, Reminders, and more. For the complete, up-to-date list and the `/set` subcommands, see the [Commands Reference](wiki/Commands-Reference.md).
 
 ### 🎵 Music
 | Command | Description |
 |---|---|
 | `/play` | Play a song, playlist, or search query |
+| `/now-playing` | Display the currently playing song and interactive controls |
 | `/jump` | Jump to a specific track in the queue |
 | `/music-trivia` | Start an interactive music trivia game |
 | `/create-playlist` | Create a custom user playlist |
@@ -139,7 +140,10 @@ You can also re-trigger authorization any time with the `/youtube-auth` command 
 | Command | Description |
 |---|---|
 | `/set` | Configure server settings |
+| `/poll` | Create an interactive multi-choice poll with buttons |
 | `/reminder` | Set, list, and manage personal or server reminders |
+| `/weather` | Get current weather and 3-day forecast for any location |
+| `/bored` | Generate a fun, random activity to cure your boredom |
 | `/world-news` | Fetch the latest world news headlines via NewsAPI |
 | `/connect-four` | Play Connect 4 interactively with buttons |
 | `/tic-tac-toe` | Play Tic-Tac-Toe interactively with buttons |
