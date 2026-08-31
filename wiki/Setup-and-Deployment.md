@@ -4,18 +4,166 @@ This guide covers setting up Master-Bot for development or production deployment
 
 ---
 
-## 📋 System Prerequisites
+## 📋 System Prerequisites Overview
 
-- **Node.js**: `>=20.0.0`
-- **pnpm**: `>=8.0.0` (`npm install -g pnpm`)
-- **Java**: Java 17+ required · Java 21 LTS recommended (Required for Lavalink v4 executable)
-- **PostgreSQL**: PostgreSQL database server (Local or Cloud instance)
-- **Redis Server**: Redis instance for queue management and caching
-- **Docker & Docker Compose** (Optional for containerized deployment)
+| Component | Minimum Version | Recommended Version | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Node.js** | `>=20.0.0` | `20.x` or `22.x LTS` | JavaScript/TypeScript runtime |
+| **pnpm** | `>=8.0.0` | `9.x` (`npm i -g pnpm`) | Monorepo package manager & workspace orchestrator |
+| **Java** | `Java 17+` | `Java 21 LTS` | Lavalink v4 audio engine runtime |
+| **PostgreSQL** | `14+` | `16.x` | Primary relational database |
+| **Redis** | `6.x+` | `7.x` | Queue management & caching layer |
 
 ---
 
-## 💻 Local Development Setup
+## 🖥️ Operating System Specific Setup
+
+### 🪟 Windows Setup
+
+#### 1. Install Prerequisites via `winget` (Windows Package Manager)
+
+Open **PowerShell (Run as Administrator)** or **Windows Terminal**:
+
+```powershell
+# 1. Install Node.js LTS
+winget install OpenJS.NodeJS.LTS
+
+# 2. Install pnpm
+npm install -g pnpm
+
+# 3. Install Java 21 LTS (Microsoft OpenJDK or Eclipse Temurin)
+winget install Microsoft.OpenJDK.21
+
+# 4. Install PostgreSQL
+winget install PostgreSQL.PostgreSQL.16
+
+# 5. Verify installations in a new terminal window
+node -v
+pnpm -v
+java -version
+```
+
+#### 2. Redis on Windows
+Native Redis binaries for Windows are deprecated. You can run Redis on Windows using one of the following methods:
+* **Option A: Docker (Recommended)**
+  ```powershell
+  docker run -d --name master-bot-redis -p 6379:6379 redis:alpine
+  ```
+* **Option B: WSL 2 (Windows Subsystem for Linux)**
+  ```powershell
+  wsl --install
+  # Inside WSL Ubuntu terminal:
+  sudo apt update && sudo apt install -y redis-server
+  sudo service redis-server start
+  ```
+* **Option C: Memurai (Native Windows Redis-compatible daemon)**
+  ```powershell
+  winget install Memurai.MemuraiDeveloper
+  ```
+
+#### 3. Execution Policy (if script execution is disabled)
+If PowerShell blocks scripts such as `pnpm`, run:
+```powershell
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+---
+
+### 🍎 macOS Setup
+
+#### 1. Install Prerequisites via Homebrew
+
+Ensure [Homebrew](https://brew.sh/) is installed, then run:
+
+```bash
+# 1. Install Node.js LTS, pnpm, Java 21, PostgreSQL, and Redis
+brew install node@20 pnpm openjdk@21 postgresql@16 redis
+
+# 2. Add Node.js and Java to your system PATH (add to ~/.zshrc or ~/.bash_profile)
+echo 'export PATH="/opt/homebrew/opt/node@20/bin:$PATH"' >> ~/.zshrc
+sudo ln -sfn /opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-21.jdk
+
+# 3. Reload shell profile
+source ~/.zshrc
+
+# 4. Verify installations
+node -v
+pnpm -v
+java -version
+```
+
+#### 2. Start Background Services
+
+Start PostgreSQL and Redis as background services:
+
+```bash
+brew services start postgresql@16
+brew services start redis
+```
+
+---
+
+### 🐧 Linux Setup (Ubuntu / Debian / Arch / Fedora)
+
+#### 1. Ubuntu / Debian
+
+```bash
+# 1. Install Node.js 20 LTS via NodeSource
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# 2. Install pnpm
+sudo npm install -g pnpm
+
+# 3. Install OpenJDK 21 LTS
+sudo apt install -y openjdk-21-jre-headless
+
+# 4. Install PostgreSQL & Redis
+sudo apt install -y postgresql postgresql-contrib redis-server
+
+# 5. Enable & Start Services
+sudo systemctl enable --now postgresql
+sudo systemctl enable --now redis-server
+
+# 6. Verify installations
+node -v
+pnpm -v
+java -version
+```
+
+#### 2. Arch Linux
+
+```bash
+# Install all required packages via pacman
+sudo pacman -S nodejs npm pnpm jdk21-openjdk postgresql redis
+
+# Initialize PostgreSQL cluster if new
+sudo -u postgres initdb -D /var/lib/postgres/data
+
+# Enable & Start Services
+sudo systemctl enable --now postgresql redis
+```
+
+#### 3. Fedora / RHEL / Rocky Linux
+
+```bash
+# 1. Install packages via dnf
+sudo dnf module install -y nodejs:20
+sudo npm install -g pnpm
+sudo dnf install -y java-21-openjdk postgresql-server redis
+
+# 2. Initialize PostgreSQL database
+sudo postgresql-setup --initdb
+
+# 3. Enable & Start Services
+sudo systemctl enable --now postgresql redis
+```
+
+---
+
+## 💻 Common Monorepo Setup & Workflow
+
+Once your operating system prerequisites are installed:
 
 ### 1. Clone the Repository
 

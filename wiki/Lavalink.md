@@ -4,12 +4,40 @@ Master-Bot uses **Lavalink v4** for high-performance, low-latency cross-platform
 
 ---
 
-## 1. Java Requirements
+## 1. Java Requirements & OS Installation
 
-Lavalink v4 requires **Java 17 or higher**. The **Java 21 LTS** release is the recommended version for production stability and long-term support.
+Lavalink v4 requires **Java 17 or higher**. The **Java 21 LTS** release is the recommended version for production stability, virtual threads, and long-term support.
 
-- Download Java 21 (Azul Zulu): https://www.azul.com/downloads/?package=jdk#zulu
-- Verify your installation: `java -version` (should print `21.x.x` or higher)
+### 🪟 Windows
+```powershell
+winget install Microsoft.OpenJDK.21
+# or Eclipse Temurin
+winget install EclipseAdoptium.Temurin.21.JDK
+```
+
+### 🍎 macOS
+```bash
+brew install openjdk@21
+sudo ln -sfn /opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-21.jdk
+```
+
+### 🐧 Linux
+```bash
+# Ubuntu / Debian
+sudo apt update && sudo apt install -y openjdk-21-jre-headless
+
+# Arch Linux
+sudo pacman -S jdk21-openjdk
+
+# Fedora / RHEL
+sudo dnf install -y java-21-openjdk
+```
+
+### Verify Java Installation
+```bash
+java -version
+# Expected output: openjdk version "21.x.x" ...
+```
 
 > [!IMPORTANT]
 > Java versions below 17 are **not supported** and will cause Lavalink to fail on startup.
