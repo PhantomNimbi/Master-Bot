@@ -75,3 +75,13 @@ Ensure the following variables in `.env` match your Lavalink setup:
 - `LAVA_PORT`: WebSocket port (default `2333`)
 - `LAVA_PASS`: Password (must match `lavalink.server.password` in `application.yml`)
 - `LAVA_EXTERNAL`: Set to `true` if connecting to a remote external Lavalink instance.
+
+---
+
+## 6. Live Interactive Player Embed & Dynamic Progress Bar
+
+When music playback begins, Master-Bot automatically deploys a dedicated interactive rich embed in the bound music text channel:
+- **Interactive Button Controls**: Includes row components for `▶️ Resume / ⏸️ Pause`, `⏭️ Next`, `⏹️ Stop`, `🔁 Repeat: ON/OFF`, `🔀 Shuffle`, `🔉 Vol -`, and `🔊 Vol +`.
+- **Live ASCII Progress Bar**: Renders real-time playback position (`00:00 ▰▰▰▰▰▰▱▱▱▱▱ 03:45`) that automatically ticks forward in 5-second intervals.
+- **Livestream Support**: Intelligently identifies live audio and video streams (e.g. YouTube Live, Twitch) and renders `🔴 LIVE STREAM`.
+- **Resource Management**: Automatically halts background timers and cleans up message components when tracks finish, pause, skip, or the bot leaves the voice channel.

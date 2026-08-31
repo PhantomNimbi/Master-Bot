@@ -37,15 +37,11 @@ export class NowPlayingEmbed {
 			Number((this.track as any)?.info?.duration) ||
 			Number((this.track as any)?.duration) ||
 			0;
+		const currentMs = Number(this.position) || Number((this.track as any)?.position) || 0;
 		const isSeekable =
 			this.track?.isSeekable ??
 			(this.track as any)?.info?.isSeekable ??
 			!(this.track?.isStream || (this.track as any)?.info?.isStream);
-
-		const trackLength = this.formatDuration(totalMs);
-		const durationText = isSeekable && totalMs > 0
-			? `:stopwatch: ${trackLength}`
-			: `:red_circle: Live Stream`;
 
 		const userAvatar = this.track?.requester?.avatar
 			? `https://cdn.discordapp.com/avatars/${this.track.requester?.id}/${this.track.requester?.avatar}.png`
@@ -99,14 +95,14 @@ export class NowPlayingEmbed {
 				inline: true
 			},
 			{
-				name: 'Duration',
-				value: durationText,
-				inline: true
-			},
-			{
 				name: 'Volume',
 				value: `${volumeIcon} ${this.volume}%`,
 				inline: true
+			},
+			{
+				name: '⏱️ Progress',
+				value: this.createProgressBar(currentMs, totalMs, isSeekable),
+				inline: false
 			}
 		];
 
@@ -146,6 +142,28 @@ export class NowPlayingEmbed {
 			});
 
 		return embed;
+	}
+
+	private createProgressBar(
+		currentMs: number,
+		totalMs: number,
+		isSeekable: boolean = true,
+		barLength: number = 12
+	): string {
+		if (!isSeekable || !totalMs || totalMs <= 0) {
+			return '`🔴 LIVE STREAM`';
+		}
+
+		const clampedCurrent = Math.max(0, Math.min(currentMs, totalMs));
+		const percent = clampedCurrent / totalMs;
+		const filledBlocks = Math.max(0, Math.min(barLength, Math.round(percent * barLength)));
+		const emptyBlocks = Math.max(0, barLength - filledBlocks);
+
+		const bar = '▰'.repeat(filledBlocks) + '▱'.repeat(emptyBlocks);
+		const currentStr = this.formatDuration(clampedCurrent);
+		const totalStr = this.formatDuration(totalMs);
+
+		return `\`${currentStr}\` ${bar} \`${totalStr}\``;
 	}
 
 	private formatDuration(milliseconds: number): string {

@@ -70,7 +70,14 @@ export class PlayCommand extends Command {
 	public override async chatInputRun(
 		interaction: Command.ChatInputCommandInteraction
 	) {
-		await interaction.deferReply();
+		await interaction.deferReply().catch(() => {});
+
+		const reply = async (payload: any) => {
+			if (interaction.deferred || interaction.replied) {
+				return await interaction.editReply(payload).catch(() => {});
+			}
+			return await interaction.reply(payload).catch(() => {});
+		};
 
 		const { client } = container;
 
@@ -83,9 +90,7 @@ export class PlayCommand extends Command {
 		const interactionMember = interaction.member?.user;
 
 		if (!interactionMember) {
-			return await interaction.editReply(
-				':x: Something went wrong! Please try again later'
-			);
+			return await reply(':x: Something went wrong! Please try again later');
 		}
 
 		const { music } = client;
@@ -94,7 +99,7 @@ export class PlayCommand extends Command {
 
 		// edge case - someone initiated the command but left the voice channel
 		if (!voiceChannel) {
-			return await interaction.editReply({
+			return await reply({
 				content: ':x: You need to be in a voice channel to use this command!'
 			});
 		}
@@ -118,10 +123,10 @@ export class PlayCommand extends Command {
 			const { playlist } = data;
 
 			if (!playlist) {
-				return await interaction.editReply(`:x: You have no such playlist!`);
+				return await reply(`:x: You have no such playlist!`);
 			}
 			if (!playlist.songs.length) {
-				return await interaction.editReply(`:x: **${query}** is empty!`);
+				return await reply(`:x: **${query}** is empty!`);
 			}
 
 			const { songs } = playlist;
@@ -130,7 +135,7 @@ export class PlayCommand extends Command {
 		} else {
 			const trackTuple = await searchSong(query, interaction.user);
 			if (!trackTuple[1].length) {
-				return await interaction.editReply({ content: trackTuple[0] as string });
+				return await reply({ content: trackTuple[0] as string });
 			}
 			message = trackTuple[0];
 			tracks.push(...trackTuple[1]);
@@ -146,14 +151,14 @@ export class PlayCommand extends Command {
 
 		if (isPlaying) {
 			await updatePlayerEmbed(queue);
-			return await interaction.editReply({
+			return await reply({
 				content: message,
 				flags: ['SuppressEmbeds']
 			});
 		}
 
 		await queue.next();
-		return await interaction.editReply({
+		return await reply({
 			content: message,
 			flags: ['SuppressEmbeds']
 		});

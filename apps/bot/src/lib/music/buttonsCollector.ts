@@ -5,7 +5,7 @@ import type { Queue } from './classes/Queue';
 import { NowPlayingEmbed } from './nowPlayingEmbed';
 import type { Song } from './classes/Song';
 import Logger from '../logger';
-import { getPlayerActionRows } from './buttonHandler';
+import { getPlayerActionRows, stopProgressUpdater } from './buttonHandler';
 
 export default async function buttonsCollector(message: Message, song: Song) {
 	const { client } = container;
@@ -166,6 +166,7 @@ export default async function buttonsCollector(message: Message, song: Song) {
 
 export async function deletePlayerEmbed(queue: Queue) {
 	try {
+		stopProgressUpdater(queue.guildID);
 		const embedID = await queue.getEmbed();
 		if (embedID) {
 			const channel = await queue.getTextChannel();

@@ -54,12 +54,46 @@ export async function getPlayerActionRows(
 	return [playbackRow, volumeRow];
 }
 
+const progressIntervals = new Map<string, NodeJS.Timeout>();
+
+export function stopProgressUpdater(guildId: string) {
+	const existing = progressIntervals.get(guildId);
+	if (existing) {
+		clearInterval(existing);
+		progressIntervals.delete(guildId);
+	}
+}
+
+export function startProgressUpdater(queue: Queue) {
+	stopProgressUpdater(queue.guildID);
+
+	const interval = setInterval(async () => {
+		try {
+			if (!queue.player || !queue.player.connected || queue.paused) {
+				return;
+			}
+			const currentTrack = await queue.getCurrentTrack();
+			if (!currentTrack) {
+				stopProgressUpdater(queue.guildID);
+				return;
+			}
+
+			await updatePlayerEmbed(queue);
+		} catch (err) {
+			// Ignore update errors during transitions
+		}
+	}, 5000);
+
+	progressIntervals.set(queue.guildID, interval);
+}
+
 export async function embedButtons(
 	embed: EmbedBuilder,
 	queue: Queue,
 	song: Song,
 	message?: string
 ) {
+	stopProgressUpdater(queue.guildID);
 	await deletePlayerEmbed(queue);
 
 	const { client } = container;
@@ -80,6 +114,7 @@ export async function embedButtons(
 
 			if (queue.player) {
 				await buttonsCollector(message, song);
+				startProgressUpdater(queue);
 			}
 		});
 }
