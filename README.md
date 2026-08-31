@@ -1,9 +1,11 @@
 # 🤖 Master-Bot
 
-[![TypeScript](https://img.shields.io/badge/Language-TypeScript-blue)](https://www.typescriptlang.org)
-[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D20.0.0-green)](https://nodejs.org/)
-[![pnpm](https://img.shields.io/badge/Package_Manager-pnpm-orange)](https://pnpm.io/)
-[![Lavalink](https://img.shields.io/badge/Lavalink-v4.x-purple)](https://github.com/lavalink-devs/Lavalink)
+[![TypeScript](https://img.shields.io/badge/Language-TypeScript-blue.svg)](https://www.typescriptlang.org)
+[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
+[![pnpm](https://img.shields.io/badge/Package_Manager-pnpm-orange.svg)](https://pnpm.io/)
+[![Lavalink](https://img.shields.io/badge/Lavalink-v4.x-purple.svg)](https://github.com/lavalink-devs/Lavalink)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/galnir/Master-Bot/pulls)
 
 **Master-Bot** is a production-ready, high-performance Discord Music and Utility Bot monorepo featuring a full-featured **Next.js Web Dashboard**. Built with **TypeScript**, **Sapphire Framework**, **discord.js v14**, **Next.js 15**, **tRPC v11**, **Prisma ORM**, **Redis**, and **Lavalink v4**.
 
@@ -178,13 +180,13 @@ For detailed architecture guides, deployment steps, and API credential instructi
 
 **⭐ [Bacon Fixation](https://github.com/Bacon-Fixation) ⭐ - Countless contributions**
 
-- [ModoSN](https://github.com/ModoSN) - 'resolve-ip', 'rps', '8ball', 'bored', 'trump', 'advice', 'kanye', 'urban dictionary' commands and visual updates
-- [PhantomNimbi](https://github.com/PhantomNimbi) - gif commands, Lavalink config tweaks, Next.js 15 migration, moderation suite, and support ticket system
-- [rafaeldamasceno](https://github.com/rafaeldamasceno) - 'music-trivia' and Dockerfile improvements, minor tweaks
-- [navidmafi](https://github.com/navidmafi) - 'LeaveTimeOut' and 'MaxResponseTime' options, update issue template, fix leave command
-- [Kyoyo](https://github.com/NotKyoyo) - added back 'now-playing'
-- [MontejoJorge](https://github.com/MontejoJorge) - added back 'remind'
-- [malokdev](https://github.com/malokdev) - 'uptime' command
+- [ModoSN](https://github.com/ModoSN) - `resolve-ip`, `rps`, `8ball`, `bored`, `trump`, `advice`, `kanye`, `urban dictionary` commands and visual updates
+- [PhantomNimbi](https://github.com/PhantomNimbi) - GIF commands, Lavalink v4 engine, Next.js 15 migration, moderation suite, support ticket system, live ASCII progress bar & auto-updater
+- [rafaeldamasceno](https://github.com/rafaeldamasceno) - `music-trivia` and Dockerfile improvements, minor tweaks
+- [navidmafi](https://github.com/navidmafi) - `LeaveTimeOut` and `MaxResponseTime` options, update issue template, fix leave command
+- [Kyoyo](https://github.com/NotKyoyo) - added back `now-playing`
+- [MontejoJorge](https://github.com/MontejoJorge) - added back `remind`
+- [malokdev](https://github.com/malokdev) - `uptime` command
 - [chimaerra](https://github.com/chimaerra) - minor command tweaks
 
 ---
