@@ -170,6 +170,7 @@ docker compose --env-file docker.env up -d --build
 
 For detailed architecture guides, deployment steps, and API credential instructions, visit the project [Wiki](wiki/Home.md):
 - 📘 [Setup & Deployment Guide](wiki/Setup-and-Deployment.md)
+- 🟣 [Heroku Deployment Guide](wiki/Heroku-Deployment.md)
 - 🎵 [Lavalink v4 Setup Guide](wiki/Lavalink.md)
 - 🔑 [API Keys & Configuration](wiki/API-Keys.md)
 - 📜 [Complete Commands Reference](wiki/Commands-Reference.md)

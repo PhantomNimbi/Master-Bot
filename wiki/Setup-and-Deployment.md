@@ -256,3 +256,7 @@ To view logs or stop services:
 docker compose logs -f
 docker compose down
 ```
+
+### Option C: Heroku Cloud Hosting
+
+For step-by-step instructions on deploying the bot worker and web dashboard to Heroku with managed PostgreSQL and Redis add-ons, see the dedicated [Heroku Deployment Guide](Heroku-Deployment.md).

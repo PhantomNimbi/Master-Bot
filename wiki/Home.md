@@ -7,6 +7,7 @@
 ## 📖 Wiki Navigation
 
 - **[Setup & Deployment Guide](Setup-and-Deployment.md)**: Step-by-step local development setup, unified launcher instructions (`pnpm dev` / `pnpm start`), and Docker Compose deployment.
+- **[Heroku Deployment Guide](Heroku-Deployment.md)**: Production cloud hosting on Heroku (Buildpacks, Docker containers, PostgreSQL & Redis add-ons, dyno scaling).
 - **[Lavalink v4 Audio Engine](Lavalink.md)**: In-depth Lavalink v4 configuration, plugin management (`youtube-plugin`, `lavasrc-plugin`), remote signature deciphering, and automatic YouTube OAuth device authorization.
 - **[API Keys & Credentials](API-Keys.md)**: Guide on acquiring and setting up required and optional credentials (Discord, Twitch, Klipy, IGDB, YouTube).
 - **[Commands Reference](Commands-Reference.md)**: Full reference for all available slash commands, interactive help browser, and parameters.
