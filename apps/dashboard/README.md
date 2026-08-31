@@ -39,7 +39,7 @@ The official web management portal and control center for **Master-Bot**, built 
 
 ## 🚀 Running Locally
 
-From the monorepo root:
+From the project root:
 
 ```bash
 # Development mode (launches Bot, Dashboard, and Lavalink)

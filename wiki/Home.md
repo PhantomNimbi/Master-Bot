@@ -1,6 +1,6 @@
 # Welcome to the Master-Bot Wiki
 
-**Master-Bot** is a modern, production-grade Discord Bot and Next.js Web Dashboard monorepo built with **TypeScript**, **Sapphire Framework**, **tRPC v11**, **Prisma ORM**, **Next.js 15**, **Redis**, and **Lavalink v4**.
+**Master-Bot** is a modern, production-grade Discord Bot and Next.js Web Dashboard built with **TypeScript**, **Sapphire Framework**, **tRPC v11**, **Prisma ORM**, **Next.js 15**, **Redis**, and **Lavalink v4**.
 
 ---
 
@@ -15,7 +15,7 @@
 
 ## ⚡ Key Highlights
 
-- **Monorepo Architecture:** Managed via `pnpm` workspaces and Turborepo (`apps/bot`, `apps/dashboard`, `packages/api`, `packages/auth`, `packages/db`).
+- **Workspace Architecture:** Managed via `pnpm` workspaces and Turborepo (`apps/bot`, `apps/dashboard`, `packages/api`, `packages/auth`, `packages/db`).
 - **🔨 Moderation Suite:** Built-in slash commands for `/ban`, `/kick`, `/slowmode`, `/timeout`, and `/purge` with permission hierarchy validation.
 - **🎫 Support Ticket System:** Thread-based ticket system with auto-posting panels, interactive button handlers (`ticket_create`, `ticket_close`), and secure transcript generation.
 - **📜 Multi-Category Audit Logging:** 18 granular event triggers configurable via the dashboard.

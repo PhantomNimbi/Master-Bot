@@ -161,7 +161,7 @@ sudo systemctl enable --now postgresql redis
 
 ---
 
-## 💻 Common Monorepo Setup & Workflow
+## 💻 Project Setup & Workflow
 
 Once your operating system prerequisites are installed:
 

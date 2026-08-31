@@ -1,6 +1,6 @@
 # Contributing to Master-Bot 🤝
 
-Thank you for your interest in contributing to **Master-Bot**! Master-Bot is an open-source Discord music and utility monorepo featuring a full-featured web dashboard. We welcome contributions of all kinds—bug fixes, new features, documentation improvements, UI polish, and performance optimizations.
+Thank you for your interest in contributing to **Master-Bot**! Master-Bot is an open-source Discord music and utility bot with a full-featured web dashboard. We welcome contributions of all kinds—bug fixes, new features, documentation improvements, UI polish, and performance optimizations.
 
 Please take a few moments to review this guide before opening an issue or submitting a pull request.
 
@@ -9,7 +9,7 @@ Please take a few moments to review this guide before opening an issue or submit
 ## 📑 Table of Contents
 
 1. [Code of Conduct](#-code-of-conduct)
-2. [Monorepo Architecture](#-monorepo-architecture)
+2. [Project Architecture](#-project-architecture)
 3. [Prerequisites & Development Setup](#-prerequisites--development-setup)
 4. [Development Workflow](#-development-workflow)
 5. [Coding Standards & Conventions](#-coding-standards--conventions)
@@ -25,9 +25,9 @@ We are committed to providing a welcoming, inclusive, and harassment-free experi
 
 ---
 
-## 🏗️ Monorepo Architecture
+## 🏗️ Project Architecture
 
-Master-Bot is organized as a [Turborepo](https://turbo.build/) monorepo managed with [pnpm workspaces](https://pnpm.io/workspaces):
+Master-Bot is organized as a [Turborepo](https://turbo.build/) workspace managed with [pnpm](https://pnpm.io/workspaces):
 
 | Package / App | Location | Technology Stack | Responsibility |
 | :--- | :--- | :--- | :--- |

@@ -7,13 +7,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/galnir/Master-Bot/pulls)
 
-**Master-Bot** is a production-ready, high-performance Discord Music and Utility Bot monorepo featuring a full-featured **Next.js Web Dashboard**. Built with **TypeScript**, **Sapphire Framework**, **discord.js v14**, **Next.js 15**, **tRPC v11**, **Prisma ORM**, **Redis**, and **Lavalink v4**.
+**Master-Bot** is a production-ready, high-performance Discord Music and Utility Bot with a full-featured **Next.js Web Dashboard**. Built with **TypeScript**, **Sapphire Framework**, **discord.js v14**, **Next.js 15**, **tRPC v11**, **Prisma ORM**, **Redis**, and **Lavalink v4**.
 
 ---
 
-## 🏗️ Architecture & Monorepo Structure
+## 🏗️ Project Architecture & Structure
 
-Master-Bot is organized as a Turbo monorepo managed with `pnpm` workspaces:
+Master-Bot is organized as a Turborepo workspace managed with `pnpm`:
 
 ```text
 Master-Bot/
