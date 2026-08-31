@@ -48,7 +48,26 @@ Master-Bot integrates with multiple external services. Below is a complete guide
 - **Variable:** `KLIPY_API`
 - **Features:** Powers `/gif` search commands.
 
+### NewsAPI (Global News Headlines & Search)
+- **Portal:** [NewsAPI.org](https://newsapi.org/) (Register for free API Key)
+- **Variable:** `NEWS_API`
+- **Features:** Powers the `/world-news` slash command. Provides top global headlines by country (`us`, `gb`, `ca`, `au`, `de`, `fr`, `in`, `jp`), topic categories (Technology, Business, Science, Health, Sports, Entertainment), or keyword searches with rich embed previews, article thumbnails, relative timestamps, and direct links.
+
 ### Genius API (Song Lyrics)
 - **Portal:** [Genius API Clients](https://genius.com/api-clients/new)
 - **Variable:** `GENIUS_API`
 - **Features:** Song lyrics fetching (`/lyrics`).
+
+---
+
+## 🚩 Dynamic Feature Flags
+
+Master-Bot allows enabling or disabling entire bot subsystems dynamically via environment variables without code modification:
+
+| Variable | Default | Description |
+| :--- | :--- | :--- |
+| `LAVA_ENABLED` | `false` | Master toggle for Lavalink audio engine and all music playback commands |
+| `GIFS_ENABLED` | `true` | Enables animated GIF reactions and media commands (`/gif`, `/hug`, `/waifu`, etc.) |
+| `TWITCH_ENABLED` | `true` | Enables Twitch streamer monitoring and live notification alerts |
+| `NEWS_ENABLED` | `true` | Enables global news headlines via NewsAPI (`/world-news`) |
+| `IGDB_ENABLED` | `true` | Enables video game search via IGDB (`/game-search`) |
