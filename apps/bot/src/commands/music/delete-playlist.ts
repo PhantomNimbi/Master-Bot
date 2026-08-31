@@ -42,7 +42,7 @@ export class DeletePlaylistCommand extends Command {
 		const interactionMember = interaction.member?.user;
 
 		if (!interactionMember) {
-			return await interaction.followUp(
+			return await interaction.editReply(
 				':x: Something went wrong! Please try again later'
 			);
 		}
@@ -56,12 +56,12 @@ export class DeletePlaylistCommand extends Command {
 			if (!playlist) throw new Error();
 		} catch (error) {
 			Logger.error(error);
-			return await interaction.followUp(
+			return await interaction.editReply(
 				':x: Something went wrong! Please try again later'
 			);
 		}
 
-		return await interaction.followUp(`:wastebasket: Deleted **${playlistName}**`);
+		return await interaction.editReply(`:wastebasket: Deleted **${playlistName}**`);
 	}
 }
 

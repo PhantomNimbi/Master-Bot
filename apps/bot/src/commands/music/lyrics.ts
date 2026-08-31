@@ -44,7 +44,7 @@ export class LyricsCommand extends Command {
 
 		if (!title) {
 			if (!player || !player.queue?.current) {
-				return await interaction.followUp(
+				return await interaction.editReply(
 					'Please provide a valid song name or start playing one and try again!'
 				);
 			}
@@ -54,7 +54,7 @@ export class LyricsCommand extends Command {
 		try {
 			const lyrics = (await genius.fetchLyrics(title)) as string;
 			if (!lyrics || !lyrics.trim()) {
-				return interaction.followUp(`:x: No lyrics found for "**${title}**".`);
+				return interaction.editReply(`:x: No lyrics found for "**${title}**".`);
 			}
 			const lyricsIndex = Math.round(lyrics.length / 4096) + 1;
 			const paginatedLyrics = new PaginatedMessage({
@@ -77,7 +77,7 @@ export class LyricsCommand extends Command {
 			return paginatedLyrics.run(interaction);
 		} catch (e) {
 			Logger.error(e);
-			return interaction.followUp(
+			return interaction.editReply(
 				'Something went wrong when trying to fetch lyrics :('
 			);
 		}

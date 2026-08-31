@@ -60,7 +60,7 @@ export class GameSearchCommand extends Command {
 
 			const game = igdbRes.data?.[0];
 			if (!game) {
-				return interaction.followUp({
+				return interaction.editReply({
 					content: `No game found matching "${title}"`
 				});
 			}
@@ -160,7 +160,7 @@ export class GameSearchCommand extends Command {
 
 			return PaginatedEmbed.run(interaction);
 		} catch (error: any) {
-			return interaction.followUp({
+			return interaction.editReply({
 				content: 'An error occurred while fetching game details from IGDB.'
 			});
 		}

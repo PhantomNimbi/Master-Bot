@@ -1,6 +1,6 @@
 # Complete Commands Reference
 
-Master-Bot features **75 slash commands** organized cleanly into categories. Use `/help` in Discord to open the interactive category browser or view specific parameter details.
+Master-Bot features **74 slash commands** organized cleanly into categories. Use `/help` in Discord to open the interactive category browser or view specific parameter details.
 
 ---
 
@@ -9,7 +9,6 @@ Master-Bot features **75 slash commands** organized cleanly into categories. Use
 | Command | Description | Usage |
 |---|---|---|
 | `/play` | Play any song or playlist from YouTube, Spotify, and more | `/play query: darude sandstorm [is-custom-playlist: True] [shuffle-playlist: True]` |
-| `/now-playing` | Display the currently playing song and interactive music controls | `/now-playing` |
 | `/jump` | Jump directly to a specific track position in the queue | `/jump position: 4` |
 | `/pause` | Pause music playback | `/pause` |
 | `/resume` | Resume paused music playback | `/resume` |

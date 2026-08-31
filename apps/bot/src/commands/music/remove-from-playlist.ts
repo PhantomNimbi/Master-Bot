@@ -50,7 +50,7 @@ export class RemoveFromPlaylistCommand extends Command {
 		const interactionMember = interaction.member?.user;
 
 		if (!interactionMember) {
-			return await interaction.followUp(
+			return await interaction.editReply(
 				':x: Something went wrong! Please try again later'
 			);
 		}
@@ -64,17 +64,17 @@ export class RemoveFromPlaylistCommand extends Command {
 
 			playlist = playlistQuery.playlist;
 		} catch (error) {
-			return await interaction.followUp(':x: Something went wrong!');
+			return await interaction.editReply(':x: Something went wrong!');
 		}
 
 		const songs = playlist?.songs;
 
 		if (!songs?.length) {
-			return await interaction.followUp(`:x: **${playlistName}** is empty!`);
+			return await interaction.editReply(`:x: **${playlistName}** is empty!`);
 		}
 
 		if (location > songs.length || location < 1) {
-			return await interaction.followUp(':x: Please enter a valid index!');
+			return await interaction.editReply(':x: Please enter a valid index!');
 		}
 
 		const id = songs[location - 1].id;
@@ -84,10 +84,10 @@ export class RemoveFromPlaylistCommand extends Command {
 		});
 
 		if (!song) {
-			return await interaction.followUp(':x: Something went wrong!');
+			return await interaction.editReply(':x: Something went wrong!');
 		}
 
-		await interaction.followUp(
+		await interaction.editReply(
 			`:wastebasket: Deleted **${song.song.title}** from **${playlistName}**`
 		);
 		return;

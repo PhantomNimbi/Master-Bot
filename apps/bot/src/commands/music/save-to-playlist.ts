@@ -50,7 +50,7 @@ export class SaveToPlaylistCommand extends Command {
 		const interactionMember = interaction.member?.user;
 
 		if (!interactionMember) {
-			return await interaction.followUp(
+			return await interaction.editReply(
 				':x: Something went wrong! Please try again later'
 			);
 		}
@@ -61,14 +61,14 @@ export class SaveToPlaylistCommand extends Command {
 		});
 
 		if (!playlistQuery.playlist) {
-			return await interaction.followUp('Playlist does not exist');
+			return await interaction.editReply('Playlist does not exist');
 		}
 
 		const playlistId = playlistQuery.playlist.id;
 
 		const songTuple = await searchSong(url, interaction.user);
 		if (!songTuple[1].length) {
-			return await interaction.followUp(songTuple[0]);
+			return await interaction.editReply(songTuple[0]);
 		}
 
 		const songArray = songTuple[1];
@@ -93,10 +93,10 @@ export class SaveToPlaylistCommand extends Command {
 				songs: songsToAdd
 			});
 
-			return await interaction.followUp(`Added tracks to **${playlistName}**`);
+			return await interaction.editReply(`Added tracks to **${playlistName}**`);
 		} catch (error) {
 			Logger.error(error);
-			return await interaction.followUp(':x: Something went wrong!');
+			return await interaction.editReply(':x: Something went wrong!');
 		}
 	}
 }

@@ -40,7 +40,7 @@ export class CreatePlaylistCommand extends Command {
 		const interactionMember = interaction.member?.user;
 
 		if (!interactionMember) {
-			return await interaction.followUp({
+			return await interaction.editReply({
 				content: ':x: Something went wrong! Please try again later'
 			});
 		}
@@ -53,12 +53,12 @@ export class CreatePlaylistCommand extends Command {
 
 			if (!playlist) throw new Error();
 		} catch (error) {
-			return await interaction.followUp({
+			return await interaction.editReply({
 				content: `:x: You already have a playlist named **${playlistName}**`
 			});
 		}
 
-		return await interaction.followUp(`Created a playlist named **${playlistName}**`);
+		return await interaction.editReply(`Created a playlist named **${playlistName}**`);
 	}
 }
 

@@ -43,7 +43,7 @@ export class DisplayPlaylistCommand extends Command {
 		const interactionMember = interaction.member?.user;
 
 		if (!interactionMember) {
-			return await interaction.followUp({
+			return await interaction.editReply({
 				content: ':x: Something went wrong! Please try again later'
 			});
 		}
@@ -56,7 +56,7 @@ export class DisplayPlaylistCommand extends Command {
 		const { playlist } = playlistQuery;
 
 		if (!playlist) {
-			return await interaction.followUp(
+			return await interaction.editReply(
 				':x: Something went wrong! Please try again soon'
 			);
 		}

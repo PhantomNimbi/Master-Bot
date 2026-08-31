@@ -31,7 +31,7 @@ export class MyPlaylistsCommand extends Command {
 		const interactionMember = interaction.member?.user;
 
 		if (!interactionMember) {
-			return await interaction.followUp({
+			return await interaction.editReply({
 				content: ':x: Something went wrong! Please try again later'
 			});
 		}
@@ -46,7 +46,7 @@ export class MyPlaylistsCommand extends Command {
 		});
 
 		if (!playlistsQuery || !playlistsQuery.playlists.length) {
-			return await interaction.followUp(':x: You have no custom playlists');
+			return await interaction.editReply(':x: You have no custom playlists');
 		}
 
 		new PaginatedFieldMessageEmbed()

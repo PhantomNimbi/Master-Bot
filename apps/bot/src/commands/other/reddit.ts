@@ -71,7 +71,7 @@ export class RedditCommand extends Command {
 		await interaction.deferReply();
 		const channel = interaction.channel;
 		if (!channel) {
-			return await interaction.followUp('Something went wrong :(');
+			return await interaction.editReply('Something went wrong :(');
 		}
 		const subreddit = interaction.options.getString('subreddit', true);
 		const sort = interaction.options.getString('sort', true);
@@ -131,7 +131,7 @@ export class RedditCommand extends Command {
 		try {
 			var data = await this.getData(subreddit, sort, timeFilter);
 		} catch (error: any) {
-			return interaction.followUp(error);
+			return interaction.editReply(error);
 		}
 
 		const isNsfwChannel =
@@ -178,7 +178,7 @@ export class RedditCommand extends Command {
 		}
 
 		if (addedPages === 0) {
-			return interaction.followUp({
+			return interaction.editReply({
 				content: 'No SFW posts found for this subreddit in an age-restricted channel filter.'
 			});
 		}

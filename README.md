@@ -115,13 +115,12 @@ You can also re-trigger authorization any time with the `/youtube-auth` command 
 
 ## 📖 Available Commands
 
-> Master-Bot ships with **75 slash commands** across Music, Moderation, GIFs, Games, Utilities, News, Reminders, and more. For the complete, up-to-date list and the `/set` subcommands, see the [Commands Reference](wiki/Commands-Reference.md).
+> Master-Bot ships with **74 slash commands** across Music, Moderation, GIFs, Games, Utilities, News, Reminders, and more. For the complete, up-to-date list and the `/set` subcommands, see the [Commands Reference](wiki/Commands-Reference.md).
 
 ### 🎵 Music
 | Command | Description |
 |---|---|
 | `/play` | Play a song, playlist, or search query |
-| `/now-playing` | Display the currently playing song and interactive controls |
 | `/jump` | Jump to a specific track in the queue |
 | `/music-trivia` | Start an interactive music trivia game |
 | `/create-playlist` | Create a custom user playlist |

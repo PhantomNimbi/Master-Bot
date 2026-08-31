@@ -83,7 +83,7 @@ export class PlayCommand extends Command {
 		const interactionMember = interaction.member?.user;
 
 		if (!interactionMember) {
-			return await interaction.followUp(
+			return await interaction.editReply(
 				':x: Something went wrong! Please try again later'
 			);
 		}
@@ -94,7 +94,7 @@ export class PlayCommand extends Command {
 
 		// edge case - someone initiated the command but left the voice channel
 		if (!voiceChannel) {
-			return interaction.followUp({
+			return await interaction.editReply({
 				content: ':x: You need to be in a voice channel to use this command!'
 			});
 		}
@@ -118,10 +118,10 @@ export class PlayCommand extends Command {
 			const { playlist } = data;
 
 			if (!playlist) {
-				return await interaction.followUp(`:x: You have no such playlist!`);
+				return await interaction.editReply(`:x: You have no such playlist!`);
 			}
 			if (!playlist.songs.length) {
-				return await interaction.followUp(`:x: **${query}** is empty!`);
+				return await interaction.editReply(`:x: **${query}** is empty!`);
 			}
 
 			const { songs } = playlist;
@@ -130,7 +130,7 @@ export class PlayCommand extends Command {
 		} else {
 			const trackTuple = await searchSong(query, interaction.user);
 			if (!trackTuple[1].length) {
-				return await interaction.followUp({ content: trackTuple[0] as string });
+				return await interaction.editReply({ content: trackTuple[0] as string });
 			}
 			message = trackTuple[0];
 			tracks.push(...trackTuple[1]);
@@ -146,14 +146,14 @@ export class PlayCommand extends Command {
 
 		if (isPlaying) {
 			await updatePlayerEmbed(queue);
-			return await interaction.followUp({
+			return await interaction.editReply({
 				content: message,
 				flags: ['SuppressEmbeds']
 			});
 		}
 
 		await queue.next();
-		return await interaction.followUp({
+		return await interaction.editReply({
 			content: message,
 			flags: ['SuppressEmbeds']
 		});

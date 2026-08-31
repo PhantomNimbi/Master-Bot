@@ -36,7 +36,7 @@ export class TVShowSearchCommand extends Command {
 		try {
 			var data = await this.getData(query);
 		} catch (error: any) {
-			return interaction.followUp({ content: error });
+			return interaction.editReply({ content: error });
 		}
 
 		const PaginatedEmbed = new PaginatedMessage();
