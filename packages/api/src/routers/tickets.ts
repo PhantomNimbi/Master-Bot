@@ -91,6 +91,7 @@ export const ticketsRouter = createTRPCRouter({
 				select: {
 					ticketChannel: true,
 					ticketTranscriptChannel: true,
+					ticketRoleId: true,
 					ticketEnabled: true,
 					ticketMessage: true
 				}
@@ -144,6 +145,26 @@ export const ticketsRouter = createTRPCRouter({
 				where: { id: guildId },
 				data: {
 					ticketTranscriptChannel: channelId
+				}
+			});
+
+			return { guild };
+		}),
+
+	setRole: publicProcedure
+		.input(
+			z.object({
+				guildId: z.string(),
+				roleId: z.string().nullable()
+			})
+		)
+		.mutation(async ({ ctx, input }) => {
+			const { guildId, roleId } = input;
+
+			const guild = await ctx.prisma.guild.update({
+				where: { id: guildId },
+				data: {
+					ticketRoleId: roleId
 				}
 			});
 

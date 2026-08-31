@@ -93,6 +93,26 @@ export class TicketButtonListener extends Listener {
 			// Add member to the thread
 			await thread.members.add(user.id).catch(() => {});
 
+			// Add staff / ticket manager role members to the thread if configured
+			const ticketRoleId = config.guild?.ticketRoleId;
+			if (ticketRoleId) {
+				try {
+					const role =
+						guild.roles.cache.get(ticketRoleId) ||
+						(await guild.roles.fetch(ticketRoleId).catch(() => null));
+					if (role) {
+						for (const [memberId] of role.members) {
+							await thread.members.add(memberId).catch(() => {});
+						}
+					}
+				} catch (roleErr) {
+					this.container.logger.error(
+						'Failed to add ticket role members to thread:',
+						roleErr
+					);
+				}
+			}
+
 			// Register in database
 			await trpcNode.tickets.createTicket.mutate({
 				guildId: guild.id,
@@ -127,7 +147,17 @@ export class TicketButtonListener extends Listener {
 						value: `<t:${Math.floor(Date.now() / 1000)}:f>`,
 						inline: true
 					}
-				)
+				);
+
+			if (ticketRoleId) {
+				ticketEmbed.addFields({
+					name: '🛡️ Support Role',
+					value: `<@&${ticketRoleId}>`,
+					inline: true
+				});
+			}
+
+			ticketEmbed
 				.setFooter({
 					text: `Ticket ID: ${thread.id} • Master-Bot Support`,
 					iconURL: guild.iconURL() || undefined
@@ -143,8 +173,12 @@ export class TicketButtonListener extends Listener {
 			const actionRow =
 				new ActionRowBuilder<ButtonBuilder>().addComponents(closeButton);
 
+			const mentionContent = ticketRoleId
+				? `<@${user.id}> <@&${ticketRoleId}>`
+				: `<@${user.id}>`;
+
 			await thread.send({
-				content: `<@${user.id}>`,
+				content: mentionContent,
 				embeds: [ticketEmbed],
 				components: [actionRow]
 			});

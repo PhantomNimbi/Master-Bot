@@ -110,3 +110,21 @@ export async function setTicketMessage(data: FormData) {
 	revalidatePath(`/dashboard/${guildId}`);
 }
 
+export async function setTicketRole(
+	roleId: string | null,
+	server_id: string
+) {
+	await prisma.guild.update({
+		where: {
+			id: server_id
+		},
+		data: {
+			ticketRoleId: roleId
+		}
+	});
+
+	revalidatePath(`/dashboard/${server_id}/tickets`);
+	revalidatePath(`/dashboard/${server_id}`);
+}
+
+

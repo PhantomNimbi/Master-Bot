@@ -181,7 +181,7 @@ export class ReminderCommand extends Command {
 					embed.addFields({ name: '📄 Notes', value: formattedNotes, inline: false });
 				}
 
-				await interaction.reply({ embeds: [embed] });
+				await interaction.editReply({ embeds: [embed] });
 
 				// Schedule notification timeout
 				setTimeout(async () => {
@@ -230,9 +230,8 @@ export class ReminderCommand extends Command {
 					const reminders = result.reminders || [];
 
 					if (reminders.length === 0) {
-						return interaction.reply({
-							content: '📭 You do not have any active scheduled reminders.',
-							ephemeral: true
+						return interaction.editReply({
+							content: '📭 You do not have any active scheduled reminders.'
 						});
 					}
 
@@ -255,12 +254,11 @@ export class ReminderCommand extends Command {
 						})
 						.setTimestamp();
 
-					return interaction.reply({ embeds: [embed], ephemeral: true });
+					return interaction.editReply({ embeds: [embed] });
 				} catch (err) {
 					Logger.error('Failed to query reminders: ', err);
-					return interaction.reply({
-						content: ':x: An error occurred while retrieving your reminders.',
-						ephemeral: true
+					return interaction.editReply({
+						content: ':x: An error occurred while retrieving your reminders.'
 					});
 				}
 			}
@@ -270,21 +268,18 @@ export class ReminderCommand extends Command {
 				try {
 					const del = await trpcNode.reminder.delete.mutate({ userId, event });
 					if (del.reminder?.count === 0) {
-						return interaction.reply({
-							content: `:warning: No active reminder matching **${event}** was found.`,
-							ephemeral: true
+						return interaction.editReply({
+							content: `:warning: No active reminder matching **${event}** was found.`
 						});
 					}
 
-					return interaction.reply({
-						content: `:white_check_mark: Successfully deleted reminder **${event}**.`,
-						ephemeral: true
+					return interaction.editReply({
+						content: `:white_check_mark: Successfully deleted reminder **${event}**.`
 					});
 				} catch (err) {
 					Logger.error('Failed to delete reminder: ', err);
-					return interaction.reply({
-						content: ':x: An error occurred while deleting your reminder.',
-						ephemeral: true
+					return interaction.editReply({
+						content: ':x: An error occurred while deleting your reminder.'
 					});
 				}
 			}

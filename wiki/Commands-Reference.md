@@ -1,6 +1,6 @@
 # Complete Commands Reference
 
-Master-Bot features **69 slash commands** organized cleanly into categories. Use `/help` in Discord to open the interactive category browser or view specific parameter details.
+Master-Bot features **70 slash commands** organized cleanly into categories. Use `/help` in Discord to open the interactive category browser or view specific parameter details.
 
 ---
 
@@ -8,32 +8,32 @@ Master-Bot features **69 slash commands** organized cleanly into categories. Use
 
 | Command | Description | Usage |
 |---|---|---|
-| `/play` | Play any song or playlist from YouTube, Spotify and more | `/play query: darude sandstorm` |
-| `/jump` | Jump to a specific track in the queue | `/jump position: 4` |
-| `/pause` | Pause the music | `/pause` |
-| `/resume` | Resume the music | `/resume` |
-| `/queue` | Get a list of the music queue | `/queue` |
-| `/shuffle` | Shuffle the music queue | `/shuffle` |
-| `/seek` | Seek to a desired point in a track | `/seek` |
-| `/remove` | Remove a track from the queue | `/remove position: 3` |
-| `/move` | Move a track to a different position in queue | `/move` |
-| `/leave` | Make the bot leave its voice channel and stop playing music | `/leave` |
-| `/volume` | Set the volume | `/volume setting: 80` |
-| `/lyrics` | Get the lyrics of any song or the currently playing song | `/lyrics title: Hotel California` |
-| `/bassboost` | Boost the bass of the playing track | `/bassboost` |
-| `/karaoke` | Turn the playing track into karaoke | `/karaoke` |
-| `/nightcore` | Enable or disable the Nightcore filter | `/nightcore` |
-| `/vaporwave` | Apply vaporwave to the playing track | `/vaporwave` |
-| `/create-playlist` | Create a custom playlist that you can play anytime | `/create-playlist playlist-name: Favorites` |
-| `/save-to-playlist` | Save a song or playlist to a custom playlist | `/save-to-playlist playlist-name: Favorites url: <url>` |
-| `/my-playlists` | Display your custom playlists | `/my-playlists` |
-| `/display-playlist` | Display a saved playlist | `/display-playlist playlist-name: Favorites` |
-| `/delete-playlist` | Delete a playlist from your saved playlists | `/delete-playlist playlist-name: Favorites` |
-| `/remove-from-playlist` | Remove a song from a saved playlist | `/remove-from-playlist` |
-| `/music-trivia` | Start an interactive Music Trivia game in your voice channel | `/music-trivia rounds: 5 category: 90s` |
-| `/stop-trivia` | Stop the active Music Trivia game in this server | `/stop-trivia` |
+| `/play` | Play any song or playlist from YouTube, Spotify, and more | `/play query: darude sandstorm [is-custom-playlist: True] [shuffle-playlist: True]` |
+| `/jump` | Jump directly to a specific track position in the queue | `/jump position: 4` |
+| `/pause` | Pause music playback | `/pause` |
+| `/resume` | Resume paused music playback | `/resume` |
+| `/queue` | Display the current music queue and upcoming tracks | `/queue` |
+| `/shuffle` | Randomly shuffle all upcoming tracks in the music queue | `/shuffle` |
+| `/seek` | Seek to a specific timestamp in the current track | `/seek seconds: 90` |
+| `/remove` | Remove a track from the queue by position number | `/remove position: 3` |
+| `/move` | Move a queued track from one position to another | `/move current-position: 4 new-position: 1` |
+| `/leave` | Disconnect the bot from the voice channel and stop playback | `/leave` |
+| `/volume` | Set the audio playback volume level | `/volume setting: 80` |
+| `/lyrics` | Look up lyrics for a song title or the currently playing song | `/lyrics [title: Hotel California]` |
+| `/bassboost` | Boost the bass frequencies of the audio stream | `/bassboost` |
+| `/karaoke` | Apply the karaoke voice attenuation filter | `/karaoke` |
+| `/nightcore` | Toggle high-pitch and speed boost (Nightcore) | `/nightcore` |
+| `/vaporwave` | Toggle slow-tempo and pitched-down audio (Vaporwave) | `/vaporwave` |
+| `/create-playlist` | Create a custom user playlist | `/create-playlist playlist-name: Favorites` |
+| `/save-to-playlist` | Save a track or playlist URL to your custom playlist | `/save-to-playlist playlist-name: Favorites url: <url>` |
+| `/my-playlists` | View your saved custom playlists | `/my-playlists` |
+| `/display-playlist` | View all songs inside a saved custom playlist | `/display-playlist playlist-name: Favorites` |
+| `/delete-playlist` | Delete an entire saved playlist | `/delete-playlist playlist-name: Favorites` |
+| `/remove-from-playlist` | Remove a specific song from a saved playlist | `/remove-from-playlist playlist-name: Favorites location: 2` |
+| `/music-trivia` | Start an interactive 10-round Music Trivia game | `/music-trivia [rounds: 5] [category: 90s]` |
+| `/stop-trivia` | Terminate the active Music Trivia game in this server | `/stop-trivia` |
 
-> 💡 *Note: Skipping the current song is also available directly via the **Next** (⏭️) interactive button on the Now Playing embed, along with Repeat and Shuffle toggles.*
+> 💡 *Note: Skipping tracks is handled directly via the **Next** (⏭️) button on the Now Playing embed, alongside Repeat and Shuffle toggle buttons.*
 
 ---
 
@@ -41,17 +41,17 @@ Master-Bot features **69 slash commands** organized cleanly into categories. Use
 
 | Command | Description | Usage |
 |---|---|---|
-| `/gif` | Reply with a random GIF | `/gif` |
-| `/anime` | Reply with a random anime GIF | `/anime` |
-| `/amongus` | Reply with a random Among Us GIF | `/amongus` |
-| `/baka` | Reply with a random baka GIF | `/baka` |
-| `/gintama` | Reply with a random Gintama GIF | `/gintama` |
-| `/jojo` | Reply with a random JoJo GIF | `/jojo` |
-| `/hug` | Reply with a random hug GIF | `/hug` |
-| `/slap` | Reply with a random slap GIF | `/slap` |
-| `/cat` | Reply with a random cat GIF | `/cat` |
-| `/doggo` | Reply with a random doggo GIF | `/doggo` |
-| `/waifu` | Reply with a random waifu image (waifu.im) | `/waifu` |
+| `/gif` | Send a random GIF or search with keywords | `/gif [query: dancing cat]` |
+| `/anime` | Send a random anime GIF | `/anime` |
+| `/amongus` | Send an Among Us GIF | `/amongus` |
+| `/baka` | Send a "baka" reaction GIF (with optional mention) | `/baka [target: @User]` |
+| `/gintama` | Send a Gintama reaction GIF | `/gintama` |
+| `/jojo` | Send a JoJo's Bizarre Adventure GIF | `/jojo` |
+| `/hug` | Send a warm hug GIF to a friend | `/hug [target: @User]` |
+| `/slap` | Send a slap reaction GIF | `/slap [target: @User]` |
+| `/cat` | Send a cute random cat GIF | `/cat` |
+| `/doggo` | Send an adorable doggo GIF | `/doggo` |
+| `/waifu` | Send a high-res waifu illustration (waifu.im) | `/waifu` |
 
 ---
 
@@ -59,11 +59,11 @@ Master-Bot features **69 slash commands** organized cleanly into categories. Use
 
 | Command | Description | Usage |
 |---|---|---|
-| `/ban` | Ban a member from the server | `/ban user: @User reason: Spam delete-messages: 24h` |
-| `/kick` | Kick a member from the server | `/kick user: @User reason: Rule violation` |
-| `/timeout` | Timeout (mute) a member or remove an active timeout | `/timeout user: @User duration: 5m reason: Spam` |
-| `/slowmode` | Set the slowmode message rate limit for a text channel | `/slowmode seconds: 10 channel: #general` |
-| `/purge` | Bulk delete messages from the current channel | `/purge amount: 25 user: @User` |
+| `/ban` | Ban a member with audit logging and optional message purging | `/ban user: @User [reason: Spam] [delete-messages: 24h]` |
+| `/kick` | Kick a member from the server with audit reason | `/kick user: @User [reason: Rule violation]` |
+| `/timeout` | Apply or remove a Discord timeout (mute) | `/timeout user: @User duration: 5m [reason: Spam]` |
+| `/slowmode` | Set or remove a text channel rate limit | `/slowmode seconds: 10 [channel: #general]` |
+| `/purge` | Bulk delete messages from a channel (with optional user filter) | `/purge amount: 25 [user: @User]` |
 
 ---
 
@@ -71,29 +71,29 @@ Master-Bot features **69 slash commands** organized cleanly into categories. Use
 
 | Command | Description | Usage |
 |---|---|---|
-| `/game-search` | Search for video game information using IGDB | `/game-search game: Elden Ring` |
-| `/tv-show-search` | Get TV show information (TVMaze) | `/tv-show-search query: Breaking Bad` |
-| `/twitch-status` | Check the status of your favorite streamer | `/twitch-status streamer: shroud` |
-| `/world-news` | Fetch the latest world news headlines (NewsAPI) | `/world-news country: us category: technology` |
-| `/reminder` | Set, list, and manage personal or server reminders | `/reminder add duration: 30m message: Check oven` |
-| `/connect-four` | Play Connect 4 interactively with buttons | `/connect-four opponent: @User` |
-| `/tic-tac-toe` | Play Tic-Tac-Toe interactively with buttons | `/tic-tac-toe opponent: @User` |
-| `/speedrun` | Look for the world record of a game | `/speedrun game: Mario` |
-| `/urban` | Get definitions from Urban Dictionary | `/urban query: typescript` |
-| `/translate` | Translate text using Google Translate | `/translate target: es text: Hello` |
-| `/8ball` | Get the answer to anything | `/8ball question: Will I win?` |
-| `/reddit` | Get posts from Reddit by subreddit | `/reddit subreddit: memes sort: hot` |
-| `/random` | Generate a random number between two inputs | `/random min: 1 max: 10` |
-| `/games` | Play games like Connect 4 and Tic Tac Toe | `/games` |
-| `/rockpaperscissors` | Play rock paper scissors | `/rockpaperscissors` |
-| `/activity` | Generate an invite link to your voice channel | `/activity` |
-| `/kanye` | Reply with a random Kanye quote | `/kanye` |
-| `/trump` | Reply with a random Trump quote | `/trump` |
-| `/advice` | Get some advice | `/advice` |
-| `/motivation` | Reply with a motivational quote | `/motivation` |
-| `/fortune` | Reply with a fortune cookie tip | `/fortune` |
-| `/chucknorris` | Get a satirical fact about Chuck Norris | `/chucknorris` |
-| `/insult` | Reply with a mean insult | `/insult` |
+| `/game-search` | Search video game releases and ratings (IGDB) | `/game-search game: Elden Ring` |
+| `/tv-show-search` | Search TV show information and schedules (TVMaze) | `/tv-show-search query: Breaking Bad` |
+| `/twitch-status` | Check if a Twitch broadcaster is currently live | `/twitch-status streamer: shroud` |
+| `/world-news` | Fetch world news headlines by category or keyword (NewsAPI) | `/world-news [category: technology] [query: AI] [country: us]` |
+| `/reminder` | Schedule, list, or delete personal/server reminders | `/reminder set time: 10m event: Pizza [description: Notes]` |
+| `/connect-four` | Play Connect 4 interactively with Discord buttons | `/connect-four [opponent: @User]` |
+| `/tic-tac-toe` | Play Tic-Tac-Toe interactively with Discord buttons | `/tic-tac-toe [opponent: @User]` |
+| `/speedrun` | Look up world record speedrun times (speedrun.com) | `/speedrun game: Mario [category: Any%]` |
+| `/urban` | Look up definitions on Urban Dictionary | `/urban query: typescript` |
+| `/translate` | Translate text into target languages (Google Translate) | `/translate target: es text: Hello` |
+| `/8ball` | Ask the Magic 8-Ball any question | `/8ball question: Will I win?` |
+| `/reddit` | Fetch hot or top posts from any subreddit | `/reddit subreddit: memes sort: hot` |
+| `/random` | Generate a random number within a range | `/random min: 1 max: 10` |
+| `/games` | Launch an interactive game selector | `/games` |
+| `/rockpaperscissors` | Play Rock Paper Scissors against the bot | `/rockpaperscissors move: rock` |
+| `/activity` | Generate a Discord Voice Activity invite link | `/activity channel: #Voice activity: YouTube Together` |
+| `/kanye` | Quote a random Kanye West statement | `/kanye` |
+| `/trump` | Quote a random Donald Trump statement | `/trump` |
+| `/advice` | Receive helpful advice | `/advice` |
+| `/motivation` | Receive a motivational quote | `/motivation` |
+| `/fortune` | Open a fortune cookie | `/fortune` |
+| `/chucknorris` | Receive a satirical Chuck Norris fact | `/chucknorris` |
+| `/insult` | Generate a playful insult | `/insult` |
 
 ---
 
@@ -101,13 +101,13 @@ Master-Bot features **69 slash commands** organized cleanly into categories. Use
 
 | Command | Description | Usage |
 |---|---|---|
-| `/help` | Explore the command list or view detailed info for a specific command | `/help` |
-| `/set` | Configure server settings (Welcome, Logging, Tickets, Twitch, Volume) | `/set <subcommand>` |
+| `/help` | Interactive category browser and command guide | `/help [command-name: play]` |
+| `/set` | Master server settings configuration suite | `/set <subcommand>` |
 | `/youtube-auth` | Authorize YouTube playback via Device Flow (Owner Only) | `/youtube-auth` |
-| `/avatar` | Reply with a user's Discord avatar | `/avatar user: @User` |
-| `/about` | Get detailed information about the bot, server, or a user | `/about <bot\|server\|user> [user: @User]` |
-| `/dashboard` | Get a link to the web dashboard | `/dashboard` |
-| `/ping` | Reply with pong! | `/ping` |
+| `/avatar` | Display a user's Discord avatar in full resolution | `/avatar [user: @User]` |
+| `/about` | Display detailed Bot, Server, or User telemetry | `/about <bot\|server\|user> [user: @User]` |
+| `/dashboard` | Retrieve the direct link to the web management portal | `/dashboard` |
+| `/ping` | Check the bot's Discord gateway latency | `/ping` |
 
 ---
 
@@ -128,6 +128,8 @@ Master-Bot features **69 slash commands** organized cleanly into categories. Use
 | `/set ticket-panel` | Post or update the interactive ticket creation panel |
 | `/set ticket-transcript` | Set the channel for closed ticket transcript archival |
 | `/set ticket-transcript-disable` | Disable ticket transcript archiving |
+| `/set ticket-role` | Set the ticket manager role for support tickets |
+| `/set ticket-role-disable` | Remove/disable the ticket manager role |
 | `/set twitch-add` | Add a Twitch streamer to the live notification monitor |
 | `/set twitch-remove` | Remove a Twitch streamer from the monitor |
 | `/set twitch-list` | Display monitored Twitch channels |

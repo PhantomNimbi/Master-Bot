@@ -175,6 +175,26 @@ export class SetCommand extends Command {
 							'Disable automatic ticket transcript archival'
 						)
 				)
+				.addSubcommand(sub =>
+					sub
+						.setName('ticket-role')
+						.setDescription(
+							'Set the ticket manager role for support tickets'
+						)
+						.addRoleOption(opt =>
+							opt
+								.setName('role')
+								.setDescription('Role that manages support tickets')
+								.setRequired(true)
+						)
+				)
+				.addSubcommand(sub =>
+					sub
+						.setName('ticket-role-disable')
+						.setDescription(
+							'Remove/disable the ticket manager role'
+						)
+				)
 				// Volume Setting
 				.addSubcommand(sub =>
 					sub
@@ -832,6 +852,28 @@ export class SetCommand extends Command {
 					});
 				}
 
+				case 'ticket-role': {
+					const role = interaction.options.getRole('role', true);
+					await trpcNode.tickets.setRole.mutate({
+						guildId,
+						roleId: role.id
+					});
+					return await interaction.editReply({
+						content: `:white_check_mark: Ticket manager role set to <@&${role.id}>. Members with this role will be added to newly created support tickets.`
+					});
+				}
+
+				case 'ticket-role-disable': {
+					await trpcNode.tickets.setRole.mutate({
+						guildId,
+						roleId: null
+					});
+					return await interaction.editReply({
+						content:
+							':white_check_mark: Ticket manager role has been **DISABLED**.'
+					});
+				}
+
 				// --- VOLUME ---
 				case 'default-volume': {
 					const volume = interaction.options.getInteger('volume', true);
@@ -902,6 +944,13 @@ export class SetCommand extends Command {
 								inline: true
 							},
 							{
+								name: '🛡️ Ticket Manager Role',
+								value: t?.ticketRoleId
+									? `<@&${t.ticketRoleId}>`
+									: '*Not set*',
+								inline: true
+							},
+							{
 								name: '🔊 Default Music Volume',
 								value: `${g?.volume ?? 100}%`,
 								inline: true
@@ -962,6 +1011,7 @@ export const help: CommandHelp = {
 		'/set ticket-channel channel: #support',
 		'/set ticket-toggle enabled: True',
 		'/set ticket-panel',
+		'/set ticket-role role: @SupportTeam',
 		'/set default-volume volume: 80',
 		'/set view'
 	],
@@ -1009,6 +1059,41 @@ export const help: CommandHelp = {
 		{
 			name: 'log-disable',
 			description: 'Disable server event logging',
+			required: false
+		},
+		{
+			name: 'ticket-channel',
+			description: 'Set support ticket panel channel',
+			required: false
+		},
+		{
+			name: 'ticket-toggle',
+			description: 'Toggle support ticket system',
+			required: false
+		},
+		{
+			name: 'ticket-panel',
+			description: 'Post support ticket embed panel',
+			required: false
+		},
+		{
+			name: 'ticket-transcript',
+			description: 'Set ticket transcript archive channel',
+			required: false
+		},
+		{
+			name: 'ticket-transcript-disable',
+			description: 'Disable ticket transcript archiving',
+			required: false
+		},
+		{
+			name: 'ticket-role',
+			description: 'Set ticket manager role',
+			required: false
+		},
+		{
+			name: 'ticket-role-disable',
+			description: 'Disable ticket manager role',
 			required: false
 		},
 		{
