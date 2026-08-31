@@ -9,6 +9,50 @@ import {
 	ButtonStyle
 } from 'discord.js';
 import buttonsCollector, { deletePlayerEmbed } from './buttonsCollector';
+import { NowPlayingEmbed } from './nowPlayingEmbed';
+import Logger from '../logger';
+
+export async function getPlayerActionRows(
+	queue: Queue
+): Promise<ActionRowBuilder<ButtonBuilder>[]> {
+	const isReplaying = await queue.getReplay();
+
+	const playbackRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+		new ButtonBuilder()
+			.setCustomId('playPause')
+			.setLabel(queue.paused ? '▶️ Resume' : '⏸️ Pause')
+			.setStyle(queue.paused ? ButtonStyle.Success : ButtonStyle.Primary),
+		new ButtonBuilder()
+			.setCustomId('next')
+			.setLabel('⏭️ Next')
+			.setStyle(ButtonStyle.Primary),
+		new ButtonBuilder()
+			.setCustomId('stop')
+			.setLabel('⏹️ Stop')
+			.setStyle(ButtonStyle.Danger),
+		new ButtonBuilder()
+			.setCustomId('repeat')
+			.setLabel(isReplaying ? '🔁 Repeat: ON' : '🔁 Repeat: OFF')
+			.setStyle(isReplaying ? ButtonStyle.Success : ButtonStyle.Secondary),
+		new ButtonBuilder()
+			.setCustomId('shuffle')
+			.setLabel('🔀 Shuffle')
+			.setStyle(ButtonStyle.Secondary)
+	);
+
+	const volumeRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+		new ButtonBuilder()
+			.setCustomId('volumeDown')
+			.setLabel('🔉 Vol -')
+			.setStyle(ButtonStyle.Secondary),
+		new ButtonBuilder()
+			.setCustomId('volumeUp')
+			.setLabel('🔊 Vol +')
+			.setStyle(ButtonStyle.Secondary)
+	);
+
+	return [playbackRow, volumeRow];
+}
 
 export async function embedButtons(
 	embed: EmbedBuilder,
@@ -19,30 +63,7 @@ export async function embedButtons(
 	await deletePlayerEmbed(queue);
 
 	const { client } = container;
-	const tracks = await queue.tracks();
-	const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-		new ButtonBuilder()
-			.setCustomId('playPause')
-			.setLabel('Play/Pause')
-			.setStyle(ButtonStyle.Primary),
-		new ButtonBuilder()
-			.setCustomId('stop')
-			.setLabel('Stop')
-			.setStyle(ButtonStyle.Danger),
-		new ButtonBuilder()
-			.setCustomId('next')
-			.setLabel('Next')
-			.setStyle(ButtonStyle.Primary)
-			.setDisabled(!tracks.length ? true : false),
-		new ButtonBuilder()
-			.setCustomId('volumeUp')
-			.setLabel('Vol+')
-			.setStyle(ButtonStyle.Primary),
-		new ButtonBuilder()
-			.setCustomId('volumeDown')
-			.setLabel('Vol-')
-			.setStyle(ButtonStyle.Primary)
-	);
+	const rows = await getPlayerActionRows(queue);
 
 	const channel = await queue.getTextChannel();
 	if (!channel) return;
@@ -50,7 +71,7 @@ export async function embedButtons(
 	return await channel
 		.send({
 			embeds: [embed],
-			components: [row],
+			components: rows,
 			content: message
 		})
 		.then(async (message: Message) => {
@@ -61,4 +82,40 @@ export async function embedButtons(
 				await buttonsCollector(message, song);
 			}
 		});
+}
+
+export async function updatePlayerEmbed(queue: Queue) {
+	try {
+		const embedId = await queue.getEmbed();
+		if (!embedId) return;
+
+		const channel = await queue.getTextChannel();
+		if (!channel) return;
+
+		const currentTrack = await queue.getCurrentTrack();
+		if (!currentTrack) return;
+
+		const message = await channel.messages.fetch(embedId).catch(() => null);
+		if (!message) return;
+
+		const tracks = await queue.tracks();
+		const nowPlaying = new NowPlayingEmbed(
+			currentTrack,
+			queue.player?.position ?? 0,
+			currentTrack.length ?? 0,
+			queue.player?.volume ?? 100,
+			tracks,
+			tracks.at(-1),
+			queue.paused
+		);
+
+		const rows = await getPlayerActionRows(queue);
+
+		await message.edit({
+			embeds: [await nowPlaying.NowPlayingEmbed()],
+			components: rows
+		}).catch(() => {});
+	} catch (err) {
+		Logger.error('Failed to update player embed: ', err);
+	}
 }

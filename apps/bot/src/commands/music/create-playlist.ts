@@ -34,12 +34,13 @@ export class CreatePlaylistCommand extends Command {
 	public override async chatInputRun(
 		interaction: Command.ChatInputCommandInteraction
 	) {
+		await interaction.deferReply();
 		const playlistName = interaction.options.getString('playlist-name', true);
 
 		const interactionMember = interaction.member?.user;
 
 		if (!interactionMember) {
-			return await interaction.reply({
+			return await interaction.followUp({
 				content: ':x: Something went wrong! Please try again later'
 			});
 		}
@@ -52,14 +53,12 @@ export class CreatePlaylistCommand extends Command {
 
 			if (!playlist) throw new Error();
 		} catch (error) {
-			await interaction.reply({
+			return await interaction.followUp({
 				content: `:x: You already have a playlist named **${playlistName}**`
 			});
-			return;
 		}
 
-		await interaction.reply(`Created a playlist named **${playlistName}**`);
-		return;
+		return await interaction.followUp(`Created a playlist named **${playlistName}**`);
 	}
 }
 
@@ -68,12 +67,12 @@ export const help: CommandHelp = {
 	category: 'music',
 	description: 'Create a custom playlist that you can play anytime',
 	usage: '/create-playlist <playlist-name>',
-	examples: ['/create-playlist playlist-name: value'],
+	examples: ['/create-playlist playlist-name: My Favorites'],
 	options: [
 		{
-				"name": "playlist-name",
-				"description": "What is the name of the playlist you want to create?",
-				"required": true
+			name: 'playlist-name',
+			description: 'What is the name of the playlist you want to create?',
+			required: true
 		}
-]
+	]
 };

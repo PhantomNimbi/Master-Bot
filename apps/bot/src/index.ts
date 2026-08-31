@@ -5,7 +5,8 @@ import {
 	Events,
 	RegisterBehavior
 } from '@sapphire/framework';
-import { ActivityType } from 'discord.js';
+import { ReminderManager } from './lib/reminders/ReminderManager';
+import { StatusManager } from './lib/presence/StatusManager';
 import Logger from './lib/logger';
 import { notify } from './lib/twitch/notifyChannels';
 import { trpcNode } from './trpc';
@@ -38,10 +39,11 @@ client.on(Events.ClientReady, async () => {
 		);
 	}
 
-	client.user.setActivity('/', {
-		type: ActivityType.Watching
-	});
-	client.user.setStatus('online');
+	// Initialize dynamic rotating presence status
+	StatusManager.start(client);
+
+	// Initialize Reminder Manager scheduler
+	ReminderManager.start(client);
 
 	// Twitch notification setup
 	const isTwitchEnabled =
@@ -173,14 +175,23 @@ if (isLavalinkEnabled) {
 		}
 	});
 
-	client.music.on('trackEnd', async (player, _track, payload) => {
-		if (payload?.reason === 'finished') {
-			const queue = client.music.queues.get(player.guildId);
-			if (queue) {
-				await queue.next();
+	const handleTrackCompletion = async (player: any, _track: any, payload: any) => {
+		const reason = (payload?.reason || '').toLowerCase();
+		// In Lavalink, 'replaced' occurs when a new track is started explicitly (skip / new play)
+		// 'cleanup' occurs when player is destroyed
+		if (reason === 'replaced' || reason === 'cleanup') return;
+
+		const queue = client.music.queues.get(player.guildId);
+		if (queue) {
+			if (queue.skipped) {
+				queue.skipped = false;
+				return;
 			}
+			await queue.next();
 		}
-	});
+	};
+
+	client.music.on('trackEnd', handleTrackCompletion);
 }
 
 const main = async () => {

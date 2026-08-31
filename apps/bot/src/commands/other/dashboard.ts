@@ -2,6 +2,7 @@ import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
+import { getApplicationOwnerUser } from '../../lib/music/youtubeOAuth';
 
 @ApplyOptions<Command.Options>({
 	name: 'dashboard',
@@ -20,17 +21,38 @@ export class DashboardCommand extends Command {
 	public override async chatInputRun(
 		interaction: Command.ChatInputCommandInteraction
 	) {
-		const dashboardUrl =
-			process.env.NEXTAUTH_URL ||
-			process.env.NEXTAUTH_URL_INTERNAL ||
-			'';
+		const publicUrl = process.env.NEXTAUTH_URL || '';
+		const internalUrl = process.env.NEXTAUTH_URL_INTERNAL || '';
 
-		if (!dashboardUrl) {
+		if (!publicUrl && !internalUrl) {
 			return interaction.reply({
 				content:
 					':information_source: The dashboard is not configured for this bot instance.',
 				ephemeral: true
 			});
+		}
+
+		const fields: { name: string; value: string; inline?: boolean }[] = [];
+
+		if (publicUrl) {
+			fields.push({
+				name: '🔗 Open the Dashboard',
+				value: `[Click here to open the dashboard](${publicUrl})`,
+				inline: false
+			});
+		}
+
+		if (internalUrl) {
+			const ownerUser = await getApplicationOwnerUser(
+				this.container.client
+			);
+			if (ownerUser && interaction.user.id === ownerUser.id) {
+				fields.push({
+					name: '🏠 Internal Link (Owner)',
+					value: `[Open internal dashboard](${internalUrl})`,
+					inline: false
+				});
+			}
 		}
 
 		const embed = new EmbedBuilder()
@@ -39,11 +61,7 @@ export class DashboardCommand extends Command {
 				'Manage your server settings, view logs, and more through the web dashboard.'
 			)
 			.setColor('Purple')
-			.addFields({
-				name: '🔗 Open the Dashboard',
-				value: `[Click here to open the dashboard](${dashboardUrl})`,
-				inline: false
-			})
+			.addFields(fields)
 			.setFooter({
 				text: `Requested by ${interaction.user.username}`,
 				iconURL: interaction.user.displayAvatarURL()

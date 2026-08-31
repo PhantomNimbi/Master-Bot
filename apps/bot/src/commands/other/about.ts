@@ -61,29 +61,31 @@ function guildRoleId(guild: Guild): string {
 export class AboutCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {
 		registry.registerChatInputCommand(builder =>
-			builder //
+			builder
 				.setName(this.name)
 				.setDescription(this.description)
-				.addStringOption(option =>
-					option
-						.setName('type')
-						.setDescription(
-							'What to get information about (defaults to Bot)'
-						)
-						.setRequired(false)
-						.addChoices(
-							{ name: 'Bot', value: 'bot' },
-							{ name: 'Server', value: 'server' },
-							{ name: 'User', value: 'user' }
-						)
+				.addSubcommand(subcommand =>
+					subcommand
+						.setName('bot')
+						.setDescription('Display detailed information about Master-Bot')
 				)
-				.addUserOption(option =>
-					option
+				.addSubcommand(subcommand =>
+					subcommand
+						.setName('server')
+						.setDescription('Display detailed information about this server')
+				)
+				.addSubcommand(subcommand =>
+					subcommand
 						.setName('user')
-						.setDescription(
-							'The user to get information about (used with type: User, defaults to you)'
+						.setDescription('Display detailed information about a user')
+						.addUserOption(option =>
+							option
+								.setName('user')
+								.setDescription(
+									'The user to get information about (defaults to you if omitted)'
+								)
+								.setRequired(false)
 						)
-						.setRequired(false)
 				)
 		);
 	}
@@ -91,18 +93,17 @@ export class AboutCommand extends Command {
 	public override async chatInputRun(
 		interaction: ChatInputCommandInteraction
 	) {
+		await interaction.deferReply();
 		const { client } = container;
-		const type = interaction.options.getString('type') || 'bot';
+		const subcommand = interaction.options.getSubcommand(false);
 
-		switch (type) {
-			case 'server': {
-				if (!interaction.inGuild() || !interaction.guild) {
-					return interaction.reply({
-						content:
-							':information_source: This option can only be used inside a server.',
-						ephemeral: true
-					});
-				}
+		if (subcommand === 'server') {
+			if (!interaction.inGuild() || !interaction.guild) {
+				return interaction.editReply({
+					content:
+						':information_source: The server subcommand can only be used inside a server.'
+				});
+			}
 
 				const guild = interaction.guild;
 				const owner = await guild.fetchOwner().catch(() => null);
@@ -174,160 +175,157 @@ export class AboutCommand extends Command {
 					})
 					.setTimestamp();
 
-				return interaction.reply({ embeds: [embed] });
+				return interaction.editReply({ embeds: [embed] });
+		} else if (subcommand === 'user') {
+			const targetUser =
+				interaction.options.getUser('user') || interaction.user;
+			let member: GuildMember | null = null;
+			if (interaction.inGuild() && interaction.guild) {
+				member = await interaction.guild.members
+					.fetch(targetUser.id)
+					.catch(() => null);
 			}
 
-			case 'user': {
-				const targetUser =
-					interaction.options.getUser('user') || interaction.user;
-				let member: GuildMember | null = null;
-				if (interaction.inGuild() && interaction.guild) {
-					member = await interaction.guild.members
-						.fetch(targetUser.id)
-						.catch(() => null);
-				}
-
-				const embed = new EmbedBuilder()
-					.setTitle(targetUser.tag)
-					.setThumbnail(targetUser.displayAvatarURL({ size: 256 }))
-					.setColor(member?.displayColor || 'Green')
-					.setDescription(
-						`Here is some information about **${targetUser.username}**.`
-					)
-					.addFields(
-						{
-							name: '🏷️ Display Name',
-							value: member?.displayName || targetUser.username,
-							inline: true
-						},
-						{
-							name: '🆔 ID',
-							value: targetUser.id,
-							inline: true
-						},
-						{
-							name: '🤖 Bot',
-							value: targetUser.bot ? 'Yes' : 'No',
-							inline: true
-						},
-						{
-							name: '🗓️ Account Created',
-							value: formatDate(targetUser.createdAt),
-							inline: true
-						}
-					);
-
-				if (member) {
-					const roles = member.roles.cache
-						.filter(role => role.id !== guildRoleId(member.guild))
-						.sort((a, b) => b.position - a.position)
-						.map(role => role.toString())
-						.slice(0, 10);
-					const topRole = member.roles.highest;
-					embed.addFields(
-						{
-							name: '📅 Joined Server',
-							value: member.joinedAt
-								? formatDate(member.joinedAt)
-								: 'Unknown',
-							inline: true
-						},
-						{
-							name: '🏅 Top Role',
-							value:
-								topRole.id === guildRoleId(member.guild)
-									? '*None*'
-									: topRole.toString(),
-							inline: true
-						}
-					);
-					if (roles.length > 0) {
-						embed.addFields({
-							name: '🎭 Roles',
-							value:
-								roles.join(' ') +
-								(member.roles.cache.size - 1 > 10
-									? ` **+${member.roles.cache.size - 1 - 10} more**`
-									: ''),
-							inline: false
-						});
+			const embed = new EmbedBuilder()
+				.setTitle(targetUser.tag)
+				.setThumbnail(targetUser.displayAvatarURL({ size: 256 }))
+				.setColor(member?.displayColor || 'Green')
+				.setDescription(
+					`Here is some information about **${targetUser.username}**.`
+				)
+				.addFields(
+					{
+						name: '🏷️ Display Name',
+						value: member?.displayName || targetUser.username,
+						inline: true
+					},
+					{
+						name: '🆔 ID',
+						value: targetUser.id,
+						inline: true
+					},
+					{
+						name: '🤖 Bot',
+						value: targetUser.bot ? 'Yes' : 'No',
+						inline: true
+					},
+					{
+						name: '🗓️ Account Created',
+						value: formatDate(targetUser.createdAt),
+						inline: true
 					}
-				}
-
-				embed.setFooter({
-					text: `Requested by ${interaction.user.username}`,
-					iconURL: interaction.user.displayAvatarURL()
-				}).setTimestamp();
-
-				return interaction.reply({ embeds: [embed] });
-			}
-
-			default: {
-				const users = client.guilds.cache.reduce(
-					(acc, guild) => acc + (guild.memberCount || 0),
-					0
 				);
 
-				const embed = new EmbedBuilder()
-					.setTitle(client.user?.username || 'Master-Bot')
-					.setThumbnail(client.user?.displayAvatarURL() || null)
-					.setDescription(
-						'**Master-Bot** is a versatile Discord bot that brings a full music experience along with moderation, utilities, and fun commands to your server — all controlled through convenient slash commands.'
-					)
-					.setColor('Aqua')
-					.addFields(
-						{
-							name: '🤖 Servers',
-							value: client.guilds.cache.size.toLocaleString(),
-							inline: true
-						},
-						{
-							name: '👥 Total Users',
-							value: users.toLocaleString(),
-							inline: true
-						},
-						{
-							name: '⏱️ Uptime',
-							value: client.uptime
-								? formatUptime(client.uptime)
-								: 'Unknown',
-							inline: true
-						},
-						{
-							name: '🏷️ Tag',
-							value: client.user?.tag || 'Unknown',
-							inline: true
-						},
-						{
-							name: '🆔 ID',
-							value: client.user?.id || 'Unknown',
-							inline: true
-						},
-						{
-							name: '✨ Activity',
-							value:
-								client.user?.presence?.activities
-									?.map(activity => activity.name)
-									.join(', ') || 'None',
-							inline: true
-						},
-						{
-							name: '🔗 Useful Links',
-							value:
-								`[Invite the bot](https://discord.com/oauth2/authorize?client_id=${client.user?.id}&scope=bot&permissions=8) • ` +
-								`[Commands](${REPO_URL}#available-commands) • ` +
-								`[Support Server](${SUPPORT_DISCORD})`,
-							inline: false
-						}
-					)
-					.setFooter({
-						text: `Requested by ${interaction.user.username}`,
-						iconURL: interaction.user.displayAvatarURL()
-					})
-					.setTimestamp();
-
-				return interaction.reply({ embeds: [embed] });
+			if (member) {
+				const roles = member.roles.cache
+					.filter(role => role.id !== guildRoleId(member.guild))
+					.sort((a, b) => b.position - a.position)
+					.map(role => role.toString())
+					.slice(0, 10);
+				const topRole = member.roles.highest;
+				embed.addFields(
+					{
+						name: '📅 Joined Server',
+						value: member.joinedAt
+							? formatDate(member.joinedAt)
+							: 'Unknown',
+						inline: true
+					},
+					{
+						name: '🏅 Top Role',
+						value:
+							topRole.id === guildRoleId(member.guild)
+								? '*None*'
+								: topRole.toString(),
+						inline: true
+					}
+				);
+				if (roles.length > 0) {
+					embed.addFields({
+						name: '🎭 Roles',
+						value:
+							roles.join(' ') +
+							(member.roles.cache.size - 1 > 10
+								? ` **+${member.roles.cache.size - 1 - 10} more**`
+								: ''),
+						inline: false
+					});
+				}
 			}
+
+			embed
+				.setFooter({
+					text: `Requested by ${interaction.user.username}`,
+					iconURL: interaction.user.displayAvatarURL()
+				})
+				.setTimestamp();
+
+			return interaction.editReply({ embeds: [embed] });
+		} else {
+			const users = client.guilds.cache.reduce(
+				(acc, guild) => acc + (guild.memberCount || 0),
+				0
+			);
+
+			const embed = new EmbedBuilder()
+				.setTitle(client.user?.username || 'Master-Bot')
+				.setThumbnail(client.user?.displayAvatarURL() || null)
+				.setDescription(
+					'**Master-Bot** is a versatile Discord bot that brings a full music experience along with moderation, utilities, and fun commands to your server — all controlled through convenient slash commands.'
+				)
+				.setColor('Aqua')
+				.addFields(
+					{
+						name: '🤖 Servers',
+						value: client.guilds.cache.size.toLocaleString(),
+						inline: true
+					},
+					{
+						name: '👥 Total Users',
+						value: users.toLocaleString(),
+						inline: true
+					},
+					{
+						name: '⏱️ Uptime',
+						value: client.uptime
+							? formatUptime(client.uptime)
+							: 'Unknown',
+						inline: true
+					},
+					{
+						name: '🏷️ Tag',
+						value: client.user?.tag || 'Unknown',
+						inline: true
+					},
+					{
+						name: '🆔 ID',
+						value: client.user?.id || 'Unknown',
+						inline: true
+					},
+					{
+						name: '✨ Activity',
+						value:
+							client.user?.presence?.activities
+								?.map(activity => activity.name)
+								.join(', ') || 'None',
+						inline: true
+					},
+					{
+						name: '🔗 Useful Links',
+						value:
+							`[Invite the bot](https://discord.com/oauth2/authorize?client_id=${client.user?.id}&scope=bot&permissions=8) • ` +
+							`[Commands](${REPO_URL}#available-commands) • ` +
+							`[Support Server](${SUPPORT_DISCORD})`,
+						inline: false
+					}
+				)
+				.setFooter({
+					text: `Requested by ${interaction.user.username}`,
+					iconURL: interaction.user.displayAvatarURL()
+				})
+				.setTimestamp();
+
+			return interaction.editReply({ embeds: [embed] });
 		}
 	}
 }
@@ -336,22 +334,28 @@ export const help: CommandHelp = {
 	name: 'about',
 	category: 'other',
 	description: 'Display detailed information about the bot, server, or a user',
-	usage: '/about [type: Bot|Server|User]',
+	usage: '/about <bot|server|user> [user: @User]',
 	examples: [
-		'/about',
-		'/about type: Server',
-		'/about type: User',
-		'/about type: User user: @someone'
+		'/about bot',
+		'/about server',
+		'/about user',
+		'/about user user: @User'
 	],
 	options: [
 		{
-			name: 'type',
-			description: 'What to get information about (defaults to Bot)',
+			name: 'bot',
+			description: 'Display detailed information about Master-Bot.',
+			required: false
+		},
+		{
+			name: 'server',
+			description: 'Display detailed information about this server.',
 			required: false
 		},
 		{
 			name: 'user',
-			description: 'Target user (used with type: User, defaults to you)',
+			description:
+				'Display detailed user information (defaults to yourself if omitted).',
 			required: false
 		}
 	]

@@ -3,6 +3,17 @@ import { isCommandNameGloballyDisabled } from '../../preconditions/isCommandDisa
 import type { CommandHelp } from './CommandHelp';
 
 export class HelpRegistry {
+	private static getHelpFromCommand(cmd: any): CommandHelp | undefined {
+		if (cmd.help) return cmd.help;
+		try {
+			if (cmd.location?.full) {
+				const mod = require(cmd.location.full);
+				if (mod?.help) return mod.help;
+			}
+		} catch {}
+		return undefined;
+	}
+
 	/**
 	 * Retrieves all enabled commands formatted as CommandHelp items.
 	 * Dynamically pulls from Sapphire's active command store and validates against
@@ -13,16 +24,14 @@ export class HelpRegistry {
 		const result: CommandHelp[] = [];
 
 		commandsStore.forEach(cmd => {
-			const category = cmd.category?.toLowerCase() || 'other';
+			const helpMeta = this.getHelpFromCommand(cmd);
+			const category = helpMeta?.category?.toLowerCase() || cmd.category?.toLowerCase() || 'other';
 
 			// Filter out disabled commands or categories using central isCommandDisabled check
 			if (!cmd.enabled) return;
 			if (isCommandNameGloballyDisabled(cmd.name) || isCommandNameGloballyDisabled(category)) {
 				return;
 			}
-
-			// Extract metadata from command instance or attached help property
-			const helpMeta = (cmd as any).help as CommandHelp | undefined;
 
 			result.push({
 				name: cmd.name,
@@ -67,13 +76,12 @@ export class HelpRegistry {
 			return { help: null, disabled: false };
 		}
 
-		const category = cmd.category?.toLowerCase() || 'other';
+		const helpMeta = this.getHelpFromCommand(cmd);
+		const category = helpMeta?.category?.toLowerCase() || cmd.category?.toLowerCase() || 'other';
 		const isDisabled =
 			!cmd.enabled ||
 			isCommandNameGloballyDisabled(cmd.name) ||
 			isCommandNameGloballyDisabled(category);
-
-		const helpMeta = (cmd as any).help as CommandHelp | undefined;
 
 		return {
 			help: {

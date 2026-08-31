@@ -26,8 +26,8 @@ export class LyricsCommand extends Command {
 				.addStringOption(option =>
 					option
 						.setName('title')
-						.setDescription(':mag: What song lyrics would you like to get?')
-						.setRequired(true)
+						.setDescription(':mag: What song lyrics would you like to get? (optional)')
+						.setRequired(false)
 				)
 		);
 	}
@@ -43,7 +43,7 @@ export class LyricsCommand extends Command {
 		await interaction.deferReply();
 
 		if (!title) {
-			if (!player || !player.queue.current) {
+			if (!player || !player.queue?.current) {
 				return await interaction.followUp(
 					'Please provide a valid song name or start playing one and try again!'
 				);
@@ -53,12 +53,15 @@ export class LyricsCommand extends Command {
 
 		try {
 			const lyrics = (await genius.fetchLyrics(title)) as string;
+			if (!lyrics || !lyrics.trim()) {
+				return interaction.followUp(`:x: No lyrics found for "**${title}**".`);
+			}
 			const lyricsIndex = Math.round(lyrics.length / 4096) + 1;
 			const paginatedLyrics = new PaginatedMessage({
 				template: new EmbedBuilder().setColor('Red').setTitle(title).setFooter({
 					text: 'Provided by genius.com',
 					iconURL:
-						'https://assets.genius.com/images/apple-touch-icon.png?1652977688' // Genius Lyrics Icon
+						'https://assets.genius.com/images/apple-touch-icon.png?1652977688'
 				})
 			});
 
@@ -75,7 +78,7 @@ export class LyricsCommand extends Command {
 		} catch (e) {
 			Logger.error(e);
 			return interaction.followUp(
-				'Something when wrong when trying to fetch lyrics :('
+				'Something went wrong when trying to fetch lyrics :('
 			);
 		}
 	}
@@ -85,13 +88,13 @@ export const help: CommandHelp = {
 	name: 'lyrics',
 	category: 'music',
 	description: 'Get the lyrics of any song or the lyrics of the currently playing song!',
-	usage: '/lyrics <title>',
-	examples: ['/lyrics title: value'],
+	usage: '/lyrics [title]',
+	examples: ['/lyrics', '/lyrics title: Bohemian Rhapsody'],
 	options: [
 		{
-				"name": "title",
-				"description": ":mag: What song lyrics would you like to get?",
-				"required": true
+			name: 'title',
+			description: 'What song lyrics would you like to get? (optional)',
+			required: false
 		}
-]
+	]
 };

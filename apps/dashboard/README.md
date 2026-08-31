@@ -20,6 +20,9 @@ The official web management portal and control center for **Master-Bot**, built 
   - Master ticket toggle with auto-posting support panel.
   - Channel selectors for Ticket Hub and Transcripts.
   - Custom ticket welcome message editor with real-time thread preview.
+- **⏰ Reminders Management (`/dashboard/reminders` & `/dashboard/[server_id]/reminders`):**
+  - Personal and server-wide scheduled reminder management.
+  - Create, view, and delete active reminders with live countdowns and status badges.
 - **📄 Owner Log Viewer (`/dashboard/logs`):** Protected real-time system log streaming directly from disk (`logs/combined.log`).
 
 ---

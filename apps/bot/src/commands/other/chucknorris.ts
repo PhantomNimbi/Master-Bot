@@ -18,15 +18,14 @@ export class ChuckNorrisCommand extends Command {
 	public override async chatInputRun(
 		interaction: Command.ChatInputCommandInteraction
 	) {
+		await interaction.deferReply();
 		try {
 			const response = await fetch('https://api.chucknorris.io/jokes/random');
-			const data = await response.json();
+			const joke = await response.json() as any;
 
-			const joke = data;
-
-			if (!joke) {
-				return interaction.reply({
-					content: ':x: An error occured, Chuck is investigating this!'
+			if (!joke || !joke.value) {
+				return await interaction.editReply({
+					content: ':x: An error occurred, Chuck is investigating this!'
 				});
 			}
 
@@ -35,17 +34,17 @@ export class ChuckNorrisCommand extends Command {
 				.setAuthor({
 					name: 'Chuck Norris',
 					url: 'https://chucknorris.io',
-					iconURL: joke.icon_url
+					iconURL: joke.icon_url || 'https://i.imgur.com/bOVpNAX.png'
 				})
 				.setDescription(joke.value)
 				.setTimestamp()
 				.setFooter({
 					text: 'Powered by chucknorris.io'
 				});
-			return interaction.reply({ embeds: [embed] });
+			return await interaction.editReply({ embeds: [embed] });
 		} catch {
-			return interaction.reply({
-				content: ':x: An error occured, Chuck is investigating this!'
+			return await interaction.editReply({
+				content: ':x: An error occurred, Chuck is investigating this!'
 			});
 		}
 	}

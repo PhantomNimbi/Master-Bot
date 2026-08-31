@@ -14,10 +14,14 @@ export class CommandDeniedListener extends Listener {
 		{ context, message: content }: UserError,
 		{ interaction }: ChatInputCommandDeniedPayload
 	): Promise<void> {
-		await interaction.reply({
-			ephemeral: true,
-			content: content
-		});
+		if (interaction.deferred || interaction.replied) {
+			await interaction.editReply({ content }).catch(() => {});
+		} else {
+			await interaction.reply({
+				ephemeral: true,
+				content: content
+			}).catch(() => {});
+		}
 
 		return;
 	}

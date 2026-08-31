@@ -66,7 +66,9 @@ export class MoveCommand extends Command {
 		}
 
 		await queue.moveTracks(currentPosition - 1, newPosition - 1);
-		return;
+		return await interaction.reply(
+			`:twisted_right_wards_arrows: Moved track from position **#${currentPosition}** to **#${newPosition}**!`
+		);
 	}
 }
 
@@ -75,17 +77,17 @@ export const help: CommandHelp = {
 	category: 'music',
 	description: 'Move a track to a different position in queue',
 	usage: '/move <current-position> <new-position>',
-	examples: ['/move current-position: value new-position: value'],
+	examples: ['/move current-position: 5 new-position: 1'],
 	options: [
 		{
-				"name": "current-position",
-				"description": "What is the position of the song you want to move?",
-				"required": true
+			name: 'current-position',
+			description: 'What is the position of the song you want to move?',
+			required: true
 		},
 		{
-				"name": "new-position",
-				"description": "What is the position you want to move the song to?",
-				"required": true
+			name: 'new-position',
+			description: 'What is the position you want to move the song to?',
+			required: true
 		}
-]
+	]
 };

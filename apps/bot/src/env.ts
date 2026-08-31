@@ -3,6 +3,7 @@ import { z } from 'zod';
 const envSchema = z.object({
 	DISCORD_TOKEN: z.string(),
 	KLIPY_API: z.string().optional(),
+	NEWS_API: z.string().optional(),
 	// Redis
 	REDIS_HOST: z.string().optional(),
 	REDIS_PORT: z.string().optional(),

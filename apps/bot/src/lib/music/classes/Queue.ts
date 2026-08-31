@@ -94,7 +94,12 @@ export class Queue {
 	}
 
 	public get playing(): boolean {
-		return Boolean(this.player?.playing);
+		return Boolean(this.player?.playing || (this.player?.voiceChannelId && this.player?.connected));
+	}
+
+	public async isPlaying(): Promise<boolean> {
+		const current = await this.getCurrentTrack();
+		return Boolean(current);
 	}
 
 	public get paused(): boolean {
@@ -143,18 +148,36 @@ export class Queue {
 		const np = await this.nowPlaying();
 		if (!np) return this.next();
 
+		const player = this.player || this.createPlayer();
+		if (!player) {
+			Logger.error(
+				`Could not retrieve or create Lavalink player for guild ${this.guildID}`
+			);
+			return false;
+		}
+
 		try {
-			await this.player.setVolume(await this.getVolume());
+			const volume = await this.getVolume();
+			await player.setVolume(volume);
 			const trackString = (np.song as Song).track;
-			await this.player.play({
-				track: {
-					encodedTrack: trackString,
-					encoded: trackString
-				} as any
+			await player.node.updatePlayer({
+				guildId: this.guildID,
+				noReplace: false,
+				playerOptions: {
+					track: {
+						encoded: trackString
+					},
+					volume,
+					position: 0,
+					paused: false
+				}
 			});
+			player.playing = true;
+			player.paused = false;
 		} catch (err) {
-			Logger.error(err);
+			Logger.error('Failed to start track on Lavalink: ', err);
 			await this.leave();
+			return false;
 		}
 
 		this.client.emit(

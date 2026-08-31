@@ -20,12 +20,13 @@ export class MotivationCommand extends Command {
 	public override async chatInputRun(
 		interaction: Command.ChatInputCommandInteraction
 	) {
+		await interaction.deferReply();
 		try {
 			const response = await fetch('https://type.fit/api/quotes');
-			const data = await response.json();
+			const data = await response.json() as any[];
 
-			if (!data)
-				return await interaction.reply({ content: 'Something went wrong!' });
+			if (!Array.isArray(data) || !data.length)
+				return await interaction.editReply({ content: 'Something went wrong!' });
 
 			const randomQuote = data[Math.floor(Math.random() * data.length)];
 
@@ -36,15 +37,15 @@ export class MotivationCommand extends Command {
 					url: 'https://type.fit',
 					iconURL: 'https://i.imgur.com/Cnr6cQb.png'
 				})
-				.setDescription(`*"${randomQuote.text}*"\n\n-${randomQuote.author}`)
+				.setDescription(`*"${randomQuote.text}"*\n\n-${randomQuote.author || 'Anonymous'}`)
 				.setTimestamp()
 				.setFooter({
 					text: 'Powered by type.fit'
 				});
 
-			return await interaction.reply({ embeds: [embed] });
+			return await interaction.editReply({ embeds: [embed] });
 		} catch {
-			return await interaction.reply({
+			return await interaction.editReply({
 				content: 'Something went wrong!'
 			});
 		}

@@ -73,7 +73,7 @@ export class RemoveFromPlaylistCommand extends Command {
 			return await interaction.followUp(`:x: **${playlistName}** is empty!`);
 		}
 
-		if (location > songs.length || location < 0) {
+		if (location > songs.length || location < 1) {
 			return await interaction.followUp(':x: Please enter a valid index!');
 		}
 
@@ -99,17 +99,17 @@ export const help: CommandHelp = {
 	category: 'music',
 	description: 'Remove a song from a saved playlist',
 	usage: '/remove-from-playlist <playlist-name> <location>',
-	examples: ['/remove-from-playlist playlist-name: value location: value'],
+	examples: ['/remove-from-playlist playlist-name: Vibes location: 1'],
 	options: [
 		{
-				"name": "playlist-name",
-				"description": "What is the name of the playlist you want to remove from?",
-				"required": true
+			name: 'playlist-name',
+			description: 'What is the name of the playlist you want to remove from?',
+			required: true
 		},
 		{
-				"name": "location",
-				"description": "What is the index of the video you would like to delete from your saved playlist?",
-				"required": true
+			name: 'location',
+			description: 'What is the index of the video you would like to delete from your saved playlist?',
+			required: true
 		}
-]
+	]
 };

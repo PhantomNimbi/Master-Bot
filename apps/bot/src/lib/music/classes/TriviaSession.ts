@@ -132,13 +132,19 @@ export class TriviaSession {
 			const player = this.player;
 			if (player) {
 				const encodedTrack = track.encoded;
-				await player.play({
-					track: {
-						encodedTrack,
-						encoded: encodedTrack
-					} as any,
-					noReplace: false
+				await player.node.updatePlayer({
+					guildId: this.guildId,
+					noReplace: false,
+					playerOptions: {
+						track: {
+							encoded: encodedTrack
+						},
+						position: 0,
+						paused: false
+					}
 				});
+				player.playing = true;
+				player.paused = false;
 			}
 
 			const roundEmbed = new EmbedBuilder()

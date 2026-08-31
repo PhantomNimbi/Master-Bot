@@ -18,14 +18,15 @@ export class FortuneCommand extends Command {
 	public override async chatInputRun(
 		interaction: Command.ChatInputCommandInteraction
 	) {
+		await interaction.deferReply();
 		try {
 			const response = await fetch('http://yerkee.com/api/fortune');
-			const data = await response.json();
+			const data = await response.json() as any;
 
 			const tip = data.fortune;
 
 			if (!tip) {
-				return interaction.reply({
+				return await interaction.editReply({
 					content: 'Something went wrong!'
 				});
 			}
@@ -42,9 +43,9 @@ export class FortuneCommand extends Command {
 				.setFooter({
 					text: 'Powered by yerkee.com'
 				});
-			return interaction.reply({ embeds: [embed] });
+			return await interaction.editReply({ embeds: [embed] });
 		} catch {
-			return interaction.reply({
+			return await interaction.editReply({
 				content: 'Something went wrong!'
 			});
 		}

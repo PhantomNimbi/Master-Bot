@@ -1,54 +1,51 @@
 import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
+import { EmbedBuilder } from 'discord.js';
+import { searchGif } from '../../lib/gifs/searchGif';
 
 @ApplyOptions<Command.Options>({
 	name: 'waifu',
-	description: 'Replies with a random waifu image!',
+	description: 'Replies with a random waifu gif!',
 	preconditions: ['isCommandDisabled']
 })
 export class WaifuCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {
-		registry.registerChatInputCommand(builder =>
-			builder.setName(this.name).setDescription(this.description)
-		);
+		registry.registerChatInputCommand(builder => {
+			builder.setName(this.name).setDescription(this.description);
+			return builder;
+		});
 	}
 
 	public override async chatInputRun(
 		interaction: Command.ChatInputCommandInteraction
 	) {
-		const isNsfwChannel =
-			interaction.channel &&
-			'nsfw' in interaction.channel &&
-			Boolean((interaction.channel as any).nsfw);
+		await interaction.deferReply();
+		const gifUrl = await searchGif('waifu');
 
-		const apiUrl = `https://api.waifu.im/search?is_nsfw=${isNsfwChannel ? 'true' : 'false'}`;
-
-		try {
-			const response = await fetch(apiUrl);
-			const json = (await response.json()) as any;
-			const imageUrl = json?.images?.[0]?.url;
-
-			if (!imageUrl) {
-				return await interaction.reply({
-					content: 'Something went wrong! Please try again later.'
-				});
-			}
-
-			return await interaction.reply({ content: imageUrl });
-		} catch {
-			return await interaction.reply({
-				content: 'Something went wrong! Please try again later.'
+		if (!gifUrl) {
+			return await interaction.editReply({
+				content: ':warning: Could not load a GIF at this time. Please try again!'
 			});
 		}
+
+		const embed = new EmbedBuilder()
+			.setColor(0x5865f2)
+			.setImage(gifUrl)
+			.setFooter({
+				text: `Requested by ${interaction.user.username}`,
+				iconURL: interaction.user.displayAvatarURL()
+			});
+
+		return await interaction.editReply({ embeds: [embed] });
 	}
 }
 
 export const help: CommandHelp = {
 	name: 'waifu',
 	category: 'gifs',
-	description: 'Replies with a random waifu image!',
+	description: 'Replies with a random waifu gif!',
 	usage: '/waifu',
-	examples: ['/waifu'],
+	examples: ["/waifu"],
 	options: []
 };

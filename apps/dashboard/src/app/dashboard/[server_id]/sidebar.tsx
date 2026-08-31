@@ -6,6 +6,9 @@ import {
 	LayoutDashboard,
 	Terminal,
 	MessageCircle,
+	FileText,
+	Ticket,
+	Bell,
 	ScrollText,
 	ArrowLeft
 } from 'lucide-react';
@@ -31,6 +34,24 @@ export default function Sidebar({ server_id }: { server_id: string }) {
 			href: `/dashboard/${server_id}/welcome-message`,
 			label: 'Welcome Message',
 			icon: MessageCircle,
+			exact: false
+		},
+		{
+			href: `/dashboard/${server_id}/log-channel`,
+			label: 'Log Channel',
+			icon: FileText,
+			exact: false
+		},
+		{
+			href: `/dashboard/${server_id}/tickets`,
+			label: 'Support Tickets',
+			icon: Ticket,
+			exact: false
+		},
+		{
+			href: `/dashboard/${server_id}/reminders`,
+			label: 'Reminders',
+			icon: Bell,
 			exact: false
 		},
 		{

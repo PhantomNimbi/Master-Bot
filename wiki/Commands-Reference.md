@@ -1,6 +1,6 @@
 # Complete Commands Reference
 
-Master-Bot features **67 slash commands** organized cleanly into categories. Use `/help` in Discord to open the interactive category browser or view specific parameter details.
+Master-Bot features **69 slash commands** organized cleanly into categories. Use `/help` in Discord to open the interactive category browser or view specific parameter details.
 
 ---
 
@@ -9,10 +9,9 @@ Master-Bot features **67 slash commands** organized cleanly into categories. Use
 | Command | Description | Usage |
 |---|---|---|
 | `/play` | Play any song or playlist from YouTube, Spotify and more | `/play query: darude sandstorm` |
+| `/jump` | Jump to a specific track in the queue | `/jump position: 4` |
 | `/pause` | Pause the music | `/pause` |
 | `/resume` | Resume the music | `/resume` |
-| `/skip` | Skip the current song playing | `/skip` |
-| `/skipto` | Skip to a track in queue | `/skipto position: 4` |
 | `/queue` | Get a list of the music queue | `/queue` |
 | `/shuffle` | Shuffle the music queue | `/shuffle` |
 | `/seek` | Seek to a desired point in a track | `/seek` |
@@ -33,6 +32,8 @@ Master-Bot features **67 slash commands** organized cleanly into categories. Use
 | `/remove-from-playlist` | Remove a song from a saved playlist | `/remove-from-playlist` |
 | `/music-trivia` | Start an interactive Music Trivia game in your voice channel | `/music-trivia rounds: 5 category: 90s` |
 | `/stop-trivia` | Stop the active Music Trivia game in this server | `/stop-trivia` |
+
+> 💡 *Note: Skipping the current song is also available directly via the **Next** (⏭️) interactive button on the Now Playing embed, along with Repeat and Shuffle toggles.*
 
 ---
 
@@ -73,6 +74,10 @@ Master-Bot features **67 slash commands** organized cleanly into categories. Use
 | `/game-search` | Search for video game information using IGDB | `/game-search game: Elden Ring` |
 | `/tv-show-search` | Get TV show information (TVMaze) | `/tv-show-search query: Breaking Bad` |
 | `/twitch-status` | Check the status of your favorite streamer | `/twitch-status streamer: shroud` |
+| `/world-news` | Fetch the latest world news headlines (NewsAPI) | `/world-news country: us category: technology` |
+| `/reminder` | Set, list, and manage personal or server reminders | `/reminder add duration: 30m message: Check oven` |
+| `/connect-four` | Play Connect 4 interactively with buttons | `/connect-four opponent: @User` |
+| `/tic-tac-toe` | Play Tic-Tac-Toe interactively with buttons | `/tic-tac-toe opponent: @User` |
 | `/speedrun` | Look for the world record of a game | `/speedrun game: Mario` |
 | `/urban` | Get definitions from Urban Dictionary | `/urban query: typescript` |
 | `/translate` | Translate text using Google Translate | `/translate target: es text: Hello` |
@@ -100,7 +105,7 @@ Master-Bot features **67 slash commands** organized cleanly into categories. Use
 | `/set` | Configure server settings (Welcome, Logging, Tickets, Twitch, Volume) | `/set <subcommand>` |
 | `/youtube-auth` | Authorize YouTube playback via Device Flow (Owner Only) | `/youtube-auth` |
 | `/avatar` | Reply with a user's Discord avatar | `/avatar user: @User` |
-| `/about` | Get detailed information about the bot, server, or a user | `/about` |
+| `/about` | Get detailed information about the bot, server, or a user | `/about <bot\|server\|user> [user: @User]` |
 | `/dashboard` | Get a link to the web dashboard | `/dashboard` |
 | `/ping` | Reply with pong! | `/ping` |
 

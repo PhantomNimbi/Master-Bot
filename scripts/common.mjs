@@ -92,6 +92,20 @@ export function freePort(port) {
 }
 
 /**
+ * Kills a process and all of its spawned child processes recursively.
+ */
+export function killProcessTree(proc) {
+	if (!proc || !proc.pid) return;
+	try {
+		if (process.platform === 'win32') {
+			execSync(`taskkill /PID ${proc.pid} /T /F`, { stdio: 'ignore' });
+		} else {
+			proc.kill('SIGTERM');
+		}
+	} catch {}
+}
+
+/**
  * Checks whether a TCP port is actively open and listening.
  */
 export function isPortInUse(port, host = '127.0.0.1', timeoutMs = 1500) {

@@ -37,12 +37,13 @@ export class DisplayPlaylistCommand extends Command {
 	public override async chatInputRun(
 		interaction: Command.ChatInputCommandInteraction
 	) {
+		await interaction.deferReply();
 		const playlistName = interaction.options.getString('playlist-name', true);
 
 		const interactionMember = interaction.member?.user;
 
 		if (!interactionMember) {
-			return await interaction.reply({
+			return await interaction.followUp({
 				content: ':x: Something went wrong! Please try again later'
 			});
 		}
@@ -55,14 +56,14 @@ export class DisplayPlaylistCommand extends Command {
 		const { playlist } = playlistQuery;
 
 		if (!playlist) {
-			return await interaction.reply(
+			return await interaction.followUp(
 				':x: Something went wrong! Please try again soon'
 			);
 		}
 
 		const baseEmbed = new EmbedBuilder().setColor('Purple').setAuthor({
-			name: interactionMember.username,
-			iconURL: interactionMember.avatar || undefined
+			name: interaction.user.username,
+			iconURL: interaction.user.displayAvatarURL()
 		});
 
 		new PaginatedFieldMessageEmbed()
@@ -83,12 +84,12 @@ export const help: CommandHelp = {
 	category: 'music',
 	description: 'Display a saved playlist',
 	usage: '/display-playlist <playlist-name>',
-	examples: ['/display-playlist playlist-name: value'],
+	examples: ['/display-playlist playlist-name: Vibes'],
 	options: [
 		{
-				"name": "playlist-name",
-				"description": "What is the name of the playlist you want to display?",
-				"required": true
+			name: 'playlist-name',
+			description: 'What is the name of the playlist you want to display?',
+			required: true
 		}
-]
+	]
 };

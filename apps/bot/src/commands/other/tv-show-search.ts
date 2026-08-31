@@ -30,12 +30,13 @@ export class TVShowSearchCommand extends Command {
 	public override async chatInputRun(
 		interaction: Command.ChatInputCommandInteraction
 	) {
+		await interaction.deferReply();
 		const query = interaction.options.getString('query', true);
 
 		try {
 			var data = await this.getData(query);
 		} catch (error: any) {
-			return interaction.reply({ content: error });
+			return interaction.followUp({ content: error });
 		}
 
 		const PaginatedEmbed = new PaginatedMessage();
@@ -73,7 +74,7 @@ export class TVShowSearchCommand extends Command {
 						{ name: 'Average Rating', value: showInfo.rating }
 					)
 					.setFooter({
-						text: `(Page ${i}/${data.length}) Powered by tvmaze.com`,
+						text: `(Page ${i + 1}/${data.length}) Powered by tvmaze.com`,
 						iconURL: 'https://static.tvmaze.com/images/favico/favicon-32x32.png'
 					})
 			);
@@ -82,7 +83,7 @@ export class TVShowSearchCommand extends Command {
 		return PaginatedEmbed.run(interaction);
 	}
 
-	private getData(query: string): Promise<ResponseData> {
+	private getData(query: string): Promise<any[]> {
 		return new Promise(async function (resolve, reject) {
 			const url = `http://api.tvmaze.com/search/shows?q=${encodeURI(query)}`;
 			try {
@@ -101,9 +102,9 @@ export class TVShowSearchCommand extends Command {
 					);
 				}
 				const data = response.data;
-				if (!data.length) {
+				if (!Array.isArray(data) || !data.length) {
 					reject(
-						'There was a problem getting data from the API, make sure you entered a valid TV show name'
+						':x: No TV shows found matching your query.'
 					);
 				}
 				resolve(data);
@@ -118,8 +119,8 @@ export class TVShowSearchCommand extends Command {
 
 	private constructInfoObject(show: any): InfoObject {
 		return {
-			name: show.name,
-			url: show.url,
+			name: show.name || 'Unknown Show',
+			url: show.url || 'https://www.tvmaze.com',
 			summary: this.filterSummary(show.summary),
 			language: this.checkIfNull(show.language),
 			genres: this.checkGenres(show.genres),
@@ -127,14 +128,15 @@ export class TVShowSearchCommand extends Command {
 			premiered: this.checkIfNull(show.premiered),
 			network: this.checkNetwork(show.network),
 			runtime: show.runtime ? show.runtime + ' Minutes' : 'None Listed',
-			rating: show.ratings ? show.rating.average : 'None Listed',
-			thumbnail: show.image
-				? show.image.original
+			rating: show.rating?.average ? String(show.rating.average) : 'None Listed',
+			thumbnail: show.image?.original || show.image?.medium
+				? (show.image.original || show.image.medium)
 				: 'https://static.tvmaze.com/images/no-img/no-img-portrait-text.png'
 		};
 	}
 
-	private filterSummary(summary: string) {
+	private filterSummary(summary: string | null | undefined) {
+		if (!summary) return 'No description available.';
 		return summary
 			.replace(/<(\/)?b>/g, '**')
 			.replace(/<(\/)?i>/g, '*')
@@ -148,26 +150,27 @@ export class TVShowSearchCommand extends Command {
 			.replace(/&#39;/g, "'");
 	}
 
-	private checkGenres(genres: Genres) {
+	private checkGenres(genres: any) {
 		if (Array.isArray(genres)) {
 			if (genres.join(' ').trim().length == 0) return 'None Listed';
-			return genres.join(' ');
-		} else if (!genres.length) {
+			return genres.join(', ');
+		} else if (!genres) {
 			return 'None Listed';
 		}
-		return genres;
+		return String(genres);
 	}
 
-	private checkIfNull(value: string) {
+	private checkIfNull(value: any) {
 		if (!value) {
 			return 'None Listed';
 		}
-		return value;
+		return String(value);
 	}
 
 	private checkNetwork(network: any) {
 		if (!network) return 'None Listed';
-		return `(**${network.country.code}**) ${network.name}`;
+		const code = network.country?.code ? `(**${network.country.code}**) ` : '';
+		return `${code}${network.name || 'Unknown Network'}`;
 	}
 }
 
@@ -185,10 +188,6 @@ type InfoObject = {
 	thumbnail: string;
 };
 
-type Genres = string | Array<string>;
-
-type ResponseData = string | Array<any>;
-
 export const help: CommandHelp = {
 	name: 'tv-show-search',
 	category: 'other',
@@ -197,9 +196,9 @@ export const help: CommandHelp = {
 	examples: ['/tv-show-search query: value'],
 	options: [
 		{
-				"name": "query",
-				"description": "What TV show do you want to look up?",
-				"required": true
+			name: 'query',
+			description: 'What TV show do you want to look up?',
+			required: true
 		}
-]
+	]
 };

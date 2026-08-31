@@ -145,7 +145,7 @@ export const {
 								data: {
 									access_token: data.access_token,
 									refresh_token: data.refresh_token,
-									expires_at: data.expires_in
+									expires_at: Math.floor(Date.now() / 1000) + data.expires_in
 								}
 							});
 						}

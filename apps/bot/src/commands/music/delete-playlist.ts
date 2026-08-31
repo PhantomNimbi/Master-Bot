@@ -36,12 +36,13 @@ export class DeletePlaylistCommand extends Command {
 	public override async chatInputRun(
 		interaction: Command.ChatInputCommandInteraction
 	) {
+		await interaction.deferReply();
 		const playlistName = interaction.options.getString('playlist-name', true);
 
 		const interactionMember = interaction.member?.user;
 
 		if (!interactionMember) {
-			return await interaction.reply(
+			return await interaction.followUp(
 				':x: Something went wrong! Please try again later'
 			);
 		}
@@ -54,14 +55,13 @@ export class DeletePlaylistCommand extends Command {
 
 			if (!playlist) throw new Error();
 		} catch (error) {
-			console.log(error);
 			Logger.error(error);
-			return await interaction.reply(
+			return await interaction.followUp(
 				':x: Something went wrong! Please try again later'
 			);
 		}
 
-		return await interaction.reply(`:wastebasket: Deleted **${playlistName}**`);
+		return await interaction.followUp(`:wastebasket: Deleted **${playlistName}**`);
 	}
 }
 
@@ -70,12 +70,12 @@ export const help: CommandHelp = {
 	category: 'music',
 	description: 'Delete a playlist from your saved playlists',
 	usage: '/delete-playlist <playlist-name>',
-	examples: ['/delete-playlist playlist-name: value'],
+	examples: ['/delete-playlist playlist-name: Old Songs'],
 	options: [
 		{
-				"name": "playlist-name",
-				"description": "What is the name of the playlist you want to delete?",
-				"required": true
+			name: 'playlist-name',
+			description: 'What is the name of the playlist you want to delete?',
+			required: true
 		}
-]
+	]
 };

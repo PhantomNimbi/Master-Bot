@@ -52,24 +52,30 @@ export class Song implements TrackInfo {
 
 		if (typeof track !== 'string') {
 			this.track = track.encoded ?? track.track ?? '';
-			this.length = track.info?.length ?? 0;
-			this.identifier = track.info?.identifier ?? '';
-			this.author = track.info?.author ?? '';
-			this.isStream = track.info?.isStream ?? false;
-			this.position = track.info?.position ?? 0;
-			this.title = filter.filterField('song', track.info?.title ?? '');
-			this.uri = track.info?.uri ?? '';
-			this.isSeekable = track.info?.isSeekable ?? true;
-			this.sourceName = track.info?.sourceName ?? 'youtube';
-			this.thumbnail = track.info?.artworkUrl || this.getThumbnailFallback();
+			this.length = Number(
+				track.info?.duration ??
+				track.info?.length ??
+				track.duration ??
+				track.length ??
+				0
+			);
+			this.identifier = track.info?.identifier ?? track.identifier ?? '';
+			this.author = track.info?.author ?? track.author ?? '';
+			this.isStream = Boolean(track.info?.isStream ?? track.isStream ?? false);
+			this.position = Number(track.info?.position ?? track.position ?? 0);
+			this.title = filter.filterField('song', track.info?.title ?? track.title ?? '');
+			this.uri = track.info?.uri ?? track.uri ?? '';
+			this.isSeekable = Boolean(track.info?.isSeekable ?? track.isSeekable ?? !this.isStream);
+			this.sourceName = track.info?.sourceName ?? track.sourceName ?? 'youtube';
+			this.thumbnail = track.info?.artworkUrl || track.artworkUrl || this.getThumbnailFallback();
 		} else {
 			this.track = track;
 			const decoded = decode(this.track);
-			this.length = Number(decoded.length);
+			this.length = Number(decoded.length || (decoded as any).duration || 0);
 			this.identifier = decoded.identifier;
 			this.author = decoded.author;
-			this.isStream = decoded.isStream;
-			this.position = Number(decoded.position);
+			this.isStream = Boolean(decoded.isStream);
+			this.position = Number(decoded.position || 0);
 			this.title = filter.filterField('song', decoded.title);
 			this.uri = decoded.uri!;
 			this.isSeekable = !decoded.isStream;

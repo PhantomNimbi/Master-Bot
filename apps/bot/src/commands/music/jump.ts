@@ -4,8 +4,8 @@ import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
 
 @ApplyOptions<CommandOptions>({
-	name: 'skipto',
-	description: 'Skip to a track in queue',
+	name: 'jump',
+	description: 'Jump to a specific track in the queue',
 	preconditions: [
 		'GuildOnly',
 		'isCommandDisabled',
@@ -14,7 +14,7 @@ import { container } from '@sapphire/framework';
 		'inPlayerVoiceChannel'
 	]
 })
-export class SkipToCommand extends Command {
+export class JumpCommand extends Command {
 	public override registerApplicationCommands(
 		registry: Command.Registry
 	): void {
@@ -26,7 +26,7 @@ export class SkipToCommand extends Command {
 					option
 						.setName('position')
 						.setDescription(
-							'What is the position of the song you want to skip to in queue?'
+							'What is the position of the song you want to jump to in the queue?'
 						)
 						.setRequired(true)
 				)
@@ -52,28 +52,28 @@ export class SkipToCommand extends Command {
 
 		if (targetSong) {
 			return await interaction.reply({
-				content: `:white_check_mark: Skipped to track #${position}: [**${targetSong.title}**](<${targetSong.uri}>)!`,
+				content: `:white_check_mark: Jumped to track #${position}: [**${targetSong.title}**](<${targetSong.uri}>)!`,
 				flags: ['SuppressEmbeds']
 			});
 		}
 
 		return await interaction.reply(
-			`:white_check_mark: Skipped to track #${position}!`
+			`:white_check_mark: Jumped to track #${position}!`
 		);
 	}
 }
 
 export const help: CommandHelp = {
-	name: 'skipto',
+	name: 'jump',
 	category: 'music',
-	description: 'Skip to a track in queue',
-	usage: '/skipto <position>',
-	examples: ['/skipto position: value'],
+	description: 'Jump to a specific track in the queue',
+	usage: '/jump <position>',
+	examples: ['/jump position: 3'],
 	options: [
 		{
-				"name": "position",
-				"description": "What is the position of the song you want to skip to in queue?",
-				"required": true
+			name: 'position',
+			description: 'What is the position of the song you want to jump to in the queue?',
+			required: true
 		}
-]
+	]
 };

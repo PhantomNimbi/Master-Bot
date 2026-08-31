@@ -72,16 +72,21 @@ export class SaveToPlaylistCommand extends Command {
 		}
 
 		const songArray = songTuple[1];
-		const songsToAdd: any[] = [];
-
-		for (let i = 0; i < songArray.length; i++) {
-			const song = songArray[i];
-			delete song['requester'];
-			songsToAdd.push({
-				...song,
-				playlistId: +playlistId
-			});
-		}
+		const songsToAdd = songArray.map((song: any) => ({
+			length: song.length || 0,
+			track: song.track || '',
+			identifier: song.identifier || '',
+			author: song.author || 'Unknown',
+			isStream: Boolean(song.isStream),
+			position: song.position || 0,
+			title: song.title || 'Untitled',
+			uri: song.uri || '',
+			isSeekable: Boolean(song.isSeekable),
+			sourceName: song.sourceName || 'youtube',
+			thumbnail: song.thumbnail || '',
+			added: Date.now(),
+			playlistId: Number(playlistId)
+		}));
 
 		try {
 			await trpcNode.song.createMany.mutate({
@@ -101,17 +106,17 @@ export const help: CommandHelp = {
 	category: 'music',
 	description: 'Save a song or a playlist to a custom playlist',
 	usage: '/save-to-playlist <playlist-name> <url>',
-	examples: ['/save-to-playlist playlist-name: value url: value'],
+	examples: ['/save-to-playlist playlist-name: Vibes url: https://youtube.com/...'],
 	options: [
 		{
-				"name": "playlist-name",
-				"description": "What is the name of the playlist you want to save to?",
-				"required": true
+			name: 'playlist-name',
+			description: 'What is the name of the playlist you want to save to?',
+			required: true
 		},
 		{
-				"name": "url",
-				"description": "What do you want to save to the custom playlist?",
-				"required": true
+			name: 'url',
+			description: 'What do you want to save to the custom playlist?',
+			required: true
 		}
-]
+	]
 };

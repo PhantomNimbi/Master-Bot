@@ -21,14 +21,15 @@ export class InsultCommand extends Command {
 	public override async chatInputRun(
 		interaction: Command.ChatInputCommandInteraction
 	) {
+		await interaction.deferReply();
 		try {
 			const response = await fetch(
 				'https://evilinsult.com/generate_insult.php?lang=en&type=json'
 			);
-			const data = await response.json();
+			const data = await response.json() as any;
 
 			if (!data.insult)
-				return interaction.reply({ content: 'Something went wrong!' });
+				return await interaction.editReply({ content: 'Something went wrong!' });
 
 			const embed = new EmbedBuilder()
 				.setColor('Red')
@@ -43,9 +44,9 @@ export class InsultCommand extends Command {
 					text: 'Powered by evilinsult.com'
 				});
 
-			return interaction.reply({ embeds: [embed] });
+			return await interaction.editReply({ embeds: [embed] });
 		} catch {
-			return interaction.reply({
+			return await interaction.editReply({
 				content: 'Something went wrong!'
 			});
 		}

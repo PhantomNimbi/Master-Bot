@@ -5,6 +5,7 @@ import type { Queue } from './classes/Queue';
 import { NowPlayingEmbed } from './nowPlayingEmbed';
 import type { Song } from './classes/Song';
 import Logger from '../logger';
+import { getPlayerActionRows } from './buttonHandler';
 
 export default async function buttonsCollector(message: Message, song: Song) {
 	const { client } = container;
@@ -47,22 +48,67 @@ export default async function buttonsCollector(message: Message, song: Song) {
 				queue.player?.volume ?? 100,
 				tracks,
 				tracks.at(-1),
-				queue.player?.paused ?? false
+				queue.paused
 			);
+			const rows = await getPlayerActionRows(queue);
 			collector.empty();
 			await i.update({
-				embeds: [await NowPlaying.NowPlayingEmbed()]
-			});
+				embeds: [await NowPlaying.NowPlayingEmbed()],
+				components: rows
+			}).catch(() => {});
 			return;
 		}
 		if (i.customId === 'stop') {
+			await i.deferUpdate().catch(() => {});
 			clearTimeout(timer);
 			await queue.leave();
 			return;
 		}
 		if (i.customId === 'next') {
+			await i.deferUpdate().catch(() => {});
 			clearTimeout(timer);
 			await queue.next({ skipped: true });
+			return;
+		}
+		if (i.customId === 'repeat') {
+			const currentReplay = await queue.getReplay();
+			await queue.setReplay(!currentReplay);
+			const tracks = await queue.tracks();
+			const NowPlaying = new NowPlayingEmbed(
+				song,
+				queue.player?.position ?? 0,
+				song.length,
+				queue.player?.volume ?? 100,
+				tracks,
+				tracks.at(-1),
+				queue.paused
+			);
+			const rows = await getPlayerActionRows(queue);
+			collector.empty();
+			await i.update({
+				embeds: [await NowPlaying.NowPlayingEmbed()],
+				components: rows
+			}).catch(() => {});
+			return;
+		}
+		if (i.customId === 'shuffle') {
+			await queue.shuffleTracks();
+			const tracks = await queue.tracks();
+			const NowPlaying = new NowPlayingEmbed(
+				song,
+				queue.player?.position ?? 0,
+				song.length,
+				queue.player?.volume ?? 100,
+				tracks,
+				tracks.at(-1),
+				queue.paused
+			);
+			const rows = await getPlayerActionRows(queue);
+			collector.empty();
+			await i.update({
+				embeds: [await NowPlaying.NowPlayingEmbed()],
+				components: rows
+			}).catch(() => {});
 			return;
 		}
 		if (i.customId === 'volumeUp') {
@@ -77,12 +123,14 @@ export default async function buttonsCollector(message: Message, song: Song) {
 				queue.player?.volume ?? 100,
 				tracks,
 				tracks.at(-1),
-				queue.player?.paused ?? false
+				queue.paused
 			);
+			const rows = await getPlayerActionRows(queue);
 			collector.empty();
 			await i.update({
-				embeds: [await NowPlaying.NowPlayingEmbed()]
-			});
+				embeds: [await NowPlaying.NowPlayingEmbed()],
+				components: rows
+			}).catch(() => {});
 			return;
 		}
 		if (i.customId === 'volumeDown') {
@@ -97,10 +145,14 @@ export default async function buttonsCollector(message: Message, song: Song) {
 				queue.player?.volume ?? 100,
 				tracks,
 				tracks.at(-1),
-				queue.player?.paused ?? false
+				queue.paused
 			);
+			const rows = await getPlayerActionRows(queue);
 			collector.empty();
-			await i.update({ embeds: [await NowPlaying.NowPlayingEmbed()] });
+			await i.update({
+				embeds: [await NowPlaying.NowPlayingEmbed()],
+				components: rows
+			}).catch(() => {});
 			return;
 		}
 	});

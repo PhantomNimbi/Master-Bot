@@ -11,7 +11,6 @@ import { trpcNode } from '../../trpc';
 	preconditions: [
 		'GuildOnly',
 		'isCommandDisabled',
-		'inVoiceChannel',
 		'userInDB'
 	]
 })
@@ -28,17 +27,18 @@ export class MyPlaylistsCommand extends Command {
 	public override async chatInputRun(
 		interaction: Command.ChatInputCommandInteraction
 	) {
+		await interaction.deferReply();
 		const interactionMember = interaction.member?.user;
 
 		if (!interactionMember) {
-			return await interaction.reply({
+			return await interaction.followUp({
 				content: ':x: Something went wrong! Please try again later'
 			});
 		}
 
 		const baseEmbed = new EmbedBuilder().setColor('Purple').setAuthor({
-			name: `${interactionMember.username}`,
-			iconURL: interactionMember.avatar || undefined
+			name: interaction.user.username,
+			iconURL: interaction.user.displayAvatarURL()
 		});
 
 		const playlistsQuery = await trpcNode.playlist.getAll.query({
@@ -46,7 +46,7 @@ export class MyPlaylistsCommand extends Command {
 		});
 
 		if (!playlistsQuery || !playlistsQuery.playlists.length) {
-			return await interaction.reply(':x: You have no custom playlists');
+			return await interaction.followUp(':x: You have no custom playlists');
 		}
 
 		new PaginatedFieldMessageEmbed()

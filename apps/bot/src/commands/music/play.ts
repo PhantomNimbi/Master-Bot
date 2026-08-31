@@ -3,6 +3,7 @@ import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
 import searchSong from '../../lib/music/searchSong';
+import { updatePlayerEmbed } from '../../lib/music/buttonHandler';
 import { Song } from '../../lib/music/classes/Song';
 import { trpcNode } from '../../trpc';
 import { GuildMember } from 'discord.js';
@@ -101,7 +102,7 @@ export class PlayCommand extends Command {
 		let queue = music.queues.get(interaction.guildId!);
 		await queue.setTextChannelID(interaction.channel!.id);
 
-		if (!queue.player) {
+		if (!queue.player || !queue.player.connected) {
 			await queue.connect(voiceChannel.id);
 		}
 
@@ -125,17 +126,18 @@ export class PlayCommand extends Command {
 
 			const { songs } = playlist;
 			tracks.push(...songs.map(song => new Song(song)));
-			message = `Added songs from **${playlist}** to the queue!`;
+			message = `Added songs from **${playlist.name}** to the queue!`;
 		} else {
 			const trackTuple = await searchSong(query, interaction.user);
 			if (!trackTuple[1].length) {
-				return await interaction.followUp({ content: trackTuple[0] as string }); // error
+				return await interaction.followUp({ content: trackTuple[0] as string });
 			}
 			message = trackTuple[0];
 			tracks.push(...trackTuple[1]);
 		}
 
-		const isPlaying = queue.playing;
+		const currentTrack = await queue.getCurrentTrack();
+		const isPlaying = Boolean(currentTrack);
 
 		await queue.add(tracks);
 		if (shufflePlaylist == 'Yes') {
@@ -143,6 +145,7 @@ export class PlayCommand extends Command {
 		}
 
 		if (isPlaying) {
+			await updatePlayerEmbed(queue);
 			return await interaction.followUp({
 				content: message,
 				flags: ['SuppressEmbeds']
@@ -165,19 +168,19 @@ export const help: CommandHelp = {
 	examples: ['/play query: value is-custom-playlist: value shuffle-playlist: value'],
 	options: [
 		{
-				"name": "query",
-				"description": "What song or playlist would you like to listen to?",
-				"required": true
+			name: 'query',
+			description: 'What song or playlist would you like to listen to?',
+			required: true
 		},
 		{
-				"name": "is-custom-playlist",
-				"description": "Is it a custom playlist?",
-				"required": false
+			name: 'is-custom-playlist',
+			description: 'Is it a custom playlist?',
+			required: false
 		},
 		{
-				"name": "shuffle-playlist",
-				"description": "Would you like to shuffle the playlist?",
-				"required": false
+			name: 'shuffle-playlist',
+			description: 'Would you like to shuffle the playlist?',
+			required: false
 		}
-]
+	]
 };

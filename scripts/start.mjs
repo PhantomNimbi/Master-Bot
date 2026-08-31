@@ -15,7 +15,8 @@ import {
 	checkJavaVersion,
 	getLavalinkKeyStatus,
 	getLavalinkJavaArgs,
-	createLogWriter
+	createLogWriter,
+	killProcessTree
 } from './common.mjs';
 
 loadEnv();
@@ -253,10 +254,10 @@ ${activeServices.join('\n')}
 function cleanup() {
 	console.log('\n🛑 Shutting down Master-Bot production services...');
 	try {
-		if (lavalinkProcess) lavalinkProcess.kill('SIGINT');
-		if (redisProcess) redisProcess.kill('SIGINT');
-		botProcess.kill('SIGINT');
-		dashboardProcess.kill('SIGINT');
+		if (lavalinkProcess) killProcessTree(lavalinkProcess);
+		if (redisProcess) killProcessTree(redisProcess);
+		killProcessTree(botProcess);
+		killProcessTree(dashboardProcess);
 	} catch {}
 	botStream.end();
 	dashboardStream.end();
@@ -269,3 +270,4 @@ function cleanup() {
 process.on('SIGINT', cleanup);
 process.on('SIGTERM', cleanup);
 process.on('SIGHUP', cleanup);
+process.on('exit', cleanup);

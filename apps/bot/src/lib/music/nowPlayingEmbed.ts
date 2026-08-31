@@ -31,11 +31,10 @@ export class NowPlayingEmbed {
 	}
 
 	public async NowPlayingEmbed(): Promise<EmbedBuilder> {
-		const trackLength = this.timeString(
-			this.millisecondsToTimeObject(this.length)
-		);
+		const totalMs = this.length || this.track.length || 0;
+		const trackLength = this.formatDuration(totalMs);
 
-		const durationText = this.track.isSeekable
+		const durationText = this.track.isSeekable && totalMs > 0
 			? `:stopwatch: ${trackLength}`
 			: `:red_circle: Live Stream`;
 		const userAvatar = this.track.requester?.avatar
@@ -133,24 +132,19 @@ export class NowPlayingEmbed {
 		return embed;
 	}
 
-	private timeString(timeObject: any) {
-		if (timeObject[1] === true) return timeObject[0];
-		return `${timeObject.hours ? timeObject.hours + ':' : ''}${
-			timeObject.minutes ? timeObject.minutes : '00'
-		}:${
-			timeObject.seconds < 10
-				? '0' + timeObject.seconds
-				: timeObject.seconds
-				? timeObject.seconds
-				: '00'
-		}`;
-	}
+	private formatDuration(milliseconds: number): string {
+		if (!milliseconds || isNaN(milliseconds) || milliseconds <= 0) return '0:00';
+		const totalSeconds = Math.floor(milliseconds / 1000);
+		const hours = Math.floor(totalSeconds / 3600);
+		const minutes = Math.floor((totalSeconds % 3600) / 60);
+		const seconds = totalSeconds % 60;
 
-	private millisecondsToTimeObject(milliseconds: number) {
-		return {
-			seconds: Math.floor((milliseconds / 1000) % 60),
-			minutes: Math.floor((milliseconds / (1000 * 60)) % 60),
-			hours: Math.floor((milliseconds / (1000 * 60 * 60)) % 24)
-		};
+		const paddedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
+
+		if (hours > 0) {
+			const paddedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
+			return `${hours}:${paddedMinutes}:${paddedSeconds}`;
+		}
+		return `${minutes}:${paddedSeconds}`;
 	}
 }
