@@ -22,15 +22,9 @@ export class DashboardCommand extends Command {
 		interaction: Command.ChatInputCommandInteraction
 	) {
 		const publicUrl = process.env.NEXTAUTH_URL || '';
-		const internalUrl = process.env.NEXTAUTH_URL_INTERNAL || '';
-
-		if (!publicUrl && !internalUrl) {
-			return interaction.reply({
-				content:
-					':information_source: The dashboard is not configured for this bot instance.',
-				ephemeral: true
-			});
-		}
+		const internalUrl =
+			process.env.NEXTAUTH_URL_INTERNAL ||
+			`http://localhost:${process.env.PORT || 3000}`;
 
 		const fields: { name: string; value: string; inline?: boolean }[] = [];
 
@@ -40,14 +34,20 @@ export class DashboardCommand extends Command {
 				value: `[Click here to open the dashboard](${publicUrl})`,
 				inline: false
 			});
+		} else {
+			fields.push({
+				name: '🔗 Open the Dashboard',
+				value: `[Click here to open the dashboard](${internalUrl})`,
+				inline: false
+			});
 		}
 
-		if (internalUrl) {
+		if (internalUrl && publicUrl && internalUrl !== publicUrl) {
 			const ownerUser = await getApplicationOwnerUser(this.container.client);
 			if (ownerUser && interaction.user.id === ownerUser.id) {
 				fields.push({
-					name: '🏠 Internal Link (Owner)',
-					value: `[Open internal dashboard](${internalUrl})`,
+					name: '🏠 Local Dashboard (Host)',
+					value: `[Open local dashboard](${internalUrl})`,
 					inline: false
 				});
 			}

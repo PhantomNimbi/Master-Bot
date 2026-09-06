@@ -15,11 +15,8 @@ curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt install -y nodejs
 sudo npm install -g pnpm
 
-# Install Java 21, PostgreSQL, and Redis
-sudo apt install -y openjdk-21-jre-headless postgresql redis-server
-
-# Enable services
-sudo systemctl enable --now postgresql redis-server
+# Install Java 21 (for Lavalink audio engine)
+sudo apt install -y openjdk-21-jre-headless
 ```
 
 ---

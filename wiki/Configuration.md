@@ -7,26 +7,21 @@ Comprehensive configuration reference for all environment variables in Master-Bo
 ## Complete `.env` Configuration Template
 
 ```env
-# PostgreSQL Database URL
-DATABASE_URL="postgresql://user:password@localhost:5432/master_bot?schema=public"
-SHADOW_DB_URL="postgresql://user:password@localhost:5432/master_bot_shadow?schema=public"
+# SQLite Database URL
+DATABASE_URL="file:./db.sqlite"
 
 # Discord Bot Credentials
 DISCORD_TOKEN=""
 DISCORD_CLIENT_ID=""
 DISCORD_CLIENT_SECRET=""
-DISCORD_OWNER_ID=""
 
-# NextAuth & Web Dashboard
+# NextAuth & Port Configuration
+DASHBOARD_PORT=3000
+BOT_PORT=3001
+BOT_API_PORT=3002
 NEXTAUTH_SECRET="your_32_character_session_secret"
 NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_URL_INTERNAL="http://localhost:3000"
-NEXT_PUBLIC_INVITE_URL="https://discord.com/api/oauth2/authorize?client_id=...&permissions=8&scope=bot"
-
-# Redis Cache
-REDIS_HOST="127.0.0.1"
-REDIS_PORT=6379
-REDIS_PASSWORD=""
+NEXT_PUBLIC_INVITE_URL=""
 
 # Lavalink v4 Audio Engine
 LAVA_ENABLED=true

@@ -8,14 +8,13 @@ export const env = createEnv({
 	 * built with invalid env vars.
 	 */
 	server: {
-		DATABASE_URL: z
-			.string()
-			.default(
-				'postgresql://postgres:postgres@localhost:5432/master-bot?schema=public'
-			),
+		DATABASE_URL: z.string().default('file:./db.sqlite'),
 		DISCORD_TOKEN: z.string().default('placeholder_token'),
 		DISCORD_CLIENT_ID: z.string().default('placeholder_client_id'),
 		DISCORD_CLIENT_SECRET: z.string().default('placeholder_client_secret'),
+		DASHBOARD_PORT: z.string().optional(),
+		BOT_PORT: z.string().optional(),
+		BOT_API_PORT: z.string().optional(),
 		LAVA_ENABLED: z.string().optional(),
 		GIFS_ENABLED: z.string().optional(),
 		TWITCH_ENABLED: z.string().optional(),
@@ -43,6 +42,9 @@ export const env = createEnv({
 		DISCORD_TOKEN: process.env.DISCORD_TOKEN,
 		DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
 		DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
+		DASHBOARD_PORT: process.env.DASHBOARD_PORT,
+		BOT_PORT: process.env.BOT_PORT,
+		BOT_API_PORT: process.env.BOT_API_PORT,
 		LAVA_ENABLED: process.env.LAVA_ENABLED,
 		GIFS_ENABLED: process.env.GIFS_ENABLED,
 		TWITCH_ENABLED: process.env.TWITCH_ENABLED,

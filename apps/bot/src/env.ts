@@ -1,14 +1,12 @@
 import { z } from 'zod';
 
 const envSchema = z.object({
-	DISCORD_TOKEN: z.string(),
+	DISCORD_TOKEN: z.string().default(''),
+	DASHBOARD_PORT: z.string().optional(),
+	BOT_PORT: z.string().optional(),
+	BOT_API_PORT: z.string().optional(),
 	KLIPY_API: z.string().optional(),
 	NEWS_API: z.string().optional(),
-	// Redis
-	REDIS_HOST: z.string().optional(),
-	REDIS_PORT: z.string().optional(),
-	REDIS_PASSWORD: z.string().optional(),
-	REDIS_DB: z.string().optional(),
 	// Feature Toggles
 	LAVA_ENABLED: z.string().optional(),
 	GIFS_ENABLED: z.string().optional(),
@@ -33,3 +31,4 @@ const envSchema = z.object({
 });
 
 export const env = envSchema.parse(process.env);
+

@@ -131,190 +131,29 @@ export function isPortInUse(port, host = '127.0.0.1', timeoutMs = 1500) {
 }
 
 /**
- * Checks whether Redis cache is running, and launches redis-server if not running.
- * Returns { status: string, process: ChildProcess | null }
+ * Ensures SQLite database exists and schema is synced.
  */
-export async function ensureRedisService(
-	redisPort = 6379,
-	redisHost = '127.0.0.1',
-	writeRedisLog = null
-) {
-	const hostToCheck = redisHost === '0.0.0.0' ? '127.0.0.1' : redisHost;
-	const isAlreadyRunning = await isPortInUse(redisPort, hostToCheck, 1500);
+export function ensureSqliteDatabase() {
+	const dbPath = path.join(rootDir, 'packages', 'db', 'prisma', 'db.sqlite');
+	const rootDbPath = path.join(rootDir, 'db.sqlite');
+	const isCreated = fs.existsSync(dbPath) || fs.existsSync(rootDbPath);
 
-	if (isAlreadyRunning) {
-		if (writeRedisLog) {
-			writeRedisLog(
-				'SYSTEM',
-				`Existing Redis server detected running on ${hostToCheck}:${redisPort}. Connected directly.`
-			);
+	if (!isCreated) {
+		console.log('\n💾 Initializing SQLite database schema...');
+		try {
+			execSync('pnpm db:push', { cwd: rootDir, stdio: 'inherit' });
+			console.log('✅ SQLite database schema synchronized successfully.\n');
+		} catch (err) {
+			console.warn(`⚠️ SQLite db:push warning: ${err.message}`);
 		}
-		return {
-			status: `RUNNING (Connected to ${hostToCheck}:${redisPort})`,
-			process: null
-		};
 	}
 
-	if (writeRedisLog) {
-		writeRedisLog(
-			'SYSTEM',
-			`Redis server not detected on port ${redisPort}. Attempting to launch redis-server...`
-		);
-	}
-
-	try {
-		const isWindows = process.platform === 'win32';
-		const redisCmd = isWindows ? 'redis-server.exe' : 'redis-server';
-		const redisProcess = spawn(redisCmd, {
-			cwd: rootDir,
-			shell: isWindows
-		});
-
-		if (writeRedisLog) {
-			redisProcess.stdout?.on('data', data => writeRedisLog('REDIS', data));
-			redisProcess.stderr?.on('data', data => writeRedisLog('REDIS-ERR', data));
-		}
-
-		console.log('\n⏳ Waiting for Redis cache server to become ready...');
-		const isReady = await waitForPort(redisPort, hostToCheck, 10000);
-
-		if (isReady) {
-			console.log(
-				`\x1b[1;32m✅ [REDIS READY]\x1b[0m Redis server listening on port ${redisPort}\n`
-			);
-			return {
-				status: `RUNNING (Internal PID: ${redisProcess.pid})`,
-				process: redisProcess
-			};
-		} else {
-			return {
-				status: 'WARN (Started but port check timed out)',
-				process: redisProcess
-			};
-		}
-	} catch (err) {
-		if (writeRedisLog) {
-			writeRedisLog(
-				'SYSTEM',
-				`Could not automatically launch redis-server: ${err.message}`
-			);
-		}
-		console.warn(
-			`\n\x1b[1;33m⚠️  [REDIS WARNING]\x1b[0m Could not auto-launch redis-server (${err.message}). Ensure Redis is running on port ${redisPort}.\n`
-		);
-		return {
-			status: `NOT DETECTED (${hostToCheck}:${redisPort})`,
-			process: null
-		};
-	}
+	return {
+		status: 'READY (file:./db.sqlite)',
+		process: null
+	};
 }
 
-/**
- * Checks whether PostgreSQL database server is running, and attempts to start it if not running.
- * Returns { status: string, process: ChildProcess | null }
- */
-export async function ensurePostgresService(
-	postgresPort = 5432,
-	postgresHost = '127.0.0.1',
-	writePostgresLog = null
-) {
-	const hostToCheck = postgresHost === '0.0.0.0' ? '127.0.0.1' : postgresHost;
-	const isAlreadyRunning = await isPortInUse(postgresPort, hostToCheck, 1500);
-
-	if (isAlreadyRunning) {
-		if (writePostgresLog) {
-			writePostgresLog(
-				'SYSTEM',
-				`Existing PostgreSQL database detected running on ${hostToCheck}:${postgresPort}. Connected directly.`
-			);
-		}
-		return {
-			status: `RUNNING (Connected to ${hostToCheck}:${postgresPort})`,
-			process: null
-		};
-	}
-
-	if (writePostgresLog) {
-		writePostgresLog(
-			'SYSTEM',
-			`PostgreSQL not detected on port ${postgresPort}. Attempting auto-start...`
-		);
-	}
-
-	const isWindows = process.platform === 'win32';
-	let started = false;
-
-	// 1. Try starting PostgreSQL service on Windows
-	if (isWindows) {
-		try {
-			execSync(
-				'net start postgresql-x64-16 2>nul || net start postgresql-x64-15 2>nul || net start postgresql-x64-14 2>nul || net start postgresql 2>nul',
-				{
-					stdio: 'ignore'
-				}
-			);
-			started = true;
-		} catch {}
-	} else if (process.platform === 'darwin') {
-		try {
-			execSync(
-				'brew services start postgresql@16 || brew services start postgresql || brew services start postgresql@15',
-				{
-					stdio: 'ignore'
-				}
-			);
-			started = true;
-		} catch {}
-	} else if (process.platform === 'linux') {
-		try {
-			execSync(
-				'sudo systemctl start postgresql || systemctl start postgresql || service postgresql start',
-				{
-					stdio: 'ignore'
-				}
-			);
-			started = true;
-		} catch {}
-	}
-
-	// 2. Fallback: Try docker compose for postgres container
-	if (!started) {
-		try {
-			execSync('docker compose up -d postgres', {
-				cwd: rootDir,
-				stdio: 'ignore'
-			});
-			started = true;
-		} catch {}
-	}
-
-	console.log('\n⏳ Waiting for PostgreSQL database server to become ready...');
-	const isReady = await waitForPort(postgresPort, hostToCheck, 10000);
-
-	if (isReady) {
-		console.log(
-			`\x1b[1;32m✅ [POSTGRES READY]\x1b[0m PostgreSQL database listening on port ${postgresPort}\n`
-		);
-		return {
-			status: `RUNNING (Auto-started on ${hostToCheck}:${postgresPort})`,
-			process: null
-		};
-	} else {
-		if (writePostgresLog) {
-			writePostgresLog(
-				'SYSTEM',
-				`PostgreSQL server could not be auto-started on port ${postgresPort}.`
-			);
-		}
-		console.warn(
-			`\n\x1b[1;33m⚠️  [POSTGRES WARNING]\x1b[0m PostgreSQL server not detected on port ${postgresPort}. Ensure your PostgreSQL service or Docker container is running.\n`
-		);
-		return {
-			status: `NOT DETECTED (${hostToCheck}:${postgresPort})`,
-			process: null
-		};
-	}
-}
 
 /**
  * Polls a TCP port until a connection succeeds or timeout expires.

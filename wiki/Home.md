@@ -1,6 +1,6 @@
 # 📖 Master-Bot Wiki
 
-Welcome to the official **Master-Bot** documentation wiki. Master-Bot is a full-stack, production-grade Discord Bot and Next.js Web Dashboard built with **TypeScript**, **Sapphire Framework**, **discord.js v14**, **Next.js 15**, **React 19**, **tRPC v11**, **Prisma ORM**, **Redis**, and **Lavalink v4**.
+Welcome to the official **Master-Bot** documentation wiki. Master-Bot is a full-stack, production-grade Discord Bot and Next.js Web Dashboard built with **TypeScript**, **Sapphire Framework**, **discord.js v14**, **Next.js 15**, **React 19**, **tRPC v11**, **Prisma ORM**, **SQLite**, and **Lavalink v4**.
 
 ---
 
@@ -20,9 +20,9 @@ flowchart TD
         Config["packages/config<br/>(ESLint & Tailwind)"]
     end
 
-    subgraph Services["External & Backing Services"]
-        PG[("PostgreSQL Database")]
-        Redis[("Redis Cache")]
+    subgraph Storage["Storage & Media Layer"]
+        SQLite[("SQLite Database<br/>(file:./db.sqlite)")]
+        MemQueue["In-Memory Audio Queue Engine"]
         Lava["Lavalink v4 Audio Server"]
         Discord["Discord Gateway & REST API v10"]
     end
@@ -32,9 +32,9 @@ flowchart TD
     Bot --> API
     API --> DB
     Auth --> DB
-    DB --> PG
+    DB --> SQLite
     Bot --> Lava
-    Bot --> Redis
+    Bot --> MemQueue
     Bot --> Discord
     API --> Discord
 ```

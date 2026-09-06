@@ -4,7 +4,13 @@ import { createTRPCRouter, publicProcedure } from '../trpc';
 
 export const twitchRouter = createTRPCRouter({
 	getAll: publicProcedure.query(async ({ ctx }) => {
-		const notifications = await ctx.prisma.twitchNotify.findMany();
+		const rawNotifications = await ctx.prisma.twitchNotify.findMany();
+		const notifications = rawNotifications.map(n => ({
+			...n,
+			channelIds: Array.isArray(n.channelIds)
+				? n.channelIds
+				: (JSON.parse(n.channelIds || '[]') as string[])
+		}));
 
 		return { notifications };
 	}),
@@ -23,7 +29,16 @@ export const twitchRouter = createTRPCRouter({
 				}
 			});
 
-			return { notification };
+			return {
+				notification: notification
+					? {
+							...notification,
+							channelIds: Array.isArray(notification.channelIds)
+								? notification.channelIds
+								: (JSON.parse(notification.channelIds || '[]') as string[])
+					  }
+					: null
+			};
 		}),
 	create: publicProcedure
 		.input(
@@ -39,11 +54,11 @@ export const twitchRouter = createTRPCRouter({
 			await ctx.prisma.twitchNotify.upsert({
 				create: {
 					twitchId: userId,
-					channelIds: [channelId],
+					channelIds: JSON.stringify([channelId]),
 					logo: userImage,
 					sent: false
 				},
-				update: { channelIds: sendTo },
+				update: { channelIds: JSON.stringify(sendTo) },
 				where: { twitchId: userId }
 			});
 		}),
@@ -62,7 +77,7 @@ export const twitchRouter = createTRPCRouter({
 					twitchId: userId
 				},
 				data: {
-					channelIds
+					channelIds: JSON.stringify(channelIds)
 				}
 			});
 
@@ -100,14 +115,14 @@ export const twitchRouter = createTRPCRouter({
 			await ctx.prisma.guild.upsert({
 				create: {
 					id: guildId,
-					notifyList: [userId],
+					notifyList: JSON.stringify([userId]),
 					volume: 100,
 					ownerId: ownerId,
 					name: name
 				},
 				select: { notifyList: true },
 				update: {
-					notifyList
+					notifyList: JSON.stringify(notifyList)
 				},
 				where: { id: guildId }
 			});
@@ -124,7 +139,7 @@ export const twitchRouter = createTRPCRouter({
 
 			await ctx.prisma.guild.update({
 				where: { id: guildId },
-				data: { notifyList }
+				data: { notifyList: JSON.stringify(notifyList) }
 			});
 		}),
 	updateNotificationStatus: publicProcedure

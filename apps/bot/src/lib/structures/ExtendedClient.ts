@@ -1,7 +1,6 @@
 import { SapphireClient } from '@sapphire/framework';
 import '@sapphire/plugin-hmr/register';
 import { QueueClient } from '../music/classes/QueueClient';
-import Redis from 'ioredis';
 import {
 	IntentsBitField,
 	NewsChannel,
@@ -13,6 +12,10 @@ import type { ClientTwitchExtension } from './../../lib/twitch/twitchAPI-types';
 import { TwitchAPI } from '../twitch/twitchAPI';
 import Logger from '../logger';
 import type { TriviaSession } from '../music/classes/TriviaSession';
+
+export interface ExtendedClientOptions {
+	withPrivilegedIntents?: boolean;
+}
 
 export class ExtendedClient extends SapphireClient {
 	readonly music: QueueClient;
@@ -32,31 +35,30 @@ export class ExtendedClient extends SapphireClient {
 		},
 		notifyList: {}
 	};
-	public constructor() {
+
+	public constructor(options?: ExtendedClientOptions) {
+		const withPrivileged = options?.withPrivilegedIntents ?? true;
+		const intents = [
+			IntentsBitField.Flags.Guilds,
+			IntentsBitField.Flags.GuildMessages,
+			IntentsBitField.Flags.GuildMessageReactions,
+			IntentsBitField.Flags.GuildVoiceStates
+		];
+
+		if (withPrivileged) {
+			intents.push(IntentsBitField.Flags.GuildMembers);
+		}
+
 		super({
-			intents: [
-				IntentsBitField.Flags.Guilds,
-				IntentsBitField.Flags.GuildMembers,
-				IntentsBitField.Flags.GuildMessages,
-				IntentsBitField.Flags.GuildMessageReactions,
-				IntentsBitField.Flags.GuildVoiceStates
-			],
+			intents,
 			logger: { level: 100 },
-			loadMessageCommandListeners: true,
+			loadMessageCommandListeners: false,
 			hmr: {
 				enabled: process.env.NODE_ENV === 'development'
 			}
 		});
 
 		this.music = new QueueClient({
-			redis: process.env.REDIS_URL
-				? new Redis(process.env.REDIS_URL)
-				: new Redis({
-						host: process.env.REDIS_HOST || 'localhost',
-						port: Number.parseInt(process.env.REDIS_PORT!) || 6379,
-						password: process.env.REDIS_PASSWORD || '',
-						db: Number.parseInt(process.env.REDIS_DB!) || 0
-					}),
 			node: {
 				host:
 					process.env.LAVA_HOST && process.env.LAVA_HOST !== '0.0.0.0'
@@ -138,3 +140,4 @@ declare module 'lavalink-client' {
 		bassboost?: boolean;
 	}
 }
+

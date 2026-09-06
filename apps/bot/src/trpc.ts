@@ -7,10 +7,12 @@ import * as trpcServer from '@trpc/server';
 import * as PrismaClient from '@prisma/client';
 const _importDynamic = new Function('modulePath', 'return import(modulePath)');
 
+const dashboardPort =
+	process.env.DASHBOARD_PORT || process.env.PORT || '3000';
 const baseUrl = (
 	process.env.NEXTAUTH_URL_INTERNAL ||
 	process.env.NEXTAUTH_URL ||
-	'http://localhost:3000'
+	`http://localhost:${dashboardPort}`
 ).replace(/\/+$/, '');
 
 let activeBaseUrl = baseUrl;

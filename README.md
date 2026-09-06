@@ -8,73 +8,39 @@
 ## System dependencies
 
 - [Node.js LTS or latest](https://nodejs.org/en/download/) (>= 18.0.0)
-- [Java 17+](https://www.azul.com/downloads/?package=jdk#download-openjdk) (Required for Lavalink v4)
-- [PostgreSQL](https://www.postgresql.org/) (Local, Docker, or Cloud)
-- [Redis](https://redis.io/) (Local, Docker, or Cloud)
-- [pnpm](https://pnpm.io/) (Package manager)
+- [Java 17+](https://www.azul.com/downloads/?package=jdk#download-openjdk) (Required for Lavalink v4 audio engine)
+- [pnpm](https://pnpm.io/) (Fast, disk-efficient package manager)
 
 ## Setup bot
 
 Create an [application.yml](application.yml.example) file in the root folder.
 
-Download the latest Lavalink jar from [here](https://github.com/Cog-Creators/Lavalink-Jars/releases) and also place it in the root folder.
+Download the latest Lavalink jar from [here](https://github.com/Cog-Creators/Lavalink-Jars/releases) and place it in the root folder as `Lavalink.jar`.
 
-### PostgreSQL
+### Database & In-Memory Queue
 
-#### Linux
+Master-Bot uses **SQLite** (`file:./db.sqlite`) and **In-Memory Audio Queues** out of the box with zero external database configuration or Redis installation required! The database schema is automatically pushed and synchronized on first launch.
 
-Either from the official site or follow the tutorial for your [distro](https://www.digitalocean.com/community/tutorial_collections/how-to-install-and-use-postgresql).
-
-#### MacOS
-
-Get [brew](https://brew.sh), then enter `brew install postgresql`.
-
-#### Windows
-
-Getting Postgres and Prisma to work together on Windows is easy with native PostgreSQL, Docker, or cloud databases. See the [Setup Guide](wiki/Setup.md) or [Cloud Hosting Guide](wiki/Hosting.md) for step-by-step instructions.
-
-### Redis
-
-#### MacOS
-
-`brew install redis`.
-
-#### Windows
-
-Download from [here](https://redis.io/download/) or use Memurai / WSL.
-
-#### Linux
-
-Follow the instructions [here](https://redis.io/docs/getting-started/installation/install-redis-on-linux/).
-
-### Settings (env)
+### Settings (.env)
 
 Create a `.env` file in the root directory and copy the contents of `.env.example` to it.
-Note: if you are not hosting postgres with a shadow database you do not need the `SHADOW_DB_URL` variable.
 
 ```env
-# DB URL
-DATABASE_URL="postgresql://john:doe@localhost:5432/master-bot?schema=public"
-SHADOW_DB_URL="postgresql://john:doe@localhost:5432/master-bot-shadow?schema=public"
+# SQLite Database (Zero-config embedded database)
+DATABASE_URL="file:./db.sqlite"
 
-# Bot Token & Owner
+# Discord Bot Credentials
 DISCORD_TOKEN=""
-DISCORD_OWNER_ID=""
-
-# NextAuth & Web Dashboard
-NEXTAUTH_SECRET="somesupersecrettwelvelengthword"
-NEXTAUTH_URL=
-NEXTAUTH_URL_INTERNAL=http://localhost:3000
-NEXT_PUBLIC_INVITE_URL="https://discord.com/api/oauth2/authorize?client_id=yourclientid&permissions=8&scope=bot"
-
-# Next Auth Discord Provider
 DISCORD_CLIENT_ID=""
 DISCORD_CLIENT_SECRET=""
 
-# Redis Cache
-REDIS_HOST="127.0.0.1"
-REDIS_PORT=6379
-REDIS_PASSWORD=""
+# Port Configuration & NextAuth
+DASHBOARD_PORT=3000
+BOT_PORT=3001
+BOT_API_PORT=3002
+NEXTAUTH_SECRET="somesupersecrettwelvelengthword"
+NEXTAUTH_URL="http://localhost:3000"
+NEXT_PUBLIC_INVITE_URL=""
 
 # Lavalink v4 Audio Engine
 LAVA_ENABLED=true
@@ -87,49 +53,50 @@ LAVA_SECURE=false
 SPOTIFY_CLIENT_ID=""
 SPOTIFY_CLIENT_SECRET=""
 
-# Twitch Stream Alerts
+# Twitch Stream Alerts & IGDB
 TWITCH_ENABLED=false
 TWITCH_CLIENT_ID=""
 TWITCH_CLIENT_SECRET=""
+IGDB_ENABLED=false
 
 # Media & Search APIs
 KLIPY_API=""
 NEWS_ENABLED=false
 NEWS_API=""
 GENIUS_API=""
-IGDB_ENABLED=false
-IGDB_CLIENT_ID=""
-IGDB_CLIENT_SECRET=""
 ```
 
 #### Gif features
 
-If you have no use in the gif commands, leave `KLIPY_API` empty. Same applies for Twitch, News, and IGDB; everything else is needed for core music and dashboard features.
+If you have no use for the gif commands, leave `KLIPY_API` empty. Same applies for Twitch, News, and IGDB; everything else is needed for core music and dashboard features.
 
 #### DB URL
 
-Change 'john' to your pc username and 'doe' to some password, or set the name and password you created when you installed Postgres.
+`DATABASE_URL="file:./db.sqlite"` requires no setup or external server. Prisma manages schema migrations and client generation locally.
 
 #### Bot Token
 
-Generate a token in your Discord developer portal.
+Generate a token in your Discord Developer Portal and paste it into `DISCORD_TOKEN`.
 
-#### Next Auth
+#### Next Auth & Ports
 
-You can leave everything as is, just change 'yourclientid' in `NEXT_PUBLIC_INVITE_URL` to your Discord bot id and then change 'domain' in `NEXTAUTH_URL` to your domain or public ip. You can find your public ip by going to [whatismyip.com](https://www.whatismyip.com/).
+Master-Bot isolates port bindings across three dedicated ports:
+- `DASHBOARD_PORT` (default: `3000`): Next.js Web Dashboard.
+- `BOT_PORT` (default: `3001`): Discord Bot runtime and gateway.
+- `BOT_API_PORT` (default: `3002`): Bot internal HTTP / tRPC API server.
+
+The bot and dashboard automatically construct internal SSR and public authentication URLs dynamically. Set `NEXTAUTH_URL` to your domain or public IP if deploying publicly.
 
 #### Next Auth Discord Provider
 
-Go to the OAuth2 tab in the developer portal, copy the Client ID to `DISCORD_CLIENT_ID` and generate a secret to place in `DISCORD_CLIENT_SECRET`. Also, set the following URLs under 'Redirects':
+Go to the OAuth2 tab in the Discord Developer Portal, copy the Client ID to `DISCORD_CLIENT_ID` and generate a secret to place in `DISCORD_CLIENT_SECRET`. Also, set the following URLs under 'Redirects':
 
 - `http://localhost:3000/api/auth/callback/discord`
-- `http://domain:3000/api/auth/callback/discord`
-
-Make sure to change 'domain' in `http://domain:3000/api/auth/callback/discord` to your domain or public ip.
+- `https://your-domain.com/api/auth/callback/discord` (if deploying publicly)
 
 #### Lavalink
 
-You can leave this as long as the values match your `application.yml`.
+Set `LAVA_PASS` and `LAVA_PORT` to match your `application.yml` file.
 
 #### Spotify and Twitch
 
@@ -142,9 +109,9 @@ Install pnpm:
 
 # Running the bot
 
-1. If you followed everything right, hit `pnpm i` in the root folder. When it finishes make sure prisma didn't error.
-2. Open a separate terminal in the root folder and run `java -jar Lavalink.jar` (must be running all the time for music).
-3. Wait a few seconds and run `pnpm dev` in the root folder in another terminal window.
+1. Run `pnpm i` in the root folder to install all dependencies and generate the Prisma client.
+2. Open a separate terminal in the root folder and run `java -jar Lavalink.jar` (must be running for music playback).
+3. Run `pnpm dev` in the root folder in another terminal window.
 4. If everything works, your bot and dashboard should be running.
 5. (Optional) Run the Vitest test suite with `pnpm test`.
 6. Enjoy!

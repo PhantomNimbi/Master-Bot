@@ -1,4 +1,4 @@
-// Inspired from skyra's queue(when it had a music feature)
+// In-Memory Queue Store (Zero External Redis Dependency)
 import type {
 	CommandInteraction,
 	Guild,
@@ -10,8 +10,6 @@ import type { Song } from './Song';
 import type { Player } from 'lavalink-client';
 import { container } from '@sapphire/framework';
 import type { QueueStore } from './QueueStore';
-import { Time } from '@sapphire/time-utilities';
-import { isNullish } from '@sapphire/utilities';
 import { deletePlayerEmbed } from '../buttonsCollector';
 import { trpcNode } from '../../../trpc';
 import Logger from '../../logger';
@@ -21,8 +19,6 @@ export enum LoopType {
 	Queue,
 	Song
 }
-
-const kExpireTime = Time.Day * 2;
 
 export interface QueueEvents {
 	trackStart: (song: Song) => void;
@@ -45,45 +41,25 @@ export interface AddOptions {
 
 export type Addable = string | Song;
 
-interface NowPlaying {
+export interface NowPlaying {
 	song: Song;
 	position: number;
 }
 
-interface QueueKeys {
-	readonly next: string;
-	readonly position: string;
-	readonly current: string;
-	readonly skips: string;
-	readonly systemPause: string;
-	readonly replay: string;
-	readonly volume: string;
-	readonly text: string;
-	readonly embed: string;
-}
-
 export class Queue {
-	public readonly keys: QueueKeys;
-	public skipped: boolean;
+	public skipped = false;
+	private _tracks: Song[] = [];
+	private _current: Song | null = null;
+	private _replay = false;
+	private _systemPaused = false;
+	private _volume = 100;
+	private _textChannelId: string | null = null;
+	private _embedId: string | null = null;
 
 	public constructor(
 		public readonly store: QueueStore,
 		public readonly guildID: string
-	) {
-		this.keys = {
-			current: `music.${this.guildID}.current`,
-			next: `music.${this.guildID}.next`,
-			position: `music.${this.guildID}.position`,
-			skips: `music.${this.guildID}.skips`,
-			systemPause: `music.${this.guildID}.systemPause`,
-			replay: `music.${this.guildID}.replay`,
-			volume: `music.${this.guildID}.volume`,
-			text: `music.${this.guildID}.text`,
-			embed: `music.${this.guildID}.embed`
-		};
-
-		this.skipped = false;
-	}
+	) {}
 
 	public get client() {
 		return container.client;
@@ -101,8 +77,7 @@ export class Queue {
 	}
 
 	public async isPlaying(): Promise<boolean> {
-		const current = await this.getCurrentTrack();
-		return Boolean(current);
+		return Boolean(this._current);
 	}
 
 	public get paused(): boolean {
@@ -116,7 +91,7 @@ export class Queue {
 	public get voiceChannel(): VoiceChannel | null {
 		const id = this.voiceChannelID;
 		return id
-			? ((this.guild.channels.cache.get(id) as VoiceChannel) ?? null)
+			? ((this.guild?.channels.cache.get(id) as VoiceChannel) ?? null)
 			: null;
 	}
 
@@ -146,7 +121,6 @@ export class Queue {
 		}
 	}
 
-	// Start the queue
 	public async start(replaying = false): Promise<boolean> {
 		const np = await this.nowPlaying();
 		if (!np) return this.next();
@@ -191,31 +165,27 @@ export class Queue {
 		return true;
 	}
 
-	// Returns whether or not there are songs that can be played
 	public async canStart(): Promise<boolean> {
-		return (
-			(await this.store.redis.exists(this.keys.current, this.keys.next)) > 0
-		);
+		return Boolean(this._current || this._tracks.length > 0);
 	}
 
-	// add tracks to queue
 	public async add(
 		songs: Song | Array<Song>,
 		options: AddOptions = {}
 	): Promise<number> {
-		songs = Array.isArray(songs) ? songs : [songs];
-		if (!songs.length) return 0;
+		const list = Array.isArray(songs) ? songs : [songs];
+		if (!list.length) return 0;
 
-		await this.store.redis.lpush(
-			this.keys.next,
-			...songs.map(song => this.stringifySong(song))
-		);
-		await this.refresh();
-		return songs.length;
+		if (options.next) {
+			this._tracks.unshift(...list);
+		} else {
+			this._tracks.push(...list);
+		}
+		return list.length;
 	}
 
 	public async pause(interaction?: CommandInteraction) {
-		await this.player.pause();
+		if (this.player) await this.player.pause();
 		await this.setSystemPaused(false);
 		if (interaction) {
 			this.client.emit('musicSongPause', interaction);
@@ -223,7 +193,7 @@ export class Queue {
 	}
 
 	public async resume(interaction?: CommandInteraction) {
-		await this.player.resume();
+		if (this.player) await this.player.resume();
 		await this.setSystemPaused(false);
 		if (interaction) {
 			this.client.emit('musicSongResume', interaction);
@@ -231,79 +201,50 @@ export class Queue {
 	}
 
 	public async getSystemPaused(): Promise<boolean> {
-		return await this.store.redis
-			.get(this.keys.systemPause)
-			.then(d => d === '1');
+		return this._systemPaused;
 	}
 
 	public async setSystemPaused(value: boolean): Promise<boolean> {
-		await this.store.redis.set(this.keys.systemPause, value ? '1' : '0');
-		await this.refresh();
+		this._systemPaused = value;
 		return value;
 	}
 
-	/**
-	 * Retrieves whether or not the system should repeat the current track.
-	 */
 	public async getReplay(): Promise<boolean> {
-		return await this.store.redis.get(this.keys.replay).then(d => d === '1');
+		return this._replay;
 	}
 
 	public async setReplay(value: boolean): Promise<boolean> {
-		await this.store.redis.set(this.keys.replay, value ? '1' : '0');
-		await this.refresh();
+		this._replay = value;
 		this.client.emit('musicReplayUpdate', this, value);
 		return value;
 	}
 
-	/**
-	 * Retrieves the volume of the track in the queue.
-	 */
-
 	public async getVolume(): Promise<number> {
-		let data = await this.store.redis.get(this.keys.volume);
-
-		if (!data) {
-			const guildQuery = await trpcNode.guild.getGuild.query({
-				id: this.guildID
-			});
-
-			if (!guildQuery || !guildQuery.guild)
-				await this.setVolume(this.player.volume ?? 100); // saves to both
-
-			if (guildQuery.guild)
-				data =
-					guildQuery.guild.volume.toString() || this.player.volume.toString();
-		}
-
-		return data ? Number(data) : 100;
+		return this._volume;
 	}
 
-	// set the volume of the track in the queue
 	public async setVolume(
 		value: number
 	): Promise<{ previous: number; next: number }> {
-		await this.player.setVolume(value);
-		const previous = await this.store.redis.getset(this.keys.volume, value);
-		await this.refresh();
+		const previous = this._volume;
+		this._volume = value;
+		if (this.player) await this.player.setVolume(value);
 
-		await trpcNode.guild.updateVolume.mutate({
-			guildId: this.guildID,
-			volume: this.player.volume
-		});
+		await trpcNode.guild.updateVolume
+			.mutate({
+				guildId: this.guildID,
+				volume: value
+			})
+			.catch(() => {});
 
 		this.client.emit('musicSongVolumeUpdate', this, value);
-		return {
-			previous: previous === null ? 100 : Number(previous),
-			next: value
-		};
+		return { previous, next: value };
 	}
 
 	public async seek(position: number): Promise<void> {
-		await this.player.seek(position);
+		if (this.player) await this.player.seek(position);
 	}
 
-	// connect to a voice channel
 	public async connect(channelID: string): Promise<void> {
 		const player = this.createPlayer(channelID);
 		player.options.voiceChannelId = channelID;
@@ -311,7 +252,6 @@ export class Queue {
 		await player.connect();
 	}
 
-	// leave the voice channel
 	public async leave(): Promise<void> {
 		if (await this.getEmbed()) {
 			await deletePlayerEmbed(this);
@@ -332,7 +272,7 @@ export class Queue {
 		const id = await this.getTextChannelID();
 		if (id === null) return null;
 
-		const channel = this.guild.channels.cache.get(id) ?? null;
+		const channel = this.guild?.channels.cache.get(id) ?? null;
 		if (channel === null) {
 			await this.setTextChannelID(null);
 			return null;
@@ -341,86 +281,69 @@ export class Queue {
 		return channel as TextChannel;
 	}
 
-	public getTextChannelID(): Promise<string | null> {
-		return this.store.redis.get(this.keys.text);
+	public async getTextChannelID(): Promise<string | null> {
+		return this._textChannelId;
 	}
 
-	public setTextChannelID(channelID: null): Promise<null>;
-
-	public async setTextChannelID(channelID: string): Promise<string>;
 	public async setTextChannelID(
 		channelID: string | null
 	): Promise<string | null> {
-		if (channelID === null) {
-			await this.store.redis.del(this.keys.text);
-		} else {
-			await this.store.redis.set(this.keys.text, channelID);
-			await this.refresh();
-		}
-
+		this._textChannelId = channelID;
 		return channelID;
 	}
 
 	public async getCurrentTrack(): Promise<Song | null> {
-		const value = await this.store.redis.get(this.keys.current);
-		return value ? this.parseSongString(value) : null;
+		return this._current;
 	}
 
 	public async getAt(index: number): Promise<Song | undefined> {
-		const value = await this.store.redis.lindex(this.keys.next, -index - 1);
-		return value ? this.parseSongString(value) : undefined;
+		return this._tracks[index];
 	}
 
 	public async removeAt(position: number): Promise<void> {
-		await this.store.redis.lremat(this.keys.next, -position - 1);
-		await this.refresh();
+		if (position >= 0 && position < this._tracks.length) {
+			this._tracks.splice(position, 1);
+		}
 	}
 
 	public async next({ skipped = false } = {}): Promise<boolean> {
 		if (skipped) this.skipped = true;
-		// Sets the current position to 0.
-		await this.store.redis.del(this.keys.position);
+		const replaying = this._replay;
 
-		// Get whether or not the queue is on replay mode.
-		const replaying = await this.getReplay();
-
-		// If not skipped (song ended) and is replaying, replay.
-		if (!skipped && replaying) {
+		if (!skipped && replaying && this._current) {
 			return await this.start(true);
 		}
 
-		// If it was skipped, set replay back to false.
-		if (replaying) await this.setReplay(false);
+		if (replaying) this._replay = false;
 
-		// Removes the next entry from the list and sets it as the current track.
-		const entry = await this.store.redis.rpopset(
-			this.keys.next,
-			this.keys.current
-		);
-		// If there was an entry to play, refresh the state and start playing.
-		if (entry) {
-			await this.refresh();
+		const nextEntry = this._tracks.shift() ?? null;
+		this._current = nextEntry;
+
+		if (nextEntry) {
 			return this.start(false);
 		} else {
-			// If there was no entry, disconnect from the voice channel.
 			await this.leave();
 			this.client.emit('musicFinish', this, true);
 			return false;
 		}
 	}
 
-	public count(): Promise<number> {
-		return this.store.redis.llen(this.keys.next);
+	public async count(): Promise<number> {
+		return this._tracks.length;
 	}
 
 	public async moveTracks(from: number, to: number): Promise<void> {
-		await this.store.redis.lmove(this.keys.next, -from - 1, -to - 1); // work from the end of the list, since it's reversed
-		await this.refresh();
+		if (from >= 0 && from < this._tracks.length && to >= 0 && to < this._tracks.length) {
+			const [item] = this._tracks.splice(from, 1);
+			if (item) this._tracks.splice(to, 0, item);
+		}
 	}
 
 	public async shuffleTracks(): Promise<void> {
-		await this.store.redis.lshuffle(this.keys.next, Date.now());
-		await this.refresh();
+		for (let i = this._tracks.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[this._tracks[i], this._tracks[j]] = [this._tracks[j], this._tracks[i]];
+		}
 	}
 
 	public async stop(): Promise<void> {
@@ -428,73 +351,55 @@ export class Queue {
 	}
 
 	public async clearTracks(): Promise<void> {
-		await this.store.redis.del(this.keys.next);
+		this._tracks = [];
 	}
 
 	public async skipTo(position: number): Promise<void> {
-		await this.store.redis.ltrim(this.keys.next, 0, -position);
+		if (position > 0 && position < this._tracks.length) {
+			this._tracks.splice(0, position);
+		}
 		await this.next({ skipped: true });
 	}
 
-	public refresh() {
-		return this.store.redis
-			.pipeline()
-			.pexpire(this.keys.next, kExpireTime)
-			.pexpire(this.keys.position, kExpireTime)
-			.pexpire(this.keys.current, kExpireTime)
-			.pexpire(this.keys.skips, kExpireTime)
-			.pexpire(this.keys.systemPause, kExpireTime)
-			.pexpire(this.keys.replay, kExpireTime)
-			.pexpire(this.keys.volume, kExpireTime)
-			.pexpire(this.keys.text, kExpireTime)
-			.pexpire(this.keys.embed, kExpireTime)
-			.exec();
+	public async refresh(): Promise<void> {
+		// In-memory state does not expire
 	}
 
-	public clear(): Promise<number> {
-		return this.store.redis.del(
-			this.keys.next,
-			this.keys.position,
-			this.keys.current,
-			this.keys.skips,
-			this.keys.systemPause,
-			this.keys.replay,
-			this.keys.volume,
-			this.keys.text,
-			this.keys.embed
-		);
+	public async clear(): Promise<number> {
+		const count = this._tracks.length;
+		this._tracks = [];
+		this._current = null;
+		this._replay = false;
+		this._systemPaused = false;
+		this._embedId = null;
+		return count;
 	}
 
 	public async nowPlaying(): Promise<NowPlaying | null> {
-		const [entry, position] = await Promise.all([
-			this.getCurrentTrack(),
-			this.store.redis.get(this.keys.position)
-		]);
-		if (entry === null) return null;
-
+		if (!this._current) return null;
 		return {
-			song: entry,
-			position: isNullish(position) ? 0 : parseInt(position, 10)
+			song: this._current,
+			position: this.player?.position ?? 0
 		};
 	}
 
 	public async tracks(start = 0, end = -1): Promise<Song[]> {
-		if (end === Infinity) end = -1;
-
-		const tracks = await this.store.redis.lrange(this.keys.next, start, end);
-		return [...tracks].map(this.parseSongString).reverse();
+		if (end === -1 || end === Infinity) {
+			return this._tracks.slice(start);
+		}
+		return this._tracks.slice(start, end + 1);
 	}
 
 	public async setEmbed(id: string): Promise<void> {
-		await this.store.redis.set(this.keys.embed, id);
+		this._embedId = id;
 	}
 
 	public async getEmbed(): Promise<string | null> {
-		return this.store.redis.get(this.keys.embed);
+		return this._embedId;
 	}
 
 	public async deleteEmbed(): Promise<void> {
-		await this.store.redis.del(this.keys.embed);
+		this._embedId = null;
 	}
 
 	public stringifySong(song: Song): string {
@@ -502,6 +407,6 @@ export class Queue {
 	}
 
 	public parseSongString(song: string): Song {
-		return JSON.parse(song);
+		return typeof song === 'string' ? JSON.parse(song) : song;
 	}
 }

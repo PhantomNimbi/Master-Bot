@@ -9,8 +9,7 @@ import {
 	extractPortFromUrl,
 	freePort,
 	isPortInUse,
-	ensurePostgresService,
-	ensureRedisService,
+	ensureSqliteDatabase,
 	waitForPort,
 	checkJavaVersion,
 	getLavalinkKeyStatus,
@@ -55,75 +54,51 @@ if (!fs.existsSync(logsDir)) {
 const botLogFile = path.join(logsDir, 'bot.log');
 const dashboardLogFile = path.join(logsDir, 'dashboard.log');
 const lavalinkLogFile = path.join(logsDir, 'lavalink.log');
-const redisLogFile = path.join(logsDir, 'redis.log');
 const combinedLogFile = path.join(logsDir, 'combined.log');
 
 const botStream = fs.createWriteStream(botLogFile, { flags: 'w' });
 const dashboardStream = fs.createWriteStream(dashboardLogFile, { flags: 'w' });
 const lavalinkStream = fs.createWriteStream(lavalinkLogFile, { flags: 'w' });
-const redisStream = fs.createWriteStream(redisLogFile, { flags: 'w' });
 const combinedStream = fs.createWriteStream(combinedLogFile, { flags: 'w' });
 
 const writeBotLog = createLogWriter(botStream, combinedStream);
 const writeDashboardLog = createLogWriter(dashboardStream, combinedStream);
 const writeLavalinkLog = createLogWriter(lavalinkStream, combinedStream);
-const writeRedisLog = createLogWriter(redisStream, combinedStream);
 
 const isWindows = process.platform === 'win32';
 const pnpmCmd = isWindows ? 'pnpm.cmd' : 'pnpm';
 
-const dashboardPort = process.env.PORT
-	? parseInt(process.env.PORT, 10)
-	: extractPortFromUrl(
-			process.env.NEXTAUTH_URL_INTERNAL || process.env.NEXTAUTH_URL,
-			3000
-		);
+const dashboardPort = process.env.DASHBOARD_PORT
+	? parseInt(process.env.DASHBOARD_PORT, 10)
+	: 3000;
+
+const botPort = process.env.BOT_PORT
+	? parseInt(process.env.BOT_PORT, 10)
+	: 3001;
+
+const botApiPort = process.env.BOT_API_PORT
+	? parseInt(process.env.BOT_API_PORT, 10)
+	: 3002;
+
 const lavaHost = process.env.LAVA_HOST || '0.0.0.0';
 const lavaPort = parseInt(process.env.LAVA_PORT || '2333', 10);
-let redisHost = process.env.REDIS_HOST || '127.0.0.1';
-let redisPort = parseInt(process.env.REDIS_PORT || '6379', 10);
-if (process.env.REDIS_URL) {
-	try {
-		const parsed = new URL(process.env.REDIS_URL);
-		redisHost = parsed.hostname || '127.0.0.1';
-		redisPort = parsed.port ? parseInt(parsed.port, 10) : 6379;
-	} catch {}
-}
-
-const postgresPort = extractPortFromUrl(process.env.DATABASE_URL, 5432);
-let postgresHost = '127.0.0.1';
-try {
-	if (process.env.DATABASE_URL) {
-		const parsed = new URL(process.env.DATABASE_URL);
-		postgresHost = parsed.hostname || '127.0.0.1';
-	}
-} catch {}
-
 const isLavaExternal = process.env.LAVA_EXTERNAL?.toLowerCase() === 'true';
 
-// Free up configured dashboard port before launching production services
+// Free up configured dashboard, bot & bot api ports before launching production services
 freePort(dashboardPort);
+freePort(botPort);
+freePort(botApiPort);
 if (!isLavaExternal && isLavalinkEnabled) {
 	freePort(lavaPort);
 }
 
-// 1. Dynamic Service Check & Launch for PostgreSQL Database
-const { status: postgresStatus } = await ensurePostgresService(
-	postgresPort,
-	postgresHost
-);
-
-// 2. Dynamic Service Check & Launch for Redis Cache
-const { status: redisStatus, process: redisProcess } = await ensureRedisService(
-	redisPort,
-	redisHost,
-	writeRedisLog
-);
+// 1. Ensure SQLite Database is initialized
+const { status: sqliteStatus } = ensureSqliteDatabase();
 
 let lavalinkStatus = 'DISABLED';
 let lavalinkProcess = null;
 
-// 3. Dynamic Service Check & Launch for Lavalink (only if LAVA_ENABLED=true)
+// 2. Dynamic Service Check & Launch for Lavalink (only if LAVA_ENABLED=true)
 const hostToCheck = lavaHost === '0.0.0.0' ? '127.0.0.1' : lavaHost;
 
 if (!isLavalinkEnabled) {
@@ -152,8 +127,14 @@ if (!isLavalinkEnabled) {
 		);
 		const isReady = await waitForPort(lavaPort, hostToCheck, 25000);
 		if (isReady) {
-			console.log(
-				`\x1b[1;32m✅ [EXTERNAL LAVALINK READY]\x1b[0m Connected to external Lavalink on port ${lavaPort}\n`
+			writeLavalinkLog(
+				'SYSTEM',
+				`Connected to external Lavalink server at ${lavaHost}:${lavaPort}.`
+			);
+		} else {
+			writeLavalinkLog(
+				'SYSTEM',
+				`Warning: External Lavalink server at ${lavaHost}:${lavaPort} did not respond within 25s.`
 			);
 		}
 	} else if (!keyStatus.hasAny) {
@@ -166,21 +147,23 @@ if (!isLavalinkEnabled) {
 			'\n\x1b[1;33m⚠️  [LAVALINK DISABLED]\x1b[0m No music API keys configured in .env (YouTube or Spotify). Internal Lavalink server skipped.\n'
 		);
 	} else {
-		const jarPath = path.join(rootDir, 'Lavalink.jar');
-		if (fs.existsSync(jarPath)) {
-			lavalinkStatus = 'RUNNING (Internal)';
-			writeLavalinkLog(
-				'SYSTEM',
-				`Launching internal Lavalink server from ${jarPath}...`
-			);
-			const javaCheck = checkJavaVersion();
-			if (!javaCheck.ok) {
-				console.error(
-					`\n\x1b[1;31m⚠️  [JAVA VERSION ERROR]\x1b[0m\n${javaCheck.error}\n`
+		const lavalinkJar = path.join(rootDir, 'Lavalink.jar');
+		if (fs.existsSync(lavalinkJar)) {
+			const appYml = path.join(rootDir, 'application.yml');
+			if (!fs.existsSync(appYml)) {
+				lavalinkStatus = 'FAILED (application.yml missing)';
+				writeLavalinkLog(
+					'SYSTEM',
+					'Lavalink.jar found but application.yml is missing. Copy application.yml.example to application.yml.'
 				);
-				lavalinkStatus = 'ERROR (Java missing or too old)';
 			} else {
-				if (javaCheck.version < 21) {
+				lavalinkStatus = `RUNNING (Port: ${lavaPort})`;
+				writeLavalinkLog(
+					'SYSTEM',
+					`Spawning internal Lavalink instance via Lavalink.jar on port ${lavaPort}...`
+				);
+				const javaCheck = checkJavaVersion();
+				if (!javaCheck.ok) {
 					console.warn(
 						`\n\x1b[1;33m⚠️  [JAVA VERSION WARNING]\x1b[0m Java ${javaCheck.version} detected. Java 21 LTS is recommended for best stability.\n`
 					);
@@ -216,18 +199,32 @@ if (!isLavalinkEnabled) {
 	}
 }
 
-// 2. Launch Bot in START (Production) mode
+// 2. Launch Bot in START (Production) mode (bound to BOT_PORT & BOT_API_PORT / connecting to DASHBOARD_PORT for tRPC)
 const botProcess = spawn(`pnpm --filter @master-bot/bot start`, {
 	cwd: rootDir,
-	shell: true
+	shell: true,
+	env: {
+		...process.env,
+		PORT: String(botPort),
+		BOT_PORT: String(botPort),
+		BOT_API_PORT: String(botApiPort),
+		DASHBOARD_PORT: String(dashboardPort)
+	}
 });
 botProcess.stdout.on('data', data => writeBotLog('BOT', data));
 botProcess.stderr.on('data', data => writeBotLog('BOT-ERR', data));
 
-// 3. Launch Dashboard in START (Production) mode
+// 3. Launch Dashboard in START (Production) mode (bound strictly to DASHBOARD_PORT)
 const dashboardProcess = spawn(`pnpm --filter @master-bot/dashboard start`, {
 	cwd: rootDir,
-	shell: true
+	shell: true,
+	env: {
+		...process.env,
+		PORT: String(dashboardPort),
+		DASHBOARD_PORT: String(dashboardPort),
+		BOT_PORT: String(botPort),
+		BOT_API_PORT: String(botApiPort)
+	}
 });
 dashboardProcess.stdout.on('data', data =>
 	writeDashboardLog('DASHBOARD', data)
@@ -251,10 +248,10 @@ const dashboardUrlDisplay = dashboardPublicUrl
 	: `http://localhost:${dashboardPort}`;
 
 const activeServices = [
-	`    • 🤖 Bot Service:       RUNNING  └─ Log: logs/bot.log`,
+	`    • 🤖 Bot Service:       RUNNING (Port: ${botPort} | API: ${botApiPort}) └─ Log: logs/bot.log`,
 	`    • 🌐 Web Dashboard:      RUNNING (${dashboardUrlDisplay})\n                                     └─ Log: logs/dashboard.log`,
-	`    • 🐘 PostgreSQL DB:      ${postgresStatus}`,
-	`    • 🗄️  Redis Cache:       ${redisStatus}${redisProcess ? '\n                                     └─ Log: logs/redis.log' : ''}`
+	`    • 💾 SQLite Database:    ${sqliteStatus}`,
+	`    • ⚡ In-Memory Queue:    ACTIVE (Zero external dependency)`
 ];
 
 if (isLavalinkEnabled && !lavalinkStatus.startsWith('DISABLED')) {
@@ -271,7 +268,7 @@ console.log(`
            🤖 MASTER-BOT UNIFIED CONSOLE (PRODUCTION)               
 ====================================================================
   Execution Mode:    PRODUCTION
-  Configured Ports:  Dashboard: ${dashboardPort} | Postgres: ${postgresPort} | Redis: ${redisPort}${isLavalinkEnabled ? ` | Lavalink: ${lavaPort}` : ''}
+  Configured Ports:  Dashboard: ${dashboardPort} | Bot: ${botPort} | Bot API: ${botApiPort}${isLavalinkEnabled ? ` | Lavalink: ${lavaPort}` : ''}
   
   Active Services:
 ${activeServices.join('\n')}
@@ -284,14 +281,12 @@ function cleanup() {
 	console.log('\n🛑 Shutting down Master-Bot production services...');
 	try {
 		if (lavalinkProcess) killProcessTree(lavalinkProcess);
-		if (redisProcess) killProcessTree(redisProcess);
 		killProcessTree(botProcess);
 		killProcessTree(dashboardProcess);
 	} catch {}
 	botStream.end();
 	dashboardStream.end();
 	lavalinkStream.end();
-	redisStream.end();
 	combinedStream.end();
 	process.exit(0);
 }
@@ -300,3 +295,4 @@ process.on('SIGINT', cleanup);
 process.on('SIGTERM', cleanup);
 process.on('SIGHUP', cleanup);
 process.on('exit', cleanup);
+

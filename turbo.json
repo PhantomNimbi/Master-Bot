@@ -70,6 +70,10 @@
 		"NEWS_API",
 		"GENIUS_API",
 		"REDIS_HOST",
-		"REDIS_PORT"
+		"REDIS_PORT",
+		"BOT_PORT",
+		"BOT_API_PORT",
+		"DASHBOARD_PORT",
+		"PORT"
 	]
 }

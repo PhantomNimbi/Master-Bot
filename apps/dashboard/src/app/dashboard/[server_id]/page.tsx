@@ -67,7 +67,11 @@ export default async function ServerIndexPage({
 					</div>
 					<div className="mt-3">
 						<span className="text-2xl font-bold text-slate-900 dark:text-white">
-							{guild.disabledCommands.length} Disabled
+							{(Array.isArray(guild.disabledCommands)
+								? guild.disabledCommands
+								: (JSON.parse(guild.disabledCommands ?? '[]') as string[])
+							).length}{' '}
+							Disabled
 						</span>
 						<p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
 							All other commands enabled

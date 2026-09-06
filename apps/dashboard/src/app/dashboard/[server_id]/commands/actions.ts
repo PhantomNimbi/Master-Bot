@@ -20,29 +20,26 @@ export async function toggleCommand(
 		throw new Error('Guild not found');
 	}
 
+	const currentList: string[] = Array.isArray(guild.disabledCommands)
+		? guild.disabledCommands
+		: JSON.parse(guild.disabledCommands ?? '[]');
+
+	let updatedList: string[];
 	if (newStatus) {
-		await prisma.guild.update({
-			where: {
-				id: guildId
-			},
-			data: {
-				disabledCommands: {
-					set: guild.disabledCommands.filter(id => id !== commandId)
-				}
-			}
-		});
+		updatedList = currentList.filter(id => id !== commandId);
 	} else {
-		await prisma.guild.update({
-			where: {
-				id: guildId
-			},
-			data: {
-				disabledCommands: {
-					push: commandId
-				}
-			}
-		});
+		updatedList = Array.from(new Set([...currentList, commandId]));
 	}
+
+	await prisma.guild.update({
+		where: {
+			id: guildId
+		},
+		data: {
+			disabledCommands: JSON.stringify(updatedList)
+		}
+	});
 
 	revalidatePath(`/dashboard/${guildId}/commands`);
 }
+

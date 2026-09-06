@@ -69,7 +69,11 @@ export default async function LogChannelPage({
 				{guild.logChannelEnabled && (
 					<LogEventsForm
 						guildId={server_id}
-						initialEvents={guild.logEvents || []}
+						initialEvents={
+							Array.isArray(guild.logEvents)
+								? guild.logEvents
+								: (JSON.parse(guild.logEvents ?? '[]') as string[])
+						}
 					/>
 				)}
 			</div>

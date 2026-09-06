@@ -120,6 +120,10 @@ export default async function CommandsPage({
 		select: { disabledCommands: true }
 	});
 
+	const disabledCommandsList: string[] = Array.isArray(guild?.disabledCommands)
+		? guild.disabledCommands
+		: JSON.parse(guild?.disabledCommands ?? '[]');
+
 	const rawCommands = await getApplicationCommands();
 
 	// Read environment toggles
@@ -282,7 +286,7 @@ export default async function CommandsPage({
 								<div className="divide-y divide-slate-100 dark:divide-slate-800/60">
 									{categoryCommands.map(command => {
 										const isServerDisabled =
-											guild?.disabledCommands.includes(command.id) ?? false;
+											disabledCommandsList.includes(command.id);
 										const isCommandEnabled = !isServerDisabled;
 
 										return (

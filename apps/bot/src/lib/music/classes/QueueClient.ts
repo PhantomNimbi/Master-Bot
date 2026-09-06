@@ -1,11 +1,8 @@
-import Redis from 'ioredis';
-import type { RedisOptions } from 'ioredis';
 import { LavalinkManager, LavalinkNodeOptions } from 'lavalink-client';
 import { QueueStore } from './QueueStore';
 import { container } from '@sapphire/framework';
 
 export interface QueueClientOptions {
-	redis: Redis | RedisOptions;
 	node: LavalinkNodeOptions;
 	clientId?: string;
 }
@@ -25,10 +22,7 @@ export class QueueClient extends LavalinkManager {
 			}
 		});
 
-		this.queues = new QueueStore(
-			this,
-			options.redis instanceof Redis ? options.redis : new Redis(options.redis)
-		);
+		this.queues = new QueueStore(this);
 
 		const patchNode = (node: any) => {
 			const originalUpdatePlayer = node.updatePlayer.bind(node);
@@ -52,3 +46,4 @@ export class QueueClient extends LavalinkManager {
 		return super.destroyPlayer(guildId, destroyReason);
 	}
 }
+

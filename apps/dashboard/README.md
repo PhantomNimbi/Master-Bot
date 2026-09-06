@@ -32,7 +32,7 @@ The official web management portal and control center for **Master-Bot**, built 
 - **Framework:** [Next.js 15](https://nextjs.org/) (App Router, Server Actions, RSC)
 - **API & State:** [tRPC v11](https://trpc.io/) & [@tanstack/react-query v5](https://tanstack.com/query)
 - **Auth:** [NextAuth.js v5 beta](https://authjs.dev/) (`@auth/prisma-adapter`)
-- **Database:** [Prisma ORM](https://www.prisma.io/) with PostgreSQL
+- **Database:** [Prisma ORM](https://www.prisma.io/) with SQLite (`file:./db.sqlite`)
 - **UI & Styling:** [Tailwind CSS](https://tailwindcss.com/), Radix UI primitives, [Lucide React](https://lucide.dev/)
 
 ---

@@ -149,7 +149,7 @@ export const guildRouter = createTRPCRouter({
 
 			const guild = await ctx.prisma.guild.update({
 				where: { id: guildId },
-				data: { logEvents: events }
+				data: { logEvents: JSON.stringify(events) }
 			});
 
 			return { guild };
@@ -172,7 +172,16 @@ export const guildRouter = createTRPCRouter({
 				}
 			});
 
-			return { guild };
+			return {
+				guild: guild
+					? {
+							...guild,
+							logEvents: Array.isArray(guild.logEvents)
+								? guild.logEvents
+								: JSON.parse(guild.logEvents || '[]')
+					  }
+					: null
+			};
 		}),
 	getRoles: publicProcedure
 		.input(

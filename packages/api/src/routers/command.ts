@@ -66,7 +66,11 @@ export const commandRouter = createTRPCRouter({
 				});
 			}
 
-			return { disabledCommands: guild.disabledCommands };
+			const disabledList: string[] = Array.isArray(guild.disabledCommands)
+				? guild.disabledCommands
+				: JSON.parse(guild.disabledCommands || '[]');
+
+			return { disabledCommands: disabledList };
 		}),
 	getCommands: publicProcedure
 		.input(
@@ -330,32 +334,27 @@ export const commandRouter = createTRPCRouter({
 				});
 			}
 
-			let updatedGuild;
+			const currentList: string[] = Array.isArray(guild.disabledCommands)
+				? guild.disabledCommands
+				: JSON.parse(guild.disabledCommands || '[]');
 
+			let updatedList: string[];
 			if (status) {
-				updatedGuild = await ctx.prisma.guild.update({
-					where: {
-						id: guildId
-					},
-					data: {
-						disabledCommands: {
-							set: [...guild.disabledCommands, commandId]
-						}
-					}
-				});
+				updatedList = Array.from(new Set([...currentList, commandId]));
 			} else {
-				updatedGuild = await ctx.prisma.guild.update({
-					where: {
-						id: guildId
-					},
-					data: {
-						disabledCommands: {
-							set: guild?.disabledCommands.filter(cid => cid !== commandId)
-						}
-					}
-				});
+				updatedList = currentList.filter(cid => cid !== commandId);
 			}
+
+			const updatedGuild = await ctx.prisma.guild.update({
+				where: {
+					id: guildId
+				},
+				data: {
+					disabledCommands: JSON.stringify(updatedList)
+				}
+			});
 
 			return { updatedGuild };
 		})
 });
+

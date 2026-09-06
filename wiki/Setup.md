@@ -11,8 +11,8 @@ This guide covers system prerequisites, monorepo architecture, and local environ
 | **Node.js** | `>=18.0.0` | `20.x` or `22.x LTS` | JavaScript/TypeScript runtime |
 | **pnpm** | `>=8.0.0` | `9.x` (`npm i -g pnpm`) | Monorepo package manager & workspace manager |
 | **Java** | `Java 17+` | `Java 21 LTS` | Lavalink v4 audio engine runtime |
-| **PostgreSQL** | `14+` | `16.x` | Primary relational database |
-| **Redis** | `6.x+` | `7.x` | Fast cache & music queue storage |
+| **SQLite** | `Built-in` | `file:./db.sqlite` | Zero-config embedded relational database |
+| **Audio Queue** | `Built-in` | `In-Memory` | Zero-dependency high performance queue |
 
 ---
 
@@ -20,11 +20,11 @@ This guide covers system prerequisites, monorepo architecture, and local environ
 
 Choose the dedicated guide for your operating system:
 
-- [🪟 **Windows Setup Guide**](Setup-Windows): Installation using `winget`, PostgreSQL, Memurai/WSL Redis, and execution policy setup.
-- [🍎 **macOS Setup Guide**](Setup-macOS): Installation using Homebrew, OpenJDK symlinks, and background services.
+- [🪟 **Windows Setup Guide**](Setup-Windows): Step-by-step setup using PowerShell and `pnpm`.
+- [🍎 **macOS Setup Guide**](Setup-macOS): Installation using Homebrew and OpenJDK 21.
 - [🐧 **Linux Setup Guide**](Setup-Linux): Installation for Ubuntu, Debian, Arch Linux, and Fedora/RHEL.
 - [🍓 **Raspberry Pi Setup Guide**](Setup-Raspberry-Pi): ARM64 Linux setup and performance tuning.
-- [🐳 **Docker Deployment Guide**](Docker-Deployment): 5-container local stack deployment via Docker Compose.
+- [🐳 **Docker Deployment Guide**](Docker-Deployment): Containerized local and server stack deployment.
 
 ---
 

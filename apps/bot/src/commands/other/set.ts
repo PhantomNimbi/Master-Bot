@@ -398,7 +398,13 @@ export class SetCommand extends Command {
 						});
 					}
 
-					if (guildDB.guild.notifyList.includes(user.id)) {
+					const currentNotifyList: string[] = Array.isArray(
+						guildDB.guild.notifyList
+					)
+						? guildDB.guild.notifyList
+						: (JSON.parse(guildDB.guild.notifyList || '[]') as string[]);
+
+					if (currentNotifyList.includes(user.id)) {
 						return await interaction.editReply({
 							content: `:x: **${user.display_name}** is already on your alert list.`
 						});
@@ -426,7 +432,7 @@ export class SetCommand extends Command {
 					});
 
 					const concatedArray = Array.from(
-						new Set([...guildDB.guild.notifyList, user.id])
+						new Set([...currentNotifyList, user.id])
 					);
 					await trpcNode.twitch.createViaTwitchNotification.mutate({
 						name: interaction.guild?.name || '',
@@ -460,25 +466,32 @@ export class SetCommand extends Command {
 						});
 					} catch {
 						return await interaction.editReply({
-							content: `:x: Error looking up streamer '${streamerName}'.`
+							content: `:x: Could not lookup streamer '${streamerName}'. Please check the name.`
 						});
 					}
 
-					if (!user)
+					if (!user) {
 						return await interaction.editReply({
-							content: `:x: Streamer **${streamerName}** not found.`
+							content: `:x: Streamer **${streamerName}** was not found on Twitch.`
 						});
+					}
 
 					const guildDB = await trpcNode.guild.getGuild.query({
 						id: guildId
 					});
-					if (!guildDB.guild || !guildDB.guild.notifyList.includes(user.id)) {
+					const removeNotifyList: string[] = Array.isArray(
+						guildDB.guild?.notifyList
+					)
+						? (guildDB.guild?.notifyList as string[])
+						: (JSON.parse(guildDB.guild?.notifyList || '[]') as string[]);
+
+					if (!guildDB.guild || !removeNotifyList.includes(user.id)) {
 						return await interaction.editReply({
 							content: `:x: **${user.display_name}** is not in this server's alert list.`
 						});
 					}
 
-					const filteredTwitchIds = guildDB.guild.notifyList.filter(
+					const filteredTwitchIds = removeNotifyList.filter(
 						id => id !== user.id
 					);
 					await trpcNode.twitch.updateTwitchNotifications.mutate({
@@ -524,7 +537,13 @@ export class SetCommand extends Command {
 					const guildDB = await trpcNode.guild.getGuild.query({
 						id: guildId
 					});
-					if (!guildDB?.guild || guildDB.guild.notifyList.length === 0) {
+					const listNotifyList: string[] = Array.isArray(
+						guildDB.guild?.notifyList
+					)
+						? (guildDB.guild?.notifyList as string[])
+						: (JSON.parse(guildDB.guild?.notifyList || '[]') as string[]);
+
+					if (!guildDB?.guild || listNotifyList.length === 0) {
 						return await interaction.editReply({
 							content:
 								':information_source: No Twitch streamers configured for alerts in this server.'
@@ -532,7 +551,7 @@ export class SetCommand extends Command {
 					}
 
 					const users = await client.twitch.api.getUsers({
-						ids: guildDB.guild.notifyList,
+						ids: listNotifyList,
 						token: client.twitch.auth.access_token
 					});
 

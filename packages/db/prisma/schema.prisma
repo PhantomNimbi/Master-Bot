@@ -3,9 +3,8 @@ generator client {
 }
 
 datasource db {
-    provider          = "postgresql"
-    url               = env("DATABASE_URL")
-    shadowDatabaseUrl = env("SHADOW_DB_URL")
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
 }
 
 // Necessary for Next auth
@@ -15,12 +14,12 @@ model Account {
     type              String
     provider          String
     providerAccountId String
-    refresh_token     String? // @db.Text
-    access_token      String? // @db.Text
+    refresh_token     String?
+    access_token      String?
     expires_at        Int?
     token_type        String?
     scope             String?
-    id_token          String? // @db.Text
+    id_token          String?
     session_state     String?
     user              User    @relation(fields: [userId], references: [id])
 
@@ -90,14 +89,14 @@ model Guild {
     name                  String
     added                 DateTime      @default(now())
     volume                Int           @default(100)
-    notifyList            String[]
+    notifyList            String        @default("[]")
     ownerId               String
     owner                 User          @relation(fields: [ownerId], references: [discordId])
     // Settings
-    disabledCommands      String[]      @map("disabled_commands")
+    disabledCommands      String        @default("[]") @map("disabled_commands")
     logChannel            String?       @map("log_channel")
     logChannelEnabled     Boolean       @default(false) @map("log_channel_enabled")
-    logEvents             String[]      @default([]) @map("log_events")
+    logEvents             String        @default("[]") @map("log_events")
     welcomeMessageChannel String?       @map("welcome_message_channel")
     welcomeMessage        String?       @map("welcome_message")
     welcomeMessageEnabled Boolean       @default(false) @map("welcome_message_enabled")
@@ -133,10 +132,10 @@ model TempChannel {
 }
 
 model TwitchNotify {
-    twitchId   String   @id
+    twitchId   String  @id
     logo       String
-    live       Boolean  @default(false)
-    channelIds String[]
+    live       Boolean @default(false)
+    channelIds String  @default("[]")
     sent       Boolean
 }
 
