@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawn, execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import {
@@ -19,6 +19,27 @@ import {
 } from './common.mjs';
 
 loadEnv();
+
+// Check ALL workspace package dist folders before launching dev mode.
+const requiredDists = [
+	path.join(rootDir, 'packages', 'db', 'dist', 'index.js'),
+	path.join(rootDir, 'apps', 'dashboard', 'dist', 'index.js'),
+	path.join(rootDir, 'apps', 'bot', 'dist', 'index.js')
+];
+
+const missingDists = requiredDists.filter(p => !fs.existsSync(p));
+
+if (missingDists.length > 0) {
+	console.log(
+		`\n📦 Dev build incomplete. Missing ${missingDists.length} package(s):`
+	);
+	for (const p of missingDists) {
+		console.log(`   - ${path.relative(rootDir, p)}`);
+	}
+	console.log('\n🔨 Building all workspace packages via turbo...\n');
+	execSync('pnpm build', { cwd: rootDir, stdio: 'inherit' });
+	console.log('✅ Build completed. Starting dev mode...\n');
+}
 
 const isLavalinkEnabled =
 	(process.env.LAVA_ENABLED || process.env.ENABLE_LAVALINK)?.toLowerCase() ===
@@ -65,6 +86,7 @@ const { status: sqliteStatus } = ensureSqliteDatabase();
 
 let lavalinkStatus = 'DISABLED';
 let lavalinkProcess = null;
+let lavalinkActuallyAvailable = false;
 
 // 2. Dynamic Service Check & Launch for Lavalink (only if LAVA_ENABLED=true)
 const hostToCheck = lavaHost === '0.0.0.0' ? '127.0.0.1' : lavaHost;
@@ -79,6 +101,7 @@ if (!isLavalinkEnabled) {
 	const isAlreadyRunning = await isPortInUse(lavaPort, hostToCheck, 1500);
 
 	if (isAlreadyRunning) {
+		lavalinkActuallyAvailable = true;
 		lavalinkStatus = `RUNNING (Connected to existing instance on ${hostToCheck}:${lavaPort})`;
 		writeLavalinkLog(
 			'SYSTEM',
@@ -95,8 +118,9 @@ if (!isLavalinkEnabled) {
 		);
 		const isReady = await waitForPort(lavaPort, hostToCheck, 25000);
 		if (isReady) {
+			lavalinkActuallyAvailable = true;
 			console.log(
-				`\x1b[1;32m✅ [EXTERNAL LAVALINK READY]\x1b[0m Connected to external Lavalink on port ${lavaPort}\n`
+				`\n\x1b[1;32m✅ [EXTERNAL LAVALINK READY]\x1b[0m Connected to external Lavalink on port ${lavaPort}\n`
 			);
 		}
 	} else if (!keyStatus.hasAny) {
@@ -123,6 +147,7 @@ if (!isLavalinkEnabled) {
 				);
 				lavalinkStatus = 'ERROR (Java missing or too old)';
 			} else {
+				lavalinkActuallyAvailable = true;
 				if (javaCheck.version < 21) {
 					console.warn(
 						`\n\x1b[1;33m⚠️  [JAVA VERSION WARNING]\x1b[0m Java ${javaCheck.version} detected. Java 21 LTS is recommended for best stability.\n`
@@ -150,10 +175,14 @@ if (!isLavalinkEnabled) {
 				}
 			}
 		} else {
-			lavalinkStatus = `EXTERNAL/DOCKER (${lavaHost}:${lavaPort})`;
+			// No Lavalink.jar and LAVA_EXTERNAL is not set → disable Lavalink entirely
+			lavalinkStatus = 'DISABLED (No Lavalink.jar found and LAVA_EXTERNAL=false)';
 			writeLavalinkLog(
 				'SYSTEM',
-				'Lavalink.jar not found in root directory. Assuming external or Docker Lavalink instance.'
+				'Lavalink.jar not found and LAVA_EXTERNAL is not enabled. Lavalink audio engine disabled.'
+			);
+			console.log(
+				'\n\x1b[1;33m⚠️  [LAVALINK DISABLED]\x1b[0m No Lavalink.jar found and LAVA_EXTERNAL is not set. Music commands will be unavailable.\n'
 			);
 		}
 	}
@@ -166,7 +195,8 @@ const botProcess = spawn(`pnpm --filter @master-bot/bot dev`, {
 	shell: true,
 	env: {
 		...process.env,
-		PORT: String(port)
+		PORT: String(port),
+		LAVA_ENABLED: lavalinkActuallyAvailable ? 'true' : 'false'
 	}
 });
 botProcess.stdout.on('data', data => writeBotLog('BOT', data));

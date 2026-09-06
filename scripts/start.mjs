@@ -20,12 +20,24 @@ import {
 
 loadEnv();
 
-const botDist = path.join(rootDir, 'apps', 'bot', 'dist', 'index.js');
+// Check ALL workspace package dist folders, not just the bot's.
+// A fresh clone may have bot/dist but missing packages/db/dist or apps/dashboard/dist.
+const requiredDists = [
+	path.join(rootDir, 'packages', 'db', 'dist', 'index.js'),
+	path.join(rootDir, 'apps', 'dashboard', 'dist', 'index.js'),
+	path.join(rootDir, 'apps', 'bot', 'dist', 'index.js')
+];
 
-if (!fs.existsSync(botDist)) {
+const missingDists = requiredDists.filter(p => !fs.existsSync(p));
+
+if (missingDists.length > 0) {
 	console.log(
-		'\n📦 Production build not detected. Building packages before launch...'
+		`\n📦 Production build incomplete. Missing ${missingDists.length} package(s):`
 	);
+	for (const p of missingDists) {
+		console.log(`   - ${path.relative(rootDir, p)}`);
+	}
+	console.log('\n🔨 Building all workspace packages via turbo...\n');
 	execSync('pnpm build', { cwd: rootDir, stdio: 'inherit' });
 	console.log('✅ Production build completed successfully.\n');
 }
@@ -75,6 +87,7 @@ const { status: sqliteStatus } = ensureSqliteDatabase();
 
 let lavalinkStatus = 'DISABLED';
 let lavalinkProcess = null;
+let lavalinkActuallyAvailable = false;
 
 // 2. Dynamic Service Check & Launch for Lavalink (only if LAVA_ENABLED=true)
 const hostToCheck = lavaHost === '0.0.0.0' ? '127.0.0.1' : lavaHost;
@@ -89,6 +102,7 @@ if (!isLavalinkEnabled) {
 	const isAlreadyRunning = await isPortInUse(lavaPort, hostToCheck, 1500);
 
 	if (isAlreadyRunning) {
+		lavalinkActuallyAvailable = true;
 		lavalinkStatus = `RUNNING (Connected to existing instance on ${hostToCheck}:${lavaPort})`;
 		writeLavalinkLog(
 			'SYSTEM',
@@ -105,6 +119,7 @@ if (!isLavalinkEnabled) {
 		);
 		const isReady = await waitForPort(lavaPort, hostToCheck, 25000);
 		if (isReady) {
+			lavalinkActuallyAvailable = true;
 			writeLavalinkLog(
 				'SYSTEM',
 				`Connected to external Lavalink server at ${lavaHost}:${lavaPort}.`
@@ -135,6 +150,7 @@ if (!isLavalinkEnabled) {
 					'Lavalink.jar found but application.yml is missing. Copy application.yml.example to application.yml.'
 				);
 			} else {
+				lavalinkActuallyAvailable = true;
 				lavalinkStatus = `RUNNING (Port: ${lavaPort})`;
 				writeLavalinkLog(
 					'SYSTEM',
@@ -168,10 +184,14 @@ if (!isLavalinkEnabled) {
 				}
 			}
 		} else {
-			lavalinkStatus = `EXTERNAL/DOCKER (${lavaHost}:${lavaPort})`;
+			// No Lavalink.jar and LAVA_EXTERNAL is not set → disable Lavalink entirely
+			lavalinkStatus = 'DISABLED (No Lavalink.jar found and LAVA_EXTERNAL=false)';
 			writeLavalinkLog(
 				'SYSTEM',
-				'Lavalink.jar not found in root directory. Assuming external or Docker Lavalink instance.'
+				'Lavalink.jar not found and LAVA_EXTERNAL is not enabled. Lavalink audio engine disabled.'
+			);
+			console.log(
+				'\n\x1b[1;33m⚠️  [LAVALINK DISABLED]\x1b[0m No Lavalink.jar found and LAVA_EXTERNAL is not set. Music commands will be unavailable.\n'
 			);
 		}
 	}
@@ -184,7 +204,8 @@ const botProcess = spawn(`pnpm --filter @master-bot/bot start`, {
 	shell: true,
 	env: {
 		...process.env,
-		PORT: String(port)
+		PORT: String(port),
+		LAVA_ENABLED: lavalinkActuallyAvailable ? 'true' : 'false'
 	}
 });
 botProcess.stdout.on('data', data => writeBotLog('BOT', data));
