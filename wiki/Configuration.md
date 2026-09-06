@@ -20,8 +20,6 @@ DASHBOARD_PORT=3000
 BOT_PORT=3001
 BOT_API_PORT=3002
 NEXTAUTH_SECRET="your_32_character_session_secret"
-NEXTAUTH_URL="http://localhost:3000"
-NEXT_PUBLIC_INVITE_URL=""
 
 # Lavalink v4 Audio Engine
 LAVA_ENABLED=true
