@@ -1,4 +1,12 @@
 {
 	"extends": "../../tsconfig.json",
-	"include": ["index.ts"]
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"rootDir": ".",
+		"noEmit": false,
+		"declaration": true
+	},
+	"include": ["index.ts", "src/**/*.ts"]
 }
