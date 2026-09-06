@@ -1,9 +1,9 @@
-import type { CommandHelp } from '../../lib/structures/CommandHelp';
+import type { CommandHelp } from '../../lib/structures/CommandHelp.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
-import { env } from '../../env';
-import Logger from '../../lib/logger';
+import { getApiServiceKeys } from '../../env.js';
+import Logger from '../../lib/logger.js';
 
 interface NewsArticle {
 	source: { id: string | null; name: string };
@@ -75,7 +75,7 @@ export class WorldNewsCommand extends Command {
 	public override async chatInputRun(
 		interaction: Command.ChatInputCommandInteraction
 	) {
-		const apiKey = env.NEWS_API || process.env.NEWS_API;
+		const apiKey = getApiServiceKeys().newsApi;
 		if (!apiKey) {
 			return interaction.reply({
 				content:

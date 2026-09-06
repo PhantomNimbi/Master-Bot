@@ -1,10 +1,10 @@
-import type { CommandHelp } from '../../lib/structures/CommandHelp';
+import type { CommandHelp } from '../../lib/structures/CommandHelp.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { PaginatedMessage } from '@sapphire/discord.js-utilities';
 import { Command, CommandOptions } from '@sapphire/framework';
 import axios from 'axios';
 import { EmbedBuilder, Colors, ButtonStyle, ComponentType } from 'discord.js';
-import Logger from '../../lib/logger';
+import Logger from '../../lib/logger.js';
 
 @ApplyOptions<CommandOptions>({
 	name: 'speedrun',

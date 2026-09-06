@@ -1,17 +1,19 @@
 import { container } from '@sapphire/framework';
-import { Song } from './classes/Song';
+import { Song } from './classes/Song.js';
 import type { User } from 'discord.js';
-import { env } from '../../env';
+import { getApiServiceKeys } from '../../env.js';
 
 /**
  * Helper check functions for configured API keys / tokens.
  */
 function hasSpotifyKeys(): boolean {
-	return !!(env.SPOTIFY_CLIENT_ID && env.SPOTIFY_CLIENT_SECRET);
+	const keys = getApiServiceKeys();
+	return !!(keys.spotifyClientId && keys.spotifyClientSecret);
 }
 
 function hasYouTubeKeys(): boolean {
-	return !!(env.YOUTUBE_API_KEY || env.YOUTUBE_REFRESH_TOKEN);
+	const keys = getApiServiceKeys();
+	return !!(keys.youtubeApiKey || keys.youtubeRefreshToken);
 }
 
 function hasAnyAudioKeys(): boolean {

@@ -1,11 +1,11 @@
 import { Time } from '@sapphire/time-utilities';
 import type { Message, MessageComponentInteraction } from 'discord.js';
 import { container } from '@sapphire/framework';
-import type { Queue } from './classes/Queue';
-import { NowPlayingEmbed } from './nowPlayingEmbed';
-import type { Song } from './classes/Song';
-import Logger from '../logger';
-import { getPlayerActionRows, stopProgressUpdater } from './buttonHandler';
+import type { Queue } from './classes/Queue.js';
+import { NowPlayingEmbed } from './nowPlayingEmbed.js';
+import type { Song } from './classes/Song.js';
+import Logger from '../logger.js';
+import { getPlayerActionRows, stopProgressUpdater } from './buttonHandler.js';
 
 export default async function buttonsCollector(message: Message, song: Song) {
 	const { client } = container;

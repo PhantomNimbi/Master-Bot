@@ -1,10 +1,10 @@
-import type { CommandHelp } from '../../lib/structures/CommandHelp';
+import type { CommandHelp } from '../../lib/structures/CommandHelp.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
-import { trpcNode } from '../../trpc';
-import { formatReminderText } from '../../lib/reminders/ReminderManager';
-import Logger from '../../lib/logger';
+import { dataService } from '../../dataService.js';
+import { formatReminderText } from '../../lib/reminders/ReminderManager.js';
+import Logger from '../../lib/logger.js';
 
 function parseDurationMs(input: string): number | null {
 	const regex =
@@ -139,7 +139,7 @@ export class ReminderCommand extends Command {
 				const targetDate = new Date(Date.now() + durationMs);
 
 				try {
-					await trpcNode.reminder.create.mutate({
+					await dataService.reminder.create({
 						userId,
 						event,
 						description,
@@ -243,8 +243,7 @@ export class ReminderCommand extends Command {
 							});
 
 						// Clean up from database
-						await trpcNode.reminder.delete
-							.mutate({ userId, event })
+						await dataService.reminder.delete({ userId, event })
 							.catch(() => {});
 					} catch (notifyErr) {
 						Logger.error('Reminder notification delivery error: ', notifyErr);
@@ -256,7 +255,7 @@ export class ReminderCommand extends Command {
 
 			case 'list': {
 				try {
-					const result = await trpcNode.reminder.getByUserId.mutate({ userId });
+					const result = await dataService.reminder.getByUserId({ userId });
 					const reminders = result.reminders || [];
 
 					if (reminders.length === 0) {
@@ -296,7 +295,7 @@ export class ReminderCommand extends Command {
 			case 'delete': {
 				const event = interaction.options.getString('event', true);
 				try {
-					const del = await trpcNode.reminder.delete.mutate({ userId, event });
+					const del = await dataService.reminder.delete({ userId, event });
 					if (del.reminder?.count === 0) {
 						return interaction.editReply({
 							content: `:warning: No active reminder matching **${event}** was found.`

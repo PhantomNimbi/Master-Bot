@@ -1,7 +1,7 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Listener, type ListenerOptions, container } from '@sapphire/framework';
-import { deletePlayerEmbed } from '../../lib/music/buttonsCollector';
-import type { Queue } from '../../lib/music/classes/Queue';
+import { deletePlayerEmbed } from '../../lib/music/buttonsCollector.js';
+import type { Queue } from '../../lib/music/classes/Queue.js';
 // import { inactivityTime } from '../../lib/music/handleOptions';
 
 @ApplyOptions<ListenerOptions>({

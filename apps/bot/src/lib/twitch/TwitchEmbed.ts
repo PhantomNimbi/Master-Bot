@@ -1,4 +1,4 @@
-import type { TwitchStream } from './twitchAPI-types';
+import type { TwitchStream } from './twitchAPI-types.js';
 import { EmbedBuilder } from 'discord.js';
 export class TwitchEmbed {
 	stream: TwitchStream;

@@ -1,6 +1,6 @@
-import type { Queue } from './classes/Queue';
+import type { Queue } from './classes/Queue.js';
 import { Channel, GuildMember, ChannelType } from 'discord.js';
-import Logger from '../logger';
+import Logger from '../logger.js';
 
 export async function manageStageChannel(
 	voiceChannel: Channel,

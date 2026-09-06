@@ -13,7 +13,7 @@ import {
 	ThreadAutoArchiveDuration,
 	ThreadChannel
 } from 'discord.js';
-import { trpcNode } from '../../trpc';
+import { dataService } from '../../dataService.js';
 
 export const DEFAULT_TICKET_MESSAGE =
 	'👋 Hello {user}, thank you for contacting support in **{server}**!\n\n' +
@@ -53,7 +53,7 @@ export class TicketButtonListener extends Listener {
 		await interaction.deferReply({ ephemeral: true });
 
 		try {
-			const config = await trpcNode.tickets.getConfig.query({
+			const config = await dataService.tickets.getConfig({
 				guildId: guild.id
 			});
 
@@ -114,7 +114,7 @@ export class TicketButtonListener extends Listener {
 			}
 
 			// Register in database
-			await trpcNode.tickets.createTicket.mutate({
+			await dataService.tickets.createTicket({
 				guildId: guild.id,
 				threadId: thread.id,
 				creatorId: user.id
@@ -211,15 +211,13 @@ export class TicketButtonListener extends Listener {
 
 		try {
 			// Record closed in database
-			await trpcNode.tickets.closeTicket
-				.mutate({
+			await dataService.tickets.closeTicket({
 					threadId: thread.id
 				})
 				.catch(() => {});
 
 			// Query guild ticket configuration to check transcript channel
-			const ticketConfig = await trpcNode.tickets.getConfig
-				.query({
+			const ticketConfig = await dataService.tickets.getConfig({
 					guildId: guild.id
 				})
 				.catch(() => null);

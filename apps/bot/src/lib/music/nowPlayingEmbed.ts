@@ -1,5 +1,5 @@
 import { ColorResolvable, EmbedBuilder } from 'discord.js';
-import type { Song } from './classes/Song';
+import type { Song } from './classes/Song.js';
 
 type PositionType = number | undefined;
 

@@ -8,7 +8,7 @@ import type {
 	TwitchStreamsResponse,
 	TwitchGame,
 	TwitchGamesResponse
-} from './twitchAPI-types';
+} from './twitchAPI-types.js';
 
 // Max Number per call is 100 entries
 const chunk_size = 100;

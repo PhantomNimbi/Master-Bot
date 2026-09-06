@@ -5,8 +5,8 @@ import {
 	PreconditionOptions
 } from '@sapphire/framework';
 import type { ChatInputCommandInteraction, GuildMember } from 'discord.js';
-import { trpcNode } from '../trpc';
-import Logger from '../lib/logger';
+import { dataService } from '../dataService.js';
+import Logger from '../lib/logger.js';
 
 @ApplyOptions<PreconditionOptions>({
 	name: 'userInDB'
@@ -18,7 +18,7 @@ export class UserInDB extends Precondition {
 		const guildMember = interaction.member as GuildMember;
 
 		try {
-			const user = await trpcNode.user.create.mutate({
+			const user = await dataService.user.create({
 				id: guildMember.id,
 				name: guildMember.user.username
 			});

@@ -1,6 +1,6 @@
-import type { CommandHelp } from '../../lib/structures/CommandHelp';
-import { TicTacToeGame } from '../../lib/games/tic-tac-toe';
-import { GameInvite } from '../../lib/games/inviteEmbed';
+import type { CommandHelp } from '../../lib/structures/CommandHelp.js';
+import { TicTacToeGame } from '../../lib/games/tic-tac-toe.js';
+import { GameInvite } from '../../lib/games/inviteEmbed.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import type { User } from 'discord.js';

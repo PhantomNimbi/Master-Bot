@@ -1,4 +1,4 @@
-import type { TwitchAPI } from './twitchAPI';
+import type { TwitchAPI } from './twitchAPI.js';
 
 export interface TwitchToken {
 	access_token: string;

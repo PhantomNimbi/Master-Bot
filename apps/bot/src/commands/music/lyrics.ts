@@ -1,11 +1,11 @@
-import type { CommandHelp } from '../../lib/structures/CommandHelp';
+import type { CommandHelp } from '../../lib/structures/CommandHelp.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
 import { container } from '@sapphire/framework';
 import { GeniusLyrics } from 'genius-discord-lyrics';
 import { PaginatedMessage } from '@sapphire/discord.js-utilities';
-import Logger from '../../lib/logger';
+import Logger from '../../lib/logger.js';
 
 const genius = new GeniusLyrics(process.env.GENIUS_API || '');
 

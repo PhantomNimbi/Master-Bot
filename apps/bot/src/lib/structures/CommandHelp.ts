@@ -1,4 +1,4 @@
-import { isCommandNameGloballyDisabled } from '../../preconditions/isCommandDisabled';
+import { isCommandNameGloballyDisabled } from '../../preconditions/isCommandDisabled.js';
 
 export interface CommandHelpOption {
 	name: string;

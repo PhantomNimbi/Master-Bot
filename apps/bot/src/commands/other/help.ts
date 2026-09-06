@@ -1,5 +1,5 @@
-import type { CommandHelp } from '../../lib/structures/CommandHelp';
-import { HelpRegistry } from '../../lib/structures/HelpRegistry';
+import type { CommandHelp } from '../../lib/structures/CommandHelp.js';
+import { HelpRegistry } from '../../lib/structures/HelpRegistry.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions, container } from '@sapphire/framework';
 import {

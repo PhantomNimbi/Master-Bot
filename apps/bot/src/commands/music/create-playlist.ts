@@ -1,7 +1,7 @@
-import type { CommandHelp } from '../../lib/structures/CommandHelp';
+import type { CommandHelp } from '../../lib/structures/CommandHelp.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
-import { trpcNode } from '../../trpc';
+import { dataService } from '../../dataService.js';
 
 @ApplyOptions<CommandOptions>({
 	name: 'create-playlist',
@@ -46,7 +46,7 @@ export class CreatePlaylistCommand extends Command {
 		}
 
 		try {
-			const playlist = await trpcNode.playlist.create.mutate({
+			const playlist = await dataService.playlist.create({
 				name: playlistName,
 				userId: interactionMember.id
 			});

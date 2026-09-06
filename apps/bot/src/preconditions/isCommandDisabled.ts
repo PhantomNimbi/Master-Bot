@@ -5,10 +5,16 @@ import {
 	PreconditionOptions
 } from '@sapphire/framework';
 import { ChatInputCommandInteraction } from 'discord.js';
-import { trpcNode } from '../trpc';
+import { dataService } from '../dataService.js';
 
 import { container } from '@sapphire/framework';
-import { env } from '../env';
+import {
+	isGifsEnabled,
+	isIgdbEnabled,
+	isLavalinkEnabled,
+	isNewsEnabled,
+	isTwitchEnabled
+} from '../env.js';
 
 interface DisabledCacheEntry {
 	commands: string[];
@@ -24,36 +30,29 @@ const disabledCommandsCache = new Map<string, DisabledCacheEntry>();
 export function isCommandNameGloballyDisabled(
 	commandOrCategoryName: string
 ): boolean {
-	const isLavaEnabled =
-		(env.LAVA_ENABLED || process.env.LAVA_ENABLED)?.toLowerCase() === 'true';
-	const isGifsEnabled =
-		(env.GIFS_ENABLED || process.env.GIFS_ENABLED)?.toLowerCase() !== 'false';
-	const isTwitchEnabled =
-		(env.TWITCH_ENABLED || process.env.TWITCH_ENABLED)?.toLowerCase() !==
-		'false';
-	const isNewsEnabled =
-		(env.NEWS_ENABLED || process.env.NEWS_ENABLED)?.toLowerCase() !== 'false';
+	const lavaEnabled = isLavalinkEnabled();
+	const gifsEnabled = isGifsEnabled();
+	const twitchEnabled = isTwitchEnabled();
+	const newsEnabled = isNewsEnabled();
 	// IGDB utilizes Twitch API credentials — respects IGDB_ENABLED if set, otherwise follows TWITCH_ENABLED
-	const rawIgdb = env.IGDB_ENABLED || process.env.IGDB_ENABLED;
-	const isIgdbEnabled =
-		rawIgdb !== undefined ? rawIgdb.toLowerCase() !== 'false' : isTwitchEnabled;
+	const igdbEnabled = isIgdbEnabled();
 
 	const name = commandOrCategoryName.toLowerCase();
 
 	// 1. Direct Category Checks
-	if (!isLavaEnabled && name === 'music') return true;
-	if (!isGifsEnabled && name === 'gifs') return true;
-	if (!isTwitchEnabled && name === 'twitch') return true;
+	if (!lavaEnabled && name === 'music') return true;
+	if (!gifsEnabled && name === 'gifs') return true;
+	if (!twitchEnabled && name === 'twitch') return true;
 
 	// 2. Dynamic Command Category Lookup
 	const cmd = container.stores.get('commands')?.get(name);
 	if (cmd) {
 		const category = cmd.category?.toLowerCase() || '';
-		if (!isLavaEnabled && category === 'music') return true;
-		if (!isGifsEnabled && category === 'gifs') return true;
-		if (!isTwitchEnabled && category === 'twitch') return true;
-		if (!isNewsEnabled && cmd.name === 'news') return true;
-		if ((!isIgdbEnabled || !isTwitchEnabled) && cmd.name === 'game-search')
+		if (!lavaEnabled && category === 'music') return true;
+		if (!gifsEnabled && category === 'gifs') return true;
+		if (!twitchEnabled && category === 'twitch') return true;
+		if (!newsEnabled && cmd.name === 'news') return true;
+		if ((!igdbEnabled || !twitchEnabled) && cmd.name === 'game-search')
 			return true;
 	}
 
@@ -109,7 +108,7 @@ export class IsCommandDisabledPrecondition extends Precondition {
 			if (cached && cached.expiresAt > Date.now()) {
 				disabledCommands = cached.commands;
 			} else {
-				const queryPromise = trpcNode.command.getDisabledCommands.query({
+				const queryPromise = dataService.command.getDisabledCommands({
 					guildId: guildID
 				});
 				const timeoutPromise = new Promise<never>((_, reject) =>

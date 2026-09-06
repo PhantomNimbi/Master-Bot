@@ -1,8 +1,8 @@
-import type { CommandHelp } from '../../lib/structures/CommandHelp';
+import type { CommandHelp } from '../../lib/structures/CommandHelp.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
-import { getApplicationOwnerUser } from '../../lib/music/youtubeOAuth';
+import { getApplicationOwnerUser } from '../../lib/music/youtubeOAuth.js';
 
 @ApplyOptions<Command.Options>({
 	name: 'dashboard',

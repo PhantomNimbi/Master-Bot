@@ -1,4 +1,4 @@
-import { DatabaseSync } from 'node:sqlite';
+import { DatabaseSync, type SupportedValueType } from 'node:sqlite';
 import fs from 'node:fs';
 import path from 'node:path';
 import type {
@@ -12,8 +12,7 @@ import type {
 	TempChannel,
 	Ticket,
 	TwitchNotify,
-	User,
-	VerificationToken
+	User
 } from './types.js';
 
 let configuredDbPath: string | null = null;
@@ -64,7 +63,10 @@ export class BotDatabase {
 	}
 
 	public static resetInstance(): void {
-		BotDatabase.instance = null;
+		if (BotDatabase.instance) {
+			BotDatabase.instance.close();
+			BotDatabase.instance = null;
+		}
 	}
 
 	private migrate(): void {
@@ -190,15 +192,15 @@ export class BotDatabase {
 
 	// ─── generic mapping helpers ────────────────────────────────────────────
 
-	private all<T>(sql: string, ...params: unknown[]): T[] {
+	private all<T>(sql: string, ...params: SupportedValueType[]): T[] {
 		return this.db.prepare(sql).all(...params) as T[];
 	}
 
-	private get<T>(sql: string, ...params: unknown[]): T | undefined {
+	private get<T>(sql: string, ...params: SupportedValueType[]): T | undefined {
 		return this.db.prepare(sql).get(...params) as T | undefined;
 	}
 
-	private run(sql: string, ...params: unknown[]): { lastInsertRowid: number | bigint; changes: number | bigint } {
+	private run(sql: string, ...params: SupportedValueType[]): { lastInsertRowid: number | bigint; changes: number | bigint } {
 		return this.db.prepare(sql).run(...params);
 	}
 
@@ -304,7 +306,7 @@ export class BotDatabase {
 		}
 	): void {
 		const sets: string[] = [];
-		const params: unknown[] = [];
+		const params: SupportedValueType[] = [];
 		for (const [key, value] of Object.entries(data)) {
 			sets.push(`"${key}" = ?`);
 			params.push(value);

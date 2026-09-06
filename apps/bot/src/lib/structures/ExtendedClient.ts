@@ -1,17 +1,17 @@
 import { SapphireClient } from '@sapphire/framework';
 import '@sapphire/plugin-hmr/register';
-import { QueueClient } from '../music/classes/QueueClient';
+import { QueueClient } from '../music/classes/QueueClient.js';
 import {
 	IntentsBitField,
 	NewsChannel,
 	TextChannel,
 	ThreadChannel
 } from 'discord.js';
-import { deletePlayerEmbed } from '../music/buttonsCollector';
-import type { ClientTwitchExtension } from './../../lib/twitch/twitchAPI-types';
-import { TwitchAPI } from '../twitch/twitchAPI';
-import Logger from '../logger';
-import type { TriviaSession } from '../music/classes/TriviaSession';
+import { deletePlayerEmbed } from '../music/buttonsCollector.js';
+import type { ClientTwitchExtension } from './../../lib/twitch/twitchAPI-types.js';
+import { TwitchAPI } from '../twitch/twitchAPI.js';
+import Logger from '../logger.js';
+import type { TriviaSession } from '../music/classes/TriviaSession.js';
 
 export interface ExtendedClientOptions {
 	withPrivilegedIntents?: boolean;

@@ -1,8 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 import type { Client, User } from 'discord.js';
-import Logger from '../logger';
+import Logger from '../logger.js';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 const CLIENT_ID =
 	'861556708454-d6dlm3lh05idd8npek18k6be8ba3oc68.apps.googleusercontent.com';

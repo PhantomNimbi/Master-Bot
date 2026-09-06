@@ -1,7 +1,7 @@
-import type { CommandHelp } from '../../lib/structures/CommandHelp';
-import { TicTacToeGame } from '../../lib/games/tic-tac-toe';
-import { Connect4Game } from '../../lib/games/connect-4';
-import { GameInvite } from '../../lib/games/inviteEmbed';
+import type { CommandHelp } from '../../lib/structures/CommandHelp.js';
+import { TicTacToeGame } from '../../lib/games/tic-tac-toe.js';
+import { Connect4Game } from '../../lib/games/connect-4.js';
+import { GameInvite } from '../../lib/games/inviteEmbed.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import type { User } from 'discord.js';

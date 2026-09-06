@@ -1,5 +1,5 @@
-import type { CommandHelp } from '../../lib/structures/CommandHelp';
-import { MessageChannel } from '../../lib/structures/ExtendedClient';
+import type { CommandHelp } from '../../lib/structures/CommandHelp.js';
+import { MessageChannel } from '../../lib/structures/ExtendedClient.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions, container } from '@sapphire/framework';
 import {
@@ -14,9 +14,9 @@ import {
 	type TextChannel
 } from 'discord.js';
 import { PaginatedFieldMessageEmbed } from '@sapphire/discord.js-utilities';
-import { notify } from '../../lib/twitch/notifyChannels';
-import { trpcNode } from '../../trpc';
-import Logger from '../../lib/logger';
+import { notify } from '../../lib/twitch/notifyChannels.js';
+import { dataService } from '../../dataService.js';
+import Logger from '../../lib/logger.js';
 
 function checkTwitchEnabled(): boolean {
 	const enabled = (process.env.TWITCH_ENABLED || '').toLowerCase() !== 'false';
@@ -284,7 +284,7 @@ export class SetCommand extends Command {
 				// --- WELCOME ---
 				case 'welcome-channel': {
 					const channel = interaction.options.getChannel('channel', true);
-					await trpcNode.welcome.setChannel.mutate({
+					await dataService.welcome.setChannel({
 						guildId,
 						channelId: channel.id
 					});
@@ -295,7 +295,7 @@ export class SetCommand extends Command {
 
 				case 'welcome-message': {
 					const message = interaction.options.getString('message', true);
-					await trpcNode.welcome.setMessage.mutate({
+					await dataService.welcome.setMessage({
 						guildId,
 						message
 					});
@@ -306,7 +306,7 @@ export class SetCommand extends Command {
 
 				case 'welcome-toggle': {
 					const enabled = interaction.options.getBoolean('enabled', true);
-					await trpcNode.welcome.toggle.mutate({
+					await dataService.welcome.toggle({
 						guildId,
 						status: enabled
 					});
@@ -318,7 +318,7 @@ export class SetCommand extends Command {
 				}
 
 				case 'welcome-test': {
-					const guildData = await trpcNode.guild.getGuild.query({
+					const guildData = await dataService.guild.getGuild({
 						id: guildId
 					});
 					const welcomeChannelId = guildData?.guild?.welcomeMessageChannel;
@@ -389,7 +389,7 @@ export class SetCommand extends Command {
 						});
 					}
 
-					const guildDB = await trpcNode.guild.getGuild.query({
+					const guildDB = await dataService.guild.getGuild({
 						id: guildId
 					});
 					if (!guildDB.guild) {
@@ -424,7 +424,7 @@ export class SetCommand extends Command {
 						messageHandler: {}
 					};
 
-					await trpcNode.twitch.create.mutate({
+					await dataService.twitch.create({
 						userId: user.id,
 						userImage: user.profile_image_url,
 						channelId: channelData.id,
@@ -434,7 +434,7 @@ export class SetCommand extends Command {
 					const concatedArray = Array.from(
 						new Set([...currentNotifyList, user.id])
 					);
-					await trpcNode.twitch.createViaTwitchNotification.mutate({
+					await dataService.twitch.createViaTwitchNotification({
 						name: interaction.guild?.name || '',
 						guildId,
 						notifyList: concatedArray,
@@ -476,7 +476,7 @@ export class SetCommand extends Command {
 						});
 					}
 
-					const guildDB = await trpcNode.guild.getGuild.query({
+					const guildDB = await dataService.guild.getGuild({
 						id: guildId
 					});
 					const removeNotifyList: string[] = Array.isArray(
@@ -494,12 +494,12 @@ export class SetCommand extends Command {
 					const filteredTwitchIds = removeNotifyList.filter(
 						id => id !== user.id
 					);
-					await trpcNode.twitch.updateTwitchNotifications.mutate({
+					await dataService.twitch.updateTwitchNotifications({
 						guildId,
 						notifyList: filteredTwitchIds
 					});
 
-					const notifyDB = await trpcNode.twitch.findUserById.query({
+					const notifyDB = await dataService.twitch.findUserById({
 						id: user.id
 					});
 					if (notifyDB?.notification) {
@@ -507,12 +507,12 @@ export class SetCommand extends Command {
 							id => id !== channelData.id
 						);
 						if (filteredChannels.length === 0) {
-							await trpcNode.twitch.delete.mutate({
+							await dataService.twitch.delete({
 								userId: user.id
 							});
 							delete client.twitch.notifyList[user.id];
 						} else {
-							await trpcNode.twitch.updateNotification.mutate({
+							await dataService.twitch.updateNotification({
 								userId: user.id,
 								channelIds: filteredChannels
 							});
@@ -534,7 +534,7 @@ export class SetCommand extends Command {
 								':warning: Twitch features are currently disabled in configuration.'
 						});
 					}
-					const guildDB = await trpcNode.guild.getGuild.query({
+					const guildDB = await dataService.guild.getGuild({
 						id: guildId
 					});
 					const listNotifyList: string[] = Array.isArray(
@@ -590,7 +590,7 @@ export class SetCommand extends Command {
 				// --- LOGGING ---
 				case 'log-channel': {
 					const channel = interaction.options.getChannel('channel', true);
-					await trpcNode.guild.setLogChannel.mutate({
+					await dataService.guild.setLogChannel({
 						guildId,
 						channelId: channel.id
 					});
@@ -601,7 +601,7 @@ export class SetCommand extends Command {
 
 				case 'log-toggle': {
 					const enabled = interaction.options.getBoolean('enabled', true);
-					await trpcNode.guild.toggleLogChannel.mutate({
+					await dataService.guild.toggleLogChannel({
 						guildId,
 						status: enabled
 					});
@@ -613,7 +613,7 @@ export class SetCommand extends Command {
 				}
 
 				case 'log-disable': {
-					await trpcNode.guild.setLogChannel.mutate({
+					await dataService.guild.setLogChannel({
 						guildId,
 						channelId: null
 					});
@@ -629,12 +629,12 @@ export class SetCommand extends Command {
 						'channel',
 						true
 					) as TextChannel;
-					await trpcNode.tickets.setChannel.mutate({
+					await dataService.tickets.setChannel({
 						guildId,
 						channelId: channel.id
 					});
 
-					const ticketConfig = await trpcNode.tickets.getConfig.query({
+					const ticketConfig = await dataService.tickets.getConfig({
 						guildId
 					});
 					const template =
@@ -691,13 +691,13 @@ export class SetCommand extends Command {
 
 				case 'ticket-toggle': {
 					const enabled = interaction.options.getBoolean('enabled', true);
-					await trpcNode.tickets.toggle.mutate({
+					await dataService.tickets.toggle({
 						guildId,
 						status: enabled
 					});
 
 					if (enabled && interaction.guild) {
-						const ticketConfig = await trpcNode.tickets.getConfig.query({
+						const ticketConfig = await dataService.tickets.getConfig({
 							guildId
 						});
 						const channelId = ticketConfig.guild?.ticketChannel;
@@ -760,7 +760,7 @@ export class SetCommand extends Command {
 				}
 
 				case 'ticket-panel': {
-					const ticketConfig = await trpcNode.tickets.getConfig.query({
+					const ticketConfig = await dataService.tickets.getConfig({
 						guildId
 					});
 					const channelId = ticketConfig.guild?.ticketChannel;
@@ -832,7 +832,7 @@ export class SetCommand extends Command {
 
 				case 'ticket-transcript': {
 					const channel = interaction.options.getChannel('channel', true);
-					await trpcNode.tickets.setTranscriptChannel.mutate({
+					await dataService.tickets.setTranscriptChannel({
 						guildId,
 						channelId: channel.id
 					});
@@ -842,7 +842,7 @@ export class SetCommand extends Command {
 				}
 
 				case 'ticket-transcript-disable': {
-					await trpcNode.tickets.setTranscriptChannel.mutate({
+					await dataService.tickets.setTranscriptChannel({
 						guildId,
 						channelId: null
 					});
@@ -854,7 +854,7 @@ export class SetCommand extends Command {
 
 				case 'ticket-role': {
 					const role = interaction.options.getRole('role', true);
-					await trpcNode.tickets.setRole.mutate({
+					await dataService.tickets.setRole({
 						guildId,
 						roleId: role.id
 					});
@@ -864,7 +864,7 @@ export class SetCommand extends Command {
 				}
 
 				case 'ticket-role-disable': {
-					await trpcNode.tickets.setRole.mutate({
+					await dataService.tickets.setRole({
 						guildId,
 						roleId: null
 					});
@@ -877,7 +877,7 @@ export class SetCommand extends Command {
 				// --- VOLUME ---
 				case 'default-volume': {
 					const volume = interaction.options.getInteger('volume', true);
-					await trpcNode.guild.updateVolume.mutate({
+					await dataService.guild.updateVolume({
 						guildId,
 						volume
 					});
@@ -888,10 +888,10 @@ export class SetCommand extends Command {
 
 				// --- VIEW ---
 				case 'view': {
-					const guildData = await trpcNode.guild.getGuild.query({
+					const guildData = await dataService.guild.getGuild({
 						id: guildId
 					});
-					const ticketConfig = await trpcNode.tickets.getConfig.query({
+					const ticketConfig = await dataService.tickets.getConfig({
 						guildId
 					});
 					const g = guildData?.guild;

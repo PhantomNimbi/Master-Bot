@@ -6,13 +6,13 @@ import type {
 	TextChannel,
 	VoiceChannel
 } from 'discord.js';
-import type { Song } from './Song';
+import type { Song } from './Song.js';
 import type { Player } from 'lavalink-client';
 import { container } from '@sapphire/framework';
-import type { QueueStore } from './QueueStore';
-import { deletePlayerEmbed } from '../buttonsCollector';
-import { trpcNode } from '../../../trpc';
-import Logger from '../../logger';
+import type { QueueStore } from './QueueStore.js';
+import { deletePlayerEmbed } from '../buttonsCollector.js';
+import { dataService } from '../../../dataService.js';
+import Logger from '../../logger.js';
 
 export enum LoopType {
 	None,
@@ -230,8 +230,7 @@ export class Queue {
 		this._volume = value;
 		if (this.player) await this.player.setVolume(value);
 
-		await trpcNode.guild.updateVolume
-			.mutate({
+		await dataService.guild.updateVolume({
 				guildId: this.guildID,
 				volume: value
 			})
