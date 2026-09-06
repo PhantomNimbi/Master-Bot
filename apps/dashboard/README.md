@@ -1,6 +1,6 @@
 # 🌐 Master-Bot Web Dashboard
 
-The official web management portal and control center for **Master-Bot**, built with **Next.js 15 (App Router)**, **React 18**, **tRPC v11**, **NextAuth.js v5 beta**, **Prisma ORM**, and **Tailwind CSS**.
+The official web management portal and control center for **Master-Bot**, built with **Next.js 15 (App Router)**, **React 19**, **tRPC v11**, **NextAuth.js v5 beta**, **Prisma ORM**, and **Tailwind CSS**.
 
 ---
 
@@ -14,10 +14,10 @@ The official web management portal and control center for **Master-Bot**, built 
   - One-click tag insertion.
   - Live simulated Discord chat embed preview.
 - **📜 Audit & Event Logging (`/dashboard/[server_id]/log-channel`):**
-  - Master log toggle switch and channel picker.
+  - Server log toggle switch and channel picker.
   - 18 granular event triggers categorized across Members, Messages, Channels, Roles, Voice, and Moderation.
 - **🎫 Support Ticket System (`/dashboard/[server_id]/tickets`):**
-  - Master ticket toggle with auto-posting support panel.
+  - Support ticket toggle with auto-posting support panel.
   - Channel selectors for Ticket Hub and Transcripts.
   - Custom ticket welcome message editor with real-time thread preview.
 - **⏰ Reminders Management (`/dashboard/reminders` & `/dashboard/[server_id]/reminders`):**

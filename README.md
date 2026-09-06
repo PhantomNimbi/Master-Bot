@@ -248,7 +248,7 @@ A full list of commands for use with Master-Bot
 
 ## Resources
 
-[Master Documentation Wiki](wiki/Home.md)
+[Master-Bot Documentation Wiki](wiki/Home.md)
 
 [Getting Started & Setup Guide](wiki/Setup.md)
 
