@@ -1,10 +1,10 @@
-import { MessageChannel } from './../structures/ExtendedClient';
-import type { TwitchGame, TwitchStream } from './twitchAPI-types';
-import { TwitchEmbed } from './TwitchEmbed';
+import { MessageChannel } from './../structures/ExtendedClient.js';
+import type { TwitchGame, TwitchStream } from './twitchAPI-types.js';
+import { TwitchEmbed } from './TwitchEmbed.js';
 import { container } from '@sapphire/framework';
 import type { Message } from 'discord.js';
-import { trpcNode } from '../../trpc';
-import Logger from '../logger';
+import { dataService } from '../../dataService.js';
+import Logger from '../logger.js';
 
 // Twitch ids are non changeable, usernames are not good for reference
 export async function notify(query: string[]) {
@@ -108,7 +108,7 @@ export async function notify(query: string[]) {
 							client.twitch.notifyList[entry].messageSent = true;
 
 							// Update DataBase
-							await trpcNode.twitch.updateNotificationStatus.mutate({
+							await dataService.twitch.updateNotificationStatus({
 								userId: entry,
 								sent: true,
 								live: true
@@ -204,7 +204,7 @@ export async function notify(query: string[]) {
 						client.twitch.notifyList[entry].messageSent = false;
 						client.twitch.notifyList[entry].messageHandler = {};
 						// Update DataBase
-						await trpcNode.twitch.updateNotificationStatus.mutate({
+						await dataService.twitch.updateNotificationStatus({
 							userId: entry,
 							sent: false,
 							live: false

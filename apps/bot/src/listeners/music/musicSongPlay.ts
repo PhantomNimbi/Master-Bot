@@ -1,7 +1,7 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { container, Listener, type ListenerOptions } from '@sapphire/framework';
-import type { Queue } from '../../lib/music/classes/Queue';
-import type { Song } from '../../lib/music/classes/Song';
+import type { Queue } from '../../lib/music/classes/Queue.js';
+import type { Song } from '../../lib/music/classes/Song.js';
 
 @ApplyOptions<ListenerOptions>({
 	name: 'musicSongPlay'

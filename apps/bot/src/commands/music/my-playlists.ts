@@ -1,9 +1,9 @@
-import type { CommandHelp } from '../../lib/structures/CommandHelp';
+import type { CommandHelp } from '../../lib/structures/CommandHelp.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { PaginatedFieldMessageEmbed } from '@sapphire/discord.js-utilities';
 import { EmbedBuilder } from 'discord.js';
-import { trpcNode } from '../../trpc';
+import { dataService } from '../../dataService.js';
 
 @ApplyOptions<CommandOptions>({
 	name: 'my-playlists',
@@ -37,7 +37,7 @@ export class MyPlaylistsCommand extends Command {
 			iconURL: interaction.user.displayAvatarURL()
 		});
 
-		const playlistsQuery = await trpcNode.playlist.getAll.query({
+		const playlistsQuery = await dataService.playlist.getAll({
 			userId: interactionMember.id
 		});
 

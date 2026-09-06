@@ -1,28 +1,34 @@
-import { ExtendedClient } from './lib/structures/ExtendedClient';
-import { env } from './env';
+import { setDatabasePath } from '@master-bot/db';
+import { ExtendedClient } from './lib/structures/ExtendedClient.js';
+import {
+	getBotToken,
+	getDbPath,
+	isLavalinkEnabled,
+	isTwitchEnabled
+} from './env.js';
+import { BotCallbackServer } from './server.js';
 import {
 	ApplicationCommandRegistries,
 	Events,
 	RegisterBehavior
 } from '@sapphire/framework';
-import { ReminderManager } from './lib/reminders/ReminderManager';
-import { StatusManager } from './lib/presence/StatusManager';
-import Logger from './lib/logger';
-import { notify } from './lib/twitch/notifyChannels';
-import { trpcNode } from './trpc';
+import { ReminderManager } from './lib/reminders/ReminderManager.js';
+import { StatusManager } from './lib/presence/StatusManager.js';
+import Logger from './lib/logger.js';
+import { notify } from './lib/twitch/notifyChannels.js';
+import { dataService } from './dataService.js';
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
 	RegisterBehavior.Overwrite
 );
 
-const isLavalinkEnabled =
-	(env.LAVA_ENABLED || process.env.LAVA_ENABLED)?.toLowerCase() === 'true';
+const lavalinkEnabled = isLavalinkEnabled();
 
 function registerClientEvents(client: ExtendedClient) {
 	client.on(Events.ClientReady, async () => {
 		if (!client.user) return;
 
-		if (isLavalinkEnabled) {
+if (lavalinkEnabled) {
 			try {
 				await client.music.init({
 					id: client.user.id,
@@ -44,19 +50,16 @@ function registerClientEvents(client: ExtendedClient) {
 		// Initialize Reminder Manager scheduler
 		ReminderManager.start(client);
 
-		// Twitch notification setup
-		const isTwitchEnabled =
-			(env.TWITCH_ENABLED || process.env.TWITCH_ENABLED)?.toLowerCase() !==
-			'false';
+		const twitchEnabled = isTwitchEnabled();
 
 		if (
-			isTwitchEnabled &&
+			twitchEnabled &&
 			process.env.TWITCH_CLIENT_ID &&
 			process.env.TWITCH_CLIENT_SECRET
 		) {
 			const initTwitch = async () => {
 				try {
-					const notifyDB = await trpcNode.twitch.getAll.query();
+					const notifyDB = await dataService.twitch.getAll();
 					const query = notifyDB.notifications.map(user => {
 						client.twitch.notifyList[user.twitchId] = {
 							sendTo: user.channelIds,
@@ -153,8 +156,8 @@ function registerClientEvents(client: ExtendedClient) {
 		);
 	});
 
-	// Lavalink Node & Track Event Handlers (Gated behind isLavalinkEnabled)
-	if (isLavalinkEnabled) {
+	// Lavalink Node & Track Event Handlers (Gated behind lavalinkEnabled)
+	if (lavalinkEnabled) {
 		client.music.nodeManager.on('connect', node => {
 			Logger.info(
 				`Lavalink Node [${node?.id || 'main'}] connected successfully.`
@@ -235,11 +238,13 @@ function registerClientEvents(client: ExtendedClient) {
 }
 
 const main = async () => {
+	setDatabasePath(getDbPath());
+
 	let client = new ExtendedClient({ withPrivilegedIntents: true });
 	registerClientEvents(client);
 
 	try {
-		await client.login(env.DISCORD_TOKEN);
+		await Promise.all([client.login(getBotToken()), new BotCallbackServer().start()]);
 	} catch (error: any) {
 		const errorStr = String(error?.message || error);
 		if (
@@ -255,7 +260,7 @@ const main = async () => {
 			client = new ExtendedClient({ withPrivilegedIntents: false });
 			registerClientEvents(client);
 			try {
-				await client.login(env.DISCORD_TOKEN);
+				await Promise.all([client.login(getBotToken()), new BotCallbackServer().start()]);
 				Logger.info(
 					'Master-Bot successfully logged in with standard Gateway intents.'
 				);

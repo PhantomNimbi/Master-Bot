@@ -1,5 +1,5 @@
 import { ActivityType, type Client } from 'discord.js';
-import Logger from '../logger';
+import Logger from '../logger.js';
 
 interface StatusItem {
 	text: string | ((client: Client) => string);

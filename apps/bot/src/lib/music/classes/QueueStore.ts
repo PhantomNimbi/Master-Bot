@@ -1,6 +1,6 @@
 import { Collection } from 'discord.js';
-import { Queue } from './Queue';
-import type { QueueClient } from './QueueClient';
+import { Queue } from './Queue.js';
+import type { QueueClient } from './QueueClient.js';
 
 export class QueueStore extends Collection<string, Queue> {
 	public constructor(public readonly client: QueueClient) {

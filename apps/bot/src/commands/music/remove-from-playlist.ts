@@ -1,7 +1,7 @@
-import type { CommandHelp } from '../../lib/structures/CommandHelp';
+import type { CommandHelp } from '../../lib/structures/CommandHelp.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
-import { trpcNode } from '../../trpc';
+import { dataService } from '../../dataService.js';
 
 @ApplyOptions<CommandOptions>({
 	name: 'remove-from-playlist',
@@ -57,7 +57,7 @@ export class RemoveFromPlaylistCommand extends Command {
 
 		let playlist;
 		try {
-			const playlistQuery = await trpcNode.playlist.getPlaylist.query({
+			const playlistQuery = await dataService.playlist.getPlaylist({
 				name: playlistName,
 				userId: interactionMember.id
 			});
@@ -79,11 +79,11 @@ export class RemoveFromPlaylistCommand extends Command {
 
 		const id = songs[location - 1].id;
 
-		const song = await trpcNode.song.delete.mutate({
+		const song = await dataService.song.delete({
 			id
 		});
 
-		if (!song) {
+		if (!song?.song) {
 			return await interaction.editReply(':x: Something went wrong!');
 		}
 

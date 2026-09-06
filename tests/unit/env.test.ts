@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { getPort } from '../../apps/bot/src/env';
 
 describe('Environment Variable Utilities', () => {
 	it('should handle boolean flags properly', () => {
@@ -18,14 +19,30 @@ describe('Environment Variable Utilities', () => {
 		expect(parseBool(undefined, false)).toBe(false);
 	});
 
-	it('should resolve default port configurations', () => {
-		const dashboardPort = parseInt(process.env.DASHBOARD_PORT || '3000', 10);
-		const botPort = parseInt(process.env.BOT_PORT || '3001', 10);
-		const botApiPort = parseInt(process.env.BOT_API_PORT || '3002', 10);
+	it('defaults the unified HTTP port to 3000', () => {
+		delete process.env.PORT;
+		expect(getPort()).toBe(3000);
+	});
 
-		expect(dashboardPort).toBe(3000);
-		expect(botPort).toBe(3001);
-		expect(botApiPort).toBe(3002);
-		expect(new Set([dashboardPort, botPort, botApiPort]).size).toBe(3);
+	it('resolves the unified HTTP port from a single PORT key', () => {
+		process.env.PORT = '4321';
+		expect(getPort()).toBe(4321);
+		delete process.env.PORT;
+		expect(getPort()).toBe(3000);
+	});
+
+	it('falls back to 3000 for a non-numeric PORT', () => {
+		process.env.PORT = 'invalid';
+		expect(getPort()).toBe(3000);
+		delete process.env.PORT;
+	});
+
+	it('ignores legacy separate dashboard/bot port keys', () => {
+		delete process.env.PORT;
+		process.env.DASHBOARD_PORT = '7000';
+		process.env.BOT_PORT = '7001';
+		expect(getPort()).toBe(3000);
+		delete process.env.DASHBOARD_PORT;
+		delete process.env.BOT_PORT;
 	});
 });

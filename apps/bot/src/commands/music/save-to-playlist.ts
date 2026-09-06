@@ -1,9 +1,9 @@
-import type { CommandHelp } from '../../lib/structures/CommandHelp';
+import type { CommandHelp } from '../../lib/structures/CommandHelp.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
-import searchSong from '../../lib/music/searchSong';
-import { trpcNode } from '../../trpc';
-import Logger from '../../lib/logger';
+import searchSong from '../../lib/music/searchSong.js';
+import { dataService } from '../../dataService.js';
+import Logger from '../../lib/logger.js';
 
 @ApplyOptions<CommandOptions>({
 	name: 'save-to-playlist',
@@ -55,7 +55,7 @@ export class SaveToPlaylistCommand extends Command {
 			);
 		}
 
-		const playlistQuery = await trpcNode.playlist.getPlaylist.query({
+		const playlistQuery = await dataService.playlist.getPlaylist({
 			name: playlistName,
 			userId: interactionMember.id
 		});
@@ -89,7 +89,7 @@ export class SaveToPlaylistCommand extends Command {
 		}));
 
 		try {
-			await trpcNode.song.createMany.mutate({
+			await dataService.song.createMany({
 				songs: songsToAdd
 			});
 

@@ -1,6 +1,9 @@
+import { createRequire } from 'node:module';
 import { container } from '@sapphire/framework';
-import { isCommandNameGloballyDisabled } from '../../preconditions/isCommandDisabled';
-import type { CommandHelp } from './CommandHelp';
+import { isCommandNameGloballyDisabled } from '../../preconditions/isCommandDisabled.js';
+import type { CommandHelp } from './CommandHelp.js';
+
+const require = createRequire(import.meta.url);
 
 export class HelpRegistry {
 	private static getHelpFromCommand(cmd: any): CommandHelp | undefined {

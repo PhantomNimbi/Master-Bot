@@ -1,6 +1,6 @@
 import { EmbedBuilder, type Client, type User } from 'discord.js';
-import { trpcNode } from '../../trpc';
-import Logger from '../logger';
+import { dataService } from '../../dataService.js';
+import Logger from '../logger.js';
 
 export interface FormatContext {
 	userId: string;
@@ -85,7 +85,7 @@ export class ReminderManager {
 
 		try {
 			const nowIso = new Date().toISOString();
-			const result = await trpcNode.reminder.getDueReminders.mutate({
+			const result = await dataService.reminder.getDueReminders({
 				beforeIsoDate: nowIso
 			});
 			const dueReminders = result.reminders || [];
@@ -181,8 +181,7 @@ export class ReminderManager {
 					}
 
 					// Delete dispatched reminder
-					await trpcNode.reminder.delete
-						.mutate({
+					await dataService.reminder.delete({
 							userId: reminder.userId,
 							event: reminder.event
 						})

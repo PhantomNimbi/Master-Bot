@@ -1,6 +1,6 @@
-import type { Song } from './classes/Song';
+import type { Song } from './classes/Song.js';
 import { container } from '@sapphire/framework';
-import type { Queue } from './classes/Queue';
+import type { Queue } from './classes/Queue.js';
 import {
 	Message,
 	ActionRowBuilder,
@@ -8,9 +8,9 @@ import {
 	EmbedBuilder,
 	ButtonStyle
 } from 'discord.js';
-import buttonsCollector, { deletePlayerEmbed } from './buttonsCollector';
-import { NowPlayingEmbed } from './nowPlayingEmbed';
-import Logger from '../logger';
+import buttonsCollector, { deletePlayerEmbed } from './buttonsCollector.js';
+import { NowPlayingEmbed } from './nowPlayingEmbed.js';
+import Logger from '../logger.js';
 
 export async function getPlayerActionRows(
 	queue: Queue

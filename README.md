@@ -1,13 +1,13 @@
-# A Discord Music Bot written in TypeScript using Sapphire, discord.js, Next.js and React
+# A Discord Music Bot written in TypeScript using Sapphire, discord.js and an embedded web dashboard
 
 [![image](https://img.shields.io/badge/language-typescript-blue)](https://www.typescriptlang.org)
-[![image](https://img.shields.io/badge/node-%3E%3D%2018.0.0-blue)](https://nodejs.org/)
+[![image](https://img.shields.io/badge/node-%3E%3D%2022.0.0-blue)](https://nodejs.org/)
 [![image](https://img.shields.io/badge/pnpm-%3E%3D%208.0.0-orange)](https://pnpm.io/)
 [![image](https://img.shields.io/badge/license-MIT-yellow)](LICENSE.md)
 
 ## System dependencies
 
-- [Node.js LTS or latest](https://nodejs.org/en/download/) (>= 18.0.0)
+- [Node.js 22 or later](https://nodejs.org/en/download/) (required for `node:sqlite` and the modern toolchain)
 - [Java 17+](https://www.azul.com/downloads/?package=jdk#download-openjdk) (Required for Lavalink v4 audio engine)
 - [pnpm](https://pnpm.io/) (Fast, disk-efficient package manager)
 
@@ -19,26 +19,21 @@ Download the latest Lavalink jar from [here](https://github.com/lavalink-devs/la
 
 ### Database & In-Memory Queue
 
-Master-Bot uses **SQLite** (`file:./db.sqlite`) and **In-Memory Audio Queues** out of the box with zero external database configuration or Redis installation required! The database schema is automatically pushed and synchronized on first launch.
+Master-Bot uses **SQLite** (`<root>/data/bot.sqlite`, via Node's built-in `node:sqlite`) and **In-Memory Audio Queues** out of the box with zero external database configuration or Redis installation required! The database file and schema are automatically created on first launch — no Prisma, no schema sync, no migrations to run. Override the file location with `DISCORD_DB_PATH` if desired.
 
 ### Settings (.env)
 
 Create a `.env` file in the root directory and copy the contents of `.env.example` to it.
 
 ```env
-# SQLite Database (Zero-config embedded database)
-DATABASE_URL="file:./db.sqlite"
+# Unified Runtime Port (bot + embedded dashboard + OAuth2 share ONE port)
+PORT=3000
 
 # Discord Bot Credentials
 DISCORD_TOKEN=""
 DISCORD_CLIENT_ID=""
 DISCORD_CLIENT_SECRET=""
-
-# Port Configuration & NextAuth
-DASHBOARD_PORT=3000
-BOT_PORT=3001
-BOT_API_PORT=3002
-NEXTAUTH_SECRET="somesupersecrettwelvelengthword"
+DISCORD_OWNER_ID=""
 
 # Lavalink v4 Audio Engine
 LAVA_ENABLED=true
@@ -59,6 +54,7 @@ IGDB_ENABLED=false
 
 # Media & Search APIs
 KLIPY_API=""
+GIFS_ENABLED=true
 NEWS_ENABLED=false
 NEWS_API=""
 GENIUS_API=""
@@ -68,22 +64,22 @@ GENIUS_API=""
 
 If you have no use for the gif commands, leave `KLIPY_API` empty. Same applies for Twitch, News, and IGDB; everything else is needed for core music and dashboard features.
 
-#### DB URL
+#### Database
 
-`DATABASE_URL="file:./db.sqlite"` requires no setup or external server. Prisma manages schema migrations and client generation locally.
+The SQLite database at `<root>/data/bot.sqlite` is auto-created and needs no setup, external server, or migration tooling. `DISCORD_DB_PATH` can point the file anywhere (e.g. a mounted volume in Docker).
 
 #### Bot Token
 
 Generate a token in your Discord Developer Portal and paste it into `DISCORD_TOKEN`.
 
-#### Next Auth & Ports
+#### Port & URLs
 
-Master-Bot isolates port bindings across three dedicated ports:
-- `DASHBOARD_PORT` (default: `3000`): Next.js Web Dashboard.
-- `BOT_PORT` (default: `3001`): Discord Bot runtime and gateway.
-- `BOT_API_PORT` (default: `3002`): Bot internal HTTP / tRPC API server.
+The bot, embedded web dashboard, and OAuth2 callback server all run in a **single process** listening on one port:
+- `PORT` (default: `3000`): unified dashboard + OAuth2 callback endpoint.
+- Dashboard UI: `http://localhost:3000/dashboard`
+- OAuth2 redirect: `http://localhost:3000/api/auth/callback/discord`
 
-The bot and dashboard automatically construct internal SSR and public authentication URLs dynamically. Set `NEXTAUTH_URL` to your domain or public IP if deploying publicly.
+The dashboard and authentication URLs are constructed automatically from `PORT`. Set `NEXTAUTH_URL` to your domain or public IP if deploying publicly.
 
 #### Next Auth Discord Provider
 
@@ -107,10 +103,10 @@ Install pnpm:
 
 # Running the bot
 
-1. Run `pnpm i` in the root folder to install all dependencies and generate the Prisma client.
-2. Open a separate terminal in the root folder and run `java -jar Lavalink.jar` (must be running for music playback).
+1. Run `pnpm i` in the root folder to install all dependencies.
+2. (Optional) Download the latest Lavalink jar and run `java -jar Lavalink.jar` — must be running for music playback. The launcher can also spawn it for you when `LAVA_ENABLED=true`.
 3. Run `pnpm dev` in the root folder in another terminal window.
-4. If everything works, your bot and dashboard should be running.
+4. If everything works, your bot and dashboard should be running (dashboard at `http://localhost:3000/dashboard`).
 5. (Optional) Run the Vitest test suite with `pnpm test`.
 6. Enjoy!
 

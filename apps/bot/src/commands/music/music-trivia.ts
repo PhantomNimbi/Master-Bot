@@ -1,7 +1,7 @@
-import type { CommandHelp } from '../../lib/structures/CommandHelp';
+import type { CommandHelp } from '../../lib/structures/CommandHelp.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
-import { TriviaSession } from '../../lib/music/classes/TriviaSession';
+import { TriviaSession } from '../../lib/music/classes/TriviaSession.js';
 import type { GuildMember, TextChannel } from 'discord.js';
 
 @ApplyOptions<CommandOptions>({

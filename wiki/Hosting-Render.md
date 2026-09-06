@@ -1,58 +1,33 @@
 # 🚀 Deploying on Render (render.com)
 
-Manual step-by-step instructions for deploying Master-Bot to Render using a Web Service (Dashboard) and Background Worker (Discord Bot).
+Manual step-by-step instructions for deploying Master-Bot to Render as a **single Web Service**. The bot embeds the dashboard; SQLite requires no external database.
 
 ---
 
-## Step 1: Provision Backing Databases
+## Step 1 (Optional): Provision a Persistent Disk
 
-1. Log in to [Render Dashboard](https://dashboard.render.com/).
-2. Click **New +** -> **PostgreSQL**.
-   - **Name**: `master-bot-db`
-   - Click **Create Database** and copy the **Internal Database URL**.
-3. Click **New +** -> **Redis**.
-   - **Name**: `master-bot-redis`
-   - Click **Create Redis** and copy the **Internal Redis Host** and **Port**.
+The SQLite database lives at `<repo>/data/bot.sqlite`. To keep data across deploys, attach a **Persistent Disk** to the Web Service and mount it at `/opt/render/project/data`.
 
 ---
 
-## Step 2: Deploy Discord Bot (Background Worker)
+## Step 2: Deploy Master-Bot (Web Service)
 
-1. In Render Dashboard, click **New +** -> **Background Worker**.
+1. In Render Dashboard, click **New +** -> **Web Service**.
 2. Connect your GitHub repository.
 3. Configure settings:
-   - **Name**: `master-bot-worker`
+   - **Name**: `master-bot`
    - **Language**: `Node`
    - **Branch**: `main`
-   - **Build Command**: `pnpm install && pnpm db:generate && pnpm build`
-   - **Start Command**: `pnpm --filter @master-bot/bot start`
+   - **Build Command**: `pnpm install && pnpm build`
+   - **Start Command**: `pnpm start`
 4. Add Environment Variables:
-   - `NODE_ENV`: `production`
+   - `PORT`: `3000` (Render injects its own `PORT` too)
+   - `DISCORD_DB_PATH`: `/opt/render/project/data/bot.sqlite` (if a Persistent Disk is mounted)
+   - `NEXTAUTH_URL`: `https://<your-service>.onrender.com`
    - `DISCORD_TOKEN`, `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`, `DISCORD_OWNER_ID`
-   - `DATABASE_URL`: (Internal PostgreSQL URL)
-   - `REDIS_HOST`: (Internal Redis Host)
-   - `REDIS_PORT`: (Internal Redis Port)
-   - `LAVA_ENABLED`: `false` (or external Lavalink node host/pass)
-5. Click **Create Background Worker**.
-
----
-
-## Step 3: Deploy Web Dashboard (Web Service)
-
-1. Click **New +** -> **Web Service**.
-2. Connect the same repository.
-3. Configure settings:
-   - **Name**: `master-bot-dashboard`
-   - **Language**: `Node`
-   - **Branch**: `main`
-   - **Build Command**: `pnpm install && pnpm db:generate && pnpm build`
-   - **Start Command**: `pnpm --filter @master-bot/dashboard start`
-4. Add Environment Variables:
-   - `NODE_ENV`: `production`
-   - `NEXTAUTH_URL`: `https://master-bot-dashboard.onrender.com`
-   - `NEXTAUTH_SECRET`: (Generate a random 32-character string)
-   - `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`, `DISCORD_TOKEN`
-   - `DATABASE_URL`: (Internal PostgreSQL URL)
+   - `LAVA_ENABLED`: `false` (or an external Lavalink node host/pass)
 5. Under your Discord Developer Portal OAuth2 settings, add:
-   - `https://master-bot-dashboard.onrender.com/api/auth/callback/discord`
+   - `https://<your-service>.onrender.com/api/auth/callback/discord`
 6. Click **Create Web Service**.
+
+Dashboard: `https://<your-service>.onrender.com/dashboard`

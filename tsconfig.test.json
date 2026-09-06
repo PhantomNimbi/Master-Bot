@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
 		"target": "ES2022",
-		"module": "NodeNext",
-		"moduleResolution": "NodeNext",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
 		"strict": true,
 		"esModuleInterop": true,
 		"skipLibCheck": true,
@@ -14,9 +14,9 @@
 		"baseUrl": ".",
 		"paths": {
 			"~/*": ["apps/dashboard/src/*"],
-			"@master-bot/api": ["packages/api/index.ts"],
-			"@master-bot/auth": ["packages/auth/index.ts"],
-			"@master-bot/db": ["packages/db/index.ts"]
+			"@master-bot/db": ["packages/db/index.ts"],
+			"@master-bot/dashboard": ["apps/dashboard/src/index.ts"],
+			"@master-bot/dataService": ["apps/bot/src/dataService.ts"]
 		}
 	},
 	"include": ["tests/**/*.ts"]

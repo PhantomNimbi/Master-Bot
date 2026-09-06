@@ -1,6 +1,6 @@
 # 🤖 Master-Bot Discord Application (`@master-bot/bot`)
 
-The Discord client application for **Master-Bot**, built with [Sapphire Framework](https://www.sapphirejs.dev/), [discord.js v14](https://discord.js.org/), [Lavalink v4 (`lavalink-client`)](https://github.com/lavalink-devs/Lavalink), and [Prisma ORM](https://www.prisma.io/).
+The Discord client application for **Master-Bot**, built with [Sapphire Framework](https://www.sapphirejs.dev/), [discord.js v14](https://discord.js.org/), and [Lavalink v4 (`lavalink-client`)](https://github.com/lavalink-devs/Lavalink). Persistent data lives in a dependency-free SQLite database (`node:sqlite`, `@master-bot/db`), and the web dashboard (`@master-bot/dashboard`) is embedded directly into this process.
 
 ---
 
@@ -29,6 +29,8 @@ apps/bot/
 │   │   ├── music/             # Lavalink node connection and track lifecycle events
 │   │   └── tempchannels/      # Temporary voice channel lifecycle management
 │   ├── preconditions/         # Sapphire preconditions (isCommandDisabled, permissions)
+│   ├── dataService.ts         # In-process facade the embedded dashboard calls
+│   ├── server.ts              # Embedded dashboard + OAuth2 callback HTTP server (PORT)
 │   └── env.ts                 # Type-safe environment validation
 ├── package.json
 └── tsconfig.json
@@ -63,9 +65,11 @@ From the workspace root:
 # Build the bot TypeScript application
 pnpm --filter @master-bot/bot build
 
-# Launch the bot in development watch mode
+# Launch the bot in development watch mode (builds, copies scripts, watches)
 pnpm --filter @master-bot/bot dev
 
-# Launch full development stack (Bot + Dashboard + Lavalink)
+# Launch the full unified stack (Bot + embedded dashboard + optional Lavalink)
 pnpm dev
 ```
+
+The dashboard is served from the bot process itself — visit `http://localhost:3000/dashboard` (or whatever `PORT` is set to).

@@ -1,11 +1,11 @@
-import type { CommandHelp } from '../../lib/structures/CommandHelp';
+import type { CommandHelp } from '../../lib/structures/CommandHelp.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { container } from '@sapphire/framework';
-import searchSong from '../../lib/music/searchSong';
-import { updatePlayerEmbed } from '../../lib/music/buttonHandler';
-import { Song } from '../../lib/music/classes/Song';
-import { trpcNode } from '../../trpc';
+import searchSong from '../../lib/music/searchSong.js';
+import { updatePlayerEmbed } from '../../lib/music/buttonHandler.js';
+import { Song } from '../../lib/music/classes/Song.js';
+import { dataService } from '../../dataService.js';
 import { GuildMember } from 'discord.js';
 
 @ApplyOptions<CommandOptions>({
@@ -115,7 +115,7 @@ export class PlayCommand extends Command {
 		let message: string = '';
 
 		if (isCustomPlaylist == 'Yes') {
-			const data = await trpcNode.playlist.getPlaylist.query({
+			const data = await dataService.playlist.getPlaylist({
 				userId: interactionMember.id,
 				name: query
 			});

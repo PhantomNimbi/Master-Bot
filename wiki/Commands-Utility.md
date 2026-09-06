@@ -10,7 +10,7 @@ Complete reference for utility, gaming, search, news, and entertainment commands
 | :--- | :--- | :--- |
 | `/help` | Interactive command browser with category select menu | `/help` |
 | `/about` | Bot and system statistics | `/about` |
-| `/dashboard` | Link to the Next.js web management dashboard | `/dashboard` |
+| `/dashboard` | Link to the embedded web management dashboard | `/dashboard` |
 | `/poll` | Interactive multi-choice poll with buttons | `/poll title: "Vote" option1: "A" option2: "B"` |
 | `/reminder` | Personal and channel scheduled reminders | `/reminder set duration: 1h text: "Pizza"` |
 | `/weather` | Current weather and 3-day forecast | `/weather location: London` |

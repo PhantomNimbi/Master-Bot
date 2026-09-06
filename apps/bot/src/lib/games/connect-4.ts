@@ -9,8 +9,8 @@ import {
 	Message,
 	Colors
 } from 'discord.js';
-import { playersInGame } from '../../commands/other/games';
-import Logger from '../logger';
+import { playersInGame } from '../../commands/other/games.js';
+import Logger from '../logger.js';
 
 export class Connect4Game {
 	public async connect4(
@@ -32,7 +32,7 @@ export class Connect4Game {
 		});
 
 		const player1Piece = new Image();
-		player1Piece.src = Buffer.from(await player1Image.data);
+		player1Piece.src = new Uint8Array(await player1Image.data);
 
 		const player2Avatar = player2!.displayAvatarURL({
 			extension: 'jpg'
@@ -43,7 +43,7 @@ export class Connect4Game {
 			url: player2Avatar
 		});
 		const player2Piece = new Image();
-		player2Piece.src = Buffer.from(await player2Image.data);
+		player2Piece.src = new Uint8Array(await player2Image.data);
 		await game(player1, player2!);
 
 		async function game(player1: User, player2: User) {

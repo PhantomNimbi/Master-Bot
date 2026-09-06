@@ -1,4 +1,4 @@
-import { env } from '../../env';
+import { getApiServiceKeys } from '../../env.js';
 
 const FALLBACK_GIFS: Record<string, string[]> = {
 	anime: [
@@ -70,7 +70,7 @@ function getFallbackGif(query: string): string | null {
 
 export async function searchGif(query: string): Promise<string | null> {
 	try {
-		const apiKey = env.KLIPY_API || process.env.KLIPY_API;
+		const apiKey = getApiServiceKeys().klipyApi;
 		if (!apiKey) {
 			return getFallbackGif(query);
 		}

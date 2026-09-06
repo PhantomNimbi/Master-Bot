@@ -1,6 +1,6 @@
 # 🐳 Docker Compose Deployment Guide
 
-Deploy the entire 5-container Master-Bot ecosystem (Bot, Dashboard, PostgreSQL, Redis, Lavalink v4) locally or on a server using Docker.
+Deploy the Master-Bot Docker ecosystem (**master-bot** app + **Lavalink v4** audio engine) locally or on a server using Docker. The dashboard is embedded in the bot process — no separate dashboard container, PostgreSQL, or Redis required.
 
 ---
 
@@ -8,18 +8,14 @@ Deploy the entire 5-container Master-Bot ecosystem (Bot, Dashboard, PostgreSQL, 
 
 ```mermaid
 flowchart TD
-    subgraph DockerNetwork["Docker Bridge Network (master-bot-net)"]
-        BotContainer["master-bot-app<br/>(Sapphire Discord Bot)"]
-        DashContainer["master-bot-dashboard<br/>(Next.js 15 App Router / Port 3000)"]
+    subgraph DockerNetwork["Docker Bridge Network (compose default)"]
+        BotContainer["master-bot<br/>(Unified bot + embedded dashboard / Port 3000)"]
         LavaContainer["master-bot-lavalink<br/>(Lavalink v4 Java 21 / Port 2333)"]
-        PostgresContainer[("master-bot-postgres<br/>(PostgreSQL 16 / Port 5432)")]
-        RedisContainer[("master-bot-redis<br/>(Redis 7 / Port 6379)")]
+        Volume[("Host volume ./data<br/>(SQLite: data/bot.sqlite)")]
     end
 
-    DashContainer --> PostgresContainer
-    BotContainer --> PostgresContainer
-    BotContainer --> RedisContainer
     BotContainer --> LavaContainer
+    BotContainer --> Volume
 ```
 
 ---
@@ -30,33 +26,35 @@ flowchart TD
    ```bash
    git clone https://github.com/galnir/Master-Bot.git
    cd Master-Bot
-   cp docker.env.example docker.env
-   nano docker.env
+   cp .env.example .env
+   nano .env
    ```
 
-2. **Launch All 5 Containers**:
+2. **Lavalink config**: copy `application.yml.example` to `application.yml` (mounted into the Lavalink container).
+
+3. **Launch the Stack**:
    ```bash
    docker compose --env-file docker.env up -d --build
    ```
+   The `./data` and `./logs` host folders are mounted into the container — the SQLite database (auto-created) survives restarts there.
 
-3. **Check Container Status**:
+4. **Check Container Status**:
    ```bash
    docker compose ps
    ```
 
-4. **View Live Logs**:
+5. **View Live Logs**:
    ```bash
    # All containers
    docker compose logs -f
 
-   # Discord Bot only
-   docker compose logs -f bot
-
-   # Dashboard only
-   docker compose logs -f dashboard
+   # Discord Bot (unified dashboard + bot logs)
+   docker compose logs -f master-bot
    ```
 
-5. **Stop Stack**:
+6. **Access the Dashboard**: `http://localhost:3000/dashboard`
+
+7. **Stop Stack**:
    ```bash
    docker compose down
    ```

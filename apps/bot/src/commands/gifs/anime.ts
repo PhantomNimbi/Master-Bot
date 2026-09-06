@@ -1,8 +1,8 @@
-import type { CommandHelp } from '../../lib/structures/CommandHelp';
+import type { CommandHelp } from '../../lib/structures/CommandHelp.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
-import { searchGif } from '../../lib/gifs/searchGif';
+import { searchGif } from '../../lib/gifs/searchGif.js';
 
 @ApplyOptions<Command.Options>({
 	name: 'anime',

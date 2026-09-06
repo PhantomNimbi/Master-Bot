@@ -1,6 +1,9 @@
 {
 	"extends": "@sapphire/ts-config",
 	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
 		"rootDir": "src",
 		"experimentalDecorators": true,
 		"incremental": true,
@@ -15,6 +18,6 @@
 		"esModuleInterop": true,
 		"noImplicitAny": false
 	},
-	"include": ["src", "scripts", "src/env.ts"],
+	"include": ["src", "scripts"],
 	"exclude": ["node_modules"]
 }

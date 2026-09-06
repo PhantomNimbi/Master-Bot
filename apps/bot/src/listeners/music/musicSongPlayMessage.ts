@@ -1,10 +1,10 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { container, Listener, type ListenerOptions } from '@sapphire/framework';
 import type { TextChannel } from 'discord.js';
-import { embedButtons } from '../../lib/music/buttonHandler';
-import { NowPlayingEmbed } from '../../lib/music/nowPlayingEmbed';
-import type { Song } from '../../lib/music/classes/Song';
-import { manageStageChannel } from '../../lib/music/channelHandler';
+import { embedButtons } from '../../lib/music/buttonHandler.js';
+import { NowPlayingEmbed } from '../../lib/music/nowPlayingEmbed.js';
+import type { Song } from '../../lib/music/classes/Song.js';
+import { manageStageChannel } from '../../lib/music/channelHandler.js';
 
 @ApplyOptions<ListenerOptions>({
 	name: 'musicSongPlayMessage'

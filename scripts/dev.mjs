@@ -6,7 +6,6 @@ import {
 	logsDir,
 	loadEnv,
 	loadYouTubeToken,
-	extractPortFromUrl,
 	freePort,
 	isPortInUse,
 	ensureSqliteDatabase,
@@ -35,47 +34,32 @@ if (!fs.existsSync(logsDir)) {
 }
 
 const botLogFile = path.join(logsDir, 'bot.log');
-const dashboardLogFile = path.join(logsDir, 'dashboard.log');
 const lavalinkLogFile = path.join(logsDir, 'lavalink.log');
 const combinedLogFile = path.join(logsDir, 'combined.log');
 
 const botStream = fs.createWriteStream(botLogFile, { flags: 'w' });
-const dashboardStream = fs.createWriteStream(dashboardLogFile, { flags: 'w' });
 const lavalinkStream = fs.createWriteStream(lavalinkLogFile, { flags: 'w' });
 const combinedStream = fs.createWriteStream(combinedLogFile, { flags: 'w' });
 
 const writeBotLog = createLogWriter(botStream, combinedStream);
-const writeDashboardLog = createLogWriter(dashboardStream, combinedStream);
 const writeLavalinkLog = createLogWriter(lavalinkStream, combinedStream);
 
-const isWindows = process.platform === 'win32';
-const pnpmCmd = isWindows ? 'pnpm.cmd' : 'pnpm';
-
-const dashboardPort = process.env.DASHBOARD_PORT
-	? parseInt(process.env.DASHBOARD_PORT, 10)
-	: 3000;
-
-const botPort = process.env.BOT_PORT
-	? parseInt(process.env.BOT_PORT, 10)
-	: 3001;
-
-const botApiPort = process.env.BOT_API_PORT
-	? parseInt(process.env.BOT_API_PORT, 10)
-	: 3002;
+// Single unified HTTP port for the embedded dashboard + OAuth2 callback server
+// (HELIX alignment). NEXTAUTH_URL / NEXTAUTH_INTERNAL_URL auto-resolve from it.
+let port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+if (isNaN(port) || port <= 0) port = 3000;
 
 const lavaHost = process.env.LAVA_HOST || '0.0.0.0';
 const lavaPort = parseInt(process.env.LAVA_PORT || '2333', 10);
 const isLavaExternal = process.env.LAVA_EXTERNAL?.toLowerCase() === 'true';
 
-// Free up configured dashboard, bot & bot api ports before launching dev services
-freePort(dashboardPort);
-freePort(botPort);
-freePort(botApiPort);
+// Free up the unified HTTP port and optional Lavalink port before launching
+freePort(port);
 if (!isLavaExternal && isLavalinkEnabled) {
 	freePort(lavaPort);
 }
 
-// 1. Ensure SQLite Database is initialized
+// 1. Ensure SQLite Database is initialized (auto-created on first start)
 const { status: sqliteStatus } = ensureSqliteDatabase();
 
 let lavalinkStatus = 'DISABLED';
@@ -174,39 +158,18 @@ if (!isLavalinkEnabled) {
 	}
 }
 
-// 2. Launch Bot in DEV mode (bound to BOT_PORT & BOT_API_PORT / connecting to DASHBOARD_PORT for tRPC)
+// 3. Launch the SINGLE Master-Bot process (Discord client + embedded dashboard
+//    + OAuth2 callback server) bound to the unified PORT.
 const botProcess = spawn(`pnpm --filter @master-bot/bot dev`, {
 	cwd: rootDir,
 	shell: true,
 	env: {
 		...process.env,
-		PORT: String(botPort),
-		BOT_PORT: String(botPort),
-		BOT_API_PORT: String(botApiPort),
-		DASHBOARD_PORT: String(dashboardPort)
+		PORT: String(port)
 	}
 });
 botProcess.stdout.on('data', data => writeBotLog('BOT', data));
 botProcess.stderr.on('data', data => writeBotLog('BOT-ERR', data));
-
-// 3. Launch Dashboard in DEV mode (bound strictly to DASHBOARD_PORT)
-const dashboardProcess = spawn(`pnpm --filter @master-bot/dashboard dev`, {
-	cwd: rootDir,
-	shell: true,
-	env: {
-		...process.env,
-		PORT: String(dashboardPort),
-		DASHBOARD_PORT: String(dashboardPort),
-		BOT_PORT: String(botPort),
-		BOT_API_PORT: String(botApiPort)
-	}
-});
-dashboardProcess.stdout.on('data', data =>
-	writeDashboardLog('DASHBOARD', data)
-);
-dashboardProcess.stderr.on('data', data =>
-	writeDashboardLog('DASHBOARD-ERR', data)
-);
 
 const oauthNote = isLavalinkEnabled
 	? `
@@ -217,14 +180,15 @@ const oauthNote = isLavalinkEnabled
 	: `
 ====================================================================`;
 
+const baseUrl = `http://localhost:${port}`;
 const dashboardPublicUrl = process.env.NEXTAUTH_URL?.trim();
 const dashboardUrlDisplay = dashboardPublicUrl
-	? `http://localhost:${dashboardPort} | Public: ${dashboardPublicUrl}`
-	: `http://localhost:${dashboardPort}`;
+	? `${baseUrl} | Public: ${dashboardPublicUrl}`
+	: baseUrl;
 
 const activeServices = [
-	`    • 🤖 Bot Service:       RUNNING (Port: ${botPort} | API: ${botApiPort}) └─ Log: logs/bot.log`,
-	`    • 🌐 Web Dashboard:      RUNNING (${dashboardUrlDisplay})\n                                     └─ Log: logs/dashboard.log`,
+	`    • 🤖 Master-Bot:          RUNNING (Discord client + embedded dashboard, Port: ${port}) └─ Log: logs/bot.log`,
+	`    • 🌐 Web Dashboard:      ${dashboardUrlDisplay}\n                                     └─ /dashboard · OAuth2: /api/auth/callback/discord`,
 	`    • 💾 SQLite Database:    ${sqliteStatus}`,
 	`    • ⚡ In-Memory Queue:    ACTIVE (Zero external dependency)`
 ];
@@ -243,13 +207,13 @@ console.log(`
             🤖 MASTER-BOT UNIFIED CONSOLE (DEV)                     
 ====================================================================
   Execution Mode:    DEVELOPMENT
-  Configured Ports:  Dashboard: ${dashboardPort} | Bot: ${botPort} | Bot API: ${botApiPort}${isLavalinkEnabled ? ` | Lavalink: ${lavaPort}` : ''}
+  Unified Port:      ${port}${isLavalinkEnabled ? ` | Lavalink: ${lavaPort}` : ''}
   
   Active Services:
 ${activeServices.join('\n')}
   
   Combined System Log: logs/combined.log
-  Live Owner Web Logs: http://localhost:${dashboardPort}/dashboard/logs${oauthNote}
+  Live Owner Web Logs: ${baseUrl}/dashboard${oauthNote}
 `);
 
 function cleanup() {
@@ -257,10 +221,8 @@ function cleanup() {
 	try {
 		if (lavalinkProcess) killProcessTree(lavalinkProcess);
 		killProcessTree(botProcess);
-		killProcessTree(dashboardProcess);
 	} catch {}
 	botStream.end();
-	dashboardStream.end();
 	lavalinkStream.end();
 	combinedStream.end();
 	process.exit(0);
@@ -270,4 +232,3 @@ process.on('SIGINT', cleanup);
 process.on('SIGTERM', cleanup);
 process.on('SIGHUP', cleanup);
 process.on('exit', cleanup);
-

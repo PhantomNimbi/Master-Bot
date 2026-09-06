@@ -1,4 +1,4 @@
-import type { Song } from '../../lib/music/classes/Song';
+import type { Song } from '../../lib/music/classes/Song.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Listener, type ListenerOptions } from '@sapphire/framework';
 import { ChatInputCommandInteraction } from 'discord.js';

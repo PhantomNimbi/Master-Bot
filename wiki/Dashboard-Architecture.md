@@ -1,6 +1,6 @@
 # 🏛️ Web Dashboard Technical Architecture
 
-Technical architecture of `apps/dashboard`, `packages/api`, and `packages/auth`.
+Technical architecture of `apps/dashboard` and how it lives inside `apps/bot`.
 
 ---
 
@@ -8,40 +8,30 @@ Technical architecture of `apps/dashboard`, `packages/api`, and `packages/auth`.
 
 ```mermaid
 flowchart TD
-    subgraph Client["Next.js 15 App Router (apps/dashboard)"]
-        UI["React 19 Glassmorphism Components"]
-        tRPCClient["@tanstack/react-query & tRPC Client"]
-        NextAuth["NextAuth.js v5 Client"]
+    subgraph Process["Master-Bot Single Process (unified PORT)"]
+        Bot["apps/bot src/index.ts<br/>(Discord client + setup)"]
+        Server["apps/bot src/server.ts<br/>(Node http server)"]
+        Dash["apps/dashboard src/router.ts<br/>(route handler)"]
+        DataService["apps/bot src/dataService.ts<br/>(typed facade)"]
+        DB["packages/db BotDatabase<br/>(node:sqlite)"]
     end
 
-    subgraph API["Backend API Layer (packages/api)"]
-        Router["tRPC v11 appRouter"]
-        AuthMiddleware["Protected Procedure Auth Middleware"]
-        MusicRouter["music router (Lavalink State)"]
-        BroadcastRouter["broadcast router (Discord API v10)"]
-        SystemRouter["system router (PostgreSQL Latency Ping)"]
-    end
+    Browser["Owner Browser<br/>/dashboard"]
 
-    subgraph DB["Database Layer (packages/db)"]
-        Prisma["Prisma ORM Client"]
-    end
-
-    UI --> tRPCClient
-    UI --> NextAuth
-    tRPCClient --> Router
-    Router --> AuthMiddleware
-    AuthMiddleware --> MusicRouter
-    AuthMiddleware --> BroadcastRouter
-    AuthMiddleware --> SystemRouter
-    MusicRouter --> Prisma
-    BroadcastRouter --> Prisma
-    SystemRouter --> Prisma
+    Browser --> Server
+    Server --> Dash
+    Dash --> DataService
+    DataService --> DB
+    Dash --> Auth["apps/dashboard src/auth<br/>(NextAuth-compatible sessions)"]
+    Bot --> Server
 ```
 
 ---
 
-## Core Packages
+## How the Pieces Fit
 
-1. **`apps/dashboard`**: Next.js 15 App Router with Server Components and Client Components.
-2. **`packages/api`**: End-to-end type-safe tRPC v11 API procedures across 15 router namespaces.
-3. **`packages/auth`**: Shared NextAuth.js v5 configuration with Discord OAuth2 provider.
+1. **Bootstrap**: `apps/bot/src/index.ts` calls `setDatabasePath(getDbPath())` (SQLite at `<root>/data/bot.sqlite` or `DISCORD_DB_PATH`), builds a `DashboardContext`, injects it via `setDashboardContext()`, then starts the HTTP server on `PORT`.
+2. **Routing**: `apps/dashboard/src/router.ts` (`routeDashboardRequest`) serves the UI shell, `/invite` redirect, `/api/auth/*` (OAuth2 callbacks/session), `/api/dashboard/stats`, `/api/dashboard/guilds`, and `/api/dashboard/bot/*` action endpoints. Anything unhandled falls through to the bot's 404.
+3. **Data access**: Handlers never touch `process.env` or SQL directly — they call the `dataService` facade (`apps/bot/src/dataService.ts`) which mirrors the original tRPC router shapes and wraps `BotDatabase` CRUD.
+4. **Auth**: `apps/dashboard/src/auth/config.ts` + `handlers.ts` implement Discord OAuth2 with HMAC-signed session cookies compatible with the original NextAuth cookie format (`next-auth.session-token`).
+5. **Env**: All keys flow through `apps/bot/src/env.ts` — one shared env layer for both bot and dashboard (`PORT`, `DISCORD_CLIENT_ID`, `NEXTAUTH_SECRET`, …).

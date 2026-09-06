@@ -1,6 +1,6 @@
-import type { CommandHelp } from '../../lib/structures/CommandHelp';
-import { Connect4Game } from '../../lib/games/connect-4';
-import { GameInvite } from '../../lib/games/inviteEmbed';
+import type { CommandHelp } from '../../lib/structures/CommandHelp.js';
+import { Connect4Game } from '../../lib/games/connect-4.js';
+import { GameInvite } from '../../lib/games/inviteEmbed.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import type { User } from 'discord.js';

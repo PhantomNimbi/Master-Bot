@@ -1,5 +1,5 @@
 import { LavalinkManager, LavalinkNodeOptions } from 'lavalink-client';
-import { QueueStore } from './QueueStore';
+import { QueueStore } from './QueueStore.js';
 import { container } from '@sapphire/framework';
 
 export interface QueueClientOptions {

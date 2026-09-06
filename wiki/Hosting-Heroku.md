@@ -1,10 +1,10 @@
 # 🟣 Deploying on Heroku (heroku.com)
 
-Manual deployment instructions for Heroku using Buildpacks and Dynos.
+Manual deployment instructions for Heroku using Buildpacks and a single Dyno. The bot embeds the dashboard, and SQLite needs no add-ons.
 
 ---
 
-## 1. Create Application & Add-ons
+## 1. Create Application
 
 ```bash
 # Create Heroku App
@@ -12,20 +12,18 @@ heroku create master-bot-prod
 
 # Add official Node.js buildpack
 heroku buildpacks:add heroku/nodejs -a master-bot-prod
-
-# Attach Heroku Postgres & Redis add-ons
-heroku addons:create heroku-postgresql:essential-0 -a master-bot-prod
-heroku addons:create heroku-redis:mini -a master-bot-prod
 ```
+
+> The `package.json` engines require Node 22+, which Heroku's default stack resolves automatically.
 
 ---
 
 ## 2. Configure `Procfile`
 
-Ensure a `Procfile` exists in repository root:
+Ensure a `Procfile` exists in repository root — one `web` process serves both the bot and dashboard:
+
 ```text
-web: pnpm --filter @master-bot/dashboard start
-worker: pnpm --filter @master-bot/bot start
+web: pnpm start
 ```
 
 ---
@@ -48,9 +46,8 @@ heroku config:set \
 # Deploy to Heroku
 git push heroku main
 
-# Scale dynos
-heroku ps:scale web=1 worker=1 -a master-bot-prod
-
-# Sync Prisma Database Schema
-heroku run pnpm --filter @master-bot/db prisma db push -a master-bot-prod
+# Scale a single dyno
+heroku ps:scale web=1 -a master-bot-prod
 ```
+
+Heroku sets `PORT` automatically; the bot, dashboard, and OAuth2 callback all serve from it. The SQLite database is auto-created (use an ephemeral filesystem add-on or `DISCORD_DB_PATH` on a persistent volume to keep data across deploys).

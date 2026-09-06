@@ -5,9 +5,9 @@ import {
 	type TextChannel
 } from 'discord.js';
 import { container } from '@sapphire/framework';
-import { checkMatch } from '../triviaMatcher';
-import { TRIVIA_SONGS, type TriviaSong } from '../triviaSongs';
-import Logger from '../../logger';
+import { checkMatch } from '../triviaMatcher.js';
+import { TRIVIA_SONGS, type TriviaSong } from '../triviaSongs.js';
+import Logger from '../../logger.js';
 import type { Player } from 'lavalink-client';
 
 export interface ParticipantScore {

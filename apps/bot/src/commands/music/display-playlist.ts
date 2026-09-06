@@ -1,9 +1,9 @@
-import type { CommandHelp } from '../../lib/structures/CommandHelp';
+import type { CommandHelp } from '../../lib/structures/CommandHelp.js';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
 import { PaginatedFieldMessageEmbed } from '@sapphire/discord.js-utilities';
-import { trpcNode } from '../../trpc';
+import { dataService } from '../../dataService.js';
 
 @ApplyOptions<CommandOptions>({
 	name: 'display-playlist',
@@ -48,7 +48,7 @@ export class DisplayPlaylistCommand extends Command {
 			});
 		}
 
-		const playlistQuery = await trpcNode.playlist.getPlaylist.query({
+		const playlistQuery = await dataService.playlist.getPlaylist({
 			name: playlistName,
 			userId: interactionMember.id
 		});

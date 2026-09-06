@@ -131,27 +131,32 @@ export function isPortInUse(port, host = '127.0.0.1', timeoutMs = 1500) {
 }
 
 /**
- * Ensures SQLite database exists and schema is synced.
+ * Ensures the SQLite database location is ready.
+ *
+ * The new node:sqlite layer (BotDatabase) auto-creates its file and schema on
+ * first start, so this only validates that the target directory exists and is
+ * writable. No Prisma sync is performed anymore.
  */
 export function ensureSqliteDatabase() {
-	const dbPath = path.join(rootDir, 'packages', 'db', 'prisma', 'db.sqlite');
-	const rootDbPath = path.join(rootDir, 'db.sqlite');
-	const isCreated = fs.existsSync(dbPath) || fs.existsSync(rootDbPath);
-
-	if (!isCreated) {
-		console.log('\n💾 Initializing SQLite database schema...');
-		try {
-			execSync('pnpm db:push', { cwd: rootDir, stdio: 'inherit' });
-			console.log('✅ SQLite database schema synchronized successfully.\n');
-		} catch (err) {
-			console.warn(`⚠️ SQLite db:push warning: ${err.message}`);
-		}
+	const dbPath = process.env.DISCORD_DB_PATH
+		? process.env.DISCORD_DB_PATH
+		: path.join(rootDir, 'data', 'bot.sqlite');
+	const dir = path.dirname(dbPath);
+	try {
+		fs.mkdirSync(dir, { recursive: true });
+		const isReady = fs.existsSync(dbPath);
+		return {
+			status: isReady
+				? `READY (${dbPath})`
+				: `WILL CREATE ON FIRST START (${dbPath})`,
+			process: null
+		};
+	} catch (err) {
+		return {
+			status: `ERROR (unable to ensure ${dbPath}: ${err.message})`,
+			process: null
+		};
 	}
-
-	return {
-		status: 'READY (file:./db.sqlite)',
-		process: null
-	};
 }
 
 

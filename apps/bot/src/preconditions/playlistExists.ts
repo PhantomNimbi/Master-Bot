@@ -5,7 +5,7 @@ import {
 	PreconditionOptions
 } from '@sapphire/framework';
 import type { ChatInputCommandInteraction, GuildMember } from 'discord.js';
-import { trpcNode } from '../trpc';
+import { dataService } from '../dataService.js';
 
 @ApplyOptions<PreconditionOptions>({
 	name: 'playlistExists'
@@ -18,7 +18,7 @@ export class PlaylistExists extends Precondition {
 
 		const guildMember = interaction.member as GuildMember;
 
-		const playlist = await trpcNode.playlist.getPlaylist.query({
+		const playlist = await dataService.playlist.getPlaylist({
 			name: playlistName,
 			userId: guildMember.id
 		});

@@ -1,15 +1,14 @@
-//import type { Guild } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Listener, type ListenerOptions } from '@sapphire/framework';
 import type { GuildMember, TextChannel } from 'discord.js';
-import { trpcNode } from '../../trpc';
+import { dataService } from '../../dataService.js';
 
 @ApplyOptions<ListenerOptions>({
 	name: 'guildMemberAdd'
 })
 export class GuildMemberListener extends Listener {
 	public override async run(member: GuildMember): Promise<void> {
-		const guildQuery = await trpcNode.guild.getGuild.query({
+		const guildQuery = await dataService.guild.getGuild({
 			id: member.guild.id
 		});
 

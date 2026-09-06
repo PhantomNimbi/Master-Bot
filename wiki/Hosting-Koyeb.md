@@ -1,29 +1,23 @@
 # 🟢 Deploying on Koyeb (koyeb.com)
 
-Manual deployment instructions using Koyeb Console.
+Manual deployment instructions using Koyeb Console. Deploy the bot as a **single Web Service** — the dashboard is embedded and SQLite requires no PostgreSQL.
 
 ---
 
-## 1. Provision PostgreSQL
-1. Go to [Koyeb Console](https://app.koyeb.com/).
-2. Create a new **PostgreSQL Database** service and copy the connection string.
+## 1. Deploy Master-Bot (Web Service)
 
----
-
-## 2. Deploy Web Dashboard
 1. Click **Create Service** -> **GitHub**.
 2. Select repository and set:
    - **Type**: Web Service
-   - **Build Command**: `pnpm install && pnpm db:generate && pnpm build`
-   - **Run Command**: `pnpm --filter @master-bot/dashboard start`
+   - **Build Command**: `pnpm install && pnpm build`
+   - **Run Command**: `pnpm start`
    - **Port**: `3000`
-3. Add environment variables: `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`.
+3. Add environment variables: `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`, `DISCORD_TOKEN`, `LAVA_ENABLED`.
 
----
+## 2. Persistent Volume (SQLite)
 
-## 3. Deploy Discord Bot Worker
-1. In the same App, click **Add Service** -> **GitHub**.
-2. Set **Type**: Worker Service.
-   - **Build Command**: `pnpm install && pnpm db:generate && pnpm build`
-   - **Run Command**: `pnpm --filter @master-bot/bot start`
-3. Add environment variables: `DATABASE_URL`, `DISCORD_TOKEN`, `REDIS_HOST`, `REDIS_PORT`, `LAVA_ENABLED`.
+Create a volume mounted at `/data` and set `DISCORD_DB_PATH=/data/bot.sqlite` so the auto-created SQLite database survives redeploys.
+
+## 3. Discord Redirect
+
+Add `https://<your-service>.koyeb.app/api/auth/callback/discord` to your Discord Developer Portal OAuth2 redirects.
