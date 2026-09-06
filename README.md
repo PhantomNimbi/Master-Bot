@@ -1,231 +1,308 @@
-# 🤖 Master-Bot
+# A Discord Music Bot written in TypeScript using Sapphire, discord.js, Next.js and React
 
-[![TypeScript](https://img.shields.io/badge/Language-TypeScript-blue.svg)](https://www.typescriptlang.org)
-[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
-[![pnpm](https://img.shields.io/badge/Package_Manager-pnpm-orange.svg)](https://pnpm.io/)
-[![Lavalink](https://img.shields.io/badge/Lavalink-v4.x-purple.svg)](https://github.com/lavalink-devs/Lavalink)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/galnir/Master-Bot/pulls)
+[![image](https://img.shields.io/badge/language-typescript-blue)](https://www.typescriptlang.org)
+[![image](https://img.shields.io/badge/node-%3E%3D%2018.0.0-blue)](https://nodejs.org/)
+[![image](https://img.shields.io/badge/pnpm-%3E%3D%208.0.0-orange)](https://pnpm.io/)
+[![image](https://img.shields.io/badge/license-MIT-yellow)](LICENSE.md)
 
-**Master-Bot** is a production-ready, high-performance Discord Music and Utility Bot with a full-featured **Next.js Web Dashboard**. Built with **TypeScript**, **Sapphire Framework**, **discord.js v14**, **Next.js 15**, **tRPC v11**, **Prisma ORM**, **Redis**, and **Lavalink v4**.
+## System dependencies
 
----
+- [Node.js LTS or latest](https://nodejs.org/en/download/) (>= 18.0.0)
+- [Java 17+](https://www.azul.com/downloads/?package=jdk#download-openjdk) (Required for Lavalink v4)
+- [PostgreSQL](https://www.postgresql.org/) (Local, Docker, or Cloud)
+- [Redis](https://redis.io/) (Local, Docker, or Cloud)
+- [pnpm](https://pnpm.io/) (Package manager)
 
-## 🏗️ Project Architecture & Structure
+## Setup bot
 
-Master-Bot is organized as a Turborepo workspace managed with `pnpm`:
+Create an [application.yml](application.yml.example) file in the root folder.
 
-```text
-Master-Bot/
-├── apps/
-│   ├── bot/                 # Sapphire & Discord.js v14 Bot Application
-│   └── dashboard/           # Next.js 15 Web Dashboard (Tailwind CSS, NextAuth, tRPC)
-├── packages/
-│   ├── api/                 # Shared tRPC v11 Routers & API Procedures
-│   ├── auth/                # Shared NextAuth.js Configuration
-│   ├── config/              # Shared Tooling Config (eslint/, tailwind/)
-│   └── db/                  # Shared Prisma ORM Client & Database Schemas
-├── scripts/
-│   ├── common.mjs           # Shared cross-platform port management & log writers
-│   ├── dev.mjs              # Unified Development Launcher & Service Manager
-│   └── start.mjs            # Unified Production Launcher & Service Manager
-├── wiki/                    # Project documentation (Setup, Lavalink, API keys, Commands)
-├── logs/                    # Service-specific log files (bot.log, dashboard.log, lavalink.log)
-├── application.yml.example  # Lavalink v4 Configuration Template (copy to application.yml)
-├── docker-compose.yml       # Containerized deployment (Bot, Dashboard, PostgreSQL, Redis, Lavalink)
+Download the latest Lavalink jar from [here](https://github.com/Cog-Creators/Lavalink-Jars/releases) and also place it in the root folder.
+
+### PostgreSQL
+
+#### Linux
+
+Either from the official site or follow the tutorial for your [distro](https://www.digitalocean.com/community/tutorial_collections/how-to-install-and-use-postgresql).
+
+#### MacOS
+
+Get [brew](https://brew.sh), then enter `brew install postgresql`.
+
+#### Windows
+
+Getting Postgres and Prisma to work together on Windows is easy with native PostgreSQL, Docker, or cloud databases. See the [Setup & Deployment Guide](wiki/Setup-and-Deployment.md) or [Cloud Hosting Guide](wiki/Cloud-Hosting.md) for step-by-step instructions.
+
+### Redis
+
+#### MacOS
+
+`brew install redis`.
+
+#### Windows
+
+Download from [here](https://redis.io/download/) or use Memurai / WSL.
+
+#### Linux
+
+Follow the instructions [here](https://redis.io/docs/getting-started/installation/install-redis-on-linux/).
+
+### Settings (env)
+
+Create a `.env` file in the root directory and copy the contents of `.env.example` to it.
+Note: if you are not hosting postgres with a shadow database you do not need the `SHADOW_DB_URL` variable.
+
+```env
+# DB URL
+DATABASE_URL="postgresql://john:doe@localhost:5432/master-bot?schema=public"
+SHADOW_DB_URL="postgresql://john:doe@localhost:5432/master-bot-shadow?schema=public"
+
+# Bot Token & Owner
+DISCORD_TOKEN=""
+DISCORD_OWNER_ID=""
+
+# NextAuth & Web Dashboard
+NEXTAUTH_SECRET="somesupersecrettwelvelengthword"
+NEXTAUTH_URL=
+NEXTAUTH_URL_INTERNAL=http://localhost:3000
+NEXT_PUBLIC_INVITE_URL="https://discord.com/api/oauth2/authorize?client_id=yourclientid&permissions=8&scope=bot"
+
+# Next Auth Discord Provider
+DISCORD_CLIENT_ID=""
+DISCORD_CLIENT_SECRET=""
+
+# Redis Cache
+REDIS_HOST="127.0.0.1"
+REDIS_PORT=6379
+REDIS_PASSWORD=""
+
+# Lavalink v4 Audio Engine
+LAVA_ENABLED=true
+LAVA_HOST="127.0.0.1"
+LAVA_PASS="youshallnotpass"
+LAVA_PORT=2333
+LAVA_SECURE=false
+
+# Spotify Metadata
+SPOTIFY_CLIENT_ID=""
+SPOTIFY_CLIENT_SECRET=""
+
+# Twitch Stream Alerts
+TWITCH_ENABLED=false
+TWITCH_CLIENT_ID=""
+TWITCH_CLIENT_SECRET=""
+
+# Media & Search APIs
+KLIPY_API=""
+NEWS_ENABLED=false
+NEWS_API=""
+GENIUS_API=""
+RAWG_API=""
+IGDB_ENABLED=false
+IGDB_CLIENT_ID=""
+IGDB_CLIENT_SECRET=""
 ```
 
----
+#### Gif features
 
-## ⚡ Key Features
+If you have no use in the gif commands, leave `KLIPY_API` empty. Same applies for Twitch, News, and IGDB; everything else is needed for core music and dashboard features.
 
-- **🎵 High-Performance Audio Engine:** Powered by **Lavalink v4** with support for YouTube (multi-client failover), Spotify metadata resolution (`lavasrc-plugin`), free built-in SoundCloud, Twitch, Vimeo, and direct audio streams. Includes interactive channel player embeds with real-time ASCII progress bars (`00:00 ▰▰▰▰▰▰▱▱▱▱▱ 03:45`) and audio filters (`/bassboost`, `/karaoke`, `/nightcore`, `/vaporwave`).
-- **📚 Custom Playlists:** Per-user saved playlists via `/create-playlist`, `/save-to-playlist`, `/my-playlists`, `/display-playlist`, and `/delete-playlist`.
-- **🔨 Full Moderation Suite:** Dedicated slash commands (`/ban`, `/kick`, `/slowmode`, `/timeout`, `/purge`) with permission hierarchy validation and safety checks.
-- **🎫 Thread-Based Support Ticket System:** Interactive ticket panel with auto-posting buttons (`ticket_create`, `ticket_close`), thread management, dynamic greeting templates (`{user}`, `{username}`, `{server}`), and secure `.txt` transcript archiving.
-- **📜 Granular Event & Audit Logging:** Multi-category logging system supporting 18 event triggers with customizable channel targets, managed via `/set` or the web dashboard.
-- **🗄️ Automatic Database Migrations:** `pnpm dev` and `pnpm start` automatically execute `prisma db push` on launch before the bot process starts.
-- **🔑 Native YouTube Device Flow OAuth:**
-  - Automated device-code prompt displayed directly in the terminal console, plus the `/youtube-auth` slash command (Owner only).
-  - Tokens persist atomically to `.youtube-oauth.json` (via write-to-temp + atomic rename), so no re-authentication is needed after restart.
-  - Native Spring environment variable binding (`refreshToken: "${YOUTUBE_REFRESH_TOKEN}"` in `application.yml`) prevents `.env` disk corruption.
-- **🌐 Interactive Web Dashboard:** Modern **Next.js 15** App Router glassmorphism command center featuring 9 dedicated studios:
-  - **Lavalink v4 Audio & Music Studio:** Live player controls, DSP audio filters (Bassboost, Nightcore, Vaporwave, Karaoke), and user playlist management.
-  - **Live WYSIWYG Embed Broadcaster:** Real-time side-by-side Discord client preview and one-click channel dispatcher.
-  - **18-Event Audit Stream:** Comprehensive event capture categorized by moderation, messages, members, channels, and voice.
-  - **Support Ticket Suite:** Dynamic thread-based tickets, staff role assignments, and transcript explorer.
-  - **Twitch Streamers & Integrations:** Live stream alert dispatcher and notification routing.
-  - **Cluster Telemetry & Diagnostics:** Live PostgreSQL latency ping, gateway WebSocket ping, shard health, and ecosystem totals.
-  - **Smart Reminders:** Personal user reminders and scheduled channel alerts.
-  - **Welcome & Farewell Designer:** Interactive embed builder with dynamic template placeholders.
-  - **Command Panel:** Guild-level command overrides and permission bit management.
-- **🧪 Comprehensive Test Suite:** Monorepo unit and integration tests powered by **Vitest v2** and v8 code coverage.
-- **🎯 Feature Flags:** Individual bot modules (Lavalink audio, GIFs, Twitch, News, IGDB) can be enabled or disabled dynamically via environment variables.
-- **🚀 Cross-Platform Unified Launchers:** `pnpm dev` and `pnpm start` automatically manage ports, clear lingering processes, route output to isolated log files (`logs/`), and present a clean console status UI.
-- **🖼️ Reaction GIFs & Media:** Powered by Klipy API and Waifu.im (`/gif`, `/hug`, `/waifu`, `/cat`, `/doggo`, and more).
-- **🎮 Gaming & Info:** Live Twitch channel alerts, IGDB game search, TVMaze TV show info, and a suite of fun utilities (`/8ball`, `/urban`, `/trump`, `/kanye`, `/translate`, and more).
+#### DB URL
 
----
+Change 'john' to your pc username and 'doe' to some password, or set the name and password you created when you installed Postgres.
 
-## 📋 System Requirements
+#### Bot Token
 
-- **Node.js**: `>=20.0.0`
-- **pnpm**: `>=8.0.0` (`npm install -g pnpm`)
-- **Java**: Java 17+ required · Java 21 LTS recommended (Required for Lavalink v4)
-- **PostgreSQL**: PostgreSQL database server
-- **Redis**: Redis server for queue state and caching
+Generate a token in your Discord developer portal.
 
----
+#### Next Auth
 
-## 🚀 Quick Start Guide
+You can leave everything as is, just change 'yourclientid' in `NEXT_PUBLIC_INVITE_URL` to your Discord bot id and then change 'domain' in `NEXTAUTH_URL` to your domain or public ip. You can find your public ip by going to [whatismyip.com](https://www.whatismyip.com/).
 
-### 1. Clone & Install Dependencies
+#### Next Auth Discord Provider
 
-```bash
-git clone https://github.com/galnir/Master-Bot.git
-cd Master-Bot
-pnpm install
-```
+Go to the OAuth2 tab in the developer portal, copy the Client ID to `DISCORD_CLIENT_ID` and generate a secret to place in `DISCORD_CLIENT_SECRET`. Also, set the following URLs under 'Redirects':
 
-### 2. Configure Environment Variables
+- `http://localhost:3000/api/auth/callback/discord`
+- `http://domain:3000/api/auth/callback/discord`
 
-Create `.env` in the root workspace directory from `.env.example`:
+Make sure to change 'domain' in `http://domain:3000/api/auth/callback/discord` to your domain or public ip.
 
-```bash
-cp .env.example .env
-```
+#### Lavalink
 
-Fill in your mandatory Discord and database credentials:
+You can leave this as long as the values match your `application.yml`.
 
-- `DISCORD_TOKEN`: Bot token from Discord Developer Portal
-- `DISCORD_CLIENT_ID` & `DISCORD_CLIENT_SECRET`: Application OAuth2 credentials
-- `DATABASE_URL` & `SHADOW_DB_URL`: PostgreSQL connection strings
-- `REDIS_HOST` & `REDIS_PORT`: Redis cache connection details
-- `LAVA_ENABLED`: Set to `true` to enable Lavalink audio playback (defaults to `false`)
+#### Spotify and Twitch
 
-### 3. Run Test Suite
+Create an application in each platform's developer portal and paste the relevant values.
 
-```bash
-# Run Vitest unit & integration tests
-pnpm test
+#### Pnpm
 
-# Run tests with code coverage
-pnpm run test:coverage
-```
+Install pnpm:
+`npm install -g pnpm` or on Windows `iwr https://get.pnpm.io/install.ps1 -useb | iex` or on Mac using Homebrew `brew install pnpm`
 
-### 4. Run Development Stack
+# Running the bot
 
-```bash
-pnpm dev
-```
+1. If you followed everything right, hit `pnpm i` in the root folder. When it finishes make sure prisma didn't error.
+2. Open a separate terminal in the root folder and run `java -jar Lavalink.jar` (must be running all the time for music).
+3. Wait a few seconds and run `pnpm dev` in the root folder in another terminal window.
+4. If everything works, your bot and dashboard should be running.
+5. (Optional) Run the Vitest test suite with `pnpm test`.
+6. Enjoy!
 
-The unified launcher will automatically synchronize your Prisma schema (`prisma db push`), clear lingering ports, and start all services concurrently.
+# Commands
 
----
+A full list of commands for use with Master Bot
 
-## 🎵 YouTube OAuth Setup
+## Music
 
-When launching for the first time without a YouTube refresh token:
+| Command               | Description                                                                                                               | Usage                                                 |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| /play                 | Play any song or playlist from youtube, you can do it by searching for a song by name or song url or playlist url         | /play darude sandstorm                                |
+| /pause                | Pause the current playing song                                                                                            | /pause                                                |
+| /resume               | Resume the current paused song                                                                                            | /resume                                               |
+| /leave                | Leaves voice channel if in one                                                                                            | /leave                                                |
+| /remove               | Remove a specific song from queue by its number in queue                                                                  | /remove 4                                             |
+| /queue                | Display the song queue                                                                                                    | /queue                                                |
+| /shuffle              | Shuffle the song queue                                                                                                    | /shuffle                                              |
+| /skip                 | Skip the current playing song                                                                                             | /skip                                                 |
+| /skipall              | Skip all songs in queue                                                                                                   | /skipall                                              |
+| /skipto               | Skip to a specific song in the queue, provide the song number as an argument                                              | /skipto 5                                             |
+| /volume               | Adjust song volume                                                                                                        | /volume 80                                            |
+| /music-trivia         | Engage in a music trivia with your friends. You can add more songs to the trivia pool in resources/music/musictrivia.json | /music-trivia                                         |
+| /loop                 | Loop the currently playing song or queue                                                                                  | /loop                                                 |
+| /lyrics               | Get lyrics of any song or the lyrics of the currently playing song                                                        | /lyrics song-name                                     |
+| /jump                 | Jump to a specific position in the track queue                                                                            | /jump 3                                               |
+| /seek                 | Seek to a specific timestamp in the current song                                                                          | /seek 1:30                                            |
+| /bassboost            | Apply bassboost audio filter                                                                                              | /bassboost level: high                                |
+| /nightcore            | Apply nightcore audio filter                                                                                              | /nightcore                                            |
+| /vaporwave            | Apply vaporwave audio filter                                                                                              | /vaporwave                                            |
+| /karaoke              | Apply karaoke audio filter                                                                                                | /karaoke                                              |
+| /create-playlist      | Create a custom playlist                                                                                                  | /create-playlist 'playlistname'                       |
+| /save-to-playlist     | Add a song or playlist to a custom playlist                                                                               | /save-to-playlist 'playlistname' 'yt or spotify url'  |
+| /remove-from-playlist | Remove a track from a custom playlist                                                                                     | /remove-from-playlist 'playlistname' 'track location' |
+| /my-playlists         | Display your custom playlists                                                                                             | /my-playlists                                         |
+| /display-playlist     | Display a custom playlist                                                                                                 | /display-playlist 'playlistname'                      |
+| /delete-playlist      | Remove a custom playlist                                                                                                  | /delete-playlist 'playlistname'                       |
 
-1. Lavalink's `youtube-plugin` triggers the OAuth device flow.
-2. The launcher displays a prompt in the terminal console containing the link (`https://www.google.com/device`) and user code (`XXXX-XXXX`).
-3. Visit the link in your browser and authorize the device code.
-4. The launcher automatically captures the issued token, saves it atomically to `.youtube-oauth.json`, and updates `process.env.YOUTUBE_REFRESH_TOKEN`.
-5. Lavalink binds the token natively via `${YOUTUBE_REFRESH_TOKEN}` in `application.yml` and Java system properties without modifying `.env` on disk.
+## Gifs
 
-You can also re-trigger authorization any time with the `/youtube-auth` command (Owner only).
+| Command    | Description                | Usage      |
+| ---------- | -------------------------- | ---------- |
+| /gif       | Get a random gif           | /gif       |
+| /jojo      | Get a random jojo gif      | /jojo      |
+| /gintama   | Get a random gintama gif   | /gintama   |
+| /anime     | Get a random anime gif     | /anime     |
+| /baka      | Get a random baka gif      | /baka      |
+| /cat       | Get a cute cat picture     | /cat       |
+| /doggo     | Get a cute dog picture     | /doggo     |
+| /hug       | Get a random hug gif       | /hug       |
+| /slap      | Get a random slap gif      | /slap      |
+| /pat       | Get a random pat gif       | /pat       |
+| /triggered | Get a random triggered gif | /triggered |
+| /amongus   | Get a random Among Us gif  | /amongus   |
+| /waifu     | Get a random waifu picture | /waifu     |
+| /smug      | Get a random smug gif      | /smug      |
+| /kiss      | Get a random kiss gif      | /kiss      |
+| /cuddle    | Get a random cuddle gif    | /cuddle    |
 
----
+## Moderation
 
-## 📖 Available Commands
+| Command   | Description                            | Usage                  |
+| --------- | -------------------------------------- | ---------------------- |
+| /ban      | Ban a user from the server             | /ban @user spamming    |
+| /kick     | Kick a user from the server            | /kick @user breaking rules |
+| /timeout  | Timeout (mute) a user for a duration   | /timeout @user 10m     |
+| /slowmode | Set slowmode rate limit for a channel  | /slowmode 5s           |
+| /purge    | Bulk delete a number of messages       | /purge 25              |
 
-> Master-Bot ships with **74 slash commands** across Music, Moderation, GIFs, Games, Utilities, News, Reminders, and more. For the complete, up-to-date list and the `/set` subcommands, see the [Commands Reference](wiki/Commands-Reference.md).
+## Other
 
-### 🎵 Music
+| Command           | Description                                                                                                                                                        | Usage                                   |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------- |
+| /set              | Configure server settings (logging, tickets, welcome messages, suggestions, etc.)                                                                                   | /set logs #audit-log                    |
+| /poll             | Create an interactive multi-choice poll with buttons                                                                                                               | /poll title: "Favorite color?"          |
+| /reminder         | Set, list, or delete personal and server reminders                                                                                                                 | /reminder set 1h "Check pizza"          |
+| /weather          | Get current weather and forecast for any location                                                                                                                  | /weather London                         |
+| /fortune          | Get a fortune cookie tip                                                                                                                                           | /fortune                                |
+| /insult           | Generate an evil insult                                                                                                                                            | /insult                                 |
+| /chucknorris      | Get a satirical fact about Chuck Norris                                                                                                                            | /chucknorris                            |
+| /motivation       | Get a random motivational quote                                                                                                                                    | /motivation                             |
+| /random           | Generate a random number between two provided numbers                                                                                                              | /random 0 100                           |
+| /8ball            | Get the answer to anything!                                                                                                                                        | /8ball Is this bot awesome?             |
+| /rps              | Rock Paper Scissors                                                                                                                                                | /rps                                    |
+| /bored            | Generate a random activity!                                                                                                                                        | /bored                                  |
+| /advice           | Get some advice!                                                                                                                                                   | /advice                                 |
+| /connect-four     | Play Connect Four interactively with buttons                                                                                                                       | /connect-four @opponent                 |
+| /tic-tac-toe      | Play Tic-Tac-Toe interactively with buttons                                                                                                                        | /tic-tac-toe @opponent                  |
+| /game-search      | Search for game information                                                                                                                                        | /game-search super-metroid              |
+| /tv-show-search   | Search for TV show information                                                                                                                                     | /tv-show-search "Breaking Bad"          |
+| /kanye            | Get a random Kanye quote                                                                                                                                           | /kanye                                  |
+| /world-news       | Latest headlines from world news via NewsAPI                                                                                                                       | /world-news                             |
+| /translate        | Translate to any language using Google translate (only supported languages)                                                                                        | /translate english ありがとう           |
+| /about            | Info about the bot and the repository                                                                                                                              | /about                                  |
+| /urban            | Get definitions from urban dictionary                                                                                                                              | /urban javascript                       |
+| /activity         | Generate an invite link to your voice channel's activity                                                                                                           | /activity Chill                         |
+| /twitch-status    | Check the status of a Twitch streamer                                                                                                                              | /twitch-status streamer: bacon_fixation |
+| /dashboard        | Get the link to the web dashboard                                                                                                                                  | /dashboard                              |
+| /youtube-auth     | Re-trigger YouTube OAuth Device Flow (Owner only)                                                                                                                  | /youtube-auth                           |
 
-| Command            | Description                            |
-| ------------------ | -------------------------------------- |
-| `/play`            | Play a song, playlist, or search query |
-| `/jump`            | Jump to a specific track in the queue  |
-| `/music-trivia`    | Start an interactive music trivia game |
-| `/create-playlist` | Create a custom user playlist          |
-| `/help`            | Browse commands & detailed help        |
+## Resources
 
-### 🔨 Moderation
+[Getting a Klipy API key](wiki/API-Keys.md#klipy--gifs)
 
-| Command     | Description             |
-| ----------- | ----------------------- |
-| `/ban`      | Ban a member            |
-| `/kick`     | Kick a member           |
-| `/timeout`  | Timeout (mute) a member |
-| `/slowmode` | Set channel slowmode    |
-| `/purge`    | Bulk delete messages    |
+[Getting a NewsAPI API key](https://newsapi.org/)
 
-### ⚙️ Utility, Games & Owner
+[Getting a Genius API key](https://genius.com/api-clients/new)
 
-| Command          | Description                                             |
-| ---------------- | ------------------------------------------------------- |
-| `/set`           | Configure server settings                               |
-| `/poll`          | Create an interactive multi-choice poll with buttons    |
-| `/reminder`      | Set, list, and manage personal or server reminders      |
-| `/weather`       | Get current weather and 3-day forecast for any location |
-| `/bored`         | Generate a fun, random activity to cure your boredom    |
-| `/world-news`    | Fetch the latest world news headlines via NewsAPI       |
-| `/connect-four`  | Play Connect 4 interactively with buttons               |
-| `/tic-tac-toe`   | Play Tic-Tac-Toe interactively with buttons             |
-| `/about`         | Display detailed bot, server, or user information       |
-| `/youtube-auth`  | Re-trigger YouTube OAuth (Owner Only)                   |
-| `/game-search`   | Search video game info via IGDB                         |
-| `/twitch-status` | Check a Twitch streamer's live status                   |
-| `/dashboard`     | Get a link to the web dashboard                         |
+[Getting a RAWG API key](https://rawg.io/apidocs)
 
----
+[Getting a Twitch API key](wiki/API-Keys.md#twitch-api)
 
-## 🐳 Docker Deployment
+[Setup & Deployment Guide](wiki/Setup-and-Deployment.md)
 
-To run the complete stack (Bot, Dashboard, PostgreSQL, Redis, Lavalink v4) in containerized mode:
+[Cloud Hosting (Render, Railway, Fly.io, Heroku, Docker)](wiki/Cloud-Hosting.md)
 
-```bash
-docker compose --env-file docker.env up -d --build
-```
+[Heroku Deployment Guide](wiki/Heroku-Deployment.md)
 
----
+[Lavalink v4 & YouTube Audio Setup](wiki/Lavalink.md)
 
-## 📚 Documentation & Wiki
+[Dashboard Architecture & API Guide](wiki/Dashboard-Architecture.md)
 
-For detailed architecture guides, deployment steps, and API credential instructions, visit the project [Wiki](wiki/Home.md):
+[Full Commands Reference](wiki/Commands-Reference.md)
 
-- 📘 [Setup & Deployment Guide](wiki/Setup-and-Deployment.md)
-- ☁️ [Cloud Hosting Guide (Render, Railway, Fly.io, VPS)](wiki/Cloud-Hosting.md)
-- 🟣 [Heroku Deployment Guide](wiki/Heroku-Deployment.md)
-- 🌐 [Web Dashboard Architecture](wiki/Dashboard-Architecture.md)
-- 🎵 [Lavalink v4 Setup Guide](wiki/Lavalink.md)
-- 🔑 [API Keys & Configuration](wiki/API-Keys.md)
-- 📜 [Complete Commands Reference](wiki/Commands-Reference.md)
+[Discord Bot Architecture](apps/bot/README.md)
 
----
+[Web Dashboard Guide](apps/dashboard/README.md)
 
-## 👥 Contributors ❤️
+[Vitest Test Suite Guide](tests/README.md)
+
+## Contributing
+
+Fork it and submit a pull request!
+Anyone is welcome to suggest new features and improve code quality!
+See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines.
+
+## Contributors ❤️
 
 **⭐ [Bacon Fixation](https://github.com/Bacon-Fixation) ⭐ - Countless contributions**
 
-- [ModoSN](https://github.com/ModoSN) - `resolve-ip`, `rps`, `8ball`, `bored`, `trump`, `advice`, `kanye`, `urban dictionary` commands and visual updates
-- [PhantomNimbi](https://github.com/PhantomNimbi) - GIF commands, Lavalink v4 engine, Next.js 15 migration, moderation suite, support ticket system, live ASCII progress bar & auto-updater
-- [rafaeldamasceno](https://github.com/rafaeldamasceno) - `music-trivia` and Dockerfile improvements, minor tweaks
-- [navidmafi](https://github.com/navidmafi) - `LeaveTimeOut` and `MaxResponseTime` options, update issue template, fix leave command
-- [Kyoyo](https://github.com/NotKyoyo) - added back `now-playing`
-- [MontejoJorge](https://github.com/MontejoJorge) - added back `remind`
-- [malokdev](https://github.com/malokdev) - `uptime` command
-- [chimaerra](https://github.com/chimaerra) - minor command tweaks
+[ModoSN](https://github.com/ModoSN) - 'resolve-ip', 'rps', '8ball', 'bored', 'trump', 'advice', 'kanye', 'urban dictionary' commands and visual updates
 
----
+[PhantomNimbi](https://github.com/PhantomNimbi) - bring back gif commands, lavalink config tweaks, next.js 15 dashboard rewrite, vitest test suite, moderation & ticket system, cloud hosting guides
 
-## 🤝 Contributing
+[Natemo6348](https://github.com/Natemo6348) - 'mute', 'unmute'
 
-We welcome contributions of all kinds! Please read our [Contributing Guidelines](CONTRIBUTING.md) to get started with local setup, coding standards, and pull request workflows.
+[kfirmeg](https://github.com/kfirmeg) - play command flags, dockerization, docker wiki
 
----
+[rafaeldamasceno](https://github.com/rafaeldamasceno) - 'music-trivia' and Dockerfile improvements, minor tweaks
 
-## 📄 License
+[navidmafi](https://github.com/navidmafi) - 'LeaveTimeOut' and 'MaxResponseTime' options, update issue template, fix leave command
 
-Distributed under the MIT License. See [`LICENSE.md`](LICENSE.md) for more information.
+[Kyoyo](https://github.com/NotKyoyo) - added back 'now-playing'
+
+[MontejoJorge](https://github.com/MontejoJorge) - added back 'remind'
+
+[malokdev](https://github.com/malokdev) - 'uptime' command
+
+[chimaerra](https://github.com/chimaerra) - minor command tweaks
