@@ -6,7 +6,7 @@ import {
 	getApplicationOwnerUser,
 	initiateDeviceFlow,
 	pollForRefreshToken
-} from '../../lib/music/youtubeOAuth';
+} from '../../lib/music/youtubeOAuth.js';
 
 @ApplyOptions<CommandOptions>({
 	name: 'youtube-auth',

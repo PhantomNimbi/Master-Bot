@@ -14,7 +14,8 @@ import {
 	getLavalinkKeyStatus,
 	getLavalinkJavaArgs,
 	createLogWriter,
-	killProcessTree
+	killProcessTree,
+	getSystemInfo
 } from './common.mjs';
 
 loadEnv();
@@ -186,11 +187,12 @@ const dashboardUrlDisplay = dashboardPublicUrl
 	? `${baseUrl} | Public: ${dashboardPublicUrl}`
 	: baseUrl;
 
+const sys = getSystemInfo();
 const activeServices = [
-	`    • 🤖 Master-Bot:          RUNNING (Discord client + embedded dashboard, Port: ${port}) └─ Log: logs/bot.log`,
+	`    • 🤖 Master-Bot:          STARTING (Discord client + embedded dashboard, Port: ${port}) └─ Log: logs/bot.log`,
 	`    • 🌐 Web Dashboard:      ${dashboardUrlDisplay}\n                                     └─ /dashboard · OAuth2: /api/auth/callback/discord`,
 	`    • 💾 SQLite Database:    ${sqliteStatus}`,
-	`    • ⚡ In-Memory Queue:    ACTIVE (Zero external dependency)`
+	`    • ⚡ Audio Queue:        ${isLavalinkEnabled ? 'Lavalink-managed' : 'In-Memory (Zero external dependency)'}`
 ];
 
 if (isLavalinkEnabled && !lavalinkStatus.startsWith('DISABLED')) {
@@ -204,14 +206,16 @@ if (isLavalinkEnabled && !lavalinkStatus.startsWith('DISABLED')) {
 // Display Clean Terminal Status Banner
 console.log(`
 ====================================================================
-            🤖 MASTER-BOT UNIFIED CONSOLE (DEV)                     
+            🤖 MASTER-BOT UNIFIED CONSOLE (DEV)
 ====================================================================
   Execution Mode:    DEVELOPMENT
   Unified Port:      ${port}${isLavalinkEnabled ? ` | Lavalink: ${lavaPort}` : ''}
-  
+  System:            Node ${sys.nodeVersion} | ${sys.platform} ${sys.arch}
+  Memory:            ${sys.memoryMB} MB RSS | PID: ${sys.pid}
+
   Active Services:
 ${activeServices.join('\n')}
-  
+
   Combined System Log: logs/combined.log
   Live Owner Web Logs: ${baseUrl}/dashboard${oauthNote}
 `);

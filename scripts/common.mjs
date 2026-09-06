@@ -394,6 +394,28 @@ export function saveYouTubeRefreshToken(token) {
 	process.stdout.write(successBanner);
 }
 
+/**
+ * Reads dynamic system information for startup banners.
+ */
+export function getSystemInfo() {
+	const pkgPath = path.join(rootDir, 'package.json');
+	let version = 'unknown';
+	try {
+		const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+		version = pkg.version || 'unknown';
+	} catch {}
+
+	const mem = process.memoryUsage();
+	return {
+		nodeVersion: process.version,
+		platform: process.platform,
+		arch: process.arch,
+		packageVersion: version,
+		memoryMB: Math.round(mem.rss / 1024 / 1024),
+		pid: process.pid
+	};
+}
+
 export function isAuthInfo(line) {
 	const lower = line.toLowerCase();
 
