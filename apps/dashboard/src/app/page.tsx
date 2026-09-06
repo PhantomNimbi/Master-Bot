@@ -103,7 +103,7 @@ export default function HomePage() {
 						className="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold text-sm border border-slate-700 transition-all flex items-center gap-2"
 					>
 						<Bot className="w-4 h-4 text-indigo-400" />
-						<span>Invite Master Bot</span>
+						<span>Invite Master-Bot</span>
 					</a>
 				</div>
 

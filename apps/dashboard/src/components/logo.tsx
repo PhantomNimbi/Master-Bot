@@ -14,7 +14,7 @@ export default function Logo({
 			}
 		}`}
 		>
-			<span>Master Bot</span>
+			<span>Master-Bot</span>
 		</div>
 	);
 }

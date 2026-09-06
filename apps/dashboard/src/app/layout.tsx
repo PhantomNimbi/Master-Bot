@@ -13,8 +13,8 @@ const fontSans = Inter({
 });
 
 export const metadata: Metadata = {
-	title: 'Master Bot Dashboard',
-	description: 'Master bot monorepo with shared backend for web & bot apps'
+	title: 'Master-Bot Dashboard',
+	description: 'Master-Bot monorepo with shared backend for web & bot apps'
 };
 
 export default function Layout(props: { children: React.ReactNode }) {

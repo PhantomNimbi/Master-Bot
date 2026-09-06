@@ -49,7 +49,7 @@ flowchart TD
 | **☁️ Cloud Hosting** | Manual production deployment across Render, Railway, Fly.io, Heroku, Koyeb, VPS | [Hosting Guide](Hosting) |
 | **🎵 Lavalink & Audio** | Lavalink v4 setup, YouTube OAuth device flow, cipher deciphering, audio filters | [Lavalink Guide](Lavalink) |
 | **🌐 Web Dashboard** | Next.js 15 App Router architecture, tRPC v11 procedures, and 9 Feature Studios | [Dashboard Guide](Dashboard) |
-| **🔑 Configuration** | Master environment variables, API keys (Twitch, IGDB, Klipy, NewsAPI), feature flags | [Configuration Guide](Configuration) |
+| **🔑 Configuration** | Master-Bot environment variables, API keys (Twitch, IGDB, Klipy, NewsAPI), feature flags | [Configuration Guide](Configuration) |
 | **📜 Commands** | Complete 74 slash command catalog and server configuration (`/set`) manual | [Commands Reference](Commands) |
 | **🧪 Testing** | Vitest unit and integration test harness, coverage, and validation workflows | [Testing Guide](Testing) |
 

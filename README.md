@@ -151,7 +151,7 @@ Install pnpm:
 
 # Commands
 
-A full list of commands for use with Master Bot
+A full list of commands for use with Master-Bot
 
 ## Music
 

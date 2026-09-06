@@ -19,6 +19,6 @@ Comprehensive manual step-by-step deployment instructions for hosting **Master-B
 
 ---
 
-## 🔑 Master Environment Variables Reference
+## 🔑 Master-Bot Environment Variables Reference
 
 See the full [Configuration Guide](Configuration) for complete details on all required environment variables.

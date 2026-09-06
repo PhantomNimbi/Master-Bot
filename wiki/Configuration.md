@@ -1,10 +1,10 @@
 # 🔑 Configuration & Environment Variables Guide
 
-Master configuration reference for all environment variables in Master-Bot.
+Comprehensive configuration reference for all environment variables in Master-Bot.
 
 ---
 
-## Master `.env` Configuration Template
+## Complete `.env` Configuration Template
 
 ```env
 # PostgreSQL Database URL
@@ -60,7 +60,7 @@ IGDB_CLIENT_SECRET=""
 
 | Variable | Default | Description |
 | :--- | :--- | :--- |
-| `LAVA_ENABLED` | `false` | Master toggle for Lavalink audio and all music commands |
+| `LAVA_ENABLED` | `false` | Global toggle for Lavalink audio and all music commands |
 | `GIFS_ENABLED` | `true` | Enables animated GIF reactions and media commands |
 | `TWITCH_ENABLED` | `true` | Enables Twitch streamer monitoring and live alerts |
 | `NEWS_ENABLED` | `true` | Enables global news headlines via NewsAPI (`/world-news`) |
