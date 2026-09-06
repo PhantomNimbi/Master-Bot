@@ -11,26 +11,56 @@ import {
 	StringSelectMenuOptionBuilder
 } from 'discord.js';
 
-const CATEGORY_EMOJIS: Record<string, string> = {
-	music: '🎵',
-	gifs: '🖼️',
-	twitch: '🎮',
-	moderation: '🔨',
-	other: '⚙️'
+const CATEGORY_META: Record<
+	string,
+	{ emoji: string; label: string; description: string }
+> = {
+	music: {
+		emoji: '\u{1F3B5}',
+		label: 'Music & Audio',
+		description: 'Playback, queues, playlists, and audio controls'
+	},
+	gifs: {
+		emoji: '\u{1F5BC}',
+		label: 'Reaction GIFs',
+		description: 'Animated reactions and fun GIF commands'
+	},
+	twitch: {
+		emoji: '\u{1F3AE}',
+		label: 'Twitch Live Alerts',
+		description: 'Stream notifications and Twitch lookups'
+	},
+	moderation: {
+		emoji: '\u{1F528}',
+		label: 'Moderation & Server Management',
+		description: 'Tools for managing your Discord server'
+	},
+	other: {
+		emoji: '\u{2699}',
+		label: 'Utilities & General',
+		description: 'Help, settings, and general-purpose commands'
+	}
 };
 
-const CATEGORY_NAMES: Record<string, string> = {
-	music: 'Music & Audio',
-	gifs: 'Reaction GIFs',
-	twitch: 'Twitch Live Alerts',
-	moderation: 'Moderation & Server Management',
-	other: 'Utilities & General'
-};
+function getCategoryMeta(category: string) {
+	const key = category.toLowerCase();
+	return (
+		CATEGORY_META[key] || {
+			emoji: '\u{2699}',
+			label: key.charAt(0).toUpperCase() + key.slice(1),
+			description: 'General commands'
+		}
+	);
+}
+
+function formatCommandList(commands: CommandHelp[]): string {
+	if (commands.length === 0) return 'No commands available.';
+	return commands.map(c => `/${c.name}`).join(', ');
+}
 
 @ApplyOptions<CommandOptions>({
 	name: 'help',
-	description:
-		'Explore the command list or view detailed info for a specific command.',
+	description: 'Browse commands by category or view detailed info for a specific command.',
 	preconditions: ['isCommandDisabled']
 })
 export class HelpCommand extends Command {
@@ -49,7 +79,7 @@ export class HelpCommand extends Command {
 						)
 						.setAutocomplete(true)
 						.setRequired(false)
-				)
+					)
 		);
 	}
 
@@ -58,7 +88,7 @@ export class HelpCommand extends Command {
 		const enabledCommands = HelpRegistry.getEnabledCommands();
 		const result = enabledCommands
 			.map(cmd => ({
-				name: `/${cmd.name} - ${cmd.description.slice(0, 50)}`,
+				name: `${cmd.name} — ${cmd.description.slice(0, 50)}`,
 				value: cmd.name
 			}))
 			.filter(cmd =>
@@ -77,131 +107,120 @@ export class HelpCommand extends Command {
 		const { client } = container;
 		const query = interaction.options.getString('command-name')?.toLowerCase();
 
-		// 1. Detailed Command Lookup Mode
+		// ─── Individual Command Help ──────────────────────────────────────────
 		if (query) {
 			const { help: targetHelp, disabled } = HelpRegistry.getCommand(query);
 
 			if (!targetHelp) {
 				return await interaction.reply({
-					content: `:x: Could not find command **/${query}**. Use \`/help\` to browse available commands.`,
+					content: `Could not find command /${query}. Use /help to browse available commands.`,
 					ephemeral: true
 				});
 			}
 
 			if (disabled) {
 				return await interaction.reply({
-					content: `:warning: Command **/${query}** is currently disabled while system upgrades are underway.`,
+					content: `Command /${query} is currently disabled.`,
 					ephemeral: true
 				});
 			}
 
-			const category = targetHelp.category.toLowerCase();
-			const categoryName =
-				CATEGORY_NAMES[category] ||
-				category.charAt(0).toUpperCase() + category.slice(1);
-			const categoryEmoji = CATEGORY_EMOJIS[category] || '⚙️';
+			const meta = getCategoryMeta(targetHelp.category);
 
 			const detailEmbed = new EmbedBuilder()
-				.setTitle(`${categoryEmoji} Command: /${targetHelp.name}`)
+				.setTitle(`${meta.emoji}  ${targetHelp.name}`)
 				.setColor(0x5865f2)
 				.setThumbnail(client.user?.displayAvatarURL() || null)
-				.setDescription(`> ${targetHelp.description}`)
+				.setDescription(targetHelp.description)
 				.addFields(
 					{
-						name: '📂 Category',
-						value: `${categoryEmoji} ${categoryName}`,
+						name: 'Category',
+						value: `${meta.emoji}  ${meta.label}`,
 						inline: true
 					},
 					{
-						name: '💻 Usage',
-						value: `\`${targetHelp.usage || `/${targetHelp.name}`}\``,
+						name: 'Usage',
+						value: targetHelp.usage || `/${targetHelp.name}`,
 						inline: true
 					}
 				)
 				.setFooter({
 					text: 'Master-Bot Command Reference',
-					iconURL: client.user?.displayAvatarURL()
+					iconURL: client.user?.displayAvatarURL() || undefined
 				})
 				.setTimestamp();
 
 			if (targetHelp.options && targetHelp.options.length > 0) {
-				const optionsFormatted = targetHelp.options
+				const optionsText = targetHelp.options
 					.map(opt => {
-						const req = opt.required ? '`[Required]`' : '`[Optional]`';
-						return `• **${opt.name}** ${req}\n  ${opt.description}`;
+						const req = opt.required ? ' (required)' : ' (optional)';
+						return `${opt.name}${req}: ${opt.description}`;
 					})
-					.join('\n\n');
+					.join('\n');
 
 				detailEmbed.addFields({
-					name: '⚙️ Parameters & Options',
-					value: optionsFormatted
+					name: 'Parameters',
+					value: optionsText
 				});
 			}
 
 			if (targetHelp.examples && targetHelp.examples.length > 0) {
 				detailEmbed.addFields({
-					name: '💡 Examples',
-					value: targetHelp.examples.map(ex => `\`${ex}\``).join('\n')
+					name: 'Examples',
+					value: targetHelp.examples.join('\n')
 				});
 			}
 
 			return await interaction.reply({ embeds: [detailEmbed] });
 		}
 
-		// 2. Full Overview & Dynamic Category Browsing Mode
+		// ─── Main Overview Embed ──────────────────────────────────────────────
 		const categoriesMap = HelpRegistry.getCategoriesMap();
 		const enabledCommands = HelpRegistry.getEnabledCommands();
 		const totalCommands = enabledCommands.length;
 
 		const mainEmbed = new EmbedBuilder()
-			.setTitle('🤖 Master-Bot Command Center')
+			.setTitle('Master-Bot Command List')
 			.setColor(0x5865f2)
 			.setThumbnail(client.user?.displayAvatarURL() || null)
 			.setDescription(
-				`Welcome to **Master-Bot**! Use the select menu below to explore commands by category or type \`/help [command-name]\` for specific usage details.\n\n` +
-					`**📊 Quick Stats:**\n` +
-					`• Active Commands: **${totalCommands}**\n` +
-					`• Active Categories: **${categoriesMap.size}**\n` +
-					`• Gateway Latency: **${client.ws.ping}ms**`
+				`Use the menu below to browse by category, or type /help followed by a command name to see full details.\n\n` +
+					`Total commands: ${totalCommands}`
 			)
 			.setFooter({
-				text: 'Select a category below to view commands • Master-Bot',
-				iconURL: client.user?.displayAvatarURL()
+				text: 'Select a category below',
+				iconURL: client.user?.displayAvatarURL() || undefined
 			})
 			.setTimestamp();
 
 		categoriesMap.forEach((cmds, cat) => {
-			const emoji = CATEGORY_EMOJIS[cat] || '⚙️';
-			const label =
-				CATEGORY_NAMES[cat] || cat.charAt(0).toUpperCase() + cat.slice(1);
+			const meta = getCategoryMeta(cat);
 			mainEmbed.addFields({
-				name: `${emoji} ${label} (${cmds.length})`,
-				value: cmds.map(c => `\`/${c.name}\``).join('  '),
-				inline: false
+				name: `${meta.emoji}  ${meta.label}  —  ${cmds.length} command${cmds.length !== 1 ? 's' : ''}`,
+				value: formatCommandList(cmds)
 			});
 		});
 
+		// ─── Category Select Menu ─────────────────────────────────────────────
 		const selectMenu = new StringSelectMenuBuilder()
 			.setCustomId('help_category_select')
-			.setPlaceholder('📂 Browse commands by category...')
+			.setPlaceholder('Browse a category...')
 			.addOptions(
 				new StringSelectMenuOptionBuilder()
-					.setLabel('All Categories Overview')
+					.setLabel('All Categories')
 					.setValue('overview')
-					.setDescription('Return to the main help overview')
-					.setEmoji('🏠')
+					.setDescription('Return to the main command list')
+					.setEmoji('\u{1F3E0}')
 			);
 
 		categoriesMap.forEach((cmds, cat) => {
-			const emoji = CATEGORY_EMOJIS[cat] || '⚙️';
-			const label =
-				CATEGORY_NAMES[cat] || cat.charAt(0).toUpperCase() + cat.slice(1);
+			const meta = getCategoryMeta(cat);
 			selectMenu.addOptions(
 				new StringSelectMenuOptionBuilder()
-					.setLabel(label)
+					.setLabel(meta.label)
 					.setValue(cat)
-					.setDescription(`View all ${cmds.length} commands in ${label}`)
-					.setEmoji(emoji)
+					.setDescription(meta.description)
+					.setEmoji(meta.emoji)
 			);
 		});
 
@@ -215,43 +234,43 @@ export class HelpCommand extends Command {
 			fetchReply: true
 		});
 
+		// ─── Collector for Category Selection ─────────────────────────────────
 		const collector = response.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
-			time: 60000
+			time: 120000
 		});
 
 		collector.on('collect', async i => {
 			if (i.user.id !== interaction.user.id) {
 				await i.reply({
-					content: '❌ Only the command initiator can use this menu.',
+					content: 'Only the person who ran this command can use the menu.',
 					ephemeral: true
 				});
 				return;
 			}
 
-			const selectedCategory = i.values[0];
+			const selected = i.values[0];
 
-			if (selectedCategory === 'overview') {
+			if (selected === 'overview') {
 				await i.update({ embeds: [mainEmbed] });
 				return;
 			}
 
-			const cmds = categoriesMap.get(selectedCategory) || [];
-			const emoji = CATEGORY_EMOJIS[selectedCategory] || '⚙️';
-			const label =
-				CATEGORY_NAMES[selectedCategory] ||
-				selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1);
+			const cmds = categoriesMap.get(selected) || [];
+			const meta = getCategoryMeta(selected);
 
 			const categoryEmbed = new EmbedBuilder()
-				.setTitle(`${emoji} ${label} Commands (${cmds.length})`)
+				.setTitle(`${meta.emoji}  ${meta.label}`)
 				.setColor(0x5865f2)
 				.setThumbnail(client.user?.displayAvatarURL() || null)
-				.setDescription(
-					cmds.map(c => `• **/${c.name}**\n  > ${c.description}`).join('\n\n')
-				)
+				.setDescription(meta.description)
+				.addFields({
+					name: `Commands in this category`,
+					value: formatCommandList(cmds)
+				})
 				.setFooter({
-					text: `Category: ${label} • Type /help [command] for options`,
-					iconURL: client.user?.displayAvatarURL()
+					text: `Use /help [command-name] for details on any command`,
+					iconURL: client.user?.displayAvatarURL() || undefined
 				})
 				.setTimestamp();
 
@@ -269,9 +288,8 @@ export class HelpCommand extends Command {
 export const help: CommandHelp = {
 	name: 'help',
 	category: 'other',
-	description:
-		'Explore the command list or view detailed info for a specific command.',
-	usage: '/help [command-name]',
+	description: 'Browse commands by category or view detailed info for a specific command.',
+	usage: '/help  or  /help command-name: [name]',
 	examples: ['/help', '/help command-name: ping'],
 	options: [
 		{
