@@ -32,10 +32,8 @@ Master-Bot is organized as a [Turborepo](https://turbo.build/) workspace managed
 | Package / App               | Location         | Technology Stack                                           | Responsibility                                                            |
 | :-------------------------- | :--------------- | :--------------------------------------------------------- | :------------------------------------------------------------------------ |
 | **`@master-bot/bot`**       | `apps/bot`       | Sapphire Framework, `discord.js` v14, `lavalink-client` v2 | Discord client, music playback, slash commands, moderation, ticket system |
-| **`@master-bot/dashboard`** | `apps/dashboard` | Next.js 15 (App Router), Tailwind CSS, React Query v5      | Web dashboard, server settings, live preview editors, owner log viewer    |
-| **`@master-bot/api`**       | `packages/api`   | tRPC v11, `superjson`, Zod                                 | Shared type-safe RPC routers and database procedures                      |
-| **`@master-bot/auth`**      | `packages/auth`  | NextAuth.js v5 beta, `@auth/prisma-adapter`                | Discord OAuth authentication, session validation, token refresh           |
-| **`@master-bot/db`**        | `packages/db`    | Prisma ORM v5, PostgreSQL                                  | Schema definitions, database client instance, automatic migrations        |
+| **`@master-bot/dashboard`** | `apps/dashboard` | Plain Node.js HTTP server (embedded in the bot process)    | Web dashboard served from `apps/bot` — settings, stats, OAuth2 login      |
+| **`@master-bot/db`**        | `packages/db`    | `node:sqlite` (Node 22+, zero dependencies)                | Hand-rolled SQLite data layer, typed CRUD, `data/bot.sqlite` (auto-created)|
 | **`Launcher Scripts`**      | `scripts/`       | Node.js ESM (`.mjs`), child processes                      | Cross-platform dev & prod orchestration, port cleanup, log routing        |
 
 ---
@@ -44,11 +42,10 @@ Master-Bot is organized as a [Turborepo](https://turbo.build/) workspace managed
 
 ### System Requirements
 
-- **Node.js**: `>=20.0.0`
+- **Node.js**: `>=22.0.0` (required for `node:sqlite` and the modern toolchain)
 - **pnpm**: `>=8.0.0` (`npm install -g pnpm`)
 - **Java**: Java 17 or higher (Java 21 LTS recommended for Lavalink v4)
-- **PostgreSQL**: Local or remote PostgreSQL instance
-- **Redis**: Local or remote Redis instance (for queue state & caching)
+- **SQLite**: None! The database is embedded, auto-created at `<root>/data/bot.sqlite`
 
 ### Setup Steps
 
@@ -74,9 +71,8 @@ Master-Bot is organized as a [Turborepo](https://turbo.build/) workspace managed
 
    Fill in your development credentials:
    - `DISCORD_TOKEN`: Bot token from the [Discord Developer Portal](https://discord.com/developers/applications)
-   - `DISCORD_CLIENT_ID` & `DISCORD_CLIENT_SECRET`: Application OAuth2 credentials
-   - `DATABASE_URL` & `SHADOW_DB_URL`: PostgreSQL connection URLs
-   - `REDIS_HOST` & `REDIS_PORT`: Redis cache host and port (default: `127.0.0.1:6379`)
+   - `DISCORD_CLIENT_ID` & `DISCORD_CLIENT_SECRET`: Application OAuth2 credentials (dashboard login)
+   - `PORT`: Single unified HTTP port (default: `3000`) shared by bot, dashboard and OAuth2 callbacks
    - `LAVA_ENABLED`: Set to `true` if you wish to run and test audio playback.
 
 4. **Lavalink Configuration (Optional for non-music development)**:
@@ -86,7 +82,7 @@ Master-Bot is organized as a [Turborepo](https://turbo.build/) workspace managed
    ```bash
    pnpm dev
    ```
-   The unified launcher automatically synchronizes your Prisma database schema (`prisma db push`), clears lingering ports, and launches all services with live reload.
+   The unified launcher starts the single-process bot (embedding the dashboard), auto-creates the SQLite database on first start, optionally spawns Lavalink, clears lingering ports, and routes logs to `logs/`.
 
 ---
 
@@ -107,8 +103,7 @@ Before committing or opening a pull request, always verify that your changes com
 
 ```bash
 # Type-check all packages
-pnpm --filter @master-bot/auth type-check
-pnpm --filter @master-bot/api type-check
+pnpm --filter @master-bot/db type-check
 pnpm --filter @master-bot/dashboard type-check
 
 # Compile the Discord bot application
@@ -135,11 +130,11 @@ pnpm --filter @master-bot/dashboard build
 - **Interaction Reply Safety**: Use `interaction.deferReply()` for long-running commands, and ensure deferred interactions are updated via `interaction.editReply()`.
 - **Structured Logging**: Route errors through `Logger.error()` (`apps/bot/src/lib/logger.ts`) with contextual metadata.
 
-### Dashboard & API Standards (`apps/dashboard`, `packages/api`)
+### Dashboard & API Standards (`apps/dashboard`)
 
-- **React Server vs. Client Components**: Clearly delineate CSR vs. SSR boundaries in Next.js 15 (`'use client'` at the top of interactive components).
-- **Type-Safe RPC**: Define all shared API procedures in `packages/api` with Zod input validation and tRPC routers.
-- **Tailwind CSS**: Use consistent utility classes adhering to the dark mode palette and design system.
+- **Single-Process Embedding**: The dashboard runs as a plain Node.js `http` server embedded in the bot process (`apps/bot/src/server.ts`); it shares the unified `PORT` with the bot and OAuth2 callback route.
+- **Typed Handlers**: Route handlers live in `apps/dashboard/src/router.ts` and call the bot through the `dataService` facade (`apps/bot/src/dataService.ts`) — no RPC framework, end-to-end TypeScript by import.
+- **OAuth2 Sessions**: Auth/session logic in `apps/dashboard/src/auth/` (config + handlers) mirrors the NextAuth-compatible cookie format.
 
 ### Security & Git Hygiene
 
@@ -172,7 +167,7 @@ All commit messages must strictly follow the [Conventional Commits](https://www.
 
 #### Common Scopes
 
-- `bot`, `dashboard`, `api`, `auth`, `db`, `music`, `moderation`, `tickets`, `settings`, `launcher`, `deps`
+- `bot`, `dashboard`, `db`, `launcher`, `music`, `moderation`, `tickets`, `settings`, `deps`, `docs`
 
 #### Examples
 
@@ -200,7 +195,7 @@ All commit messages must strictly follow the [Conventional Commits](https://www.
 - Check [existing GitHub Issues](https://github.com/galnir/Master-Bot/issues) to ensure the issue hasn't already been reported.
 - Provide a clear, reproducible description including:
   - Operating system and Node.js / Java versions.
-  - Relevant log snippets from `logs/bot.log`, `logs/dashboard.log`, or `logs/lavalink.log`.
+  - Relevant log snippets from `logs/bot.log` or `logs/lavalink.log`.
   - Exact steps to reproduce the behavior.
 
 ### Suggesting a Feature

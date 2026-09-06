@@ -1,21 +1,22 @@
 # ☁️ Cloud & Platform Hosting Hub
 
-Comprehensive manual step-by-step deployment instructions for hosting **Master-Bot** and its **Next.js 15 Web Dashboard** across major cloud platforms.
+Comprehensive manual step-by-step deployment instructions for hosting **Master-Bot** across major cloud platforms. The Discord client, embedded web dashboard, and OAuth2 login run as a **single process** using embedded SQLite — no PostgreSQL or Redis.
 
 ---
 
 ## 🗺️ Supported Platform Guides
 
-| Platform | Type | Backing Databases | Dedicated Guide |
-| :--- | :--- | :--- | :--- |
-| **🚀 Render** | Web Service + Worker | Managed PostgreSQL & Redis | [Render Hosting Guide](Hosting-Render) |
-| **🚆 Railway** | Multi-Service Project | Managed PostgreSQL & Redis | [Railway Hosting Guide](Hosting-Railway) |
-| **✈️ Fly.io** | MicroVM Apps | Managed PostgreSQL & Upstash Redis | [Fly.io Hosting Guide](Hosting-Fly-io) |
-| **🟣 Heroku** | Web Dyno + Worker Dyno | Heroku Postgres & Redis add-ons | [Heroku Hosting Guide](Hosting-Heroku) |
-| **🟢 Koyeb** | Web & Worker Service | Managed PostgreSQL | [Koyeb Hosting Guide](Hosting-Koyeb) |
-| **🔷 Northflank** | Combined Services | Managed PostgreSQL & Redis | [Northflank Hosting Guide](Hosting-Northflank) |
-| **🐧 Linux VPS** | Systemd / Docker | Native / Containerized Databases | [Linux VPS Guide](Hosting-VPS) |
-| **🦅 Pterodactyl** | App / Bot Egg | External Database Server | [Pterodactyl Guide](Hosting-Pterodactyl) |
+| Platform | Type | Dedicated Guide |
+| :--- | :--- | :--- |
+| **🚀 Render** | Single Web Service (persistent disk for SQLite) | [Render Hosting Guide](Hosting-Render) |
+| **🚆 Railway** | Single Service (volume for SQLite) | [Railway Hosting Guide](Hosting-Railway) |
+| **✈️ Fly.io** | MicroVM App (volume for SQLite) | [Fly.io Hosting Guide](Hosting-Fly-io) |
+| **🟣 Heroku** | Single Web Dyno | [Heroku Hosting Guide](Hosting-Heroku) |
+| **🟢 Koyeb** | Single Web Service (volume for SQLite) | [Koyeb Hosting Guide](Hosting-Koyeb) |
+| **🔷 Northflank** | Single Deployment Service | [Northflank Hosting Guide](Hosting-Northflank) |
+| **🐧 Linux VPS** | Systemd / Docker | [Linux VPS Guide](Hosting-VPS) |
+| **🦅 Pterodactyl** | App / Bot Egg | [Pterodactyl Guide](Hosting-Pterodactyl) |
+| **🐳 Docker** | docker-compose (bot + Lavalink) | [Docker Deployment Guide](Docker-Deployment) |
 
 ---
 

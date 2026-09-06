@@ -35,9 +35,12 @@ function resolveDbPath(): string {
 /**
  * Hand-rolled SQLite data layer for Master-Bot.
  *
- * Mirrors the Prisma schema (see prisma/schema.prisma) as a synchronous,
- * dependency-free node:sqlite database. Follows the HELIX BotDatabase pattern:
- * a single process-wide singleton exposing typed CRUD methods.
+ * Synchronous, dependency-free node:sqlite database. The schema is defined
+ * inline in `initSchema()` below (previously Prisma `prisma/schema.prisma`).
+ * Follows the HELIX BotDatabase pattern: a single process-wide singleton
+ * exposing typed CRUD methods. The bot selects the file path via env.ts
+ * `getDbPath()` (DISCORD_DB_PATH or `<root>/data/bot.sqlite`) and calls
+ * `setDatabasePath()` before first access.
  */
 export class BotDatabase {
 	private static instance: BotDatabase | null = null;

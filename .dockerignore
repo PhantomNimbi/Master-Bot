@@ -1,6 +1,13 @@
 # Nextjs Files
 .next
 
+# Runtime data & secrets (host-mounted or gitignored)
+data
+.env
+db.sqlite*
+application.yml
+*.tsbuildinfo
+
 # Docker Files
 Dockerfile
 docker-compose.yml

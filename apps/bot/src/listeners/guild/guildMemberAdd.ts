@@ -1,4 +1,3 @@
-//import type { Guild } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Listener, type ListenerOptions } from '@sapphire/framework';
 import type { GuildMember, TextChannel } from 'discord.js';

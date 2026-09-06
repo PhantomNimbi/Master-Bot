@@ -5,19 +5,22 @@ services:
     platform: 'linux/amd64'
     env_file:
       - .env
+    environment:
+      # Bot, dashboard and OAuth2 callback server share ONE port
+      PORT: 3000
+      DISCORD_DB_PATH: /app/data/bot.sqlite
+      LAVA_HOST: lavalink
+      LAVA_PORT: 2333
     restart: always
     build: .
     ports:
-      - '3000:3000' # Web Dashboard
-      - '3001:3001' # Bot Gateway / Client
-      - '3002:3002' # Bot Internal HTTP API
-    command: >
-      sh -c "pnpm db:push && pnpm start"
+      - '3000:3000' # Unified Master-Bot (bot + embedded dashboard + OAuth2)
+    command: pnpm start
     depends_on:
       lavalink:
         condition: service_healthy
     volumes:
-      - ./data:/app/packages/db/prisma
+      - ./data:/app/data
       - ./logs:/app/logs
   lavalink:
     container_name: master-bot-lavalink

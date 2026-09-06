@@ -1,28 +1,22 @@
-FROM --platform=linux/amd64 node:20-slim
+FROM --platform=linux/amd64 node:22-slim
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-ENV NEXT_TELEMETRY_DISABLED 1
 WORKDIR "/Master-Bot"
 
-# Ports for the Dashboard  
+# Single unified HTTP port shared by the bot, embedded dashboard and OAuth2
+# callback server (HELIX single-process model)
 EXPOSE 3000
 ENV PORT 3000
 
-# Install prerequisites and register fonts
-RUN apt-get update && apt-get upgrade -y -q && \
-    apt-get install -y -q openssl && \
-    apt-get install -y -q --no-install-recommends libfontconfig1 && \ 
-    npm install -g pnpm@8.6.7 
+# Install pnpm matching the repository's packageManager field
+RUN npm install -g pnpm@8.6.7
 
 # Copy files to Container (Excluding whats in .dockerignore)
 COPY ./ ./
-RUN pnpm install --ignore-scripts && pnpm build 
+RUN pnpm install --ignore-scripts && pnpm build && pnpm --filter @master-bot/bot copy-scripts
 
-# If you are running Master-Bot in a Standalone Container and need to connect to a service on localhost uncomment the following ENV for each service running on the containers host
-# ENV POSTGRES_HOST="host.docker.internal"
-# ENV REDIS_HOST="host.docker.internal"
+# If you are running Master-Bot in a Standalone Container and need to connect
+# to Lavalink on the container's host, uncomment the following ENV:
 # ENV LAVA_HOST="host.docker.internal"
 
-# Uncomment the following for Standalone Master-Bot Docker Container Build
-# RUN pnpm db:push
-# CMD ["pnpm", "-r", "start"]
+CMD ["pnpm", "start"]

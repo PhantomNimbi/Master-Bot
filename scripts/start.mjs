@@ -183,9 +183,7 @@ const botProcess = spawn(`pnpm --filter @master-bot/bot start`, {
 	shell: true,
 	env: {
 		...process.env,
-		PORT: String(port),
-		BOT_PORT: String(port),
-		DASHBOARD_PORT: String(port)
+		PORT: String(port)
 	}
 });
 botProcess.stdout.on('data', data => writeBotLog('BOT', data));

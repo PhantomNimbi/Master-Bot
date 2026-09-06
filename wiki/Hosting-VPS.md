@@ -1,6 +1,6 @@
 # 🐧 Self-Hosted Linux VPS & Systemd Guide
 
-Deploy Master-Bot directly to an Ubuntu/Debian/RHEL Virtual Private Server using Native Systemd services or Docker.
+Deploy Master-Bot directly to an Ubuntu/Debian/RHEL Virtual Private Server using a native Systemd service. The bot and dashboard run as a single process — no PostgreSQL or Redis required (SQLite is embedded).
 
 ---
 
@@ -8,9 +8,11 @@ Deploy Master-Bot directly to an Ubuntu/Debian/RHEL Virtual Private Server using
 
 ```bash
 sudo apt update
-sudo apt install -y nodejs npm openjdk-21-jre postgresql redis-server
+sudo apt install -y nodejs npm openjdk-21-jre
 sudo npm install -g pnpm
 ```
+
+Ensure Node.js is **22 or newer** (`node --version`).
 
 ---
 
@@ -22,44 +24,25 @@ cd /opt/master-bot
 cp .env.example .env
 nano .env
 pnpm install
-pnpm db:push
 pnpm build
 ```
 
+The SQLite database is auto-created at `/opt/master-bot/data/bot.sqlite` on first start. Set `DISCORD_DB_PATH` if you want it elsewhere.
+
 ---
 
-## 3. Create Systemd Services
+## 3. Create Systemd Service (`/etc/systemd/system/master-bot.service`)
 
-### Bot Service (`/etc/systemd/system/master-bot.service`)
 ```ini
 [Unit]
-Description=Master-Bot Discord Application
-After=network.target postgresql.service redis.service
+Description=Master-Bot Discord Application (bot + embedded dashboard)
+After=network.target
 
 [Service]
 Type=simple
 User=ubuntu
 WorkingDirectory=/opt/master-bot
-ExecStart=/usr/bin/pnpm --filter @master-bot/bot start
-Restart=always
-RestartSec=10
-EnvironmentFile=/opt/master-bot/.env
-
-[Install]
-WantedBy=multi-user.target
-```
-
-### Dashboard Service (`/etc/systemd/system/master-dashboard.service`)
-```ini
-[Unit]
-Description=Master-Bot Next.js Web Dashboard
-After=network.target postgresql.service
-
-[Service]
-Type=simple
-User=ubuntu
-WorkingDirectory=/opt/master-bot
-ExecStart=/usr/bin/pnpm --filter @master-bot/dashboard start
+ExecStart=/usr/bin/pnpm start
 Restart=always
 RestartSec=10
 EnvironmentFile=/opt/master-bot/.env
@@ -70,9 +53,11 @@ WantedBy=multi-user.target
 
 ---
 
-## 4. Enable & Start Services
+## 4. Enable & Start Service
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable --now master-bot master-dashboard
+sudo systemctl enable --now master-bot
 ```
+
+Dashboard: `http://<vps-ip>:3000/dashboard`

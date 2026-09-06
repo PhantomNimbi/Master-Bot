@@ -140,11 +140,13 @@ export function getOwnerId(): string {
 // ─── Ports & URLs (auto-resolved, HELIX-faithful) ───────────────────────────
 
 /**
- * HTTP port the dashboard and OAuth2 server listens on. Defaults to 3000
- * (Master-Bot's port; HELIX uses 5000 so the two never conflict).
+ * HTTP port the bot, embedded dashboard, and OAuth2 callback server all share.
+ * A single unified `PORT` key only — the dashboard no longer runs as a
+ * separate process with its own port. Defaults to 3000 (Master-Bot's port;
+ * HELIX uses 5000 so the two never conflict).
  */
 export function getPort(): number {
-	const raw = process.env.PORT || process.env.BOT_PORT || process.env.DASHBOARD_PORT;
+	const raw = process.env.PORT;
 	if (raw) {
 		const n = parseInt(raw, 10);
 		if (!isNaN(n)) return n;

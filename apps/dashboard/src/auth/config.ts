@@ -9,7 +9,7 @@ export interface NextAuthConfig {
 }
 
 export function getDashboardPort(): number {
-	const raw = process.env.PORT || process.env.BOT_PORT || process.env.DASHBOARD_PORT;
+	const raw = process.env.PORT;
 	if (raw) {
 		const n = parseInt(raw, 10);
 		if (!isNaN(n)) return n;
