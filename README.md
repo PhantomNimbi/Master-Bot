@@ -97,7 +97,6 @@ KLIPY_API=""
 NEWS_ENABLED=false
 NEWS_API=""
 GENIUS_API=""
-RAWG_API=""
 IGDB_ENABLED=false
 IGDB_CLIENT_ID=""
 IGDB_CLIENT_SECRET=""
@@ -255,9 +254,9 @@ A full list of commands for use with Master Bot
 
 [Getting a Genius API key](https://genius.com/api-clients/new)
 
-[Getting a RAWG API key](https://rawg.io/apidocs)
+[Getting an IGDB API key](wiki/API-Keys.md#twitch--igdb-game-search)
 
-[Getting a Twitch API key](wiki/API-Keys.md#twitch-api)
+[Getting a Twitch API key](wiki/API-Keys.md#twitch--igdb-game-search)
 
 [Setup & Deployment Guide](wiki/Setup-and-Deployment.md)
 
