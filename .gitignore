@@ -61,6 +61,13 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# SQLite databases (any path)
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite-journal
+data/
+
 # Legacy
 db.sqlite
 db.sqlite-journal
