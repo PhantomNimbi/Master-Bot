@@ -170,8 +170,9 @@ export class TicketButtonListener extends Listener {
 				.setStyle(ButtonStyle.Danger)
 				.setEmoji('🔒');
 
-			const actionRow =
-				new ActionRowBuilder<ButtonBuilder>().addComponents(closeButton);
+			const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+				closeButton
+			);
 
 			const mentionContent = ticketRoleId
 				? `<@${user.id}> <@&${ticketRoleId}>`
@@ -251,7 +252,9 @@ export class TicketButtonListener extends Listener {
 								.replace('T', ' ')
 								.slice(0, 19);
 							const author = `${msg.author.tag} (${msg.author.id})`;
-							const text = msg.cleanContent || (msg.embeds.length ? '[Embed content]' : '[No text content]');
+							const text =
+								msg.cleanContent ||
+								(msg.embeds.length ? '[Embed content]' : '[No text content]');
 							transcriptContent += `[${timestamp}] ${author}:\n${text}\n\n`;
 						}
 
@@ -311,10 +314,7 @@ export class TicketButtonListener extends Listener {
 			await interaction.editReply({ embeds: [closeEmbed] });
 
 			// Lock and archive the thread
-			await thread.setLocked(
-				true,
-				`Ticket closed by ${interaction.user.tag}`
-			);
+			await thread.setLocked(true, `Ticket closed by ${interaction.user.tag}`);
 			return await thread.setArchived(
 				true,
 				`Ticket closed by ${interaction.user.tag}`
@@ -327,4 +327,3 @@ export class TicketButtonListener extends Listener {
 		}
 	}
 }
-

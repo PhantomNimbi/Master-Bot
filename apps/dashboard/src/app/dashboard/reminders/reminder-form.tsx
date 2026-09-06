@@ -54,7 +54,9 @@ export default function ReminderForm({ username }: ReminderFormProps) {
 	const [description, setDescription] = useState('');
 	// Default to 1 hour in the future
 	const defaultDate = new Date(Date.now() + 60 * 60 * 1000);
-	const defaultIso = new Date(defaultDate.getTime() - defaultDate.getTimezoneOffset() * 60000)
+	const defaultIso = new Date(
+		defaultDate.getTime() - defaultDate.getTimezoneOffset() * 60000
+	)
 		.toISOString()
 		.slice(0, 16);
 
@@ -70,10 +72,18 @@ export default function ReminderForm({ username }: ReminderFormProps) {
 		if (!text) return 'No additional notes provided.';
 		const targetDate = new Date(dateTime);
 		const dateStr = !isNaN(targetDate.getTime())
-			? targetDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+			? targetDate.toLocaleDateString('en-US', {
+					month: 'long',
+					day: 'numeric',
+					year: 'numeric'
+				})
 			: 'August 31, 2026';
 		const timeStr = !isNaN(targetDate.getTime())
-			? targetDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+			? targetDate.toLocaleTimeString('en-US', {
+					hour: 'numeric',
+					minute: '2-digit',
+					hour12: true
+				})
 			: '7:30 PM';
 
 		return text
@@ -145,7 +155,8 @@ export default function ReminderForm({ username }: ReminderFormProps) {
 					Schedule New Reminder
 				</h3>
 				<p className="text-sm text-slate-400 mt-1">
-					Set up a timed notification. Master-Bot will deliver a formatted reminder to your Discord DMs or server channels on schedule.
+					Set up a timed notification. Master-Bot will deliver a formatted
+					reminder to your Discord DMs or server channels on schedule.
 				</p>
 			</div>
 
@@ -158,7 +169,8 @@ export default function ReminderForm({ username }: ReminderFormProps) {
 					</h4>
 				</div>
 				<p className="text-xs text-slate-400 mb-3">
-					Click to insert any of the real-time placeholder tags into your reminder description:
+					Click to insert any of the real-time placeholder tags into your
+					reminder description:
 				</p>
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-3">
 					{TAGS.map(item => (
@@ -197,7 +209,10 @@ export default function ReminderForm({ username }: ReminderFormProps) {
 			<form onSubmit={handleFormSubmit} className="flex flex-col gap-4">
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div className="flex flex-col gap-1.5">
-						<label htmlFor="reminder-event" className="text-sm font-medium text-slate-200">
+						<label
+							htmlFor="reminder-event"
+							className="text-sm font-medium text-slate-200"
+						>
 							Event Name / Title <span className="text-red-400">*</span>
 						</label>
 						<input
@@ -212,7 +227,10 @@ export default function ReminderForm({ username }: ReminderFormProps) {
 					</div>
 
 					<div className="flex flex-col gap-1.5">
-						<label htmlFor="reminder-datetime" className="text-sm font-medium text-slate-200 flex items-center gap-1.5">
+						<label
+							htmlFor="reminder-datetime"
+							className="text-sm font-medium text-slate-200 flex items-center gap-1.5"
+						>
 							<Clock className="h-4 w-4 text-blue-400" />
 							Remind Date & Time <span className="text-red-400">*</span>
 						</label>
@@ -228,7 +246,10 @@ export default function ReminderForm({ username }: ReminderFormProps) {
 				</div>
 
 				<div className="flex flex-col gap-1.5">
-					<label htmlFor="reminder-desc" className="text-sm font-medium text-slate-200">
+					<label
+						htmlFor="reminder-desc"
+						className="text-sm font-medium text-slate-200"
+					>
 						Custom Notes & Description (Optional — supports tags and markdown)
 					</label>
 					<textarea
@@ -252,23 +273,39 @@ export default function ReminderForm({ username }: ReminderFormProps) {
 							<span>Scheduled Reminder</span>
 						</div>
 						<div className="text-xs text-[#949ba4]">
-							Hey <span className="text-blue-400 font-medium">@{username || 'Member'}</span>, here is your reminder for <span className="font-semibold text-white">{event || 'My Scheduled Event'}</span>!
+							Hey{' '}
+							<span className="text-blue-400 font-medium">
+								@{username || 'Member'}
+							</span>
+							, here is your reminder for{' '}
+							<span className="font-semibold text-white">
+								{event || 'My Scheduled Event'}
+							</span>
+							!
 						</div>
 						<div className="mt-1 p-2.5 rounded bg-[#2b2d31] border border-[#35373c] text-xs space-y-1">
 							<div>
 								<span className="text-slate-400 font-medium">Event: </span>
-								<span className="text-white font-semibold">{event || 'My Scheduled Event'}</span>
+								<span className="text-white font-semibold">
+									{event || 'My Scheduled Event'}
+								</span>
 							</div>
 							<div>
 								<span className="text-slate-400 font-medium">Notes: </span>
-								<span className="text-slate-200 italic">{generatePreview(description)}</span>
+								<span className="text-slate-200 italic">
+									{generatePreview(description)}
+								</span>
 							</div>
 						</div>
 					</div>
 				</div>
 
 				<div className="flex justify-end">
-					<Button type="submit" disabled={isSaving} className="bg-blue-600 hover:bg-blue-500 text-white">
+					<Button
+						type="submit"
+						disabled={isSaving}
+						className="bg-blue-600 hover:bg-blue-500 text-white"
+					>
 						{isSaving ? 'Scheduling...' : '⏰ Schedule Reminder'}
 					</Button>
 				</div>

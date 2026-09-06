@@ -121,9 +121,8 @@ discordApi.interceptors.response.use(
 				}
 
 				// Set the new access token in the header and retry the original request
-				originalRequest!.headers[
-					'Authorization'
-				] = `Bearer ${newTokens.accessToken}`;
+				originalRequest!.headers['Authorization'] =
+					`Bearer ${newTokens.accessToken}`;
 
 				return discordApi(originalRequest!);
 			}

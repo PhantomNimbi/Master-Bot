@@ -108,7 +108,7 @@ export class TwitchStatusCommand extends Command {
 				value:
 					user.broadcaster_type != ''
 						? user.broadcaster_type.charAt(0).toUpperCase() +
-						  user.broadcaster_type.slice(1)
+							user.broadcaster_type.slice(1)
 						: 'Base',
 				inline: true
 			});
@@ -170,9 +170,9 @@ export const help: CommandHelp = {
 	examples: ['/twitch-status streamer: value'],
 	options: [
 		{
-				"name": "streamer",
-				"description": "The Streamers Name",
-				"required": true
+			name: 'streamer',
+			description: 'The Streamers Name',
+			required: true
 		}
-]
+	]
 };

@@ -27,7 +27,9 @@ export default function CommandToggleSwitch({
 				<Switch
 					checked={false}
 					disabled={true}
-					aria-label={disabledReason || 'Globally disabled via environment configuration'}
+					aria-label={
+						disabledReason ?? 'Globally disabled via environment configuration'
+					}
 				/>
 			</div>
 		);

@@ -111,7 +111,7 @@ export const hubRouter = createTRPCRouter({
 			}
 
 			try {
-				Promise.all([
+				await Promise.all([
 					fetch(`https://discordapp.com/api/channels/${guild.hubChannel}`, {
 						headers: {
 							Authorization: `Bot ${token}`

@@ -23,10 +23,12 @@ export class MotivationCommand extends Command {
 		await interaction.deferReply();
 		try {
 			const response = await fetch('https://type.fit/api/quotes');
-			const data = await response.json() as any[];
+			const data = (await response.json()) as any[];
 
 			if (!Array.isArray(data) || !data.length)
-				return await interaction.editReply({ content: 'Something went wrong!' });
+				return await interaction.editReply({
+					content: 'Something went wrong!'
+				});
 
 			const randomQuote = data[Math.floor(Math.random() * data.length)];
 
@@ -37,7 +39,9 @@ export class MotivationCommand extends Command {
 					url: 'https://type.fit',
 					iconURL: 'https://i.imgur.com/Cnr6cQb.png'
 				})
-				.setDescription(`*"${randomQuote.text}"*\n\n-${randomQuote.author || 'Anonymous'}`)
+				.setDescription(
+					`*"${randomQuote.text}"*\n\n-${randomQuote.author || 'Anonymous'}`
+				)
 				.setTimestamp()
 				.setFooter({
 					text: 'Powered by type.fit'

@@ -70,7 +70,7 @@ export class YoutubeAuthCommand extends Command {
 					.setTimestamp();
 
 				return await interaction.editReply({ embeds: [successEmbed] });
-		} else {
+			} else {
 				const failEmbed = new EmbedBuilder()
 					.setTitle('❌ YouTube Authorization Timed Out')
 					.setColor('Red')

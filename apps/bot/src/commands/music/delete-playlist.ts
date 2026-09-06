@@ -61,7 +61,9 @@ export class DeletePlaylistCommand extends Command {
 			);
 		}
 
-		return await interaction.editReply(`:wastebasket: Deleted **${playlistName}**`);
+		return await interaction.editReply(
+			`:wastebasket: Deleted **${playlistName}**`
+		);
 	}
 }
 

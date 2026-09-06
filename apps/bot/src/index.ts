@@ -99,83 +99,125 @@ client.on(Events.ClientReady, async () => {
 
 // Sapphire Framework Error Events
 client.on(Events.ChatInputCommandError, (error, payload) => {
-	Logger.error(`Command Chat Input Error [${payload?.command?.name || 'unknown'}]: `, error);
+	Logger.error(
+		`Command Chat Input Error [${payload?.command?.name || 'unknown'}]: `,
+		error
+	);
 });
 
 client.on(Events.ContextMenuCommandError, (error, payload) => {
-	Logger.error(`Command Context Menu Error [${payload?.command?.name || 'unknown'}]: `, error);
+	Logger.error(
+		`Command Context Menu Error [${payload?.command?.name || 'unknown'}]: `,
+		error
+	);
 });
 
 client.on(Events.CommandAutocompleteInteractionError, (error, payload) => {
-	Logger.error(`Command Autocomplete Error [${payload?.command?.name || 'unknown'}]: `, error);
+	Logger.error(
+		`Command Autocomplete Error [${payload?.command?.name || 'unknown'}]: `,
+		error
+	);
 });
 
 client.on(Events.CommandApplicationCommandRegistryError, (error, command) => {
-	Logger.error(`Command Registry Error [${command?.name || 'unknown'}]: `, error);
+	Logger.error(
+		`Command Registry Error [${command?.name || 'unknown'}]: `,
+		error
+	);
 });
 
 client.on(Events.MessageCommandError, (error, payload) => {
-	Logger.error(`Message Command Error [${payload?.command?.name || 'unknown'}]: `, error);
+	Logger.error(
+		`Message Command Error [${payload?.command?.name || 'unknown'}]: `,
+		error
+	);
 });
 
 client.on(Events.InteractionHandlerError, (error, payload) => {
-	Logger.error(`Interaction Handler Error [${payload?.handler?.name || 'unknown'}]: `, error);
+	Logger.error(
+		`Interaction Handler Error [${payload?.handler?.name || 'unknown'}]: `,
+		error
+	);
 });
 
 client.on(Events.InteractionHandlerParseError, (error, payload) => {
-	Logger.error(`Interaction Handler Parse Error [${payload?.handler?.name || 'unknown'}]: `, error);
+	Logger.error(
+		`Interaction Handler Parse Error [${payload?.handler?.name || 'unknown'}]: `,
+		error
+	);
 });
 
 client.on(Events.ListenerError, (error, payload) => {
-	Logger.error(`Client Listener Error [${payload?.piece?.name || 'unknown'}]: `, error);
+	Logger.error(
+		`Client Listener Error [${payload?.piece?.name || 'unknown'}]: `,
+		error
+	);
 });
 
 // Lavalink Node & Track Event Handlers (Gated behind isLavalinkEnabled)
 if (isLavalinkEnabled) {
 	client.music.nodeManager.on('connect', node => {
-		Logger.info(`Lavalink Node [${node?.id || 'main'}] connected successfully.`);
+		Logger.info(
+			`Lavalink Node [${node?.id || 'main'}] connected successfully.`
+		);
 	});
 
 	client.music.nodeManager.on('error', (node, err) => {
 		const errMsg = String((err as any)?.message || err);
 		if (errMsg.includes('ECONNREFUSED')) {
-			Logger.warn(`Lavalink Node [${node?.id || 'main'}] initial connection pending (server starting up)...`);
+			Logger.warn(
+				`Lavalink Node [${node?.id || 'main'}] initial connection pending (server starting up)...`
+			);
 		} else {
 			Logger.error(`Lavalink Node Error [${node?.id || 'unknown'}]: `, err);
 		}
 	});
 
 	client.music.on('trackError', async (player, track, payload) => {
-		Logger.error(`Playback Error on Guild [${player.guildId}] for track "${track?.info?.title || 'Unknown'}": `, payload?.error || payload);
+		Logger.error(
+			`Playback Error on Guild [${player.guildId}] for track "${track?.info?.title || 'Unknown'}": `,
+			payload?.error || payload
+		);
 		const queue = client.music.queues.get(player.guildId);
 		if (queue) {
 			const channel = await queue.getTextChannel();
 			if (channel) {
-				await channel.send({
-					content: `:x: Playback failed for [**${track?.info?.title || 'Track'}**](<${track?.info?.uri || ''}>). Skipping to next track...`,
-					flags: ['SuppressEmbeds']
-				}).catch(() => {});
+				await channel
+					.send({
+						content: `:x: Playback failed for [**${track?.info?.title || 'Track'}**](<${track?.info?.uri || ''}>). Skipping to next track...`,
+						flags: ['SuppressEmbeds']
+					})
+					.catch(() => {});
 			}
 			await queue.next();
 		}
 	});
 
 	client.music.on('trackStuck', async (player, track, payload) => {
-		Logger.warn(`Track Stuck on Guild [${player.guildId}] for track "${track?.info?.title || 'Unknown'}": `, payload);
+		Logger.warn(
+			`Track Stuck on Guild [${player.guildId}] for track "${track?.info?.title || 'Unknown'}": `,
+			payload
+		);
 		const queue = client.music.queues.get(player.guildId);
 		if (queue) {
 			const channel = await queue.getTextChannel();
 			if (channel) {
-				await channel.send({
-					content: `:warning: Track [**${track?.info?.title || 'Track'}**](<${track?.info?.uri || ''}>) became stuck. Skipping to next track...`,
-					flags: ['SuppressEmbeds']
-				}).catch(() => {});
+				await channel
+					.send({
+						content: `:warning: Track [**${track?.info?.title || 'Track'}**](<${track?.info?.uri || ''}>) became stuck. Skipping to next track...`,
+						flags: ['SuppressEmbeds']
+					})
+					.catch(() => {});
 			}
 			await queue.next();
 		}
 	});
 
-	const handleTrackCompletion = async (player: any, _track: any, payload: any) => {
+	const handleTrackCompletion = async (
+		player: any,
+		_track: any,
+		payload: any
+	) => {
 		const reason = (payload?.reason || '').toLowerCase();
 		// In Lavalink, 'replaced' occurs when a new track is started explicitly (skip / new play)
 		// 'cleanup' occurs when player is destroyed

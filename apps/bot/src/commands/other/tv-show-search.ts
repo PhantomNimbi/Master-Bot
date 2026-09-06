@@ -103,9 +103,7 @@ export class TVShowSearchCommand extends Command {
 				}
 				const data = response.data;
 				if (!Array.isArray(data) || !data.length) {
-					reject(
-						':x: No TV shows found matching your query.'
-					);
+					reject(':x: No TV shows found matching your query.');
 				}
 				resolve(data);
 			} catch (e) {
@@ -128,10 +126,13 @@ export class TVShowSearchCommand extends Command {
 			premiered: this.checkIfNull(show.premiered),
 			network: this.checkNetwork(show.network),
 			runtime: show.runtime ? show.runtime + ' Minutes' : 'None Listed',
-			rating: show.rating?.average ? String(show.rating.average) : 'None Listed',
-			thumbnail: show.image?.original || show.image?.medium
-				? (show.image.original || show.image.medium)
-				: 'https://static.tvmaze.com/images/no-img/no-img-portrait-text.png'
+			rating: show.rating?.average
+				? String(show.rating.average)
+				: 'None Listed',
+			thumbnail:
+				show.image?.original || show.image?.medium
+					? show.image.original || show.image.medium
+					: 'https://static.tvmaze.com/images/no-img/no-img-portrait-text.png'
 		};
 	}
 

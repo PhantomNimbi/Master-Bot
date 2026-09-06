@@ -60,9 +60,7 @@ export default function WelcomeMessageForm({
 
 	const generatePreview = (template: string) => {
 		const raw =
-			template && template.trim().length > 0
-				? template
-				: DEFAULT_TEMPLATE;
+			template && template.trim().length > 0 ? template : DEFAULT_TEMPLATE;
 		return raw
 			.replace(/\{user\}|\{mention\}/g, '@Member')
 			.replace(/\{username\}/g, 'Member')
@@ -102,8 +100,8 @@ export default function WelcomeMessageForm({
 				</h4>
 				<p className="text-sm text-gray-400 mb-4">
 					Use the tags below in your custom message. When a user joins,
-					Master-Bot automatically replaces each tag with real-time member
-					and server information:
+					Master-Bot automatically replaces each tag with real-time member and
+					server information:
 				</p>
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
 					{TAGS.map(item => (
@@ -122,9 +120,7 @@ export default function WelcomeMessageForm({
 										</span>
 									)}
 								</div>
-								<p className="text-xs text-gray-400 mt-1">
-									{item.desc}
-								</p>
+								<p className="text-xs text-gray-400 mt-1">{item.desc}</p>
 								<p className="text-xs text-gray-500 italic mt-0.5">
 									Outputs: {item.example}
 								</p>
@@ -147,13 +143,12 @@ export default function WelcomeMessageForm({
 						✨ Discord Markdown Supported:
 					</span>
 					<span>
-						• <code>**bold**</code> for bold text,{' '}
-						<code>*italics*</code> for italic,{' '}
-						<code>__underline__</code> for underlined text
+						• <code>**bold**</code> for bold text, <code>*italics*</code> for
+						italic, <code>__underline__</code> for underlined text
 					</span>
 					<span>
-						• <code>&gt; Quote</code> for block quotes,{' '}
-						<code>`code`</code> for monospace highlight
+						• <code>&gt; Quote</code> for block quotes, <code>`code`</code> for
+						monospace highlight
 					</span>
 				</div>
 			</div>
@@ -205,4 +200,3 @@ export default function WelcomeMessageForm({
 		</div>
 	);
 }
-

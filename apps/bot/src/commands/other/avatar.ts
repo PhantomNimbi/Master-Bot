@@ -44,9 +44,9 @@ export const help: CommandHelp = {
 	examples: ['/avatar user: value'],
 	options: [
 		{
-				"name": "user",
-				"description": "The user to get the avatar of",
-				"required": true
+			name: 'user',
+			description: 'The user to get the avatar of',
+			required: true
 		}
-]
+	]
 };

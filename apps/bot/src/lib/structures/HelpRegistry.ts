@@ -25,18 +25,25 @@ export class HelpRegistry {
 
 		commandsStore.forEach(cmd => {
 			const helpMeta = this.getHelpFromCommand(cmd);
-			const category = helpMeta?.category?.toLowerCase() || cmd.category?.toLowerCase() || 'other';
+			const category =
+				helpMeta?.category?.toLowerCase() ||
+				cmd.category?.toLowerCase() ||
+				'other';
 
 			// Filter out disabled commands or categories using central isCommandDisabled check
 			if (!cmd.enabled) return;
-			if (isCommandNameGloballyDisabled(cmd.name) || isCommandNameGloballyDisabled(category)) {
+			if (
+				isCommandNameGloballyDisabled(cmd.name) ||
+				isCommandNameGloballyDisabled(category)
+			) {
 				return;
 			}
 
 			result.push({
 				name: cmd.name,
 				category,
-				description: helpMeta?.description || cmd.description || `${cmd.name} command`,
+				description:
+					helpMeta?.description || cmd.description || `${cmd.name} command`,
 				usage: helpMeta?.usage || `/${cmd.name}`,
 				examples: helpMeta?.examples || [`/${cmd.name}`],
 				options: helpMeta?.options || [],
@@ -67,7 +74,10 @@ export class HelpRegistry {
 	/**
 	 * Finds a specific command help item by name, checking enablement against isCommandDisabled.
 	 */
-	public static getCommand(name: string): { help: CommandHelp | null; disabled: boolean } {
+	public static getCommand(name: string): {
+		help: CommandHelp | null;
+		disabled: boolean;
+	} {
 		const cleanName = name.toLowerCase().replace(/^\//, '');
 		const commandsStore = container.stores.get('commands');
 		const cmd = commandsStore.get(cleanName);
@@ -77,7 +87,10 @@ export class HelpRegistry {
 		}
 
 		const helpMeta = this.getHelpFromCommand(cmd);
-		const category = helpMeta?.category?.toLowerCase() || cmd.category?.toLowerCase() || 'other';
+		const category =
+			helpMeta?.category?.toLowerCase() ||
+			cmd.category?.toLowerCase() ||
+			'other';
 		const isDisabled =
 			!cmd.enabled ||
 			isCommandNameGloballyDisabled(cmd.name) ||
@@ -87,7 +100,8 @@ export class HelpRegistry {
 			help: {
 				name: cmd.name,
 				category,
-				description: helpMeta?.description || cmd.description || `${cmd.name} command`,
+				description:
+					helpMeta?.description || cmd.description || `${cmd.name} command`,
 				usage: helpMeta?.usage || `/${cmd.name}`,
 				examples: helpMeta?.examples || [`/${cmd.name}`],
 				options: helpMeta?.options || [],

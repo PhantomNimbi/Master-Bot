@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
+		"types": ["node", "vitest/globals"],
+		"allowJs": true,
+		"noEmit": true,
+		"baseUrl": ".",
+		"paths": {
+			"~/*": ["apps/dashboard/src/*"],
+			"@master-bot/api": ["packages/api/index.ts"],
+			"@master-bot/auth": ["packages/auth/index.ts"],
+			"@master-bot/db": ["packages/db/index.ts"]
+		}
+	},
+	"include": ["tests/**/*.ts"]
+}

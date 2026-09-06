@@ -134,7 +134,11 @@ export function isPortInUse(port, host = '127.0.0.1', timeoutMs = 1500) {
  * Checks whether Redis cache is running, and launches redis-server if not running.
  * Returns { status: string, process: ChildProcess | null }
  */
-export async function ensureRedisService(redisPort = 6379, redisHost = '127.0.0.1', writeRedisLog = null) {
+export async function ensureRedisService(
+	redisPort = 6379,
+	redisHost = '127.0.0.1',
+	writeRedisLog = null
+) {
 	const hostToCheck = redisHost === '0.0.0.0' ? '127.0.0.1' : redisHost;
 	const isAlreadyRunning = await isPortInUse(redisPort, hostToCheck, 1500);
 
@@ -152,7 +156,10 @@ export async function ensureRedisService(redisPort = 6379, redisHost = '127.0.0.
 	}
 
 	if (writeRedisLog) {
-		writeRedisLog('SYSTEM', `Redis server not detected on port ${redisPort}. Attempting to launch redis-server...`);
+		writeRedisLog(
+			'SYSTEM',
+			`Redis server not detected on port ${redisPort}. Attempting to launch redis-server...`
+		);
 	}
 
 	try {
@@ -172,7 +179,9 @@ export async function ensureRedisService(redisPort = 6379, redisHost = '127.0.0.
 		const isReady = await waitForPort(redisPort, hostToCheck, 10000);
 
 		if (isReady) {
-			console.log(`\x1b[1;32m✅ [REDIS READY]\x1b[0m Redis server listening on port ${redisPort}\n`);
+			console.log(
+				`\x1b[1;32m✅ [REDIS READY]\x1b[0m Redis server listening on port ${redisPort}\n`
+			);
 			return {
 				status: `RUNNING (Internal PID: ${redisProcess.pid})`,
 				process: redisProcess
@@ -185,9 +194,14 @@ export async function ensureRedisService(redisPort = 6379, redisHost = '127.0.0.
 		}
 	} catch (err) {
 		if (writeRedisLog) {
-			writeRedisLog('SYSTEM', `Could not automatically launch redis-server: ${err.message}`);
+			writeRedisLog(
+				'SYSTEM',
+				`Could not automatically launch redis-server: ${err.message}`
+			);
 		}
-		console.warn(`\n\x1b[1;33m⚠️  [REDIS WARNING]\x1b[0m Could not auto-launch redis-server (${err.message}). Ensure Redis is running on port ${redisPort}.\n`);
+		console.warn(
+			`\n\x1b[1;33m⚠️  [REDIS WARNING]\x1b[0m Could not auto-launch redis-server (${err.message}). Ensure Redis is running on port ${redisPort}.\n`
+		);
 		return {
 			status: `NOT DETECTED (${hostToCheck}:${redisPort})`,
 			process: null
@@ -199,7 +213,11 @@ export async function ensureRedisService(redisPort = 6379, redisHost = '127.0.0.
  * Checks whether PostgreSQL database server is running, and attempts to start it if not running.
  * Returns { status: string, process: ChildProcess | null }
  */
-export async function ensurePostgresService(postgresPort = 5432, postgresHost = '127.0.0.1', writePostgresLog = null) {
+export async function ensurePostgresService(
+	postgresPort = 5432,
+	postgresHost = '127.0.0.1',
+	writePostgresLog = null
+) {
 	const hostToCheck = postgresHost === '0.0.0.0' ? '127.0.0.1' : postgresHost;
 	const isAlreadyRunning = await isPortInUse(postgresPort, hostToCheck, 1500);
 
@@ -217,7 +235,10 @@ export async function ensurePostgresService(postgresPort = 5432, postgresHost = 
 	}
 
 	if (writePostgresLog) {
-		writePostgresLog('SYSTEM', `PostgreSQL not detected on port ${postgresPort}. Attempting auto-start...`);
+		writePostgresLog(
+			'SYSTEM',
+			`PostgreSQL not detected on port ${postgresPort}. Attempting auto-start...`
+		);
 	}
 
 	const isWindows = process.platform === 'win32';
@@ -226,23 +247,32 @@ export async function ensurePostgresService(postgresPort = 5432, postgresHost = 
 	// 1. Try starting PostgreSQL service on Windows
 	if (isWindows) {
 		try {
-			execSync('net start postgresql-x64-16 2>nul || net start postgresql-x64-15 2>nul || net start postgresql-x64-14 2>nul || net start postgresql 2>nul', {
-				stdio: 'ignore'
-			});
+			execSync(
+				'net start postgresql-x64-16 2>nul || net start postgresql-x64-15 2>nul || net start postgresql-x64-14 2>nul || net start postgresql 2>nul',
+				{
+					stdio: 'ignore'
+				}
+			);
 			started = true;
 		} catch {}
 	} else if (process.platform === 'darwin') {
 		try {
-			execSync('brew services start postgresql@16 || brew services start postgresql || brew services start postgresql@15', {
-				stdio: 'ignore'
-			});
+			execSync(
+				'brew services start postgresql@16 || brew services start postgresql || brew services start postgresql@15',
+				{
+					stdio: 'ignore'
+				}
+			);
 			started = true;
 		} catch {}
 	} else if (process.platform === 'linux') {
 		try {
-			execSync('sudo systemctl start postgresql || systemctl start postgresql || service postgresql start', {
-				stdio: 'ignore'
-			});
+			execSync(
+				'sudo systemctl start postgresql || systemctl start postgresql || service postgresql start',
+				{
+					stdio: 'ignore'
+				}
+			);
 			started = true;
 		} catch {}
 	}
@@ -262,16 +292,23 @@ export async function ensurePostgresService(postgresPort = 5432, postgresHost = 
 	const isReady = await waitForPort(postgresPort, hostToCheck, 10000);
 
 	if (isReady) {
-		console.log(`\x1b[1;32m✅ [POSTGRES READY]\x1b[0m PostgreSQL database listening on port ${postgresPort}\n`);
+		console.log(
+			`\x1b[1;32m✅ [POSTGRES READY]\x1b[0m PostgreSQL database listening on port ${postgresPort}\n`
+		);
 		return {
 			status: `RUNNING (Auto-started on ${hostToCheck}:${postgresPort})`,
 			process: null
 		};
 	} else {
 		if (writePostgresLog) {
-			writePostgresLog('SYSTEM', `PostgreSQL server could not be auto-started on port ${postgresPort}.`);
+			writePostgresLog(
+				'SYSTEM',
+				`PostgreSQL server could not be auto-started on port ${postgresPort}.`
+			);
 		}
-		console.warn(`\n\x1b[1;33m⚠️  [POSTGRES WARNING]\x1b[0m PostgreSQL server not detected on port ${postgresPort}. Ensure your PostgreSQL service or Docker container is running.\n`);
+		console.warn(
+			`\n\x1b[1;33m⚠️  [POSTGRES WARNING]\x1b[0m PostgreSQL server not detected on port ${postgresPort}. Ensure your PostgreSQL service or Docker container is running.\n`
+		);
 		return {
 			status: `NOT DETECTED (${hostToCheck}:${postgresPort})`,
 			process: null
@@ -284,7 +321,7 @@ export async function ensurePostgresService(postgresPort = 5432, postgresHost = 
  * Used to ensure Lavalink has booted and is listening before spawning the bot.
  */
 export function waitForPort(port, host = '127.0.0.1', timeoutMs = 25000) {
-	return new Promise((resolve) => {
+	return new Promise(resolve => {
 		const start = Date.now();
 		const check = () => {
 			if (Date.now() - start > timeoutMs) {
@@ -319,7 +356,10 @@ export function waitForPort(port, host = '127.0.0.1', timeoutMs = 25000) {
  */
 export function checkJavaVersion() {
 	try {
-		const output = execSync('java -version 2>&1', { encoding: 'utf-8', stdio: 'pipe' });
+		const output = execSync('java -version 2>&1', {
+			encoding: 'utf-8',
+			stdio: 'pipe'
+		});
 		// java -version prints to stderr; execSync captures both via 2>&1
 		const match = output.match(/version\s+"?(\d+)(?:\.(\d+))?/);
 		if (!match) {
@@ -339,7 +379,8 @@ export function checkJavaVersion() {
 	} catch {
 		return {
 			ok: false,
-			error: 'Java not found on PATH. Lavalink requires Java 17+ to run. Install Java 21 LTS: https://www.azul.com/downloads/?package=jdk#zulu'
+			error:
+				'Java not found on PATH. Lavalink requires Java 17+ to run. Install Java 21 LTS: https://www.azul.com/downloads/?package=jdk#zulu'
 		};
 	}
 }
@@ -377,7 +418,11 @@ export function loadYouTubeToken() {
 	try {
 		const raw = fs.readFileSync(youtubeOAuthPath, 'utf-8');
 		const data = JSON.parse(raw);
-		if (data.refreshToken && typeof data.refreshToken === 'string' && data.refreshToken.startsWith('1/')) {
+		if (
+			data.refreshToken &&
+			typeof data.refreshToken === 'string' &&
+			data.refreshToken.startsWith('1/')
+		) {
 			process.env.YOUTUBE_REFRESH_TOKEN = data.refreshToken;
 			console.log(
 				`\x1b[1;32m✅ [YOUTUBE TOKEN LOADED]\x1b[0m Loaded YouTube OAuth refresh token from .youtube-oauth.json (saved ${data.savedAt || 'unknown date'})\n`
@@ -443,7 +488,9 @@ export function getLavalinkKeyStatus() {
 	}
 
 	const youtube = !!(process.env.YOUTUBE_API_KEY || validYtToken);
-	const spotify = !!(process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET);
+	const spotify = !!(
+		process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET
+	);
 	const hasAny = youtube || spotify;
 
 	return {
@@ -519,7 +566,9 @@ export function isAuthInfo(line) {
 		line.includes('google.com/device') ||
 		line.includes('https://www.google.com/device') ||
 		line.includes('To authenticate') ||
-		(lower.includes('device') && lower.includes('code') && lower.includes('enter')) ||
+		(lower.includes('device') &&
+			lower.includes('code') &&
+			lower.includes('enter')) ||
 		(lower.includes('user_code') && lower.includes('verification_url'))
 	);
 }
@@ -530,13 +579,13 @@ export function isAuthInfo(line) {
 
 /** ANSI color codes keyed by log prefix */
 const prefixColors = {
-	'BOT':            '\x1b[1;31m',  // red
-	'BOT-ERR':        '\x1b[1;31m',  // red
-	'DASHBOARD':      '\x1b[1;35m',  // magenta
-	'DASHBOARD-ERR':  '\x1b[1;35m',  // magenta
-	'LAVALINK':       '\x1b[1;33m',  // yellow
-	'LAVALINK-ERR':   '\x1b[1;33m',  // yellow
-	'SYSTEM':         '\x1b[1;36m',  // cyan
+	BOT: '\x1b[1;31m', // red
+	'BOT-ERR': '\x1b[1;31m', // red
+	DASHBOARD: '\x1b[1;35m', // magenta
+	'DASHBOARD-ERR': '\x1b[1;35m', // magenta
+	LAVALINK: '\x1b[1;33m', // yellow
+	'LAVALINK-ERR': '\x1b[1;33m', // yellow
+	SYSTEM: '\x1b[1;36m' // cyan
 };
 const RESET = '\x1b[0m';
 
@@ -549,10 +598,16 @@ function isErrorLine(line) {
 	const trimmed = line.trim();
 
 	// Skip stack trace continuation lines — they belong in logs only
-	if (trimmed.startsWith('at ') || trimmed.startsWith('Caused by:')) return false;
+	if (trimmed.startsWith('at ') || trimmed.startsWith('Caused by:'))
+		return false;
 
 	// Skip common false positives in source code references
-	if (trimmed.includes('error.cause') || trimmed.includes('errorFormatter') || trimmed.includes('error_handler')) return false;
+	if (
+		trimmed.includes('error.cause') ||
+		trimmed.includes('errorFormatter') ||
+		trimmed.includes('error_handler')
+	)
+		return false;
 
 	// Match actual error indicators
 	return (
@@ -561,7 +616,8 @@ function isErrorLine(line) {
 		/\bFATAL\b/i.test(trimmed) ||
 		/\bException\b/.test(trimmed) ||
 		/exited with code/i.test(trimmed) ||
-		/\bfailed\b/i.test(trimmed) && /\b(to|load|resolve|connect|start|build|compile)\b/i.test(trimmed) ||
+		(/\bfailed\b/i.test(trimmed) &&
+			/\b(to|load|resolve|connect|start|build|compile)\b/i.test(trimmed)) ||
 		/\bcrash/i.test(trimmed) ||
 		/ECONNREFUSED|ENOTFOUND|EACCES|EPERM/i.test(trimmed)
 	);
@@ -572,7 +628,8 @@ function isErrorLine(line) {
  */
 function isWarnLine(line) {
 	const trimmed = line.trim();
-	if (trimmed.startsWith('at ') || trimmed.startsWith('Caused by:')) return false;
+	if (trimmed.startsWith('at ') || trimmed.startsWith('Caused by:'))
+		return false;
 	return /\bWARN\b/.test(trimmed);
 }
 
@@ -608,9 +665,13 @@ export function createLogWriter(fileStream, combinedStream) {
 				// Surface errors and warnings to the terminal console (Item 1D)
 				const color = prefixColors[prefix] || '\x1b[1;37m';
 				if (isErrorLine(line)) {
-					process.stderr.write(`${color}⚠ [${prefix}]${RESET} \x1b[31m${line.trim()}${RESET}\n`);
+					process.stderr.write(
+						`${color}⚠ [${prefix}]${RESET} \x1b[31m${line.trim()}${RESET}\n`
+					);
 				} else if (isWarnLine(line)) {
-					process.stderr.write(`${color}⚡ [${prefix}]${RESET} \x1b[33m${line.trim()}${RESET}\n`);
+					process.stderr.write(
+						`${color}⚡ [${prefix}]${RESET} \x1b[33m${line.trim()}${RESET}\n`
+					);
 				}
 			}
 		}

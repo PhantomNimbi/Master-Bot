@@ -10,10 +10,24 @@ import {
 	Message
 } from 'discord.js';
 
-const NUMBER_EMOJIS = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+const NUMBER_EMOJIS = [
+	'1️⃣',
+	'2️⃣',
+	'3️⃣',
+	'4️⃣',
+	'5️⃣',
+	'6️⃣',
+	'7️⃣',
+	'8️⃣',
+	'9️⃣',
+	'🔟'
+];
 
 function createProgressBar(percent: number, length: number = 10): string {
-	const filled = Math.max(0, Math.min(length, Math.round((percent / 100) * length)));
+	const filled = Math.max(
+		0,
+		Math.min(length, Math.round((percent / 100) * length))
+	);
 	const empty = length - filled;
 	return '█'.repeat(filled) + '░'.repeat(empty);
 }
@@ -49,7 +63,8 @@ function buildPollEmbed(
 	let description = '';
 	for (let i = 0; i < options.length; i++) {
 		const count = optionCounts[i];
-		const percent = totalVoteCount > 0 ? Math.round((count / totalVoteCount) * 100) : 0;
+		const percent =
+			totalVoteCount > 0 ? Math.round((count / totalVoteCount) * 100) : 0;
 		const bar = createProgressBar(percent, 10);
 		const isWinner = isClosed && winningIndices.includes(i);
 		const crown = isWinner ? ' 👑' : '';
@@ -72,7 +87,9 @@ function buildPollEmbed(
 	if (endTimeUnix) {
 		embed.addFields({
 			name: isClosed ? '⏱️ Status' : '⏳ Ending',
-			value: isClosed ? '🔒 **Poll Closed**' : `<t:${endTimeUnix}:R> (<t:${endTimeUnix}:t>)`,
+			value: isClosed
+				? '🔒 **Poll Closed**'
+				: `<t:${endTimeUnix}:R> (<t:${endTimeUnix}:t>)`,
 			inline: true
 		});
 	}
@@ -91,7 +108,9 @@ function buildPollEmbed(
 				inline: false
 			});
 		} else {
-			const winners = winningIndices.map(idx => `**${options[idx]}**`).join(', ');
+			const winners = winningIndices
+				.map(idx => `**${options[idx]}**`)
+				.join(', ');
 			embed.addFields({
 				name: '🏆 Tied Winners',
 				value: `🤝 Tie between: ${winners} (${maxVotes} votes each)`,
@@ -178,7 +197,9 @@ export class PollCommand extends Command {
 				.addBooleanOption(option =>
 					option
 						.setName('allow-multiple')
-						.setDescription('Allow voters to select multiple options (default: False)')
+						.setDescription(
+							'Allow voters to select multiple options (default: False)'
+						)
 						.setRequired(false)
 				)
 		);
@@ -192,7 +213,8 @@ export class PollCommand extends Command {
 		const question = interaction.options.getString('question', true).trim();
 		const rawOptions = interaction.options.getString('options', true);
 		const duration = interaction.options.getInteger('duration');
-		const allowMultiple = interaction.options.getBoolean('allow-multiple') ?? false;
+		const allowMultiple =
+			interaction.options.getBoolean('allow-multiple') ?? false;
 
 		const options = rawOptions
 			.split(',')
@@ -201,7 +223,8 @@ export class PollCommand extends Command {
 
 		if (options.length < 2) {
 			return await interaction.editReply({
-				content: ':x: You must provide at least **2 choices** separated by commas (e.g. `Yes, No, Maybe`).'
+				content:
+					':x: You must provide at least **2 choices** separated by commas (e.g. `Yes, No, Maybe`).'
 			});
 		}
 
@@ -212,7 +235,9 @@ export class PollCommand extends Command {
 		}
 
 		const userVotes = new Map<string, Set<number>>();
-		const endTimeUnix = duration ? Math.floor((Date.now() + duration * 60 * 1000) / 1000) : null;
+		const endTimeUnix = duration
+			? Math.floor((Date.now() + duration * 60 * 1000) / 1000)
+			: null;
 
 		const embed = buildPollEmbed(
 			question,
@@ -234,7 +259,9 @@ export class PollCommand extends Command {
 		const message = await interaction.fetchReply().catch(() => null);
 		if (!message || !(message instanceof Message)) return;
 
-		const collectorDuration = duration ? duration * 60 * 1000 : 24 * 60 * 60 * 1000; // default to 24h max button listener
+		const collectorDuration = duration
+			? duration * 60 * 1000
+			: 24 * 60 * 60 * 1000; // default to 24h max button listener
 		const collector = message.createMessageComponentCollector({
 			componentType: ComponentType.Button,
 			time: collectorDuration
@@ -245,7 +272,12 @@ export class PollCommand extends Command {
 			if (!customId.startsWith('poll_opt_')) return;
 
 			const choiceIndex = parseInt(customId.replace('poll_opt_', ''), 10);
-			if (isNaN(choiceIndex) || choiceIndex < 0 || choiceIndex >= options.length) return;
+			if (
+				isNaN(choiceIndex) ||
+				choiceIndex < 0 ||
+				choiceIndex >= options.length
+			)
+				return;
 
 			const voterId = btnInteraction.user.id;
 			let userChoices = userVotes.get(voterId);
@@ -297,10 +329,12 @@ export class PollCommand extends Command {
 				false
 			);
 
-			await interaction.editReply({
-				embeds: [updatedEmbed],
-				components: rows
-			}).catch(() => {});
+			await interaction
+				.editReply({
+					embeds: [updatedEmbed],
+					components: rows
+				})
+				.catch(() => {});
 		});
 
 		collector.on('end', async () => {
@@ -316,10 +350,12 @@ export class PollCommand extends Command {
 
 			const disabledRows = buildButtonRows(options, true);
 
-			await interaction.editReply({
-				embeds: [finalEmbed],
-				components: disabledRows
-			}).catch(() => {});
+			await interaction
+				.editReply({
+					embeds: [finalEmbed],
+					components: disabledRows
+				})
+				.catch(() => {});
 		});
 
 		return;
@@ -330,7 +366,8 @@ export const help: CommandHelp = {
 	name: 'poll',
 	category: 'other',
 	description: 'Create an interactive multi-choice poll with button voting',
-	usage: '/poll question: <Text> options: <Choice 1, Choice 2, ...> [duration: Minutes] [allow-multiple: True/False]',
+	usage:
+		'/poll question: <Text> options: <Choice 1, Choice 2, ...> [duration: Minutes] [allow-multiple: True/False]',
 	examples: [
 		'/poll question: What game should we play? options: Valorant, Minecraft, Apex, Overwatch',
 		'/poll question: Lunch time? options: Pizza, Burgers, Sushi duration: 30',

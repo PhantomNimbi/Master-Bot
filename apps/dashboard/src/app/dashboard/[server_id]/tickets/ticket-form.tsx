@@ -100,7 +100,9 @@ export default function TicketMessageForm({
 					🏷️ Dynamic Placeholders & Formatting Tags
 				</h4>
 				<p className="text-sm text-gray-400 mb-4">
-					Use the tags below in your ticket greeting. When a member opens a ticket, Master-Bot automatically replaces each tag with real-time member and server information:
+					Use the tags below in your ticket greeting. When a member opens a
+					ticket, Master-Bot automatically replaces each tag with real-time
+					member and server information:
 				</p>
 				<div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
 					{TICKET_TAGS.map(item => (
@@ -119,9 +121,7 @@ export default function TicketMessageForm({
 										</span>
 									)}
 								</div>
-								<p className="text-xs text-gray-400 mt-1">
-									{item.desc}
-								</p>
+								<p className="text-xs text-gray-400 mt-1">{item.desc}</p>
 								<p className="text-xs text-gray-500 italic mt-0.5">
 									Outputs: {item.example}
 								</p>
@@ -144,14 +144,12 @@ export default function TicketMessageForm({
 						✨ Discord Markdown Supported:
 					</span>
 					<span>
-						• <code>**bold**</code> for bold text,{' '}
-						<code>*italics*</code> for italic,{' '}
-						<code>__underline__</code> for underlined text
+						• <code>**bold**</code> for bold text, <code>*italics*</code> for
+						italic, <code>__underline__</code> for underlined text
 					</span>
 					<span>
-						• <code>&gt; Quote</code> for block quotes,{' '}
-						<code>`code`</code> for monospace highlight,{' '}
-						<code>• bullet</code> for bullet lists
+						• <code>&gt; Quote</code> for block quotes, <code>`code`</code> for
+						monospace highlight, <code>• bullet</code> for bullet lists
 					</span>
 				</div>
 			</div>
@@ -200,7 +198,9 @@ export default function TicketMessageForm({
 							<div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-gray-700/50">
 								<div>
 									<span className="text-gray-400">👤 Opened By:</span>
-									<p className="font-medium text-white">TicketCreator (@TicketCreator)</p>
+									<p className="font-medium text-white">
+										TicketCreator (@TicketCreator)
+									</p>
 								</div>
 								<div>
 									<span className="text-gray-400">🕒 Opened At:</span>
@@ -229,4 +229,3 @@ export default function TicketMessageForm({
 		</div>
 	);
 }
-

@@ -19,7 +19,7 @@ export default function LogChannelToggle({
 				id="log-mode"
 				checked={logChannelEnabled}
 				onCheckedChange={() => {
-					toggleLogChannel(!logChannelEnabled, serverId).then(() => {
+					void toggleLogChannel(!logChannelEnabled, serverId).then(() => {
 						toast({
 							title: `Audit & log channel ${
 								logChannelEnabled ? 'disabled' : 'enabled'
@@ -31,4 +31,3 @@ export default function LogChannelToggle({
 		</div>
 	);
 }
-

@@ -10,6 +10,9 @@ import { userRouter } from './routers/user';
 import { welcomeRouter } from './routers/welcome';
 import { ticketsRouter } from './routers/tickets';
 import { logsRouter } from './routers/logs';
+import { musicRouter } from './routers/music';
+import { broadcastRouter } from './routers/broadcast';
+import { systemRouter } from './routers/system';
 import { createTRPCRouter } from './trpc';
 
 export const appRouter = createTRPCRouter({
@@ -24,7 +27,10 @@ export const appRouter = createTRPCRouter({
 	command: commandRouter,
 	hub: hubRouter,
 	reminder: reminderRouter,
-	logs: logsRouter
+	logs: logsRouter,
+	music: musicRouter,
+	broadcast: broadcastRouter,
+	system: systemRouter
 });
 
 // export type definition of API

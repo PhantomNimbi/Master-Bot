@@ -8,11 +8,7 @@ import { trpcNode } from '../../trpc';
 @ApplyOptions<CommandOptions>({
 	name: 'my-playlists',
 	description: "Display your custom playlists' names",
-	preconditions: [
-		'GuildOnly',
-		'isCommandDisabled',
-		'userInDB'
-	]
+	preconditions: ['GuildOnly', 'isCommandDisabled', 'userInDB']
 })
 export class MyPlaylistsCommand extends Command {
 	public override registerApplicationCommands(

@@ -6,13 +6,13 @@ This guide covers setting up Master-Bot for development or production deployment
 
 ## 📋 System Prerequisites Overview
 
-| Component | Minimum Version | Recommended Version | Purpose |
-| :--- | :--- | :--- | :--- |
-| **Node.js** | `>=20.0.0` | `20.x` or `22.x LTS` | JavaScript/TypeScript runtime |
-| **pnpm** | `>=8.0.0` | `9.x` (`npm i -g pnpm`) | Monorepo package manager & workspace orchestrator |
-| **Java** | `Java 17+` | `Java 21 LTS` | Lavalink v4 audio engine runtime |
-| **PostgreSQL** | `14+` | `16.x` | Primary relational database |
-| **Redis** | `6.x+` | `7.x` | Queue management & caching layer |
+| Component      | Minimum Version | Recommended Version     | Purpose                                           |
+| :------------- | :-------------- | :---------------------- | :------------------------------------------------ |
+| **Node.js**    | `>=20.0.0`      | `20.x` or `22.x LTS`    | JavaScript/TypeScript runtime                     |
+| **pnpm**       | `>=8.0.0`       | `9.x` (`npm i -g pnpm`) | Monorepo package manager & workspace orchestrator |
+| **Java**       | `Java 17+`      | `Java 21 LTS`           | Lavalink v4 audio engine runtime                  |
+| **PostgreSQL** | `14+`           | `16.x`                  | Primary relational database                       |
+| **Redis**      | `6.x+`          | `7.x`                   | Queue management & caching layer                  |
 
 ---
 
@@ -44,25 +44,29 @@ java -version
 ```
 
 #### 2. Redis on Windows
+
 Native Redis binaries for Windows are deprecated. You can run Redis on Windows using one of the following methods:
-* **Option A: Docker (Recommended)**
+
+- **Option A: Docker (Recommended)**
   ```powershell
   docker run -d --name master-bot-redis -p 6379:6379 redis:alpine
   ```
-* **Option B: WSL 2 (Windows Subsystem for Linux)**
+- **Option B: WSL 2 (Windows Subsystem for Linux)**
   ```powershell
   wsl --install
   # Inside WSL Ubuntu terminal:
   sudo apt update && sudo apt install -y redis-server
   sudo service redis-server start
   ```
-* **Option C: Memurai (Native Windows Redis-compatible daemon)**
+- **Option C: Memurai (Native Windows Redis-compatible daemon)**
   ```powershell
   winget install Memurai.MemuraiDeveloper
   ```
 
 #### 3. Execution Policy (if script execution is disabled)
+
 If PowerShell blocks scripts such as `pnpm`, run:
+
 ```powershell
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
@@ -161,6 +165,23 @@ sudo systemctl enable --now postgresql redis
 
 ---
 
+## 🔄 Development & Production Lifecycle Workflow
+
+```mermaid
+flowchart TD
+    Start["User: pnpm dev / pnpm start"] --> EnvCheck["Load .env & Validate Schemas"]
+    EnvCheck --> PortManager["Port Check & Auto-Kill Lingering (3000, 2333, 6379)"]
+    PortManager --> DBGenerate["Prisma Generate / Schema Sync"]
+    DBGenerate --> LavalinkProcess["Spawn Lavalink v4 Process (Java 21)"]
+    DBGenerate --> DashboardProcess["Spawn Next.js 15 Web Dashboard"]
+    DBGenerate --> BotProcess["Spawn Sapphire Discord Bot"]
+    LavalinkProcess --> HealthGate["Lavalink Ready (2333)"]
+    DashboardProcess --> DashboardGate["Dashboard Ready (3000)"]
+    BotProcess --> GatewayGate["Discord WebSocket Connected"]
+```
+
+---
+
 ## 💻 Project Setup & Workflow
 
 Once your operating system prerequisites are installed:
@@ -187,6 +208,7 @@ cp .env.example .env
 ```
 
 Configure mandatory environment variables:
+
 - `DISCORD_TOKEN`: Discord Bot Token from [Discord Developer Portal](https://discord.com/developers/applications).
 - `DISCORD_CLIENT_ID` & `DISCORD_CLIENT_SECRET`: Application OAuth2 credentials.
 - `DATABASE_URL` & `SHADOW_DB_URL`: PostgreSQL connection strings.
@@ -219,6 +241,7 @@ pnpm dev
 ```
 
 The unified cross-platform launcher will:
+
 1. Automatically execute `prisma db push` to ensure database schema synchronization.
 2. Automatically free configured ports (`3000` for Dashboard, `6379` for Redis, `2333` for Lavalink).
 3. Spawn Lavalink Server, Discord Bot, and Next.js Web Dashboard concurrently.

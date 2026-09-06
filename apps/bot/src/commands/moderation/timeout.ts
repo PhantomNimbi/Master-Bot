@@ -1,11 +1,7 @@
 import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
-import {
-	EmbedBuilder,
-	GuildMember,
-	PermissionFlagsBits
-} from 'discord.js';
+import { EmbedBuilder, GuildMember, PermissionFlagsBits } from 'discord.js';
 
 @ApplyOptions<Command.Options>({
 	name: 'timeout',
@@ -108,7 +104,9 @@ export class TimeoutCommand extends Command {
 			});
 		}
 
-		const targetMember = await guild.members.fetch(targetUser.id).catch(() => null);
+		const targetMember = await guild.members
+			.fetch(targetUser.id)
+			.catch(() => null);
 
 		if (!targetMember) {
 			return await interaction.reply({
@@ -156,9 +154,7 @@ export class TimeoutCommand extends Command {
 
 			const embed = new EmbedBuilder()
 				.setTitle(
-					durationSeconds === 0
-						? '🔊 Timeout Removed'
-						: '🔇 Member Timed Out'
+					durationSeconds === 0 ? '🔊 Timeout Removed' : '🔇 Member Timed Out'
 				)
 				.setColor(durationSeconds === 0 ? 0x2ecc71 : 0xe67e22)
 				.setThumbnail(targetUser.displayAvatarURL())
@@ -230,4 +226,3 @@ export const help: CommandHelp = {
 		}
 	]
 };
-

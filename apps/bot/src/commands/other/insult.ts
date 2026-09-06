@@ -26,10 +26,12 @@ export class InsultCommand extends Command {
 			const response = await fetch(
 				'https://evilinsult.com/generate_insult.php?lang=en&type=json'
 			);
-			const data = await response.json() as any;
+			const data = (await response.json()) as any;
 
 			if (!data.insult)
-				return await interaction.editReply({ content: 'Something went wrong!' });
+				return await interaction.editReply({
+					content: 'Something went wrong!'
+				});
 
 			const embed = new EmbedBuilder()
 				.setColor('Red')

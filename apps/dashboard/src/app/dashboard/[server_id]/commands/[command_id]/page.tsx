@@ -127,8 +127,8 @@ const PermissionsEdit = ({
 				type: selectedRadio
 			},
 			{
-				onSuccess: async () => {
-					await utils.command.getCommandAndGuildChannels.invalidate();
+				onSuccess: () => {
+					void utils.command.getCommandAndGuildChannels.invalidate();
 					setDisableSave(false);
 					toast({
 						title: 'Permissions updated'

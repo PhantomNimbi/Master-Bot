@@ -23,14 +23,14 @@ async function postTicketPanel(
 				: DEFAULT_PANEL_MESSAGE;
 
 		const description = rawText
-			.replace(/\{server\}|\{guild\}/g, guildName || 'Server')
+			.replace(/\{server\}|\{guild\}/g, guildName ?? 'Server')
 			.replace(/\{user\}|\{mention\}/g, 'you')
 			.replace(/\{username\}/g, 'you');
 
 		const payload = {
 			embeds: [
 				{
-					title: `🎫 ${guildName || 'Server'} Support Tickets`,
+					title: `🎫 ${guildName ?? 'Server'} Support Tickets`,
 					description,
 					color: 0x5865f2,
 					footer: { text: 'Support Ticket System • Master-Bot' }
@@ -278,4 +278,3 @@ export const ticketsRouter = createTRPCRouter({
 			return { tickets };
 		})
 });
-

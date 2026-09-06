@@ -35,7 +35,8 @@ export default function TicketChannelSet({
 					📢 Ticket Panel Channel
 				</h4>
 				<p className="text-sm text-gray-400">
-					Select the text channel where the interactive &quot;Open Ticket&quot; panel will be hosted. Ticket threads will spawn inside this channel.
+					Select the text channel where the interactive &quot;Open Ticket&quot;
+					panel will be hosted. Ticket threads will spawn inside this channel.
 				</p>
 			</div>
 
@@ -92,4 +93,3 @@ export default function TicketChannelSet({
 		</div>
 	);
 }
-

@@ -29,14 +29,14 @@ We are committed to providing a welcoming, inclusive, and harassment-free experi
 
 Master-Bot is organized as a [Turborepo](https://turbo.build/) workspace managed with [pnpm](https://pnpm.io/workspaces):
 
-| Package / App | Location | Technology Stack | Responsibility |
-| :--- | :--- | :--- | :--- |
-| **`@master-bot/bot`** | `apps/bot` | Sapphire Framework, `discord.js` v14, `lavalink-client` v2 | Discord client, music playback, slash commands, moderation, ticket system |
-| **`@master-bot/dashboard`** | `apps/dashboard` | Next.js 15 (App Router), Tailwind CSS, React Query v5 | Web dashboard, server settings, live preview editors, owner log viewer |
-| **`@master-bot/api`** | `packages/api` | tRPC v11, `superjson`, Zod | Shared type-safe RPC routers and database procedures |
-| **`@master-bot/auth`** | `packages/auth` | NextAuth.js v5 beta, `@auth/prisma-adapter` | Discord OAuth authentication, session validation, token refresh |
-| **`@master-bot/db`** | `packages/db` | Prisma ORM v5, PostgreSQL | Schema definitions, database client instance, automatic migrations |
-| **`Launcher Scripts`** | `scripts/` | Node.js ESM (`.mjs`), child processes | Cross-platform dev & prod orchestration, port cleanup, log routing |
+| Package / App               | Location         | Technology Stack                                           | Responsibility                                                            |
+| :-------------------------- | :--------------- | :--------------------------------------------------------- | :------------------------------------------------------------------------ |
+| **`@master-bot/bot`**       | `apps/bot`       | Sapphire Framework, `discord.js` v14, `lavalink-client` v2 | Discord client, music playback, slash commands, moderation, ticket system |
+| **`@master-bot/dashboard`** | `apps/dashboard` | Next.js 15 (App Router), Tailwind CSS, React Query v5      | Web dashboard, server settings, live preview editors, owner log viewer    |
+| **`@master-bot/api`**       | `packages/api`   | tRPC v11, `superjson`, Zod                                 | Shared type-safe RPC routers and database procedures                      |
+| **`@master-bot/auth`**      | `packages/auth`  | NextAuth.js v5 beta, `@auth/prisma-adapter`                | Discord OAuth authentication, session validation, token refresh           |
+| **`@master-bot/db`**        | `packages/db`    | Prisma ORM v5, PostgreSQL                                  | Schema definitions, database client instance, automatic migrations        |
+| **`Launcher Scripts`**      | `scripts/`       | Node.js ESM (`.mjs`), child processes                      | Cross-platform dev & prod orchestration, port cleanup, log routing        |
 
 ---
 
@@ -44,30 +44,34 @@ Master-Bot is organized as a [Turborepo](https://turbo.build/) workspace managed
 
 ### System Requirements
 
-* **Node.js**: `>=20.0.0`
-* **pnpm**: `>=8.0.0` (`npm install -g pnpm`)
-* **Java**: Java 17 or higher (Java 21 LTS recommended for Lavalink v4)
-* **PostgreSQL**: Local or remote PostgreSQL instance
-* **Redis**: Local or remote Redis instance (for queue state & caching)
+- **Node.js**: `>=20.0.0`
+- **pnpm**: `>=8.0.0` (`npm install -g pnpm`)
+- **Java**: Java 17 or higher (Java 21 LTS recommended for Lavalink v4)
+- **PostgreSQL**: Local or remote PostgreSQL instance
+- **Redis**: Local or remote Redis instance (for queue state & caching)
 
 ### Setup Steps
 
 1. **Fork and Clone the Repository**:
+
    ```bash
    git clone https://github.com/<your-username>/Master-Bot.git
    cd Master-Bot
    ```
 
 2. **Install Dependencies**:
+
    ```bash
    pnpm install
    ```
 
 3. **Configure Environment Variables**:
    Copy `.env.example` to `.env`:
+
    ```bash
    cp .env.example .env
    ```
+
    Fill in your development credentials:
    - `DISCORD_TOKEN`: Bot token from the [Discord Developer Portal](https://discord.com/developers/applications)
    - `DISCORD_CLIENT_ID` & `DISCORD_CLIENT_SECRET`: Application OAuth2 credentials
@@ -90,7 +94,7 @@ Master-Bot is organized as a [Turborepo](https://turbo.build/) workspace managed
 
 ### Branching Strategy
 
-* Create a descriptive feature or bugfix branch from `main`:
+- Create a descriptive feature or bugfix branch from `main`:
   ```bash
   git checkout -b feat/my-new-feature
   # or
@@ -119,22 +123,26 @@ pnpm --filter @master-bot/dashboard build
 ## 📐 Coding Standards & Conventions
 
 ### General Principles
+
 - **Root-Cause Fixes**: Always trace bugs to their fundamental architectural cause rather than implementing temporary workarounds.
 - **Cross-Platform Parity**: Every feature, script, and command must function reliably across **Windows, macOS, and Linux**.
 - **Non-Destructive Modifications**: Avoid deleting existing repository files unless they are verified to be unused dead code with zero imports.
 
 ### Bot & Discord.js Standards (`apps/bot`)
+
 - **Sapphire Events**: Always use the official `Events` enum from `@sapphire/framework` (e.g. `Events.ChatInputCommandError`, `Events.ClientReady`). Never use magic strings.
 - **Lightweight Preconditions**: Avoid slow, uncached database or network queries in preconditions to ensure Discord interaction tokens do not exceed the strict 3-second response deadline.
 - **Interaction Reply Safety**: Use `interaction.deferReply()` for long-running commands, and ensure deferred interactions are updated via `interaction.editReply()`.
 - **Structured Logging**: Route errors through `Logger.error()` (`apps/bot/src/lib/logger.ts`) with contextual metadata.
 
 ### Dashboard & API Standards (`apps/dashboard`, `packages/api`)
+
 - **React Server vs. Client Components**: Clearly delineate CSR vs. SSR boundaries in Next.js 15 (`'use client'` at the top of interactive components).
 - **Type-Safe RPC**: Define all shared API procedures in `packages/api` with Zod input validation and tRPC routers.
 - **Tailwind CSS**: Use consistent utility classes adhering to the dark mode palette and design system.
 
 ### Security & Git Hygiene
+
 - **Zero Disk Secret Mutation**: Never write runtime credentials into `.env` at runtime.
 - **Strict Gitignore**: Runtime files (`.env`, `.youtube-oauth.json`, `Lavalink.jar`, `logs/`) must **never** be tracked or committed to Git.
 
@@ -151,23 +159,26 @@ All commit messages must strictly follow the [Conventional Commits](https://www.
 ```
 
 #### Allowed Types
-* `feat`: A new feature or capability
-* `fix`: A bug fix
-* `docs`: Documentation updates or corrections
-* `refactor`: Code restructure without changing behavior
-* `perf`: A code change that improves performance
-* `test`: Adding or updating tests
-* `chore`: Maintenance tasks, dependency updates, tooling
-* `build`: Changes affecting build system or external dependencies
-* `ci`: Continuous integration configuration changes
+
+- `feat`: A new feature or capability
+- `fix`: A bug fix
+- `docs`: Documentation updates or corrections
+- `refactor`: Code restructure without changing behavior
+- `perf`: A code change that improves performance
+- `test`: Adding or updating tests
+- `chore`: Maintenance tasks, dependency updates, tooling
+- `build`: Changes affecting build system or external dependencies
+- `ci`: Continuous integration configuration changes
 
 #### Common Scopes
-* `bot`, `dashboard`, `api`, `auth`, `db`, `music`, `moderation`, `tickets`, `settings`, `launcher`, `deps`
+
+- `bot`, `dashboard`, `api`, `auth`, `db`, `music`, `moderation`, `tickets`, `settings`, `launcher`, `deps`
 
 #### Examples
-* `feat(music): add live ascii progress bar and auto-updating player embed`
-* `fix(bot): replace followUp with editReply on deferred interactions`
-* `docs(readme): update commands table and contributor references`
+
+- `feat(music): add live ascii progress bar and auto-updating player embed`
+- `fix(bot): replace followUp with editReply on deferred interactions`
+- `docs(readme): update commands table and contributor references`
 
 ---
 
@@ -185,6 +196,7 @@ All commit messages must strictly follow the [Conventional Commits](https://www.
 ## 🐛 Reporting Bugs & Suggesting Features
 
 ### Reporting a Bug
+
 - Check [existing GitHub Issues](https://github.com/galnir/Master-Bot/issues) to ensure the issue hasn't already been reported.
 - Provide a clear, reproducible description including:
   - Operating system and Node.js / Java versions.
@@ -192,6 +204,7 @@ All commit messages must strictly follow the [Conventional Commits](https://www.
   - Exact steps to reproduce the behavior.
 
 ### Suggesting a Feature
+
 - Open a Feature Request issue describing:
   - The problem or use case your feature solves.
   - Proposed slash command syntax or dashboard UI workflow.
@@ -201,8 +214,8 @@ All commit messages must strictly follow the [Conventional Commits](https://www.
 
 ## 💬 Community & Getting Help
 
-* **Repository**: [galnir/Master-Bot](https://github.com/galnir/Master-Bot)
-* **Documentation Wiki**: [Master-Bot Wiki](wiki/Home.md)
-* **Discussions & Issues**: [GitHub Issues](https://github.com/galnir/Master-Bot/issues)
+- **Repository**: [galnir/Master-Bot](https://github.com/galnir/Master-Bot)
+- **Documentation Wiki**: [Master-Bot Wiki](wiki/Home.md)
+- **Discussions & Issues**: [GitHub Issues](https://github.com/galnir/Master-Bot/issues)
 
 Thank you for helping make Master-Bot better for everyone! 🚀

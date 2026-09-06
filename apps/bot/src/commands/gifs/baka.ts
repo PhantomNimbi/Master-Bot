@@ -32,13 +32,15 @@ export class BakaCommand extends Command {
 
 		if (!gifUrl) {
 			return await interaction.editReply({
-				content: ':warning: Could not load a GIF at this time. Please try again!'
+				content:
+					':warning: Could not load a GIF at this time. Please try again!'
 			});
 		}
 
-		const action = target && target.id !== interaction.user.id
-			? 'calls {target} a baka!'.replace('{target}', `${target}`)
-			: 'Replies with a random baka gif!';
+		const action =
+			target && target.id !== interaction.user.id
+				? 'calls {target} a baka!'.replace('{target}', `${target}`)
+				: 'Replies with a random baka gif!';
 
 		const embed = new EmbedBuilder()
 			.setColor(0x5865f2)
@@ -54,12 +56,12 @@ export const help: CommandHelp = {
 	category: 'gifs',
 	description: 'Replies with a random baka gif!',
 	usage: '/baka [target: @User]',
-	examples: ["/baka","/baka target: @Someone"],
+	examples: ['/baka', '/baka target: @Someone'],
 	options: [
-  {
-    "name": "target",
-    "description": "Target member to baka",
-    "required": false
-  }
-]
+		{
+			name: 'target',
+			description: 'Target member to baka',
+			required: false
+		}
+	]
 };

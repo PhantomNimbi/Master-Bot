@@ -188,7 +188,8 @@ export class BoredCommand extends Command {
 			try {
 				const params = new URLSearchParams();
 				if (type) params.append('type', type);
-				if (participants) params.append('participants', participants.toString());
+				if (participants)
+					params.append('participants', participants.toString());
 
 				const queryStr = params.toString() ? `?${params.toString()}` : '';
 				const res = await fetch(
@@ -216,8 +217,10 @@ export class BoredCommand extends Command {
 				type && FALLBACK_ACTIVITIES[type]
 					? type
 					: Object.keys(FALLBACK_ACTIVITIES)[
-							Math.floor(Math.random() * Object.keys(FALLBACK_ACTIVITIES).length)
-					  ];
+							Math.floor(
+								Math.random() * Object.keys(FALLBACK_ACTIVITIES).length
+							)
+						];
 			const list = FALLBACK_ACTIVITIES[categoryKey];
 			const chosen = list[Math.floor(Math.random() * list.length)];
 
@@ -230,7 +233,8 @@ export class BoredCommand extends Command {
 		}
 
 		const categoryName =
-			activityResult.type.charAt(0).toUpperCase() + activityResult.type.slice(1);
+			activityResult.type.charAt(0).toUpperCase() +
+			activityResult.type.slice(1);
 		const color = getCategoryColor(activityResult.type);
 
 		const embed = new EmbedBuilder()

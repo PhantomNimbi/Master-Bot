@@ -80,9 +80,9 @@ export const help: CommandHelp = {
 	examples: ['/8ball question: value'],
 	options: [
 		{
-				"name": "question",
-				"description": "The question you want to ask the 8ball",
-				"required": true
+			name: 'question',
+			description: 'The question you want to ask the 8ball',
+			required: true
 		}
-]
+	]
 };

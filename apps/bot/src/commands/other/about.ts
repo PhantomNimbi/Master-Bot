@@ -90,9 +90,7 @@ export class AboutCommand extends Command {
 		);
 	}
 
-	public override async chatInputRun(
-		interaction: ChatInputCommandInteraction
-	) {
+	public override async chatInputRun(interaction: ChatInputCommandInteraction) {
 		await interaction.deferReply();
 		const { client } = container;
 		const subcommand = interaction.options.getSubcommand(false);
@@ -105,77 +103,77 @@ export class AboutCommand extends Command {
 				});
 			}
 
-				const guild = interaction.guild;
-				const owner = await guild.fetchOwner().catch(() => null);
-				const textChannels = guild.channels.cache.filter(
-					channel => channel.type === ChannelType.GuildText
-				).size;
-				const voiceChannels = guild.channels.cache.filter(
-					channel => channel.type === ChannelType.GuildVoice
-				).size;
-				const categoryChannels = guild.channels.cache.filter(
-					channel => channel.type === ChannelType.GuildCategory
-				).size;
+			const guild = interaction.guild;
+			const owner = await guild.fetchOwner().catch(() => null);
+			const textChannels = guild.channels.cache.filter(
+				channel => channel.type === ChannelType.GuildText
+			).size;
+			const voiceChannels = guild.channels.cache.filter(
+				channel => channel.type === ChannelType.GuildVoice
+			).size;
+			const categoryChannels = guild.channels.cache.filter(
+				channel => channel.type === ChannelType.GuildCategory
+			).size;
 
-				const embed = new EmbedBuilder()
-					.setTitle(guild.name)
-					.setThumbnail(guild.iconURL({ size: 256 }) || null)
-					.setColor('Blue')
-					.setDescription('Here is some information about this server.')
-					.addFields(
-						{
-							name: '👑 Owner',
-							value: owner ? owner.user.tag : 'Unknown',
-							inline: true
-						},
-						{
-							name: '👥 Members',
-							value: guild.memberCount.toLocaleString(),
-							inline: true
-						},
-						{
-							name: '🟢 Online',
-							value: countOnlineMembers(guild).toLocaleString(),
-							inline: true
-						},
-						{
-							name: '📁 Channels',
-							value: `${textChannels} text • ${voiceChannels} voice • ${categoryChannels} category`,
-							inline: true
-						},
-						{
-							name: '🎭 Roles',
-							value: guild.roles.cache.size.toLocaleString(),
-							inline: true
-						},
-						{
-							name: '🚀 Boosts',
-							value: `${guild.premiumSubscriptionCount} (Level ${guild.premiumTier})`,
-							inline: true
-						},
-						{
-							name: '🗓️ Created',
-							value: formatDate(guild.createdAt),
-							inline: true
-						},
-						{
-							name: '🆔 ID',
-							value: guild.id,
-							inline: true
-						},
-						{
-							name: '🌍 Locale',
-							value: guild.preferredLocale || 'Unknown',
-							inline: true
-						}
-					)
-					.setFooter({
-						text: `Requested by ${interaction.user.username}`,
-						iconURL: interaction.user.displayAvatarURL()
-					})
-					.setTimestamp();
+			const embed = new EmbedBuilder()
+				.setTitle(guild.name)
+				.setThumbnail(guild.iconURL({ size: 256 }) || null)
+				.setColor('Blue')
+				.setDescription('Here is some information about this server.')
+				.addFields(
+					{
+						name: '👑 Owner',
+						value: owner ? owner.user.tag : 'Unknown',
+						inline: true
+					},
+					{
+						name: '👥 Members',
+						value: guild.memberCount.toLocaleString(),
+						inline: true
+					},
+					{
+						name: '🟢 Online',
+						value: countOnlineMembers(guild).toLocaleString(),
+						inline: true
+					},
+					{
+						name: '📁 Channels',
+						value: `${textChannels} text • ${voiceChannels} voice • ${categoryChannels} category`,
+						inline: true
+					},
+					{
+						name: '🎭 Roles',
+						value: guild.roles.cache.size.toLocaleString(),
+						inline: true
+					},
+					{
+						name: '🚀 Boosts',
+						value: `${guild.premiumSubscriptionCount} (Level ${guild.premiumTier})`,
+						inline: true
+					},
+					{
+						name: '🗓️ Created',
+						value: formatDate(guild.createdAt),
+						inline: true
+					},
+					{
+						name: '🆔 ID',
+						value: guild.id,
+						inline: true
+					},
+					{
+						name: '🌍 Locale',
+						value: guild.preferredLocale || 'Unknown',
+						inline: true
+					}
+				)
+				.setFooter({
+					text: `Requested by ${interaction.user.username}`,
+					iconURL: interaction.user.displayAvatarURL()
+				})
+				.setTimestamp();
 
-				return interaction.editReply({ embeds: [embed] });
+			return interaction.editReply({ embeds: [embed] });
 		} else if (subcommand === 'user') {
 			const targetUser =
 				interaction.options.getUser('user') || interaction.user;
@@ -226,9 +224,7 @@ export class AboutCommand extends Command {
 				embed.addFields(
 					{
 						name: '📅 Joined Server',
-						value: member.joinedAt
-							? formatDate(member.joinedAt)
-							: 'Unknown',
+						value: member.joinedAt ? formatDate(member.joinedAt) : 'Unknown',
 						inline: true
 					},
 					{
@@ -287,9 +283,7 @@ export class AboutCommand extends Command {
 					},
 					{
 						name: '⏱️ Uptime',
-						value: client.uptime
-							? formatUptime(client.uptime)
-							: 'Unknown',
+						value: client.uptime ? formatUptime(client.uptime) : 'Unknown',
 						inline: true
 					},
 					{

@@ -94,7 +94,10 @@ export class Queue {
 	}
 
 	public get playing(): boolean {
-		return Boolean(this.player?.playing || (this.player?.voiceChannelId && this.player?.connected));
+		return Boolean(
+			this.player?.playing ||
+			(this.player?.voiceChannelId && this.player?.connected)
+		);
 	}
 
 	public async isPlaying(): Promise<boolean> {
@@ -113,7 +116,7 @@ export class Queue {
 	public get voiceChannel(): VoiceChannel | null {
 		const id = this.voiceChannelID;
 		return id
-			? (this.guild.channels.cache.get(id) as VoiceChannel) ?? null
+			? ((this.guild.channels.cache.get(id) as VoiceChannel) ?? null)
 			: null;
 	}
 

@@ -43,9 +43,7 @@ export class DashboardCommand extends Command {
 		}
 
 		if (internalUrl) {
-			const ownerUser = await getApplicationOwnerUser(
-				this.container.client
-			);
+			const ownerUser = await getApplicationOwnerUser(this.container.client);
 			if (ownerUser && interaction.user.id === ownerUser.id) {
 				fields.push({
 					name: '🏠 Internal Link (Owner)',

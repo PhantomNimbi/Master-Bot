@@ -79,14 +79,14 @@ export const help: CommandHelp = {
 	examples: ['/activity channel: value activity: value'],
 	options: [
 		{
-				"name": "channel",
-				"description": "Channel to invite to",
-				"required": true
+			name: 'channel',
+			description: 'Channel to invite to',
+			required: true
 		},
 		{
-				"name": "activity",
-				"description": "Activity to invite to",
-				"required": true
+			name: 'activity',
+			description: 'Activity to invite to',
+			required: true
 		}
-]
+	]
 };

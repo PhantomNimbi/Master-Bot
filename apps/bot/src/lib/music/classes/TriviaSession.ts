@@ -155,7 +155,7 @@ export class TriviaSession {
 				)
 				.setFooter({ text: 'Type your guess directly in chat!' });
 
-		await this.textChannel.send({ embeds: [roundEmbed] });
+			await this.textChannel.send({ embeds: [roundEmbed] });
 
 			this.startCollector();
 
@@ -193,7 +193,9 @@ export class TriviaSession {
 
 			// Check title
 			if (!this.titleGuessedBy) {
-				if (checkMatch(content, this.currentSong.title, this.currentSong.aliases)) {
+				if (
+					checkMatch(content, this.currentSong.title, this.currentSong.aliases)
+				) {
 					this.titleGuessedBy = username;
 					scoreEntry.points += 1;
 					await message.react('🎉').catch(() => {});
@@ -205,7 +207,13 @@ export class TriviaSession {
 
 			// Check artist
 			if (!this.artistGuessedBy) {
-				if (checkMatch(content, this.currentSong.artist, this.currentSong.artistAliases)) {
+				if (
+					checkMatch(
+						content,
+						this.currentSong.artist,
+						this.currentSong.artistAliases
+					)
+				) {
 					this.artistGuessedBy = username;
 					scoreEntry.points += 1;
 					await message.react('🔥').catch(() => {});
@@ -259,10 +267,14 @@ export class TriviaSession {
 	private getScoreboardText(): string {
 		if (this.scores.size === 0) return '*No points awarded yet.*';
 
-		const sorted = [...this.scores.values()].sort((a, b) => b.points - a.points);
+		const sorted = [...this.scores.values()].sort(
+			(a, b) => b.points - a.points
+		);
 		return (
 			'📊 **Current Scores:**\n' +
-			sorted.map((s, idx) => `${idx + 1}. **${s.username}**: ${s.points} pts`).join('\n')
+			sorted
+				.map((s, idx) => `${idx + 1}. **${s.username}**: ${s.points} pts`)
+				.join('\n')
 		);
 	}
 
@@ -283,16 +295,22 @@ export class TriviaSession {
 			await this.client.music.destroyPlayer(this.guildId);
 		}
 
-		const sorted = [...this.scores.values()].sort((a, b) => b.points - a.points);
+		const sorted = [...this.scores.values()].sort(
+			(a, b) => b.points - a.points
+		);
 		let finalDescription = '🏁 **The Music Trivia Game has concluded!**\n\n';
 
 		if (sorted.length === 0) {
-			finalDescription += 'No points were scored this game. Thanks for playing!';
+			finalDescription +=
+				'No points were scored this game. Thanks for playing!';
 		} else {
 			finalDescription += '🏆 **Final Leaderboard:**\n';
 			const medals = ['🥇', '🥈', '🥉'];
 			finalDescription += sorted
-				.map((s, idx) => `${medals[idx] || '▫️'} **${s.username}**: ${s.points} pts`)
+				.map(
+					(s, idx) =>
+						`${medals[idx] || '▫️'} **${s.username}**: ${s.points} pts`
+				)
 				.join('\n');
 		}
 
@@ -320,6 +338,8 @@ export class TriviaSession {
 		}
 
 		this.client.triviaSessions?.delete(this.guildId);
-		await this.textChannel.send(`:octagonal_sign: **Music Trivia stopped:** ${reason}`);
+		await this.textChannel.send(
+			`:octagonal_sign: **Music Trivia stopped:** ${reason}`
+		);
 	}
 }

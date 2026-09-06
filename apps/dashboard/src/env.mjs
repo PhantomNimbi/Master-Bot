@@ -7,9 +7,13 @@ export const env = createEnv({
 	 * built with invalid env vars.
 	 */
 	server: {
-		DATABASE_URL: z.string().url(),
-		DISCORD_TOKEN: z.string(),
-		DISCORD_CLIENT_ID: z.string(),
+		DATABASE_URL: z
+			.string()
+			.default(
+				'postgresql://postgres:postgres@localhost:5432/master-bot?schema=public'
+			),
+		DISCORD_TOKEN: z.string().optional(),
+		DISCORD_CLIENT_ID: z.string().optional(),
 		LAVA_ENABLED: z.string().optional(),
 		GIFS_ENABLED: z.string().optional(),
 		TWITCH_ENABLED: z.string().optional(),
@@ -27,7 +31,11 @@ export const env = createEnv({
 	 * For them to be exposed to the client, prefix them with `NEXT_PUBLIC_`.
 	 */
 	client: {
-		NEXT_PUBLIC_INVITE_URL: z.string().url()
+		NEXT_PUBLIC_INVITE_URL: z
+			.string()
+			.default(
+				'https://discord.com/api/oauth2/authorize?client_id=placeholder&permissions=8&scope=bot'
+			)
 	},
 	/**
 	 * Destructure all variables from `process.env` to make sure they aren't tree-shaken away.

@@ -146,10 +146,12 @@ export async function updatePlayerEmbed(queue: Queue) {
 
 		const rows = await getPlayerActionRows(queue);
 
-		await message.edit({
-			embeds: [await nowPlaying.NowPlayingEmbed()],
-			components: rows
-		}).catch(() => {});
+		await message
+			.edit({
+				embeds: [await nowPlaying.NowPlayingEmbed()],
+				components: rows
+			})
+			.catch(() => {});
 	} catch (err) {
 		Logger.error('Failed to update player embed: ', err);
 	}

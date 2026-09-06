@@ -9,7 +9,10 @@ import {
 	FileText,
 	Ticket,
 	Bell,
-	ScrollText,
+	Music2,
+	Send,
+	Layers,
+	Activity,
 	ArrowLeft
 } from 'lucide-react';
 import Logo from '~/components/logo';
@@ -55,9 +58,27 @@ export default function Sidebar({ server_id }: { server_id: string }) {
 			exact: false
 		},
 		{
-			href: '/dashboard/logs',
-			label: 'System Logs',
-			icon: ScrollText,
+			href: '/dashboard/music',
+			label: 'Music Studio',
+			icon: Music2,
+			exact: false
+		},
+		{
+			href: '/dashboard/broadcast',
+			label: 'Broadcaster',
+			icon: Send,
+			exact: false
+		},
+		{
+			href: '/dashboard/integrations',
+			label: 'Twitch Streams',
+			icon: Layers,
+			exact: false
+		},
+		{
+			href: '/dashboard/system',
+			label: 'Diagnostics',
+			icon: Activity,
 			exact: false
 		}
 	];

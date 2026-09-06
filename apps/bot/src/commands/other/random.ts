@@ -53,14 +53,14 @@ export const help: CommandHelp = {
 	examples: ['/random min: value max: value'],
 	options: [
 		{
-				"name": "min",
-				"description": "What is the minimum number?",
-				"required": true
+			name: 'min',
+			description: 'What is the minimum number?',
+			required: true
 		},
 		{
-				"name": "max",
-				"description": "What is the maximum number?",
-				"required": true
+			name: 'max',
+			description: 'What is the maximum number?',
+			required: true
 		}
-]
+	]
 };

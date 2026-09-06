@@ -72,7 +72,8 @@ export class PurgeCommand extends Command {
 
 		if (channel.type !== ChannelType.GuildText) {
 			return await interaction.reply({
-				content: ':x: This command can only be used in a standard text channel.',
+				content:
+					':x: This command can only be used in a standard text channel.',
 				ephemeral: true
 			});
 		}
@@ -117,10 +118,7 @@ export const help: CommandHelp = {
 	category: 'moderation',
 	description: 'Bulk delete messages from the current channel.',
 	usage: '/purge amount: [1-100] [user: @User]',
-	examples: [
-		'/purge amount: 10',
-		'/purge amount: 50 user: @Spammer'
-	],
+	examples: ['/purge amount: 10', '/purge amount: 50 user: @Spammer'],
 	options: [
 		{
 			name: 'amount',
@@ -134,4 +132,3 @@ export const help: CommandHelp = {
 		}
 	]
 };
-

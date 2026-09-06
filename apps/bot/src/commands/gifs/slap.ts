@@ -32,13 +32,15 @@ export class SlapCommand extends Command {
 
 		if (!gifUrl) {
 			return await interaction.editReply({
-				content: ':warning: Could not load a GIF at this time. Please try again!'
+				content:
+					':warning: Could not load a GIF at this time. Please try again!'
 			});
 		}
 
-		const action = target && target.id !== interaction.user.id
-			? 'slaps {target}! 💥'.replace('{target}', `${target}`)
-			: 'Slap someone with a dramatic gif!';
+		const action =
+			target && target.id !== interaction.user.id
+				? 'slaps {target}! 💥'.replace('{target}', `${target}`)
+				: 'Slap someone with a dramatic gif!';
 
 		const embed = new EmbedBuilder()
 			.setColor(0x5865f2)
@@ -54,12 +56,12 @@ export const help: CommandHelp = {
 	category: 'gifs',
 	description: 'Slap someone with a dramatic gif!',
 	usage: '/slap [target: @User]',
-	examples: ["/slap","/slap target: @Someone"],
+	examples: ['/slap', '/slap target: @Someone'],
 	options: [
-  {
-    "name": "target",
-    "description": "Target member to slap",
-    "required": false
-  }
-]
+		{
+			name: 'target',
+			description: 'Target member to slap',
+			required: false
+		}
+	]
 };

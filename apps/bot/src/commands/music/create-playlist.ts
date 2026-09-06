@@ -58,7 +58,9 @@ export class CreatePlaylistCommand extends Command {
 			});
 		}
 
-		return await interaction.editReply(`Created a playlist named **${playlistName}**`);
+		return await interaction.editReply(
+			`Created a playlist named **${playlistName}**`
+		);
 	}
 }
 

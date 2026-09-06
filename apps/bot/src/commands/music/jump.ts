@@ -72,7 +72,8 @@ export const help: CommandHelp = {
 	options: [
 		{
 			name: 'position',
-			description: 'What is the position of the song you want to jump to in the queue?',
+			description:
+				'What is the position of the song you want to jump to in the queue?',
 			required: true
 		}
 	]

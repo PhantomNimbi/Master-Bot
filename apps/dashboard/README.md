@@ -48,4 +48,3 @@ pnpm dev
 # Or launch only the dashboard
 pnpm --filter @master-bot/dashboard dev
 ```
-

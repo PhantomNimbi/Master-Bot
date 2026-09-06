@@ -35,9 +35,8 @@ export function isCommandNameGloballyDisabled(
 		(env.NEWS_ENABLED || process.env.NEWS_ENABLED)?.toLowerCase() !== 'false';
 	// IGDB utilizes Twitch API credentials — respects IGDB_ENABLED if set, otherwise follows TWITCH_ENABLED
 	const rawIgdb = env.IGDB_ENABLED || process.env.IGDB_ENABLED;
-	const isIgdbEnabled = rawIgdb !== undefined
-		? rawIgdb.toLowerCase() !== 'false'
-		: isTwitchEnabled;
+	const isIgdbEnabled =
+		rawIgdb !== undefined ? rawIgdb.toLowerCase() !== 'false' : isTwitchEnabled;
 
 	const name = commandOrCategoryName.toLowerCase();
 
@@ -54,7 +53,8 @@ export function isCommandNameGloballyDisabled(
 		if (!isGifsEnabled && category === 'gifs') return true;
 		if (!isTwitchEnabled && category === 'twitch') return true;
 		if (!isNewsEnabled && cmd.name === 'news') return true;
-		if ((!isIgdbEnabled || !isTwitchEnabled) && cmd.name === 'game-search') return true;
+		if ((!isIgdbEnabled || !isTwitchEnabled) && cmd.name === 'game-search')
+			return true;
 	}
 
 	return false;
@@ -72,14 +72,19 @@ export class IsCommandDisabledPrecondition extends Precondition {
 
 		// Check global disable state via dynamic feature toggles
 		if (isCommandNameGloballyDisabled(interaction.commandName)) {
-			const cmd = container.stores.get('commands')?.get(interaction.commandName);
+			const cmd = container.stores
+				.get('commands')
+				?.get(interaction.commandName);
 			const category = cmd?.category?.toLowerCase() || '';
 			let featureName = 'This feature';
 			if (category === 'music' || interaction.commandName === 'music') {
 				featureName = 'Music & Audio commands';
 			} else if (category === 'gifs' || interaction.commandName === 'gifs') {
 				featureName = 'GIF commands';
-			} else if (category === 'twitch' || interaction.commandName === 'twitch') {
+			} else if (
+				category === 'twitch' ||
+				interaction.commandName === 'twitch'
+			) {
 				featureName = 'Twitch commands';
 			} else if (interaction.commandName === 'game-search') {
 				featureName = 'Game search (IGDB)';
@@ -111,7 +116,10 @@ export class IsCommandDisabledPrecondition extends Precondition {
 					setTimeout(() => reject(new Error('Precondition timeout')), 300)
 				);
 
-				const data = (await Promise.race([queryPromise, timeoutPromise])) as any;
+				const data = (await Promise.race([
+					queryPromise,
+					timeoutPromise
+				])) as any;
 				disabledCommands = data?.disabledCommands || [];
 				disabledCommandsCache.set(guildID, {
 					commands: disabledCommands,

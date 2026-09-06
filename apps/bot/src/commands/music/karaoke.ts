@@ -30,7 +30,11 @@ export class KaraokeCommand extends Command {
 		const { client } = container;
 
 		const player = client.music.getPlayer(interaction.guild!.id);
-		if (!player) return interaction.reply({ content: 'No active player.', ephemeral: true });
+		if (!player)
+			return interaction.reply({
+				content: 'No active player.',
+				ephemeral: true
+			});
 
 		const enabled = await player.filterManager.toggleKaraoke();
 		(player as any).karaoke = enabled;

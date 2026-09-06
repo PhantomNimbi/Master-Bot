@@ -28,7 +28,9 @@ export default async function WelcomeMessagePage({
 			<h1 className="text-3xl font-semibold">Welcome Message Settings</h1>
 			<div className="ml-2 mt-6 flex flex-col gap-6 max-w-4xl">
 				<div className="flex flex-col gap-2">
-					<h3 className="text-lg text-gray-300">Welcome new users with a custom message</h3>
+					<h3 className="text-lg text-gray-300">
+						Welcome new users with a custom message
+					</h3>
 					<div className="flex items-center gap-4">
 						<span className="text-sm text-gray-400">System Status:</span>
 						{guild.welcomeMessageEnabled ? (

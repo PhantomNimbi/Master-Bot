@@ -25,7 +25,8 @@ export class StopTriviaCommand extends Command {
 		const session = client.triviaSessions?.get(guildId);
 		if (!session || session.isEnded) {
 			return await interaction.reply({
-				content: ':x: There is no active Music Trivia session running in this server.',
+				content:
+					':x: There is no active Music Trivia session running in this server.',
 				ephemeral: true
 			});
 		}

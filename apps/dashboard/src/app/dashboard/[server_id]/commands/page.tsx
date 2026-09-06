@@ -124,14 +124,15 @@ export default async function CommandsPage({
 
 	// Read environment toggles
 	const isLavaEnabled =
-		(env.LAVA_ENABLED || process.env.LAVA_ENABLED)?.toLowerCase() === 'true';
+		(env.LAVA_ENABLED ?? process.env.LAVA_ENABLED)?.toLowerCase() === 'true';
 	const isGifsEnabled =
-		(env.GIFS_ENABLED || process.env.GIFS_ENABLED)?.toLowerCase() !== 'false';
+		(env.GIFS_ENABLED ?? process.env.GIFS_ENABLED)?.toLowerCase() !== 'false';
 	const isTwitchEnabled =
-		(env.TWITCH_ENABLED || process.env.TWITCH_ENABLED)?.toLowerCase() !== 'false';
+		(env.TWITCH_ENABLED ?? process.env.TWITCH_ENABLED)?.toLowerCase() !==
+		'false';
 	const isNewsEnabled =
-		(env.NEWS_ENABLED || process.env.NEWS_ENABLED)?.toLowerCase() !== 'false';
-	const rawIgdb = env.IGDB_ENABLED || process.env.IGDB_ENABLED;
+		(env.NEWS_ENABLED ?? process.env.NEWS_ENABLED)?.toLowerCase() !== 'false';
+	const rawIgdb = env.IGDB_ENABLED ?? process.env.IGDB_ENABLED;
 	const isIgdbEnabled =
 		rawIgdb !== undefined ? rawIgdb.toLowerCase() !== 'false' : isTwitchEnabled;
 
@@ -155,12 +156,14 @@ export default async function CommandsPage({
 			icon: Music,
 			isGloballyEnabled: isLavaEnabled,
 			envFlag: 'LAVA_ENABLED',
-			matchCommand: (name: string) => MUSIC_COMMANDS.includes(name.toLowerCase())
+			matchCommand: (name: string) =>
+				MUSIC_COMMANDS.includes(name.toLowerCase())
 		},
 		{
 			id: 'gifs',
 			title: 'GIFs & Anime Reactions',
-			description: 'Interactive animated gifs, anime reactions, and social emotes.',
+			description:
+				'Interactive animated gifs, anime reactions, and social emotes.',
 			icon: Film,
 			isGloballyEnabled: isGifsEnabled,
 			envFlag: 'GIFS_ENABLED',
@@ -174,7 +177,8 @@ export default async function CommandsPage({
 			icon: Tv,
 			isGloballyEnabled: isTwitchEnabled,
 			envFlag: 'TWITCH_ENABLED',
-			matchCommand: (name: string) => TWITCH_COMMANDS.includes(name.toLowerCase())
+			matchCommand: (name: string) =>
+				TWITCH_COMMANDS.includes(name.toLowerCase())
 		},
 		{
 			id: 'news',
@@ -188,7 +192,8 @@ export default async function CommandsPage({
 		{
 			id: 'games',
 			title: 'Games & Entertainment',
-			description: 'IGDB game database search, minigames, 8ball, and speedrun records.',
+			description:
+				'IGDB game database search, minigames, 8ball, and speedrun records.',
 			icon: Gamepad2,
 			isGloballyEnabled: true,
 			envFlag: 'IGDB_ENABLED / TWITCH_ENABLED',
@@ -223,7 +228,8 @@ export default async function CommandsPage({
 					Command Management Panel
 				</h1>
 				<p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-					Enable or disable slash commands for this server and configure custom role permissions.
+					Enable or disable slash commands for this server and configure custom
+					role permissions.
 				</p>
 			</div>
 
@@ -233,7 +239,10 @@ export default async function CommandsPage({
 						const categoryCommands = rawCommands.filter(cmd => {
 							if (!category.matchCommand(cmd.name)) return false;
 							// Specific check for IGDB game-search inside games category
-							if (cmd.name.toLowerCase() === 'game-search' && (!isIgdbEnabled || !isTwitchEnabled)) {
+							if (
+								cmd.name.toLowerCase() === 'game-search' &&
+								(!isIgdbEnabled || !isTwitchEnabled)
+							) {
 								return false;
 							}
 							return true;
@@ -329,7 +338,8 @@ export default async function CommandsPage({
 						No Active Commands Available
 					</h3>
 					<p className="text-sm text-slate-500 mt-1">
-						All command categories are currently disabled by global configuration or no commands are registered.
+						All command categories are currently disabled by global
+						configuration or no commands are registered.
 					</p>
 				</div>
 			)}

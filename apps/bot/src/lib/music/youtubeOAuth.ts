@@ -7,7 +7,8 @@ import Logger from '../logger';
 const CLIENT_ID =
 	'861556708454-d6dlm3lh05idd8npek18k6be8ba3oc68.apps.googleusercontent.com';
 const CLIENT_SECRET = 'SboVhoG9s0rNafixCSGGKXAT';
-const SCOPE = 'http://gdata.youtube.com https://www.googleapis.com/auth/youtube';
+const SCOPE =
+	'http://gdata.youtube.com https://www.googleapis.com/auth/youtube';
 const DEVICE_CODE_URL = 'https://www.youtube.com/o/oauth2/device/code';
 const TOKEN_URL = 'https://www.youtube.com/o/oauth2/token';
 
@@ -35,7 +36,8 @@ export async function initiateDeviceFlow(): Promise<DeviceFlowResponse> {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
-			'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+			'User-Agent':
+				'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
 		},
 		body: JSON.stringify(payload)
 	});
@@ -86,7 +88,8 @@ export async function pollForRefreshToken(
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+						'User-Agent':
+							'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
 					},
 					body: JSON.stringify(payload)
 				});
@@ -109,7 +112,9 @@ export async function pollForRefreshToken(
 				}
 
 				clearInterval(timer);
-				Logger.error(`OAuth Polling Error: ${data?.error_description || data?.error}`);
+				Logger.error(
+					`OAuth Polling Error: ${data?.error_description || data?.error}`
+				);
 				resolve(null);
 			} catch (err: any) {
 				clearInterval(timer);
@@ -149,7 +154,9 @@ export function saveYouTubeRefreshToken(token: string): void {
 			);
 			fs.writeFileSync(tmpPath, data, 'utf-8');
 			fs.renameSync(tmpPath, filePath);
-			Logger.info(`YouTube OAuth refresh token saved atomically to ${filePath}`);
+			Logger.info(
+				`YouTube OAuth refresh token saved atomically to ${filePath}`
+			);
 			break;
 		} catch (err) {
 			Logger.error(`Failed to save .youtube-oauth.json in ${dir}: ${err}`);

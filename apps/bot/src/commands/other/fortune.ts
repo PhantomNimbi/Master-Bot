@@ -21,7 +21,7 @@ export class FortuneCommand extends Command {
 		await interaction.deferReply();
 		try {
 			const response = await fetch('http://yerkee.com/api/fortune');
-			const data = await response.json() as any;
+			const data = (await response.json()) as any;
 
 			const tip = data.fortune;
 

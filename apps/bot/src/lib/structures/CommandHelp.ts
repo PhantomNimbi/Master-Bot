@@ -18,7 +18,10 @@ export interface CommandHelp {
 
 export function isCommandHelpEnabled(help: CommandHelp): boolean {
 	if (help.disabled) return false;
-	if (isCommandNameGloballyDisabled(help.name) || isCommandNameGloballyDisabled(help.category)) {
+	if (
+		isCommandNameGloballyDisabled(help.name) ||
+		isCommandNameGloballyDisabled(help.category)
+	) {
 		return false;
 	}
 	return true;

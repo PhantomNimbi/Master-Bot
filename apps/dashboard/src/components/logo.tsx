@@ -9,8 +9,8 @@ export default function Logo({
 				size === 'small'
 					? 'text-3xl'
 					: size === 'medium'
-					? 'text-4xl'
-					: 'text-6xl'
+						? 'text-4xl'
+						: 'text-6xl'
 			}
 		}`}
 		>

@@ -46,13 +46,17 @@ export class WorldNewsCommand extends Command {
 				.addStringOption(option =>
 					option
 						.setName('query')
-						.setDescription('Search for specific keywords (e.g. AI, NASA, economy)')
+						.setDescription(
+							'Search for specific keywords (e.g. AI, NASA, economy)'
+						)
 						.setRequired(false)
 				)
 				.addStringOption(option =>
 					option
 						.setName('country')
-						.setDescription('Country edition for top headlines (defaults to Global/US)')
+						.setDescription(
+							'Country edition for top headlines (defaults to Global/US)'
+						)
 						.setRequired(false)
 						.addChoices(
 							{ name: 'United States (US)', value: 'us' },
@@ -74,7 +78,8 @@ export class WorldNewsCommand extends Command {
 		const apiKey = env.NEWS_API || process.env.NEWS_API;
 		if (!apiKey) {
 			return interaction.reply({
-				content: ':warning: NewsAPI key is not configured on this bot instance.',
+				content:
+					':warning: NewsAPI key is not configured on this bot instance.',
 				ephemeral: true
 			});
 		}
@@ -83,7 +88,9 @@ export class WorldNewsCommand extends Command {
 
 		const category = interaction.options.getString('category');
 		const query = interaction.options.getString('query');
-		const country = interaction.options.getString('country') || (category || !query ? 'us' : undefined);
+		const country =
+			interaction.options.getString('country') ||
+			(category || !query ? 'us' : undefined);
 
 		let apiUrl: string;
 		if (query && !category) {
@@ -102,9 +109,12 @@ export class WorldNewsCommand extends Command {
 			const response = await fetch(apiUrl);
 			if (!response.ok) {
 				const errorText = await response.text().catch(() => '');
-				Logger.error(`NewsAPI request failed [HTTP ${response.status}]: ${errorText}`);
+				Logger.error(
+					`NewsAPI request failed [HTTP ${response.status}]: ${errorText}`
+				);
 				return interaction.editReply({
-					content: ':x: Could not retrieve news articles at this time. Please try again later.'
+					content:
+						':x: Could not retrieve news articles at this time. Please try again later.'
 				});
 			}
 
@@ -114,7 +124,8 @@ export class WorldNewsCommand extends Command {
 				articles: NewsArticle[];
 			};
 
-			const articles = data.articles?.filter(a => a.title && a.title !== '[Removed]') || [];
+			const articles =
+				data.articles?.filter(a => a.title && a.title !== '[Removed]') || [];
 			if (articles.length === 0) {
 				return interaction.editReply({
 					content: `🔍 No news articles found matching your query${query ? ` for "**${query}**"` : ''}.`
@@ -124,8 +135,8 @@ export class WorldNewsCommand extends Command {
 			const categoryLabel = category
 				? category.charAt(0).toUpperCase() + category.slice(1)
 				: query
-				? `Search: "${query}"`
-				: 'Top World News';
+					? `Search: "${query}"`
+					: 'Top World News';
 
 			const embed = new EmbedBuilder()
 				.setTitle(`📰 ${categoryLabel}`)
@@ -134,9 +145,13 @@ export class WorldNewsCommand extends Command {
 					articles
 						.map((article, idx) => {
 							const date = new Date(article.publishedAt);
-							const unix = !isNaN(date.getTime()) ? Math.floor(date.getTime() / 1000) : null;
+							const unix = !isNaN(date.getTime())
+								? Math.floor(date.getTime() / 1000)
+								: null;
 							const timeStr = unix ? ` • <t:${unix}:R>` : '';
-							const sourceStr = article.source?.name ? `*${article.source.name}*` : '';
+							const sourceStr = article.source?.name
+								? `*${article.source.name}*`
+								: '';
 							const desc = article.description
 								? `\n> ${article.description.length > 140 ? article.description.slice(0, 137) + '...' : article.description}`
 								: '';
@@ -151,7 +166,9 @@ export class WorldNewsCommand extends Command {
 				})
 				.setTimestamp();
 
-			const topImage = articles.find(a => a.urlToImage && a.urlToImage.startsWith('http'))?.urlToImage;
+			const topImage = articles.find(
+				a => a.urlToImage && a.urlToImage.startsWith('http')
+			)?.urlToImage;
 			if (topImage) {
 				embed.setThumbnail(topImage);
 			}
@@ -160,7 +177,8 @@ export class WorldNewsCommand extends Command {
 		} catch (err) {
 			Logger.error('World News command error: ', err);
 			return interaction.editReply({
-				content: ':x: An unexpected error occurred while querying the news service.'
+				content:
+					':x: An unexpected error occurred while querying the news service.'
 			});
 		}
 	}
@@ -180,7 +198,8 @@ export const help: CommandHelp = {
 	options: [
 		{
 			name: 'category',
-			description: 'News topic category (General, Technology, Business, Science, Health, Sports, Entertainment)',
+			description:
+				'News topic category (General, Technology, Business, Science, Health, Sports, Entertainment)',
 			required: false
 		},
 		{
@@ -190,7 +209,8 @@ export const help: CommandHelp = {
 		},
 		{
 			name: 'country',
-			description: 'Country edition for top headlines (US, GB, CA, AU, DE, FR, IN, JP)',
+			description:
+				'Country edition for top headlines (US, GB, CA, AU, DE, FR, IN, JP)',
 			required: false
 		}
 	]

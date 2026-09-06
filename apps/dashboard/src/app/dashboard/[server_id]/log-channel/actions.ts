@@ -17,10 +17,7 @@ export async function toggleLogChannel(status: boolean, server_id: string) {
 	revalidatePath(`/dashboard/${server_id}`);
 }
 
-export async function updateLogEvents(
-	events: string[],
-	server_id: string
-) {
+export async function updateLogEvents(events: string[], server_id: string) {
 	await prisma.guild.update({
 		where: {
 			id: server_id
@@ -51,6 +48,3 @@ export async function setLogChannel(
 	revalidatePath(`/dashboard/${server_id}/log-channel`);
 	revalidatePath(`/dashboard/${server_id}`);
 }
-
-
-

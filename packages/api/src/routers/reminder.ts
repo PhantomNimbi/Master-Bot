@@ -28,7 +28,8 @@ export const reminderRouter = createTRPCRouter({
 			return { reminders };
 		}),
 	getUserReminders: protectedProcedure.query(async ({ ctx }) => {
-		const discordId = (ctx.session.user as any).discordId || ctx.session.user.id;
+		const discordId =
+			(ctx.session.user as any).discordId || ctx.session.user.id;
 
 		const reminders = await ctx.prisma.reminder.findMany({
 			where: {
@@ -52,15 +53,16 @@ export const reminderRouter = createTRPCRouter({
 			})
 		)
 		.mutation(async ({ ctx, input }) => {
-			const discordId = (ctx.session.user as any).discordId || ctx.session.user.id;
+			const discordId =
+				(ctx.session.user as any).discordId ?? ctx.session.user.id;
 			const { event, description, dateTime, repeat, timeOffset } = input;
 
 			const reminder = await ctx.prisma.reminder.create({
 				data: {
 					event,
-					description: description || null,
+					description: description ?? null,
 					dateTime,
-					repeat: repeat || null,
+					repeat: repeat ?? null,
 					timeOffset,
 					user: { connect: { discordId } }
 				}
@@ -76,7 +78,8 @@ export const reminderRouter = createTRPCRouter({
 			})
 		)
 		.mutation(async ({ ctx, input }) => {
-			const discordId = (ctx.session.user as any).discordId || ctx.session.user.id;
+			const discordId =
+				(ctx.session.user as any).discordId || ctx.session.user.id;
 			const { id, event } = input;
 
 			if (id) {

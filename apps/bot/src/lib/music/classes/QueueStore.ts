@@ -41,7 +41,12 @@ export interface ExtendedRedis extends Redis {
 function getLuaScript(name: string): string {
 	const candidates = [
 		resolve(join(__dirname, '..', '..', '..'), 'audio', `${name}.lua`),
-		resolve(join(__dirname, '..', '..', '..'), 'scripts', 'audio', `${name}.lua`),
+		resolve(
+			join(__dirname, '..', '..', '..'),
+			'scripts',
+			'audio',
+			`${name}.lua`
+		),
 		resolve(process.cwd(), 'scripts', 'audio', `${name}.lua`),
 		resolve(process.cwd(), 'dist', 'audio', `${name}.lua`),
 		resolve(process.cwd(), 'apps', 'bot', 'scripts', 'audio', `${name}.lua`)

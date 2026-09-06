@@ -70,14 +70,17 @@ export class ConnectFourCommand extends Command {
 		const invite = new GameInvite(gameTitle, [player1], interaction);
 
 		await interaction.reply({
-			content: opponent ? `🔴 **${opponent}**, you have been challenged to **Connect Four** by **${player1.username}**!` : undefined,
+			content: opponent
+				? `🔴 **${opponent}**, you have been challenged to **Connect Four** by **${player1.username}**!`
+				: undefined,
 			embeds: [invite.gameInviteEmbed()],
 			components: [invite.gameInviteButtons()]
 		});
 
-		const inviteCollector = interaction.channel?.createMessageComponentCollector({
-			time: 60 * 1000
-		});
+		const inviteCollector =
+			interaction.channel?.createMessageComponentCollector({
+				time: 60 * 1000
+			});
 
 		inviteCollector?.on('collect', async response => {
 			if (response.customId === `${interaction.id}${player1.id}-No`) {
@@ -139,10 +142,12 @@ export class ConnectFourCommand extends Command {
 				playerMap.forEach(player => playersInGame.delete(player.id));
 			}
 			if (reason === 'time') {
-				await interaction.followUp({
-					content: `:x: No one responded to your invitation in time.`,
-					ephemeral: true
-				}).catch(() => {});
+				await interaction
+					.followUp({
+						content: `:x: No one responded to your invitation in time.`,
+						ephemeral: true
+					})
+					.catch(() => {});
 				if (playerMap.size > 1) {
 					playerMap.forEach((player: User) =>
 						playersInGame.set(player.id, player)

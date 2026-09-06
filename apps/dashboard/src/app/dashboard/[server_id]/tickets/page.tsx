@@ -40,7 +40,8 @@ export default async function TicketsPage({
 			<div className="ml-2 mt-6 flex flex-col gap-6 max-w-5xl">
 				<div className="flex flex-col gap-2">
 					<h3 className="text-lg text-gray-300">
-						Provide members with private, thread-based support and inquiry management
+						Provide members with private, thread-based support and inquiry
+						management
 					</h3>
 					<div className="flex items-center gap-4">
 						<span className="text-sm text-gray-400">System Status:</span>
@@ -83,4 +84,3 @@ export default async function TicketsPage({
 		</>
 	);
 }
-

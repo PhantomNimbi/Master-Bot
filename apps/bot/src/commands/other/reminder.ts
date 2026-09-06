@@ -7,7 +7,8 @@ import { formatReminderText } from '../../lib/reminders/ReminderManager';
 import Logger from '../../lib/logger';
 
 function parseDurationMs(input: string): number | null {
-	const regex = /(\d+)\s*(s|sec|seconds?|m|min|minutes?|h|hrs?|hours?|d|days?|w|weeks?)/gi;
+	const regex =
+		/(\d+)\s*(s|sec|seconds?|m|min|minutes?|h|hrs?|hours?|d|days?|w|weeks?)/gi;
 	let totalMs = 0;
 	let match: RegExpExecArray | null;
 	let matchedAny = false;
@@ -117,18 +118,21 @@ export class ReminderCommand extends Command {
 			case 'set': {
 				const timeInput = interaction.options.getString('time', true);
 				const event = interaction.options.getString('event', true);
-				const description = interaction.options.getString('description') || null;
+				const description =
+					interaction.options.getString('description') || null;
 
 				const durationMs = parseDurationMs(timeInput);
 				if (!durationMs || durationMs < 5000) {
 					return interaction.editReply({
-						content: ':x: Please provide a valid future time duration (e.g. `10m`, `1h30m`, `2d`). Minimum duration is 5 seconds.'
+						content:
+							':x: Please provide a valid future time duration (e.g. `10m`, `1h30m`, `2d`). Minimum duration is 5 seconds.'
 					});
 				}
 
 				if (durationMs > 30 * 24 * 60 * 60 * 1000) {
 					return interaction.editReply({
-						content: ':x: Reminders cannot be set further than 30 days in advance.'
+						content:
+							':x: Reminders cannot be set further than 30 days in advance.'
 					});
 				}
 
@@ -160,16 +164,22 @@ export class ReminderCommand extends Command {
 							user: interaction.user,
 							event,
 							dateTime: targetDate.toISOString()
-					  })
+						})
 					: null;
 
 				const embed = new EmbedBuilder()
 					.setTitle('⏰ Reminder Scheduled')
 					.setColor(0x5865f2)
-					.setDescription(`I'll remind you about **${formattedEvent}** in **${formatDuration(durationMs)}** (<t:${Math.floor(targetDate.getTime() / 1000)}:R>).`)
+					.setDescription(
+						`I'll remind you about **${formattedEvent}** in **${formatDuration(durationMs)}** (<t:${Math.floor(targetDate.getTime() / 1000)}:R>).`
+					)
 					.addFields(
 						{ name: '📝 Event', value: formattedEvent, inline: true },
-						{ name: '⏱️ Remind At', value: `<t:${Math.floor(targetDate.getTime() / 1000)}:F>`, inline: true }
+						{
+							name: '⏱️ Remind At',
+							value: `<t:${Math.floor(targetDate.getTime() / 1000)}:F>`,
+							inline: true
+						}
 					)
 					.setFooter({
 						text: `Requested by ${interaction.user.username}`,
@@ -178,7 +188,11 @@ export class ReminderCommand extends Command {
 					.setTimestamp();
 
 				if (formattedNotes) {
-					embed.addFields({ name: '📄 Notes', value: formattedNotes, inline: false });
+					embed.addFields({
+						name: '📄 Notes',
+						value: formattedNotes,
+						inline: false
+					});
 				}
 
 				await interaction.editReply({ embeds: [embed] });
@@ -189,10 +203,16 @@ export class ReminderCommand extends Command {
 						const reminderEmbed = new EmbedBuilder()
 							.setTitle('🔔 Reminder Notification')
 							.setColor(0xfee75c)
-							.setDescription(`Hey ${interaction.user}, here is your scheduled reminder for **${event}**!`)
+							.setDescription(
+								`Hey ${interaction.user}, here is your scheduled reminder for **${event}**!`
+							)
 							.addFields(
 								{ name: '📝 Event', value: event, inline: true },
-								{ name: '⏰ Scheduled For', value: `<t:${Math.floor(targetDate.getTime() / 1000)}:R>`, inline: true }
+								{
+									name: '⏰ Scheduled For',
+									value: `<t:${Math.floor(targetDate.getTime() / 1000)}:R>`,
+									inline: true
+								}
 							)
 							.setFooter({
 								text: 'Master-Bot Reminder System',
@@ -201,21 +221,31 @@ export class ReminderCommand extends Command {
 							.setTimestamp();
 
 						if (description) {
-							reminderEmbed.addFields({ name: '📄 Notes', value: description, inline: false });
+							reminderEmbed.addFields({
+								name: '📄 Notes',
+								value: description,
+								inline: false
+							});
 						}
 
 						// Attempt to send DM; if DMs closed, send to original channel
-						await interaction.user.send({ embeds: [reminderEmbed] }).catch(async () => {
-							if (interaction.channel && 'send' in interaction.channel) {
-								await (interaction.channel as any).send({
-									content: `🔔 ${interaction.user}`,
-									embeds: [reminderEmbed]
-								}).catch(() => {});
-							}
-						});
+						await interaction.user
+							.send({ embeds: [reminderEmbed] })
+							.catch(async () => {
+								if (interaction.channel && 'send' in interaction.channel) {
+									await (interaction.channel as any)
+										.send({
+											content: `🔔 ${interaction.user}`,
+											embeds: [reminderEmbed]
+										})
+										.catch(() => {});
+								}
+							});
 
 						// Clean up from database
-						await trpcNode.reminder.delete.mutate({ userId, event }).catch(() => {});
+						await trpcNode.reminder.delete
+							.mutate({ userId, event })
+							.catch(() => {});
 					} catch (notifyErr) {
 						Logger.error('Reminder notification delivery error: ', notifyErr);
 					}
@@ -303,7 +333,8 @@ export const help: CommandHelp = {
 	options: [
 		{
 			name: 'set',
-			description: 'Schedule a new reminder with time, event title, and optional notes.',
+			description:
+				'Schedule a new reminder with time, event title, and optional notes.',
 			required: false
 		},
 		{

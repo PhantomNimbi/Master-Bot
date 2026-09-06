@@ -179,7 +179,8 @@ export class RedditCommand extends Command {
 
 		if (addedPages === 0) {
 			return interaction.editReply({
-				content: 'No SFW posts found for this subreddit in an age-restricted channel filter.'
+				content:
+					'No SFW posts found for this subreddit in an age-restricted channel filter.'
 			});
 		}
 
@@ -239,14 +240,15 @@ export const help: CommandHelp = {
 	examples: ['/reddit subreddit: value sort: value'],
 	options: [
 		{
-				"name": "subreddit",
-				"description": "Subreddit name",
-				"required": true
+			name: 'subreddit',
+			description: 'Subreddit name',
+			required: true
 		},
 		{
-				"name": "sort",
-				"description": "What posts do you want to see? Select from best/hot/top/new/controversial/rising",
-				"required": true
+			name: 'sort',
+			description:
+				'What posts do you want to see? Select from best/hot/top/new/controversial/rising',
+			required: true
 		}
-]
+	]
 };

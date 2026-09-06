@@ -8,10 +8,14 @@ export const env = createEnv({
 	 * built with invalid env vars.
 	 */
 	server: {
-		DATABASE_URL: z.string(),
-		DISCORD_TOKEN: z.string(),
-		DISCORD_CLIENT_ID: z.string(),
-		DISCORD_CLIENT_SECRET: z.string(),
+		DATABASE_URL: z
+			.string()
+			.default(
+				'postgresql://postgres:postgres@localhost:5432/master-bot?schema=public'
+			),
+		DISCORD_TOKEN: z.string().default('placeholder_token'),
+		DISCORD_CLIENT_ID: z.string().default('placeholder_client_id'),
+		DISCORD_CLIENT_SECRET: z.string().default('placeholder_client_secret'),
 		LAVA_ENABLED: z.string().optional(),
 		GIFS_ENABLED: z.string().optional(),
 		TWITCH_ENABLED: z.string().optional(),

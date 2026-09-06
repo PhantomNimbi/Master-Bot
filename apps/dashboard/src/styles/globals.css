@@ -90,6 +90,34 @@
 		@apply ml-[-50px] mt-[-4px];
 		content: counter(step);
 	}
+
+	.glass {
+		@apply bg-background/60 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-lg;
+	}
+
+	.glass-card {
+		@apply bg-card/60 backdrop-blur-md border border-black/5 dark:border-white/10 hover:border-black/15 dark:hover:border-white/20 transition-all duration-200 shadow-lg hover:shadow-xl;
+	}
+
+	.glass-pill {
+		@apply bg-background/50 backdrop-blur-md border border-black/5 dark:border-white/10 rounded-full px-3 py-1 text-xs font-medium inline-flex items-center gap-1.5;
+	}
+
+	.glow-indigo {
+		box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.3);
+	}
+
+	.glow-cyan {
+		box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.3);
+	}
+
+	.glow-emerald {
+		box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.3);
+	}
+
+	.gradient-text {
+		@apply bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent font-extrabold;
+	}
 }
 
 @media (max-width: 640px) {

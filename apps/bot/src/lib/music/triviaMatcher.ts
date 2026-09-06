@@ -49,7 +49,10 @@ export function checkMatch(
 	for (const t of allTargets) {
 		if (cleanGuess === t) return true;
 		if (cleanGuess.includes(t) || t.includes(cleanGuess)) {
-			if (cleanGuess.length >= t.length * 0.6 || t.length >= cleanGuess.length * 0.6) {
+			if (
+				cleanGuess.length >= t.length * 0.6 ||
+				t.length >= cleanGuess.length * 0.6
+			) {
 				return true;
 			}
 		}

@@ -294,7 +294,8 @@ export class TwitchAPI {
 						`Empty array in the "user_ids" or "user_logins" property`
 					);
 
-				const numTotal: number = (user_ids.length ?? 0) + (user_logins.length ?? 0);
+				const numTotal: number =
+					(user_ids.length ?? 0) + (user_logins.length ?? 0);
 				let offset: number = 0;
 
 				for (let i = 0; i < numTotal; i += chunk_size) {

@@ -35,7 +35,9 @@ export default function TicketTranscriptChannelSet({
 					📑 Ticket Transcripts Channel (Optional)
 				</h4>
 				<p className="text-sm text-gray-400">
-					When a ticket is closed, Master-Bot compiles all chat messages into a secure text transcript file and posts it with metadata to this channel.
+					When a ticket is closed, Master-Bot compiles all chat messages into a
+					secure text transcript file and posts it with metadata to this
+					channel.
 				</p>
 			</div>
 
@@ -48,9 +50,7 @@ export default function TicketTranscriptChannelSet({
 							<SelectValue placeholder="Select a transcript channel" />
 						</SelectTrigger>
 						<SelectContent className="bg-slate-900 border-gray-700 text-white">
-							<SelectItem value="none">
-								🚫 None (Disabled)
-							</SelectItem>
+							<SelectItem value="none">🚫 None (Disabled)</SelectItem>
 							{data?.channels.map(channel => (
 								<SelectItem key={channel.id} value={channel.id}>
 									#{channel.name}
@@ -96,4 +96,3 @@ export default function TicketTranscriptChannelSet({
 		</div>
 	);
 }
-

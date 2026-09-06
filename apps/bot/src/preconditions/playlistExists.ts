@@ -27,7 +27,7 @@ export class PlaylistExists extends Precondition {
 			? this.ok()
 			: this.error({
 					message: `You have no playlist named **${playlistName}**`
-			  });
+				});
 	}
 }
 

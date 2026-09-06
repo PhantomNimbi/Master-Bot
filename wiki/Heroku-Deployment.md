@@ -23,30 +23,29 @@ This guide provides a comprehensive, step-by-step walkthrough for deploying **Ma
 
 On Heroku, Master-Bot runs across dedicated process types:
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                        Heroku App                           │
-├──────────────────────────────┬──────────────────────────────┤
-│  web Dyno                    │  worker Dyno                 │
-│  - Next.js 15 Web Dashboard  │  - Sapphire & Discord.js Bot │
-│  - Receives HTTP/HTTPS       │  - Connects to Discord WS    │
-├──────────────────────────────┴──────────────────────────────┤
-│  Heroku Add-ons                                             │
-│  - Heroku Postgres (DATABASE_URL)                           │
-│  - Heroku Data for Redis / Redis Cloud (REDIS_URL)          │
-└─────────────────────────────────────────────────────────────┘
-                                ▲
-                                │ Lavalink WebSocket (Port 2333)
-                                ▼
-┌─────────────────────────────────────────────────────────────┐
-│  Remote Lavalink v4 Node (Dedicated VPS / External Host)   │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Heroku Cloud Environment
+        WebDyno["web Dyno<br/>(Next.js 15 Web Dashboard on $PORT)"]
+        WorkerDyno["worker Dyno<br/>(Sapphire Discord Bot Client)"]
+        PostgresAddon[(Heroku Postgres<br/>DATABASE_URL)]
+        RedisAddon[(Heroku Redis<br/>REDIS_URL)]
+    end
+
+    RemoteLavalink["Remote Lavalink v4 Node<br/>(Dedicated VPS / External Host)"]
+
+    WebDyno -->|Prisma ORM / tRPC| PostgresAddon
+    WorkerDyno -->|Prisma ORM| PostgresAddon
+    WorkerDyno -->|Queue & Cache| RedisAddon
+    WorkerDyno -->|Audio WS (Port 2333)| RemoteLavalink
+    WorkerDyno -->|Gateway WS| DiscordGateway[Discord Gateway API]
+    WebDyno -->|NextAuth / REST| DiscordGateway
 ```
 
-* **`web` Dyno**: Hosts the Next.js 15 web dashboard (`apps/dashboard`), bound to Heroku's dynamic `$PORT`.
-* **`worker` Dyno**: Runs the Discord bot client (`apps/bot`) as a background worker.
-* **`Heroku Postgres`**: Provides managed PostgreSQL storage for Prisma ORM.
-* **`Heroku Data for Redis`**: Provides fast caching and queue management.
+- **`web` Dyno**: Hosts the Next.js 15 web dashboard (`apps/dashboard`), bound to Heroku's dynamic `$PORT`.
+- **`worker` Dyno**: Runs the Discord bot client (`apps/bot`) as a background worker.
+- **`Heroku Postgres`**: Provides managed PostgreSQL storage for Prisma ORM.
+- **`Heroku Data for Redis`**: Provides fast caching and queue management.
 
 ---
 
@@ -180,20 +179,20 @@ git push heroku main
 
 ## ⚙️ Environment Variables & Config Vars Reference
 
-| Variable | Description | Required | Example |
-| :--- | :--- | :--- | :--- |
-| `DISCORD_TOKEN` | Discord Bot authentication token | Yes | `MTA...` |
-| `DISCORD_CLIENT_ID` | Discord Application ID | Yes | `123456789012345678` |
-| `DISCORD_CLIENT_SECRET` | Discord OAuth2 Client Secret | Yes | `abc123xyz...` |
-| `NEXTAUTH_SECRET` | NextAuth cryptographic session secret | Yes | `openssl rand -base64 32` |
-| `NEXTAUTH_URL` | Canonical URL of the Heroku web dashboard | Yes | `https://my-app.herokuapp.com` |
-| `DATABASE_URL` | Primary PostgreSQL connection string | Yes | Managed by Heroku Postgres |
-| `REDIS_URL` | Redis connection URL | Yes | Managed by Heroku Redis |
-| `LAVA_ENABLED` | Enables audio playback subsystem | Optional | `true` |
-| `LAVA_EXTERNAL` | Declares external Lavalink host | Optional | `true` |
-| `LAVA_HOST` | External Lavalink hostname / IP | If Lava on | `lava.example.com` |
-| `LAVA_PORT` | Lavalink WebSocket port | If Lava on | `2333` |
-| `LAVA_PASS` | Lavalink authentication password | If Lava on | `youshallnotpass` |
+| Variable                | Description                               | Required   | Example                        |
+| :---------------------- | :---------------------------------------- | :--------- | :----------------------------- |
+| `DISCORD_TOKEN`         | Discord Bot authentication token          | Yes        | `MTA...`                       |
+| `DISCORD_CLIENT_ID`     | Discord Application ID                    | Yes        | `123456789012345678`           |
+| `DISCORD_CLIENT_SECRET` | Discord OAuth2 Client Secret              | Yes        | `abc123xyz...`                 |
+| `NEXTAUTH_SECRET`       | NextAuth cryptographic session secret     | Yes        | `openssl rand -base64 32`      |
+| `NEXTAUTH_URL`          | Canonical URL of the Heroku web dashboard | Yes        | `https://my-app.herokuapp.com` |
+| `DATABASE_URL`          | Primary PostgreSQL connection string      | Yes        | Managed by Heroku Postgres     |
+| `REDIS_URL`             | Redis connection URL                      | Yes        | Managed by Heroku Redis        |
+| `LAVA_ENABLED`          | Enables audio playback subsystem          | Optional   | `true`                         |
+| `LAVA_EXTERNAL`         | Declares external Lavalink host           | Optional   | `true`                         |
+| `LAVA_HOST`             | External Lavalink hostname / IP           | If Lava on | `lava.example.com`             |
+| `LAVA_PORT`             | Lavalink WebSocket port                   | If Lava on | `2333`                         |
+| `LAVA_PASS`             | Lavalink authentication password          | If Lava on | `youshallnotpass`              |
 
 ---
 
@@ -229,6 +228,7 @@ heroku run pnpm --filter @master-bot/db prisma db push -a master-bot-app
 > [!IMPORTANT]
 > **Recommended Audio Architecture:**  
 > Heroku dynos restart at least once every 24 hours (dyno cycling) and do not support raw UDP voice traffic routing on standard web ports. For optimal, uninterrupted 24/7 music playback:
+>
 > 1. Set `LAVA_EXTERNAL=true` on Heroku.
 > 2. Host `Lavalink.jar` on a cheap standalone VPS (e.g., Hetzner, DigitalOcean, Oracle Cloud) or use a managed Lavalink provider.
 > 3. Point `LAVA_HOST`, `LAVA_PORT`, and `LAVA_PASS` on Heroku to your external Lavalink instance.
@@ -254,6 +254,6 @@ heroku logs --tail --ps web -a master-bot-app
 
 ## 🔄 Restarting & Troubleshooting
 
-* **Restart App**: `heroku restart -a master-bot-app`
-* **Run Interactive Shell**: `heroku run bash -a master-bot-app`
-* **Check Dyno Status**: `heroku ps -a master-bot-app`
+- **Restart App**: `heroku restart -a master-bot-app`
+- **Run Interactive Shell**: `heroku run bash -a master-bot-app`
+- **Check Dyno Status**: `heroku ps -a master-bot-app`

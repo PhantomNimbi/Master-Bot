@@ -14,7 +14,9 @@ export default async function DashboardIndexPage() {
 		<div className="bg-slate-900 min-h-screen">
 			<header className="py-4 px-6 flex items-center justify-between border-b border-slate-800">
 				<Link href="/">
-					<h3 className="text-slate-300 hover:text-white transition-colors">← Go back</h3>
+					<h3 className="text-slate-300 hover:text-white transition-colors">
+						← Go back
+					</h3>
 				</Link>
 				<Link
 					href="/dashboard/reminders"

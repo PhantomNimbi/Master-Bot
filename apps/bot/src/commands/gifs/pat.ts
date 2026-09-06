@@ -32,7 +32,8 @@ export class PatCommand extends Command {
 
 		if (!gifUrl) {
 			return await interaction.editReply({
-				content: ':warning: Could not load a GIF at this time. Please try again!'
+				content:
+					':warning: Could not load a GIF at this time. Please try again!'
 			});
 		}
 

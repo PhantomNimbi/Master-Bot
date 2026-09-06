@@ -31,11 +31,7 @@ export class Song implements TrackInfo {
 	thumbnail: string;
 	added: number;
 
-	constructor(
-		track: string | any,
-		added?: number,
-		requester?: RequesterInfo
-	) {
+	constructor(track: string | any, added?: number, requester?: RequesterInfo) {
 		this.requester = requester;
 		this.added = added ?? Date.now();
 		const filterSet = {
@@ -54,20 +50,28 @@ export class Song implements TrackInfo {
 			this.track = track.encoded ?? track.track ?? '';
 			this.length = Number(
 				track.info?.duration ??
-				track.info?.length ??
-				track.duration ??
-				track.length ??
-				0
+					track.info?.length ??
+					track.duration ??
+					track.length ??
+					0
 			);
 			this.identifier = track.info?.identifier ?? track.identifier ?? '';
 			this.author = track.info?.author ?? track.author ?? '';
 			this.isStream = Boolean(track.info?.isStream ?? track.isStream ?? false);
 			this.position = Number(track.info?.position ?? track.position ?? 0);
-			this.title = filter.filterField('song', track.info?.title ?? track.title ?? '');
+			this.title = filter.filterField(
+				'song',
+				track.info?.title ?? track.title ?? ''
+			);
 			this.uri = track.info?.uri ?? track.uri ?? '';
-			this.isSeekable = Boolean(track.info?.isSeekable ?? track.isSeekable ?? !this.isStream);
+			this.isSeekable = Boolean(
+				track.info?.isSeekable ?? track.isSeekable ?? !this.isStream
+			);
 			this.sourceName = track.info?.sourceName ?? track.sourceName ?? 'youtube';
-			this.thumbnail = track.info?.artworkUrl || track.artworkUrl || this.getThumbnailFallback();
+			this.thumbnail =
+				track.info?.artworkUrl ||
+				track.artworkUrl ||
+				this.getThumbnailFallback();
 		} else {
 			this.track = track;
 			const decoded = decode(this.track);

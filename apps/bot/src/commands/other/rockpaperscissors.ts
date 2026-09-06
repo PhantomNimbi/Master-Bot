@@ -34,9 +34,7 @@ export class RockPaperScissorsCommand extends Command {
 		interaction: Command.ChatInputCommandInteraction
 	) {
 		const move = interaction.options.getString('move', true) as
-			| 'rock'
-			| 'paper'
-			| 'scissors';
+			'rock' | 'paper' | 'scissors';
 		const resultMessage = this.rpsLogic(move);
 
 		const embed = new EmbedBuilder()
@@ -88,9 +86,9 @@ export const help: CommandHelp = {
 	examples: ['/rockpaperscissors move: value'],
 	options: [
 		{
-				"name": "move",
-				"description": "What is your move?",
-				"required": true
+			name: 'move',
+			description: 'What is your move?',
+			required: true
 		}
-]
+	]
 };

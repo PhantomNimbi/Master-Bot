@@ -14,7 +14,11 @@ export interface ReminderItem {
 	repeat: string | null;
 }
 
-export default function RemindersList({ initialReminders }: { initialReminders: ReminderItem[] }) {
+export default function RemindersList({
+	initialReminders
+}: {
+	initialReminders: ReminderItem[];
+}) {
 	const [reminders, setReminders] = useState(initialReminders);
 	const [deletingId, setDeletingId] = useState<number | null>(null);
 	const { toast } = useToast();
@@ -46,9 +50,12 @@ export default function RemindersList({ initialReminders }: { initialReminders: 
 		return (
 			<div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8 text-center flex flex-col items-center justify-center">
 				<Clock className="h-10 w-10 text-slate-600 mb-3" />
-				<h4 className="text-base font-medium text-white">No active reminders</h4>
+				<h4 className="text-base font-medium text-white">
+					No active reminders
+				</h4>
 				<p className="text-sm text-slate-400 mt-1 max-w-sm">
-					You don't have any scheduled reminders. Use the form above to schedule your first reminder with custom formatting!
+					You don&apos;t have any scheduled reminders. Use the form above to
+					schedule your first reminder with custom formatting!
 				</p>
 			</div>
 		);
@@ -73,7 +80,7 @@ export default function RemindersList({ initialReminders }: { initialReminders: 
 								month: 'short',
 								day: 'numeric',
 								year: 'numeric'
-						  })
+							})
 						: 'Invalid Date';
 
 					const timeStr = !isNaN(date.getTime())
@@ -81,7 +88,7 @@ export default function RemindersList({ initialReminders }: { initialReminders: 
 								hour: 'numeric',
 								minute: '2-digit',
 								hour12: true
-						  })
+							})
 						: '';
 
 					return (
@@ -106,7 +113,9 @@ export default function RemindersList({ initialReminders }: { initialReminders: 
 								</div>
 
 								<div className="flex items-center gap-3 text-xs text-slate-400">
-									<span>📅 {dateStr} at {timeStr}</span>
+									<span>
+										📅 {dateStr} at {timeStr}
+									</span>
 								</div>
 
 								{item.description && (

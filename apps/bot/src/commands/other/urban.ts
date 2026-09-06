@@ -44,7 +44,8 @@ export class UrbanCommand extends Command {
 			}
 
 			const item = list[0];
-			const definition = item.definition?.slice(0, 2048) || 'No definition available.';
+			const definition =
+				item.definition?.slice(0, 2048) || 'No definition available.';
 			const embed = new EmbedBuilder()
 				.setColor('DarkOrange')
 				.setAuthor({

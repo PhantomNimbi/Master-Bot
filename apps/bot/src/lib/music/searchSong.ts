@@ -58,7 +58,8 @@ export default async function searchSong(
 				return [displayMessage, tracks];
 			}
 			if (
-				(lowerQuery.includes('youtube.com') || lowerQuery.includes('youtu.be')) &&
+				(lowerQuery.includes('youtube.com') ||
+					lowerQuery.includes('youtu.be')) &&
 				!hasYouTubeKeys()
 			) {
 				displayMessage =

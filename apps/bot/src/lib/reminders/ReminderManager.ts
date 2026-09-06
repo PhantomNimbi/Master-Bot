@@ -9,18 +9,31 @@ export interface FormatContext {
 	dateTime: string;
 }
 
-export function formatReminderText(template: string, ctx: FormatContext): string {
+export function formatReminderText(
+	template: string,
+	ctx: FormatContext
+): string {
 	if (!template) return '';
 
 	const date = new Date(ctx.dateTime);
-	const unix = !isNaN(date.getTime()) ? Math.floor(date.getTime() / 1000) : Math.floor(Date.now() / 1000);
+	const unix = !isNaN(date.getTime())
+		? Math.floor(date.getTime() / 1000)
+		: Math.floor(Date.now() / 1000);
 
 	const dateStr = !isNaN(date.getTime())
-		? date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+		? date.toLocaleDateString('en-US', {
+				month: 'long',
+				day: 'numeric',
+				year: 'numeric'
+			})
 		: 'Unknown Date';
 
 	const timeStr = !isNaN(date.getTime())
-		? date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+		? date.toLocaleTimeString('en-US', {
+				hour: 'numeric',
+				minute: '2-digit',
+				hour12: true
+			})
 		: 'Unknown Time';
 
 	const username = ctx.user?.username || 'Member';
@@ -45,12 +58,18 @@ export class ReminderManager {
 		if (this.interval) clearInterval(this.interval);
 
 		// Run check immediately and then every 30 seconds
-		this.checkDueReminders().catch(err => Logger.error('Initial reminder check error: ', err));
+		this.checkDueReminders().catch(err =>
+			Logger.error('Initial reminder check error: ', err)
+		);
 		this.interval = setInterval(() => {
-			this.checkDueReminders().catch(err => Logger.error('Interval reminder check error: ', err));
+			this.checkDueReminders().catch(err =>
+				Logger.error('Interval reminder check error: ', err)
+			);
 		}, 30 * 1000);
 
-		Logger.info('ReminderManager background scheduler initialized (30s interval).');
+		Logger.info(
+			'ReminderManager background scheduler initialized (30s interval).'
+		);
 	}
 
 	public static stop(): void {
@@ -78,9 +97,13 @@ export class ReminderManager {
 
 			for (const reminder of dueReminders) {
 				try {
-					const user = await this.client.users.fetch(reminder.userId).catch(() => null);
+					const user = await this.client.users
+						.fetch(reminder.userId)
+						.catch(() => null);
 					const date = new Date(reminder.dateTime);
-					const unix = !isNaN(date.getTime()) ? Math.floor(date.getTime() / 1000) : Math.floor(Date.now() / 1000);
+					const unix = !isNaN(date.getTime())
+						? Math.floor(date.getTime() / 1000)
+						: Math.floor(Date.now() / 1000);
 
 					const formattedDescription = reminder.description
 						? formatReminderText(reminder.description, {
@@ -88,7 +111,7 @@ export class ReminderManager {
 								user,
 								event: reminder.event,
 								dateTime: reminder.dateTime
-						  })
+							})
 						: null;
 
 					const formattedEvent = formatReminderText(reminder.event, {
@@ -106,7 +129,11 @@ export class ReminderManager {
 						)
 						.addFields(
 							{ name: '📝 Event', value: formattedEvent, inline: true },
-							{ name: '⏰ Scheduled For', value: `<t:${unix}:F> (<t:${unix}:R>)`, inline: true }
+							{
+								name: '⏰ Scheduled For',
+								value: `<t:${unix}:F> (<t:${unix}:R>)`,
+								inline: true
+							}
 						)
 						.setFooter({
 							text: 'Master-Bot Reminder System',
@@ -115,7 +142,11 @@ export class ReminderManager {
 						.setTimestamp();
 
 					if (formattedDescription) {
-						embed.addFields({ name: '📄 Notes', value: formattedDescription, inline: false });
+						embed.addFields({
+							name: '📄 Notes',
+							value: formattedDescription,
+							inline: false
+						});
 					}
 
 					let delivered = false;
@@ -131,12 +162,18 @@ export class ReminderManager {
 						for (const guild of this.client.guilds.cache.values()) {
 							const member = guild.members.cache.get(user.id);
 							if (member) {
-								const systemChannel = guild.systemChannel || guild.channels.cache.find(c => c.isTextBased() && 'send' in c);
+								const systemChannel =
+									guild.systemChannel ||
+									guild.channels.cache.find(
+										c => c.isTextBased() && 'send' in c
+									);
 								if (systemChannel && 'send' in systemChannel) {
-									await (systemChannel as any).send({
-										content: `🔔 <@${user.id}> (Your DMs are closed)`,
-										embeds: [embed]
-									}).catch(() => {});
+									await (systemChannel as any)
+										.send({
+											content: `🔔 <@${user.id}> (Your DMs are closed)`,
+											embeds: [embed]
+										})
+										.catch(() => {});
 									break;
 								}
 							}
@@ -144,12 +181,17 @@ export class ReminderManager {
 					}
 
 					// Delete dispatched reminder
-					await trpcNode.reminder.delete.mutate({
-						userId: reminder.userId,
-						event: reminder.event
-					}).catch(() => {});
+					await trpcNode.reminder.delete
+						.mutate({
+							userId: reminder.userId,
+							event: reminder.event
+						})
+						.catch(() => {});
 				} catch (reminderErr) {
-					Logger.error(`Error processing reminder #${reminder.id}: `, reminderErr);
+					Logger.error(
+						`Error processing reminder #${reminder.id}: `,
+						reminderErr
+					);
 				}
 			}
 		} catch (err) {

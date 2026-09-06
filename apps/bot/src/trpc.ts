@@ -30,8 +30,13 @@ const customFetch = async function (url: any, options: any) {
 			return res;
 		}
 		// If 404 or HTML response on initial port, probe active dashboard ports
-		if ((res.status === 404 || !contentType.includes('application/json')) && typeof url === 'string') {
-			const fallbackPorts = [3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009, 3010];
+		if (
+			(res.status === 404 || !contentType.includes('application/json')) &&
+			typeof url === 'string'
+		) {
+			const fallbackPorts = [
+				3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009, 3010
+			];
 			for (const port of fallbackPorts) {
 				const fallbackUrl = url
 					.replace(/localhost:\d+/, `localhost:${port}`)
@@ -49,7 +54,9 @@ const customFetch = async function (url: any, options: any) {
 		return res;
 	} catch (err) {
 		if (typeof url === 'string') {
-			const fallbackPorts = [3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009, 3010];
+			const fallbackPorts = [
+				3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009, 3010
+			];
 			for (const port of fallbackPorts) {
 				const fallbackUrl = url
 					.replace(/localhost:\d+/, `localhost:${port}`)

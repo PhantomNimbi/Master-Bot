@@ -106,7 +106,9 @@ export const help: CommandHelp = {
 	category: 'music',
 	description: 'Save a song or a playlist to a custom playlist',
 	usage: '/save-to-playlist <playlist-name> <url>',
-	examples: ['/save-to-playlist playlist-name: Vibes url: https://youtube.com/...'],
+	examples: [
+		'/save-to-playlist playlist-name: Vibes url: https://youtube.com/...'
+	],
 	options: [
 		{
 			name: 'playlist-name',

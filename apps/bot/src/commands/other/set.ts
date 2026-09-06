@@ -106,9 +106,7 @@ export class SetCommand extends Command {
 				.addSubcommand(sub =>
 					sub
 						.setName('log-toggle')
-						.setDescription(
-							'Enable or disable server audit / event logging'
-						)
+						.setDescription('Enable or disable server audit / event logging')
 						.addBooleanOption(opt =>
 							opt
 								.setName('enabled')
@@ -171,16 +169,12 @@ export class SetCommand extends Command {
 				.addSubcommand(sub =>
 					sub
 						.setName('ticket-transcript-disable')
-						.setDescription(
-							'Disable automatic ticket transcript archival'
-						)
+						.setDescription('Disable automatic ticket transcript archival')
 				)
 				.addSubcommand(sub =>
 					sub
 						.setName('ticket-role')
-						.setDescription(
-							'Set the ticket manager role for support tickets'
-						)
+						.setDescription('Set the ticket manager role for support tickets')
 						.addRoleOption(opt =>
 							opt
 								.setName('role')
@@ -191,9 +185,7 @@ export class SetCommand extends Command {
 				.addSubcommand(sub =>
 					sub
 						.setName('ticket-role-disable')
-						.setDescription(
-							'Remove/disable the ticket manager role'
-						)
+						.setDescription('Remove/disable the ticket manager role')
 				)
 				// Volume Setting
 				.addSubcommand(sub =>
@@ -270,9 +262,7 @@ export class SetCommand extends Command {
 		});
 	}
 
-	public override async chatInputRun(
-		interaction: ChatInputCommandInteraction
-	) {
+	public override async chatInputRun(interaction: ChatInputCommandInteraction) {
 		const guildId = interaction.guildId!;
 		const member = interaction.member as GuildMember;
 		const { client } = container;
@@ -331,8 +321,7 @@ export class SetCommand extends Command {
 					const guildData = await trpcNode.guild.getGuild.query({
 						id: guildId
 					});
-					const welcomeChannelId =
-						guildData?.guild?.welcomeMessageChannel;
+					const welcomeChannelId = guildData?.guild?.welcomeMessageChannel;
 					const rawMessage =
 						guildData?.guild?.welcomeMessage ||
 						'👋 Welcome {user} to **{server}**! You are member #{memberCount}.';
@@ -349,16 +338,12 @@ export class SetCommand extends Command {
 					)) as TextChannel;
 					if (!targetChannel) {
 						return await interaction.editReply({
-							content:
-								':x: Configured welcome channel could not be found.'
+							content: ':x: Configured welcome channel could not be found.'
 						});
 					}
 
 					const formatted = rawMessage
-						.replace(
-							/\{user\}|\{mention\}/g,
-							`<@${interaction.user.id}>`
-						)
+						.replace(/\{user\}|\{mention\}/g, `<@${interaction.user.id}>`)
 						.replace(/\{username\}/g, interaction.user.username)
 						.replace(
 							/\{server\}|\{guild\}/g,
@@ -383,14 +368,8 @@ export class SetCommand extends Command {
 								':warning: Twitch features are currently disabled in configuration.'
 						});
 					}
-					const streamerName = interaction.options.getString(
-						'streamer',
-						true
-					);
-					const channelData = interaction.options.getChannel(
-						'channel',
-						true
-					);
+					const streamerName = interaction.options.getString('streamer', true);
+					const channelData = interaction.options.getChannel('channel', true);
 
 					let user: any;
 					try {
@@ -470,14 +449,8 @@ export class SetCommand extends Command {
 								':warning: Twitch features are currently disabled in configuration.'
 						});
 					}
-					const streamerName = interaction.options.getString(
-						'streamer',
-						true
-					);
-					const channelData = interaction.options.getChannel(
-						'channel',
-						true
-					);
+					const streamerName = interaction.options.getString('streamer', true);
+					const channelData = interaction.options.getChannel('channel', true);
 
 					let user: any;
 					try {
@@ -499,10 +472,7 @@ export class SetCommand extends Command {
 					const guildDB = await trpcNode.guild.getGuild.query({
 						id: guildId
 					});
-					if (
-						!guildDB.guild ||
-						!guildDB.guild.notifyList.includes(user.id)
-					) {
+					if (!guildDB.guild || !guildDB.guild.notifyList.includes(user.id)) {
 						return await interaction.editReply({
 							content: `:x: **${user.display_name}** is not in this server's alert list.`
 						});
@@ -520,10 +490,9 @@ export class SetCommand extends Command {
 						id: user.id
 					});
 					if (notifyDB?.notification) {
-						const filteredChannels =
-							notifyDB.notification.channelIds.filter(
-								id => id !== channelData.id
-							);
+						const filteredChannels = notifyDB.notification.channelIds.filter(
+							id => id !== channelData.id
+						);
 						if (filteredChannels.length === 0) {
 							await trpcNode.twitch.delete.mutate({
 								userId: user.id
@@ -535,8 +504,7 @@ export class SetCommand extends Command {
 								channelIds: filteredChannels
 							});
 							if (client.twitch.notifyList[user.id]) {
-								client.twitch.notifyList[user.id].sendTo =
-									filteredChannels;
+								client.twitch.notifyList[user.id].sendTo = filteredChannels;
 							}
 						}
 					}
@@ -556,10 +524,7 @@ export class SetCommand extends Command {
 					const guildDB = await trpcNode.guild.getGuild.query({
 						id: guildId
 					});
-					if (
-						!guildDB?.guild ||
-						guildDB.guild.notifyList.length === 0
-					) {
+					if (!guildDB?.guild || guildDB.guild.notifyList.length === 0) {
 						return await interaction.editReply({
 							content:
 								':information_source: No Twitch streamers configured for alerts in this server.'
@@ -573,12 +538,9 @@ export class SetCommand extends Command {
 
 					const myList: object[] = [];
 					for (const streamer of users || []) {
-						const sendTo =
-							client.twitch.notifyList[streamer.id]?.sendTo || [];
+						const sendTo = client.twitch.notifyList[streamer.id]?.sendTo || [];
 						for (const chId of sendTo) {
-							const ch = client.channels.cache.get(
-								chId
-							) as MessageChannel;
+							const ch = client.channels.cache.get(chId) as MessageChannel;
 							if (ch && ch.guild.id === guildId) {
 								myList.push({
 									name: streamer.display_name,
@@ -588,20 +550,17 @@ export class SetCommand extends Command {
 						}
 					}
 
-					const baseEmbed = new EmbedBuilder()
-						.setColor('Purple')
-						.setAuthor({
-							name: `${interaction.guild?.name} - Twitch Alerts`,
-							iconURL: interaction.guild?.iconURL() || undefined
-						});
+					const baseEmbed = new EmbedBuilder().setColor('Purple').setAuthor({
+						name: `${interaction.guild?.name} - Twitch Alerts`,
+						iconURL: interaction.guild?.iconURL() || undefined
+					});
 
 					new PaginatedFieldMessageEmbed()
 						.setTitleField('Streamers')
 						.setTemplate(baseEmbed)
 						.setItems(myList)
 						.formatItems(
-							(item: any) =>
-								`• **${item.name}** ➔ **#${item.channel}**`
+							(item: any) => `• **${item.name}** ➔ **#${item.channel}**`
 						)
 						.setItemsPerPage(10)
 						.make()
@@ -647,13 +606,18 @@ export class SetCommand extends Command {
 
 				// --- TICKETS ---
 				case 'ticket-channel': {
-					const channel = interaction.options.getChannel('channel', true) as TextChannel;
+					const channel = interaction.options.getChannel(
+						'channel',
+						true
+					) as TextChannel;
 					await trpcNode.tickets.setChannel.mutate({
 						guildId,
 						channelId: channel.id
 					});
 
-					const ticketConfig = await trpcNode.tickets.getConfig.query({ guildId });
+					const ticketConfig = await trpcNode.tickets.getConfig.query({
+						guildId
+					});
 					const template =
 						ticketConfig.guild?.ticketMessage &&
 						ticketConfig.guild.ticketMessage.trim().length > 0
@@ -665,12 +629,17 @@ export class SetCommand extends Command {
 								'Click the **Open Ticket** button below to create your private support thread.';
 
 					const formatted = template
-						.replace(/\{server\}|\{guild\}/g, interaction.guild?.name || 'Server')
+						.replace(
+							/\{server\}|\{guild\}/g,
+							interaction.guild?.name || 'Server'
+						)
 						.replace(/\{user\}|\{mention\}|\{username\}/g, 'you');
 
 					// Automatically send the ticket panel message to the configured channel
 					const panelEmbed = new EmbedBuilder()
-						.setTitle(`🎫 ${interaction.guild?.name || 'Server'} Support Tickets`)
+						.setTitle(
+							`🎫 ${interaction.guild?.name || 'Server'} Support Tickets`
+						)
 						.setDescription(formatted)
 						.setColor(0x5865f2)
 						.setFooter({
@@ -685,13 +654,16 @@ export class SetCommand extends Command {
 						.setStyle(ButtonStyle.Primary)
 						.setEmoji('🎫');
 
-					const row =
-						new ActionRowBuilder<ButtonBuilder>().addComponents(openButton);
+					const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+						openButton
+					);
 
-					await channel.send({
-						embeds: [panelEmbed],
-						components: [row]
-					}).catch(() => {});
+					await channel
+						.send({
+							embeds: [panelEmbed],
+							components: [row]
+						})
+						.catch(() => {});
 
 					return await interaction.editReply({
 						content: `:white_check_mark: Support ticket channel set to <#${channel.id}> and the interactive ticket panel has been posted!`
@@ -747,13 +719,16 @@ export class SetCommand extends Command {
 									.setStyle(ButtonStyle.Primary)
 									.setEmoji('🎫');
 
-								const row =
-									new ActionRowBuilder<ButtonBuilder>().addComponents(openButton);
+								const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+									openButton
+								);
 
-								await targetChannel.send({
-									embeds: [panelEmbed],
-									components: [row]
-								}).catch(() => {});
+								await targetChannel
+									.send({
+										embeds: [panelEmbed],
+										components: [row]
+									})
+									.catch(() => {});
 							}
 						}
 					}
@@ -798,11 +773,16 @@ export class SetCommand extends Command {
 								'Click the **Open Ticket** button below to create your private support thread.';
 
 					const formatted = template
-						.replace(/\{server\}|\{guild\}/g, interaction.guild?.name || 'Server')
+						.replace(
+							/\{server\}|\{guild\}/g,
+							interaction.guild?.name || 'Server'
+						)
 						.replace(/\{user\}|\{mention\}|\{username\}/g, 'you');
 
 					const panelEmbed = new EmbedBuilder()
-						.setTitle(`🎫 ${interaction.guild?.name || 'Server'} Support Tickets`)
+						.setTitle(
+							`🎫 ${interaction.guild?.name || 'Server'} Support Tickets`
+						)
 						.setDescription(formatted)
 						.setColor(0x5865f2)
 						.setFooter({
@@ -817,8 +797,9 @@ export class SetCommand extends Command {
 						.setStyle(ButtonStyle.Primary)
 						.setEmoji('🎫');
 
-					const row =
-						new ActionRowBuilder<ButtonBuilder>().addComponents(openButton);
+					const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+						openButton
+					);
 
 					await targetChannel.send({
 						embeds: [panelEmbed],
@@ -922,8 +903,8 @@ export class SetCommand extends Command {
 									g?.logChannelEnabled && g?.logChannel
 										? `🟢 <#${g.logChannel}>`
 										: g?.logChannel
-										? `🔴 <#${g.logChannel}> *(Paused)*`
-										: '*Disabled*',
+											? `🔴 <#${g.logChannel}> *(Paused)*`
+											: '*Disabled*',
 								inline: true
 							},
 							{
@@ -932,8 +913,8 @@ export class SetCommand extends Command {
 									t?.ticketEnabled && t?.ticketChannel
 										? `🟢 <#${t.ticketChannel}>`
 										: t?.ticketChannel
-										? `🔴 <#${t.ticketChannel}> *(Disabled)*`
-										: '*Not configured*',
+											? `🔴 <#${t.ticketChannel}> *(Disabled)*`
+											: '*Not configured*',
 								inline: true
 							},
 							{
@@ -945,9 +926,7 @@ export class SetCommand extends Command {
 							},
 							{
 								name: '🛡️ Ticket Manager Role',
-								value: t?.ticketRoleId
-									? `<@&${t.ticketRoleId}>`
-									: '*Not set*',
+								value: t?.ticketRoleId ? `<@&${t.ticketRoleId}>` : '*Not set*',
 								inline: true
 							},
 							{
@@ -958,9 +937,7 @@ export class SetCommand extends Command {
 							{
 								name: '🟣 Twitch Alerts',
 								value: twitchActive
-									? `${
-											g?.notifyList?.length || 0
-									  } streamer(s) monitored`
+									? `${g?.notifyList?.length || 0} streamer(s) monitored`
 									: '*Disabled in config*',
 								inline: true
 							},
@@ -999,7 +976,8 @@ export class SetCommand extends Command {
 export const help: CommandHelp = {
 	name: 'set',
 	category: 'other',
-	description: 'Configure server settings (Welcome, Twitch, Logging, Tickets, Volume)',
+	description:
+		'Configure server settings (Welcome, Twitch, Logging, Tickets, Volume)',
 	usage: '/set <subcommand>',
 	examples: [
 		'/set welcome-channel channel: #welcome',

@@ -3,12 +3,9 @@ import { z } from 'zod';
 
 export const env = createEnv({
 	server: {
-		DISCORD_CLIENT_ID: z.string().min(1),
-		DISCORD_CLIENT_SECRET: z.string().min(1),
-		NEXTAUTH_SECRET:
-			process.env.NODE_ENV === 'production'
-				? z.string().min(1)
-				: z.string().min(1).optional(),
+		DISCORD_CLIENT_ID: z.string().default('placeholder_client_id'),
+		DISCORD_CLIENT_SECRET: z.string().default('placeholder_client_secret'),
+		NEXTAUTH_SECRET: z.string().default('youshallnotpass'),
 		NEXTAUTH_URL: z.preprocess(
 			// This makes Vercel deployments not fail if you don't set NEXTAUTH_URL
 			// Since NextAuth.js automatically uses the VERCEL_URL if present.

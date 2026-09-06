@@ -101,7 +101,8 @@ export class SlowmodeCommand extends Command {
 					},
 					{
 						name: '⏳ Rate Limit',
-						value: seconds === 0 ? '**Disabled** (0s)' : `**${seconds}s** per user`,
+						value:
+							seconds === 0 ? '**Disabled** (0s)' : `**${seconds}s** per user`,
 						inline: true
 					},
 					{
@@ -145,4 +146,3 @@ export const help: CommandHelp = {
 		}
 	]
 };
-

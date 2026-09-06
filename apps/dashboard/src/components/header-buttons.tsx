@@ -45,11 +45,11 @@ export default async function HeaderButtons() {
 								/>
 							) : (
 								<div className="h-8 w-8 rounded-full bg-slate-600 flex items-center justify-center text-xs text-white">
-									{session.user.name?.[0] || 'U'}
+									{session.user.name?.[0] ?? 'U'}
 								</div>
 							)}
 							<h1 className="dark:text-white text-black">
-								{session.user.name || 'User'}
+								{session.user.name ?? 'User'}
 							</h1>
 						</div>
 					</DropdownMenuTrigger>

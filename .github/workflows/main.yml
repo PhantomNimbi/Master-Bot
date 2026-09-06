@@ -31,6 +31,12 @@ jobs:
       - name: Code Formatting Check
         run: npx prettier . --check
 
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test (Vitest)
+        run: pnpm test
+
       - name: Type Check
         run: pnpm type-check
 

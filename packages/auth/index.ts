@@ -1,7 +1,6 @@
 // @ts-nocheck
 import Discord, { type DiscordProfile } from '@auth/core/providers/discord';
 import type { DefaultSession as DefaultSessionType } from '@auth/core/types';
-import type { Adapter, AdapterUser } from '@auth/core/adapters';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '@master-bot/db';
 import NextAuth from 'next-auth';
@@ -42,7 +41,7 @@ export const {
 	adapter: {
 		...PrismaAdapter(prisma),
 		createUser: async (data: any) => {
-			const discordId = data.discordId || data.id;
+			const discordId = (data?.discordId || data?.id) as string;
 			return (await prisma.user.upsert({
 				where: { discordId },
 				update: {
@@ -87,7 +86,8 @@ export const {
 	callbacks: {
 		session: async ({ session, user, token }: any) => {
 			const userId = user?.id || token?.sub || session?.user?.id;
-			let discordId = (user as any)?.discordId || (token as any)?.discordId || (session?.user as any)?.discordId;
+			let discordId =
+				user?.discordId || token?.discordId || session?.user?.discordId;
 
 			if (!discordId && userId) {
 				const dbUser = await prisma.user.findFirst({
@@ -109,9 +109,8 @@ export const {
 				});
 
 				if (
-					account &&
-					account.expires_at &&
-					account.refresh_token &&
+					account?.expires_at &&
+					account?.refresh_token &&
 					account.expires_at * 1000 < Date.now()
 				) {
 					// refresh token
@@ -133,7 +132,11 @@ export const {
 						);
 
 						if (response.ok) {
-							const data = await response.json();
+							const data = (await response.json()) as {
+								access_token: string;
+								refresh_token: string;
+								expires_in: number;
+							};
 
 							await prisma.account.update({
 								where: {
@@ -164,7 +167,7 @@ export const {
 				}
 			};
 		},
-		redirect: async ({ url, baseUrl }: any) => {
+		redirect: ({ url, baseUrl }: { url: string; baseUrl: string }) => {
 			if (url.startsWith('/')) return `${baseUrl}${url}`;
 			try {
 				const target = new URL(url);
@@ -172,7 +175,8 @@ export const {
 				if (target.origin === base.origin) return url;
 				// Allow local development host redirects
 				if (
-					(target.hostname === 'localhost' || target.hostname === '127.0.0.1') &&
+					(target.hostname === 'localhost' ||
+						target.hostname === '127.0.0.1') &&
 					(base.hostname === 'localhost' || base.hostname === '127.0.0.1')
 				) {
 					return url;

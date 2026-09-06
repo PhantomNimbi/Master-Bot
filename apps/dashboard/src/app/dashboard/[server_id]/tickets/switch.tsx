@@ -19,7 +19,7 @@ export default function TicketToggle({
 				id="ticket-mode"
 				checked={ticketEnabled}
 				onCheckedChange={() => {
-					toggleTicketSystem(!ticketEnabled, serverId).then(() => {
+					void toggleTicketSystem(!ticketEnabled, serverId).then(() => {
 						toast({
 							title: `Support ticket system ${
 								ticketEnabled ? 'disabled' : 'enabled'
@@ -31,4 +31,3 @@ export default function TicketToggle({
 		</div>
 	);
 }
-

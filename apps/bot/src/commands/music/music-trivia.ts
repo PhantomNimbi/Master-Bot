@@ -52,14 +52,16 @@ export class MusicTriviaCommand extends Command {
 
 		if (!voiceChannel) {
 			return await interaction.reply({
-				content: ':x: You must be connected to a voice channel to start Music Trivia!',
+				content:
+					':x: You must be connected to a voice channel to start Music Trivia!',
 				ephemeral: true
 			});
 		}
 
 		if (client.triviaSessions?.has(guildId)) {
 			return await interaction.reply({
-				content: ':warning: A Music Trivia session is already running in this server! Use `/stop-trivia` to end it.',
+				content:
+					':warning: A Music Trivia session is already running in this server! Use `/stop-trivia` to end it.',
 				ephemeral: true
 			});
 		}
@@ -67,7 +69,8 @@ export class MusicTriviaCommand extends Command {
 		const queue = client.music.queues.get(guildId);
 		if (queue?.playing) {
 			return await interaction.reply({
-				content: ':warning: The music queue is currently active. Please use `/leave` or wait for the queue to finish before starting Music Trivia.',
+				content:
+					':warning: The music queue is currently active. Please use `/leave` or wait for the queue to finish before starting Music Trivia.',
 				ephemeral: true
 			});
 		}

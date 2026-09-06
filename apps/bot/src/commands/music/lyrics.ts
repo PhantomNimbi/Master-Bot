@@ -26,7 +26,9 @@ export class LyricsCommand extends Command {
 				.addStringOption(option =>
 					option
 						.setName('title')
-						.setDescription(':mag: What song lyrics would you like to get? (optional)')
+						.setDescription(
+							':mag: What song lyrics would you like to get? (optional)'
+						)
 						.setRequired(false)
 				)
 		);
@@ -87,7 +89,8 @@ export class LyricsCommand extends Command {
 export const help: CommandHelp = {
 	name: 'lyrics',
 	category: 'music',
-	description: 'Get the lyrics of any song or the lyrics of the currently playing song!',
+	description:
+		'Get the lyrics of any song or the lyrics of the currently playing song!',
 	usage: '/lyrics [title]',
 	examples: ['/lyrics', '/lyrics title: Bohemian Rhapsody'],
 	options: [

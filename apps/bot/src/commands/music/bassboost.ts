@@ -29,7 +29,11 @@ export class BassboostCommand extends Command {
 		const { client } = container;
 
 		const player = client.music.getPlayer(interaction.guild!.id);
-		if (!player) return interaction.reply({ content: 'No active player.', ephemeral: true });
+		if (!player)
+			return interaction.reply({
+				content: 'No active player.',
+				ephemeral: true
+			});
 
 		const enabled = !(player as any).bassboost;
 		(player as any).bassboost = enabled;

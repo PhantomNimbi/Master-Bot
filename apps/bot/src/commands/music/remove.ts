@@ -60,9 +60,10 @@ export const help: CommandHelp = {
 	examples: ['/remove position: value'],
 	options: [
 		{
-				"name": "position",
-				"description": "What is the position of the song you want to remove from the queue?",
-				"required": true
+			name: 'position',
+			description:
+				'What is the position of the song you want to remove from the queue?',
+			required: true
 		}
-]
+	]
 };

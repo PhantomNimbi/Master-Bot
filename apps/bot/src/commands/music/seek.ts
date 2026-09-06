@@ -66,9 +66,10 @@ export const help: CommandHelp = {
 	examples: ['/seek seconds: value'],
 	options: [
 		{
-				"name": "seconds",
-				"description": "To what point in the track do you want to seek? (in seconds)",
-				"required": true
+			name: 'seconds',
+			description:
+				'To what point in the track do you want to seek? (in seconds)',
+			required: true
 		}
-]
+	]
 };

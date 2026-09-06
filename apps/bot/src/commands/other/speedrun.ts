@@ -320,23 +320,23 @@ export class SpeedRunCommand extends Command {
 				ms === undefined
 					? min.toString() + 'm ' + sec.toString() + 's'
 					: min.toString() +
-					  'm ' +
-					  sec.toString() +
-					  's ' +
-					  ms.toString() +
-					  'ms';
+						'm ' +
+						sec.toString() +
+						's ' +
+						ms.toString() +
+						'ms';
 		} else {
 			str =
 				ms === undefined
 					? hr.toString() + 'h ' + min.toString() + 'm ' + sec.toString() + 's'
 					: hr.toString() +
-					  'h ' +
-					  min.toString() +
-					  'm ' +
-					  sec.toString() +
-					  's ' +
-					  ms.toString() +
-					  'ms';
+						'h ' +
+						min.toString() +
+						'm ' +
+						sec.toString() +
+						's ' +
+						ms.toString() +
+						'ms';
 		}
 		return str;
 	}
@@ -350,14 +350,14 @@ export const help: CommandHelp = {
 	examples: ['/speedrun game: value category: value'],
 	options: [
 		{
-				"name": "game",
-				"description": "Video Game Title?",
-				"required": true
+			name: 'game',
+			description: 'Video Game Title?',
+			required: true
 		},
 		{
-				"name": "category",
-				"description": "speed run Category?",
-				"required": false
+			name: 'category',
+			description: 'speed run Category?',
+			required: false
 		}
-]
+	]
 };

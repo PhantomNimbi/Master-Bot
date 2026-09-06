@@ -108,7 +108,8 @@ export const help: CommandHelp = {
 		},
 		{
 			name: 'location',
-			description: 'What is the index of the video you would like to delete from your saved playlist?',
+			description:
+				'What is the index of the video you would like to delete from your saved playlist?',
 			required: true
 		}
 	]

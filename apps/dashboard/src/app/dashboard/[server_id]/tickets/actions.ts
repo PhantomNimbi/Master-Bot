@@ -16,7 +16,7 @@ async function sendTicketPanelRest(channelId: string, serverId: string) {
 		const payload = {
 			embeds: [
 				{
-					title: `🎫 ${guild?.name || 'Server'} Support Tickets`,
+					title: `🎫 ${guild?.name ?? 'Server'} Support Tickets`,
 					description:
 						'Need help, have an inquiry, or want to speak with server staff?\n\n' +
 						'Click the **Open Ticket** button below to create a private support thread with our moderation team.',
@@ -110,10 +110,7 @@ export async function setTicketMessage(data: FormData) {
 	revalidatePath(`/dashboard/${guildId}`);
 }
 
-export async function setTicketRole(
-	roleId: string | null,
-	server_id: string
-) {
+export async function setTicketRole(roleId: string | null, server_id: string) {
 	await prisma.guild.update({
 		where: {
 			id: server_id
@@ -126,5 +123,3 @@ export async function setTicketRole(
 	revalidatePath(`/dashboard/${server_id}/tickets`);
 	revalidatePath(`/dashboard/${server_id}`);
 }
-
-

@@ -25,7 +25,8 @@ export class WaifuCommand extends Command {
 
 		if (!gifUrl) {
 			return await interaction.editReply({
-				content: ':warning: Could not load a GIF at this time. Please try again!'
+				content:
+					':warning: Could not load a GIF at this time. Please try again!'
 			});
 		}
 
@@ -46,6 +47,6 @@ export const help: CommandHelp = {
 	category: 'gifs',
 	description: 'Replies with a random waifu gif!',
 	usage: '/waifu',
-	examples: ["/waifu"],
+	examples: ['/waifu'],
 	options: []
 };

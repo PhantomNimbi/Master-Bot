@@ -21,12 +21,14 @@ export class AdviceCommand extends Command {
 		await interaction.deferReply();
 		try {
 			const response = await fetch('https://api.adviceslip.com/advice');
-			const data = await response.json() as any;
+			const data = (await response.json()) as any;
 
 			const advice = data.slip?.advice;
 
 			if (!advice) {
-				return await interaction.editReply({ content: 'Something went wrong!' });
+				return await interaction.editReply({
+					content: 'Something went wrong!'
+				});
 			}
 
 			const embed = new EmbedBuilder()

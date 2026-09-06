@@ -21,7 +21,7 @@ export class ChuckNorrisCommand extends Command {
 		await interaction.deferReply();
 		try {
 			const response = await fetch('https://api.chucknorris.io/jokes/random');
-			const joke = await response.json() as any;
+			const joke = (await response.json()) as any;
 
 			if (!joke || !joke.value) {
 				return await interaction.editReply({

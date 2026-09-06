@@ -4,11 +4,37 @@ Master-Bot uses **Lavalink v4** for high-performance, low-latency cross-platform
 
 ---
 
+## 🎵 Audio Architecture & YouTube OAuth Lifecycle
+
+```mermaid
+flowchart TD
+    User["Discord User (/play)"] --> SapphireBot["Master-Bot (Sapphire)"]
+    SapphireBot -->|WebSocket (Port 2333)| Lavalink["Lavalink v4 Audio Server"]
+
+    subgraph Lavalink Engine
+        YouTubePlugin["youtube-plugin (1.18.2)"]
+        LavaSrc["lavasrc-plugin (Spotify / Apple)"]
+        SoundCloud["SoundCloud Audio Source"]
+    end
+
+    Lavalink --> YouTubePlugin
+    Lavalink --> LavaSrc
+    Lavalink --> SoundCloud
+
+    YouTubePlugin -->|OAuth Device Flow| GoogleOAuth["Google / YouTube OAuth"]
+    GoogleOAuth -->|Atomic Write| TokenFile[".youtube-oauth.json"]
+    TokenFile -->|Spring Binding| Lavalink
+    Lavalink -->|Direct Opus Stream| VoiceChannel["Discord Voice Channel"]
+```
+
+---
+
 ## 1. Java Requirements & OS Installation
 
 Lavalink v4 requires **Java 17 or higher**. The **Java 21 LTS** release is the recommended version for production stability, virtual threads, and long-term support.
 
 ### 🪟 Windows
+
 ```powershell
 winget install Microsoft.OpenJDK.21
 # or Eclipse Temurin
@@ -16,12 +42,14 @@ winget install EclipseAdoptium.Temurin.21.JDK
 ```
 
 ### 🍎 macOS
+
 ```bash
 brew install openjdk@21
 sudo ln -sfn /opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-21.jdk
 ```
 
 ### 🐧 Linux
+
 ```bash
 # Ubuntu / Debian
 sudo apt update && sudo apt install -y openjdk-21-jre-headless
@@ -34,6 +62,7 @@ sudo dnf install -y java-21-openjdk
 ```
 
 ### Verify Java Installation
+
 ```bash
 java -version
 # Expected output: openjdk version "21.x.x" ...
@@ -63,6 +92,7 @@ Place `Lavalink.jar` in the root workspace directory alongside `application.yml`
 ## 3. Configuration (`application.yml`)
 
 The repository includes a preconfigured `application.yml` supporting:
+
 - `youtube-plugin` (`dev.lavalink.youtube:youtube-plugin:1.18.2`): Modern YouTube playback engine supporting OAuth 2.0 device flow with multi-client InnerTube failover and remote signature deciphering:
   - `remoteCipher`: Offloads YouTube signature deciphering to a remote cipher server (`https://cipher.kikkia.dev/` or custom `YOUTUBE_CIPHER_URL`), preventing playback stalls when YouTube rolls out player cipher updates.
   - `MUSIC` (`WEB_REMIX`): YouTube Music endpoints (bypasses video player ciphers).
@@ -83,6 +113,7 @@ The repository includes a preconfigured `application.yml` supporting:
 YouTube playback requires OAuth 2.0 authentication to prevent IP rate limits and bot verification blocks.
 
 ### Initial Setup Authorization
+
 1. On launch, if `YOUTUBE_REFRESH_TOKEN` is missing from `.env` and `.youtube-oauth.json`, Lavalink's `youtube-plugin` triggers a device authorization flow.
 2. The launcher prints a formatted banner directly to the **terminal console** containing:
    - Verification Link: `https://www.google.com/device`
@@ -92,6 +123,7 @@ YouTube playback requires OAuth 2.0 authentication to prevent IP rate limits and
 5. Lavalink binds the token natively via `refreshToken: "${YOUTUBE_REFRESH_TOKEN}"` in `application.yml`, eliminating `.env` disk corruption while surviving reboots.
 
 ### Token Auto-Refresh
+
 Once a valid `YOUTUBE_REFRESH_TOKEN` is present, Lavalink's `youtube-plugin` handles short-lived access token refresh internally every ~60 minutes. No manual intervention is required.
 
 ---
@@ -99,6 +131,7 @@ Once a valid `YOUTUBE_REFRESH_TOKEN` is present, Lavalink's `youtube-plugin` han
 ## 5. Connection Environment Variables
 
 Ensure the following variables in `.env` match your Lavalink setup:
+
 - `LAVA_HOST`: Hostname (default `localhost` or `0.0.0.0`)
 - `LAVA_PORT`: WebSocket port (default `2333`)
 - `LAVA_PASS`: Password (must match `lavalink.server.password` in `application.yml`)
@@ -109,6 +142,7 @@ Ensure the following variables in `.env` match your Lavalink setup:
 ## 6. Live Interactive Player Embed & Dynamic Progress Bar
 
 When music playback begins, Master-Bot automatically deploys a dedicated interactive rich embed in the bound music text channel:
+
 - **Interactive Button Controls**: Includes row components for `▶️ Resume / ⏸️ Pause`, `⏭️ Next`, `⏹️ Stop`, `🔁 Repeat: ON/OFF`, `🔀 Shuffle`, `🔉 Vol -`, and `🔊 Vol +`.
 - **Live ASCII Progress Bar**: Renders real-time playback position (`00:00 ▰▰▰▰▰▰▱▱▱▱▱ 03:45`) that automatically ticks forward in 5-second intervals.
 - **Livestream Support**: Intelligently identifies live audio and video streams (e.g. YouTube Live, Twitch) and renders `🔴 LIVE STREAM`.

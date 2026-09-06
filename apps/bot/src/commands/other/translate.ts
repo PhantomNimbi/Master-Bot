@@ -73,13 +73,15 @@ export class TranslateCommand extends Command {
 export const help: CommandHelp = {
 	name: 'translate',
 	category: 'other',
-	description: 'Translate from any language to any language using Google Translate',
+	description:
+		'Translate from any language to any language using Google Translate',
 	usage: '/translate <target> <text>',
 	examples: ['/translate target: es text: Hello world'],
 	options: [
 		{
 			name: 'target',
-			description: 'What is the target language?(language you want to translate to)',
+			description:
+				'What is the target language?(language you want to translate to)',
 			required: true
 		},
 		{

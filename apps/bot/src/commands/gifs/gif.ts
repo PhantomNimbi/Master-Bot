@@ -54,12 +54,12 @@ export const help: CommandHelp = {
 	category: 'gifs',
 	description: 'Search for any GIF or get a trending random GIF',
 	usage: '/gif [query: Keyword]',
-	examples: ["/gif","/gif query: cat dance"],
+	examples: ['/gif', '/gif query: cat dance'],
 	options: [
-  {
-    "name": "query",
-    "description": "Search keyword for the GIF",
-    "required": false
-  }
-]
+		{
+			name: 'query',
+			description: 'Search keyword for the GIF',
+			required: false
+		}
+	]
 };

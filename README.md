@@ -49,7 +49,17 @@ Master-Bot/
   - Automated device-code prompt displayed directly in the terminal console, plus the `/youtube-auth` slash command (Owner only).
   - Tokens persist atomically to `.youtube-oauth.json` (via write-to-temp + atomic rename), so no re-authentication is needed after restart.
   - Native Spring environment variable binding (`refreshToken: "${YOUTUBE_REFRESH_TOKEN}"` in `application.yml`) prevents `.env` disk corruption.
-- **🌐 Interactive Web Dashboard:** Modern **Next.js 15** App Router dashboard with Discord OAuth login, server settings, custom welcome & ticket message editors with live previews, audit log controls, command panel, and an owner log viewer.
+- **🌐 Interactive Web Dashboard:** Modern **Next.js 15** App Router glassmorphism command center featuring 9 dedicated studios:
+  - **Lavalink v4 Audio & Music Studio:** Live player controls, DSP audio filters (Bassboost, Nightcore, Vaporwave, Karaoke), and user playlist management.
+  - **Live WYSIWYG Embed Broadcaster:** Real-time side-by-side Discord client preview and one-click channel dispatcher.
+  - **18-Event Audit Stream:** Comprehensive event capture categorized by moderation, messages, members, channels, and voice.
+  - **Support Ticket Suite:** Dynamic thread-based tickets, staff role assignments, and transcript explorer.
+  - **Twitch Streamers & Integrations:** Live stream alert dispatcher and notification routing.
+  - **Cluster Telemetry & Diagnostics:** Live PostgreSQL latency ping, gateway WebSocket ping, shard health, and ecosystem totals.
+  - **Smart Reminders:** Personal user reminders and scheduled channel alerts.
+  - **Welcome & Farewell Designer:** Interactive embed builder with dynamic template placeholders.
+  - **Command Panel:** Guild-level command overrides and permission bit management.
+- **🧪 Comprehensive Test Suite:** Monorepo unit and integration tests powered by **Vitest v2** and v8 code coverage.
 - **🎯 Feature Flags:** Individual bot modules (Lavalink audio, GIFs, Twitch, News, IGDB) can be enabled or disabled dynamically via environment variables.
 - **🚀 Cross-Platform Unified Launchers:** `pnpm dev` and `pnpm start` automatically manage ports, clear lingering processes, route output to isolated log files (`logs/`), and present a clean console status UI.
 - **🖼️ Reaction GIFs & Media:** Powered by Klipy API and Waifu.im (`/gif`, `/hug`, `/waifu`, `/cat`, `/doggo`, and more).
@@ -86,13 +96,24 @@ cp .env.example .env
 ```
 
 Fill in your mandatory Discord and database credentials:
+
 - `DISCORD_TOKEN`: Bot token from Discord Developer Portal
 - `DISCORD_CLIENT_ID` & `DISCORD_CLIENT_SECRET`: Application OAuth2 credentials
 - `DATABASE_URL` & `SHADOW_DB_URL`: PostgreSQL connection strings
 - `REDIS_HOST` & `REDIS_PORT`: Redis cache connection details
 - `LAVA_ENABLED`: Set to `true` to enable Lavalink audio playback (defaults to `false`)
 
-### 3. Run Development Stack
+### 3. Run Test Suite
+
+```bash
+# Run Vitest unit & integration tests
+pnpm test
+
+# Run tests with code coverage
+pnpm run test:coverage
+```
+
+### 4. Run Development Stack
 
 ```bash
 pnpm dev
@@ -105,6 +126,7 @@ The unified launcher will automatically synchronize your Prisma schema (`prisma 
 ## 🎵 YouTube OAuth Setup
 
 When launching for the first time without a YouTube refresh token:
+
 1. Lavalink's `youtube-plugin` triggers the OAuth device flow.
 2. The launcher displays a prompt in the terminal console containing the link (`https://www.google.com/device`) and user code (`XXXX-XXXX`).
 3. Visit the link in your browser and authorize the device code.
@@ -120,39 +142,42 @@ You can also re-trigger authorization any time with the `/youtube-auth` command 
 > Master-Bot ships with **74 slash commands** across Music, Moderation, GIFs, Games, Utilities, News, Reminders, and more. For the complete, up-to-date list and the `/set` subcommands, see the [Commands Reference](wiki/Commands-Reference.md).
 
 ### 🎵 Music
-| Command | Description |
-|---|---|
-| `/play` | Play a song, playlist, or search query |
-| `/jump` | Jump to a specific track in the queue |
-| `/music-trivia` | Start an interactive music trivia game |
-| `/create-playlist` | Create a custom user playlist |
-| `/help` | Browse commands & detailed help |
+
+| Command            | Description                            |
+| ------------------ | -------------------------------------- |
+| `/play`            | Play a song, playlist, or search query |
+| `/jump`            | Jump to a specific track in the queue  |
+| `/music-trivia`    | Start an interactive music trivia game |
+| `/create-playlist` | Create a custom user playlist          |
+| `/help`            | Browse commands & detailed help        |
 
 ### 🔨 Moderation
-| Command | Description |
-|---|---|
-| `/ban` | Ban a member |
-| `/kick` | Kick a member |
-| `/timeout` | Timeout (mute) a member |
-| `/slowmode` | Set channel slowmode |
-| `/purge` | Bulk delete messages |
+
+| Command     | Description             |
+| ----------- | ----------------------- |
+| `/ban`      | Ban a member            |
+| `/kick`     | Kick a member           |
+| `/timeout`  | Timeout (mute) a member |
+| `/slowmode` | Set channel slowmode    |
+| `/purge`    | Bulk delete messages    |
 
 ### ⚙️ Utility, Games & Owner
-| Command | Description |
-|---|---|
-| `/set` | Configure server settings |
-| `/poll` | Create an interactive multi-choice poll with buttons |
-| `/reminder` | Set, list, and manage personal or server reminders |
-| `/weather` | Get current weather and 3-day forecast for any location |
-| `/bored` | Generate a fun, random activity to cure your boredom |
-| `/world-news` | Fetch the latest world news headlines via NewsAPI |
-| `/connect-four` | Play Connect 4 interactively with buttons |
-| `/tic-tac-toe` | Play Tic-Tac-Toe interactively with buttons |
-| `/about` | Display detailed bot, server, or user information |
-| `/youtube-auth` | Re-trigger YouTube OAuth (Owner Only) |
-| `/game-search` | Search video game info via IGDB |
-| `/twitch-status` | Check a Twitch streamer's live status |
-| `/dashboard` | Get a link to the web dashboard |
+
+| Command          | Description                                             |
+| ---------------- | ------------------------------------------------------- |
+| `/set`           | Configure server settings                               |
+| `/poll`          | Create an interactive multi-choice poll with buttons    |
+| `/reminder`      | Set, list, and manage personal or server reminders      |
+| `/weather`       | Get current weather and 3-day forecast for any location |
+| `/bored`         | Generate a fun, random activity to cure your boredom    |
+| `/world-news`    | Fetch the latest world news headlines via NewsAPI       |
+| `/connect-four`  | Play Connect 4 interactively with buttons               |
+| `/tic-tac-toe`   | Play Tic-Tac-Toe interactively with buttons             |
+| `/about`         | Display detailed bot, server, or user information       |
+| `/youtube-auth`  | Re-trigger YouTube OAuth (Owner Only)                   |
+| `/game-search`   | Search video game info via IGDB                         |
+| `/twitch-status` | Check a Twitch streamer's live status                   |
+| `/dashboard`     | Get a link to the web dashboard                         |
 
 ---
 
@@ -169,8 +194,11 @@ docker compose --env-file docker.env up -d --build
 ## 📚 Documentation & Wiki
 
 For detailed architecture guides, deployment steps, and API credential instructions, visit the project [Wiki](wiki/Home.md):
+
 - 📘 [Setup & Deployment Guide](wiki/Setup-and-Deployment.md)
+- ☁️ [Cloud Hosting Guide (Render, Railway, Fly.io, VPS)](wiki/Cloud-Hosting.md)
 - 🟣 [Heroku Deployment Guide](wiki/Heroku-Deployment.md)
+- 🌐 [Web Dashboard Architecture](wiki/Dashboard-Architecture.md)
 - 🎵 [Lavalink v4 Setup Guide](wiki/Lavalink.md)
 - 🔑 [API Keys & Configuration](wiki/API-Keys.md)
 - 📜 [Complete Commands Reference](wiki/Commands-Reference.md)

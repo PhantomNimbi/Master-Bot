@@ -15,10 +15,12 @@ export class KanyeCommand extends Command {
 		await interaction.deferReply();
 		try {
 			const response = await fetch('https://api.kanye.rest/?format=json');
-			const data = await response.json() as any;
+			const data = (await response.json()) as any;
 
 			if (!data.quote)
-				return await interaction.editReply({ content: 'Something went wrong!' });
+				return await interaction.editReply({
+					content: 'Something went wrong!'
+				});
 
 			const embed = new EmbedBuilder()
 				.setColor('Orange')

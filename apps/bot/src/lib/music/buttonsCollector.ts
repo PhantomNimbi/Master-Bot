@@ -52,10 +52,12 @@ export default async function buttonsCollector(message: Message, song: Song) {
 			);
 			const rows = await getPlayerActionRows(queue);
 			collector.empty();
-			await i.update({
-				embeds: [await NowPlaying.NowPlayingEmbed()],
-				components: rows
-			}).catch(() => {});
+			await i
+				.update({
+					embeds: [await NowPlaying.NowPlayingEmbed()],
+					components: rows
+				})
+				.catch(() => {});
 			return;
 		}
 		if (i.customId === 'stop') {
@@ -85,10 +87,12 @@ export default async function buttonsCollector(message: Message, song: Song) {
 			);
 			const rows = await getPlayerActionRows(queue);
 			collector.empty();
-			await i.update({
-				embeds: [await NowPlaying.NowPlayingEmbed()],
-				components: rows
-			}).catch(() => {});
+			await i
+				.update({
+					embeds: [await NowPlaying.NowPlayingEmbed()],
+					components: rows
+				})
+				.catch(() => {});
 			return;
 		}
 		if (i.customId === 'shuffle') {
@@ -105,10 +109,12 @@ export default async function buttonsCollector(message: Message, song: Song) {
 			);
 			const rows = await getPlayerActionRows(queue);
 			collector.empty();
-			await i.update({
-				embeds: [await NowPlaying.NowPlayingEmbed()],
-				components: rows
-			}).catch(() => {});
+			await i
+				.update({
+					embeds: [await NowPlaying.NowPlayingEmbed()],
+					components: rows
+				})
+				.catch(() => {});
 			return;
 		}
 		if (i.customId === 'volumeUp') {
@@ -127,10 +133,12 @@ export default async function buttonsCollector(message: Message, song: Song) {
 			);
 			const rows = await getPlayerActionRows(queue);
 			collector.empty();
-			await i.update({
-				embeds: [await NowPlaying.NowPlayingEmbed()],
-				components: rows
-			}).catch(() => {});
+			await i
+				.update({
+					embeds: [await NowPlaying.NowPlayingEmbed()],
+					components: rows
+				})
+				.catch(() => {});
 			return;
 		}
 		if (i.customId === 'volumeDown') {
@@ -149,10 +157,12 @@ export default async function buttonsCollector(message: Message, song: Song) {
 			);
 			const rows = await getPlayerActionRows(queue);
 			collector.empty();
-			await i.update({
-				embeds: [await NowPlaying.NowPlayingEmbed()],
-				components: rows
-			}).catch(() => {});
+			await i
+				.update({
+					embeds: [await NowPlaying.NowPlayingEmbed()],
+					components: rows
+				})
+				.catch(() => {});
 			return;
 		}
 	});

@@ -55,7 +55,8 @@ export default async function RemindersPage() {
 								Reminders Manager
 							</h1>
 							<p className="text-sm text-slate-400 mt-0.5">
-								Create and manage custom timed reminders with dynamic format tags and Discord notifications.
+								Create and manage custom timed reminders with dynamic format
+								tags and Discord notifications.
 							</p>
 						</div>
 					</div>
@@ -63,7 +64,7 @@ export default async function RemindersPage() {
 
 				{/* Main Content Grid */}
 				<div className="flex flex-col gap-8">
-					<ReminderForm username={session.user.name || 'Member'} />
+					<ReminderForm username={session.user.name ?? 'Member'} />
 					<RemindersList initialReminders={reminders} />
 				</div>
 			</div>

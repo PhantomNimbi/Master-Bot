@@ -125,9 +125,7 @@ export class GameSearchCommand extends Command {
 			});
 
 			PaginatedEmbed.addPageEmbed(embed => {
-				embed
-					.setTitle(`Game Details: ${game.name}`)
-					.setColor('#9146FF');
+				embed.setTitle(`Game Details: ${game.name}`).setColor('#9146FF');
 
 				if (coverUrl) embed.setThumbnail(coverUrl);
 
@@ -175,9 +173,9 @@ export const help: CommandHelp = {
 	examples: ['/game-search game: value'],
 	options: [
 		{
-				"name": "game",
-				"description": "The game you want to look up?",
-				"required": true
+			name: 'game',
+			description: 'The game you want to look up?',
+			required: true
 		}
-]
+	]
 };

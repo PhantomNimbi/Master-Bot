@@ -32,13 +32,15 @@ export class HugCommand extends Command {
 
 		if (!gifUrl) {
 			return await interaction.editReply({
-				content: ':warning: Could not load a GIF at this time. Please try again!'
+				content:
+					':warning: Could not load a GIF at this time. Please try again!'
 			});
 		}
 
-		const action = target && target.id !== interaction.user.id
-			? 'gives {target} a big warm hug! 🤗'.replace('{target}', `${target}`)
-			: 'Give someone or yourself a warm hug!';
+		const action =
+			target && target.id !== interaction.user.id
+				? 'gives {target} a big warm hug! 🤗'.replace('{target}', `${target}`)
+				: 'Give someone or yourself a warm hug!';
 
 		const embed = new EmbedBuilder()
 			.setColor(0x5865f2)
@@ -54,12 +56,12 @@ export const help: CommandHelp = {
 	category: 'gifs',
 	description: 'Give someone or yourself a warm hug!',
 	usage: '/hug [target: @User]',
-	examples: ["/hug","/hug target: @Someone"],
+	examples: ['/hug', '/hug target: @Someone'],
 	options: [
-  {
-    "name": "target",
-    "description": "Target member to hug",
-    "required": false
-  }
-]
+		{
+			name: 'target',
+			description: 'Target member to hug',
+			required: false
+		}
+	]
 };

@@ -5,24 +5,6 @@ import { Switch } from '~/components/ui/switch';
 import { Button } from '~/components/ui/button';
 import { useToast } from '~/components/ui/use-toast';
 import { updateLogEvents } from './actions';
-import {
-	UserPlus,
-	UserMinus,
-	ShieldAlert,
-	MessageSquare,
-	Edit3,
-	Trash2,
-	FolderPlus,
-	FolderMinus,
-	Sliders,
-	Shield,
-	Volume2,
-	PhoneOff,
-	Radio,
-	Gavel,
-	Clock,
-	UserX
-} from 'lucide-react';
 
 export interface LogCategory {
 	name: string;
@@ -44,7 +26,8 @@ export const LOG_CATEGORIES: LogCategory[] = [
 			{
 				id: 'member_join',
 				label: 'Member Joined',
-				description: 'Logs when a new member joins the server with account age and member count.'
+				description:
+					'Logs when a new member joins the server with account age and member count.'
 			},
 			{
 				id: 'member_leave',
@@ -71,7 +54,8 @@ export const LOG_CATEGORIES: LogCategory[] = [
 			{
 				id: 'message_delete',
 				label: 'Message Deleted',
-				description: 'Logs deleted messages including text content and attachments.'
+				description:
+					'Logs deleted messages including text content and attachments.'
 			},
 			{
 				id: 'message_edit',
@@ -93,7 +77,8 @@ export const LOG_CATEGORIES: LogCategory[] = [
 			{
 				id: 'channel_create',
 				label: 'Channel Created',
-				description: 'Logs when a new text, voice, or category channel is created.'
+				description:
+					'Logs when a new text, voice, or category channel is created.'
 			},
 			{
 				id: 'channel_delete',
@@ -103,7 +88,8 @@ export const LOG_CATEGORIES: LogCategory[] = [
 			{
 				id: 'channel_update',
 				label: 'Channel Modified',
-				description: 'Logs channel renames, topic changes, and permission edits.'
+				description:
+					'Logs channel renames, topic changes, and permission edits.'
 			}
 		]
 	},
@@ -147,7 +133,8 @@ export const LOG_CATEGORIES: LogCategory[] = [
 			{
 				id: 'voice_move',
 				label: 'Voice Channel Switched',
-				description: 'Logs when a member moves from one voice channel to another.'
+				description:
+					'Logs when a member moves from one voice channel to another.'
 			}
 		]
 	},
@@ -180,7 +167,9 @@ export const LOG_CATEGORIES: LogCategory[] = [
 	}
 ];
 
-export const ALL_EVENT_IDS = LOG_CATEGORIES.flatMap(c => c.events.map(e => e.id));
+export const ALL_EVENT_IDS = LOG_CATEGORIES.flatMap(c =>
+	c.events.map(e => e.id)
+);
 
 export default function LogEventsForm({
 	guildId,
@@ -248,10 +237,12 @@ export default function LogEventsForm({
 			<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl border border-gray-800 bg-gray-900/60">
 				<div>
 					<h4 className="text-base font-semibold text-white">
-						📊 Active Log Triggers: {selectedEvents.length} / {ALL_EVENT_IDS.length}
+						📊 Active Log Triggers: {selectedEvents.length} /{' '}
+						{ALL_EVENT_IDS.length}
 					</h4>
 					<p className="text-xs text-gray-400">
-						Select which specific Discord server events are dispatched to your log channel.
+						Select which specific Discord server events are dispatched to your
+						log channel.
 					</p>
 				</div>
 				<div className="flex items-center gap-2">
@@ -288,7 +279,6 @@ export default function LogEventsForm({
 			{/* Category Cards */}
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 				{LOG_CATEGORIES.map(category => {
-					const categoryEventIds = category.events.map(e => e.id);
 					const activeCount = category.events.filter(e =>
 						selectedEvents.includes(e.id)
 					).length;
@@ -317,9 +307,7 @@ export default function LogEventsForm({
 									</span>
 									<button
 										type="button"
-										onClick={() =>
-											handleToggleCategory(category, !allActive)
-										}
+										onClick={() => handleToggleCategory(category, !allActive)}
 										className="text-xs text-blue-400 hover:underline"
 									>
 										{allActive ? 'Disable all' : 'Enable all'}
@@ -349,9 +337,7 @@ export default function LogEventsForm({
 											<Switch
 												id={event.id}
 												checked={isChecked}
-												onCheckedChange={() =>
-													handleToggleEvent(event.id)
-												}
+												onCheckedChange={() => handleToggleEvent(event.id)}
 											/>
 										</div>
 									);
@@ -379,4 +365,3 @@ export default function LogEventsForm({
 		</div>
 	);
 }
-

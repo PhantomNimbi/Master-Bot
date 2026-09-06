@@ -2,11 +2,29 @@
 
 Master-Bot integrates with multiple external services. Below is a complete guide to acquiring and setting up credentials.
 
+```mermaid
+flowchart TD
+    Env[".env Credentials File"] --> Core["Core Requirements<br/>(Discord & PostgreSQL)"]
+    Env --> Audio["Audio Engine<br/>(YouTube / Spotify / SoundCloud)"]
+    Env --> Integrations["Optional Integrations<br/>(Twitch / IGDB / Klipy / NewsAPI)"]
+
+    Core --> Discord["DISCORD_TOKEN<br/>DISCORD_CLIENT_ID / SECRET"]
+    Core --> Database["DATABASE_URL / SHADOW_DB_URL"]
+
+    Audio --> YouTube["YOUTUBE_REFRESH_TOKEN"]
+    Audio --> Spotify["SPOTIFY_CLIENT_ID / SECRET"]
+
+    Integrations --> Twitch["TWITCH_CLIENT_ID / SECRET"]
+    Integrations --> Klipy["KLIPY_API"]
+    Integrations --> News["NEWS_API"]
+```
+
 ---
 
 ## 🔑 Required Credentials
 
 ### Discord Bot Token & OAuth2 Client Credentials
+
 - **Portal:** [Discord Developer Portal](https://discord.com/developers/applications)
 - **Permissions:** Enable `Message Content Intent` and `Server Members Intent` under the Bot tab.
 - **Variables:**
@@ -22,15 +40,18 @@ Master-Bot integrates with multiple external services. Below is a complete guide
 > Lavalink audio streaming is **gated behind API keys/credentials**. If no API keys for YouTube or Spotify are provided in `.env`, the internal Lavalink server launch is automatically skipped and Lavalink is disabled.
 
 ### 1. YouTube Audio Engine (`YOUTUBE_API_KEY` / `YOUTUBE_REFRESH_TOKEN`)
+
 - **Automated OAuth Capture:** On launch, Lavalink's `youtube-plugin` outputs a Google OAuth device code prompt to the terminal console (or triggered via `/youtube-auth`). Completing authorization at `https://www.google.com/device` automatically saves the refresh token atomically into `.youtube-oauth.json`.
 - **Variables:** `YOUTUBE_REFRESH_TOKEN` or `YOUTUBE_API_KEY`
 
 ### 2. Spotify Developer API (`SPOTIFY_CLIENT_ID` & `SPOTIFY_CLIENT_SECRET`)
+
 - **Portal:** [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
 - **Variables:** `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET`
 - **Features:** Enables Lavalink `lavasrc-plugin` to search and resolve Spotify track/album/playlist URLs directly into playable audio streams. Gated behind credentials.
 
 ### 3. SoundCloud (Built-In Free Source — No API Keys Required)
+
 - **Features:** Uses Lavalink's **built-in** SoundCloud source (`filterOutPreviewTracks: true`) for full-length track search and playback (`scsearch`) — **no paid SoundCloud Artist Pro API keys are required**. SoundCloud is enabled by default.
 - **Optional Variables:** `SOUNDCLOUD_CLIENT_ID` and `SOUNDCLOUD_CLIENT_SECRET` — only needed if you re-enable the `lavasrc` SoundCloud source (paid), which is disabled by default.
 
@@ -39,21 +60,25 @@ Master-Bot integrates with multiple external services. Below is a complete guide
 ## 🎮 Optional Service Integrations
 
 ### Twitch & IGDB (Game Search)
+
 - **Portal:** [Twitch Developer Console](https://dev.twitch.tv/console)
 - **Variables:** `TWITCH_CLIENT_ID` and `TWITCH_CLIENT_SECRET`
 - **Features:** Grants access to Twitch live streamer status alerts and **IGDB video game metadata search** (`/game-search`).
 
 ### Klipy (GIF Search Engine)
+
 - **Portal:** [Klipy Developers](https://klipy.com/developers)
 - **Variable:** `KLIPY_API`
 - **Features:** Powers `/gif` search commands.
 
 ### NewsAPI (Global News Headlines & Search)
+
 - **Portal:** [NewsAPI.org](https://newsapi.org/) (Register for free API Key)
 - **Variable:** `NEWS_API`
 - **Features:** Powers the `/world-news` slash command. Provides top global headlines by country (`us`, `gb`, `ca`, `au`, `de`, `fr`, `in`, `jp`), topic categories (Technology, Business, Science, Health, Sports, Entertainment), or keyword searches with rich embed previews, article thumbnails, relative timestamps, and direct links.
 
 ### Genius API (Song Lyrics)
+
 - **Portal:** [Genius API Clients](https://genius.com/api-clients/new)
 - **Variable:** `GENIUS_API`
 - **Features:** Song lyrics fetching (`/lyrics`).
@@ -64,10 +89,10 @@ Master-Bot integrates with multiple external services. Below is a complete guide
 
 Master-Bot allows enabling or disabling entire bot subsystems dynamically via environment variables without code modification:
 
-| Variable | Default | Description |
-| :--- | :--- | :--- |
-| `LAVA_ENABLED` | `false` | Master toggle for Lavalink audio engine and all music playback commands |
-| `GIFS_ENABLED` | `true` | Enables animated GIF reactions and media commands (`/gif`, `/hug`, `/waifu`, etc.) |
-| `TWITCH_ENABLED` | `true` | Enables Twitch streamer monitoring and live notification alerts |
-| `NEWS_ENABLED` | `true` | Enables global news headlines via NewsAPI (`/world-news`) |
-| `IGDB_ENABLED` | `true` | Enables video game search via IGDB (`/game-search`) |
+| Variable         | Default | Description                                                                        |
+| :--------------- | :------ | :--------------------------------------------------------------------------------- |
+| `LAVA_ENABLED`   | `false` | Master toggle for Lavalink audio engine and all music playback commands            |
+| `GIFS_ENABLED`   | `true`  | Enables animated GIF reactions and media commands (`/gif`, `/hug`, `/waifu`, etc.) |
+| `TWITCH_ENABLED` | `true`  | Enables Twitch streamer monitoring and live notification alerts                    |
+| `NEWS_ENABLED`   | `true`  | Enables global news headlines via NewsAPI (`/world-news`)                          |
+| `IGDB_ENABLED`   | `true`  | Enables video game search via IGDB (`/game-search`)                                |

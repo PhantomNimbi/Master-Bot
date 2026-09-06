@@ -17,10 +17,12 @@ export class CommandDeniedListener extends Listener {
 		if (interaction.deferred || interaction.replied) {
 			await interaction.editReply({ content }).catch(() => {});
 		} else {
-			await interaction.reply({
-				ephemeral: true,
-				content: content
-			}).catch(() => {});
+			await interaction
+				.reply({
+					ephemeral: true,
+					content: content
+				})
+				.catch(() => {});
 		}
 
 		return;

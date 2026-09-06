@@ -170,7 +170,9 @@ export const help: CommandHelp = {
 	category: 'music',
 	description: 'Play any song or playlist from YouTube, Spotify and more!',
 	usage: '/play <query> [is-custom-playlist] [shuffle-playlist]',
-	examples: ['/play query: value is-custom-playlist: value shuffle-playlist: value'],
+	examples: [
+		'/play query: value is-custom-playlist: value shuffle-playlist: value'
+	],
 	options: [
 		{
 			name: 'query',

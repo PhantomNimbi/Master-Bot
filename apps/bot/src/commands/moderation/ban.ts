@@ -1,11 +1,7 @@
 import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
-import {
-	EmbedBuilder,
-	GuildMember,
-	PermissionFlagsBits
-} from 'discord.js';
+import { EmbedBuilder, GuildMember, PermissionFlagsBits } from 'discord.js';
 
 @ApplyOptions<Command.Options>({
 	name: 'ban',
@@ -37,7 +33,7 @@ export class BanCommand extends Command {
 						.setDescription('Purge recent messages sent by this member')
 						.setRequired(false)
 						.addChoices(
-							{ name: 'Don\'t delete any', value: 0 },
+							{ name: "Don't delete any", value: 0 },
 							{ name: 'Previous 24 Hours', value: 86400 },
 							{ name: 'Previous 7 Days', value: 604800 }
 						)
@@ -67,7 +63,10 @@ export class BanCommand extends Command {
 		}
 
 		const botMember = guild.members.me;
-		if (!botMember || !botMember.permissions.has(PermissionFlagsBits.BanMembers)) {
+		if (
+			!botMember ||
+			!botMember.permissions.has(PermissionFlagsBits.BanMembers)
+		) {
 			return await interaction.reply({
 				content:
 					':x: I do not have the `Ban Members` permission to execute this command.',
@@ -102,7 +101,9 @@ export class BanCommand extends Command {
 			});
 		}
 
-		const targetMember = await guild.members.fetch(targetUser.id).catch(() => null);
+		const targetMember = await guild.members
+			.fetch(targetUser.id)
+			.catch(() => null);
 
 		if (targetMember) {
 			if (
@@ -206,4 +207,3 @@ export const help: CommandHelp = {
 		}
 	]
 };
-

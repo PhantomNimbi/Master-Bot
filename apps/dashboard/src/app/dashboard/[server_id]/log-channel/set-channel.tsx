@@ -71,7 +71,8 @@ export default function LogChannelSet({
 									onSuccess: () => {
 										toast({
 											title: 'Audit log channel updated',
-											description: 'Server event logs will now be sent to this channel.'
+											description:
+												'Server event logs will now be sent to this channel.'
 										});
 									},
 									onError: () => {
@@ -92,4 +93,3 @@ export default function LogChannelSet({
 		</div>
 	);
 }
-

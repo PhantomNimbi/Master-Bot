@@ -37,7 +37,8 @@ export class NowPlayingEmbed {
 			Number((this.track as any)?.info?.duration) ||
 			Number((this.track as any)?.duration) ||
 			0;
-		const currentMs = Number(this.position) || Number((this.track as any)?.position) || 0;
+		const currentMs =
+			Number(this.position) || Number((this.track as any)?.position) || 0;
 		const isSeekable =
 			this.track?.isSeekable ??
 			(this.track as any)?.info?.isSeekable ??
@@ -45,14 +46,17 @@ export class NowPlayingEmbed {
 
 		const userAvatar = this.track?.requester?.avatar
 			? `https://cdn.discordapp.com/avatars/${this.track.requester?.id}/${this.track.requester?.avatar}.png`
-			: this.track?.requester?.defaultAvatarURL ??
-			  'https://cdn.discordapp.com/embed/avatars/1.png';
+			: (this.track?.requester?.defaultAvatarURL ??
+				'https://cdn.discordapp.com/embed/avatars/1.png');
 
 		let embedColor: ColorResolvable;
 		let sourceTxt: string;
 		let sourceIcon: string;
 
-		const source = this.track?.sourceName || (this.track as any)?.info?.sourceName || 'youtube';
+		const source =
+			this.track?.sourceName ||
+			(this.track as any)?.info?.sourceName ||
+			'youtube';
 
 		switch (source) {
 			case 'vimeo': {
@@ -91,7 +95,10 @@ export class NowPlayingEmbed {
 		const embedFieldData = [
 			{
 				name: 'Artist / Channel',
-				value: this.track?.author || (this.track as any)?.info?.author || 'Unknown Artist',
+				value:
+					this.track?.author ||
+					(this.track as any)?.info?.author ||
+					'Unknown Artist',
 				inline: true
 			},
 			{
@@ -156,7 +163,10 @@ export class NowPlayingEmbed {
 
 		const clampedCurrent = Math.max(0, Math.min(currentMs, totalMs));
 		const percent = clampedCurrent / totalMs;
-		const filledBlocks = Math.max(0, Math.min(barLength, Math.round(percent * barLength)));
+		const filledBlocks = Math.max(
+			0,
+			Math.min(barLength, Math.round(percent * barLength))
+		);
 		const emptyBlocks = Math.max(0, barLength - filledBlocks);
 
 		const bar = '▰'.repeat(filledBlocks) + '▱'.repeat(emptyBlocks);
@@ -167,7 +177,8 @@ export class NowPlayingEmbed {
 	}
 
 	private formatDuration(milliseconds: number): string {
-		if (!milliseconds || isNaN(milliseconds) || milliseconds <= 0) return '0:00';
+		if (!milliseconds || isNaN(milliseconds) || milliseconds <= 0)
+			return '0:00';
 		const totalSeconds = Math.floor(milliseconds / 1000);
 		const hours = Math.floor(totalSeconds / 3600);
 		const minutes = Math.floor((totalSeconds % 3600) / 60);

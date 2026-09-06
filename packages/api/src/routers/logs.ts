@@ -14,8 +14,8 @@ export const logsRouter = createTRPCRouter({
 				lines: z.number().optional().default(200)
 			})
 		)
-		.query(async ({ ctx, input }) => {
-			const ownerId = process.env.OWNER_ID || process.env.DISCORD_OWNER_ID;
+		.query(({ ctx, input }) => {
+			const ownerId = process.env.OWNER_ID ?? process.env.DISCORD_OWNER_ID;
 			if (ownerId && ctx.session?.user?.discordId !== ownerId) {
 				throw new TRPCError({
 					code: 'FORBIDDEN',
@@ -46,8 +46,8 @@ export const logsRouter = createTRPCRouter({
 				type: z.enum(['bot', 'dashboard', 'lavalink', 'redis', 'combined'])
 			})
 		)
-		.mutation(async ({ ctx, input }) => {
-			const ownerId = process.env.OWNER_ID || process.env.DISCORD_OWNER_ID;
+		.mutation(({ ctx, input }) => {
+			const ownerId = process.env.OWNER_ID ?? process.env.DISCORD_OWNER_ID;
 			if (ownerId && ctx.session?.user?.discordId !== ownerId) {
 				throw new TRPCError({
 					code: 'FORBIDDEN',

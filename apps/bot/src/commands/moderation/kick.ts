@@ -1,11 +1,7 @@
 import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
-import {
-	EmbedBuilder,
-	GuildMember,
-	PermissionFlagsBits
-} from 'discord.js';
+import { EmbedBuilder, GuildMember, PermissionFlagsBits } from 'discord.js';
 
 @ApplyOptions<Command.Options>({
 	name: 'kick',
@@ -56,7 +52,10 @@ export class KickCommand extends Command {
 		}
 
 		const botMember = guild.members.me;
-		if (!botMember || !botMember.permissions.has(PermissionFlagsBits.KickMembers)) {
+		if (
+			!botMember ||
+			!botMember.permissions.has(PermissionFlagsBits.KickMembers)
+		) {
 			return await interaction.reply({
 				content:
 					':x: I do not have the `Kick Members` permission to execute this command.',
@@ -89,7 +88,9 @@ export class KickCommand extends Command {
 			});
 		}
 
-		const targetMember = await guild.members.fetch(targetUser.id).catch(() => null);
+		const targetMember = await guild.members
+			.fetch(targetUser.id)
+			.catch(() => null);
 
 		if (!targetMember) {
 			return await interaction.reply({
@@ -189,4 +190,3 @@ export const help: CommandHelp = {
 		}
 	]
 };
-

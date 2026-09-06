@@ -75,9 +75,7 @@ export class HelpCommand extends Command {
 		interaction: Command.ChatInputCommandInteraction
 	) {
 		const { client } = container;
-		const query = interaction
-			.options.getString('command-name')
-			?.toLowerCase();
+		const query = interaction.options.getString('command-name')?.toLowerCase();
 
 		// 1. Detailed Command Lookup Mode
 		if (query) {
@@ -98,7 +96,9 @@ export class HelpCommand extends Command {
 			}
 
 			const category = targetHelp.category.toLowerCase();
-			const categoryName = CATEGORY_NAMES[category] || category.charAt(0).toUpperCase() + category.slice(1);
+			const categoryName =
+				CATEGORY_NAMES[category] ||
+				category.charAt(0).toUpperCase() + category.slice(1);
 			const categoryEmoji = CATEGORY_EMOJIS[category] || '⚙️';
 
 			const detailEmbed = new EmbedBuilder()
@@ -172,7 +172,8 @@ export class HelpCommand extends Command {
 
 		categoriesMap.forEach((cmds, cat) => {
 			const emoji = CATEGORY_EMOJIS[cat] || '⚙️';
-			const label = CATEGORY_NAMES[cat] || cat.charAt(0).toUpperCase() + cat.slice(1);
+			const label =
+				CATEGORY_NAMES[cat] || cat.charAt(0).toUpperCase() + cat.slice(1);
 			mainEmbed.addFields({
 				name: `${emoji} ${label} (${cmds.length})`,
 				value: cmds.map(c => `\`/${c.name}\``).join('  '),
@@ -193,7 +194,8 @@ export class HelpCommand extends Command {
 
 		categoriesMap.forEach((cmds, cat) => {
 			const emoji = CATEGORY_EMOJIS[cat] || '⚙️';
-			const label = CATEGORY_NAMES[cat] || cat.charAt(0).toUpperCase() + cat.slice(1);
+			const label =
+				CATEGORY_NAMES[cat] || cat.charAt(0).toUpperCase() + cat.slice(1);
 			selectMenu.addOptions(
 				new StringSelectMenuOptionBuilder()
 					.setLabel(label)
@@ -203,10 +205,9 @@ export class HelpCommand extends Command {
 			);
 		});
 
-		const row =
-			new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-				selectMenu
-			);
+		const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+			selectMenu
+		);
 
 		const response = await interaction.reply({
 			embeds: [mainEmbed],
@@ -237,16 +238,16 @@ export class HelpCommand extends Command {
 
 			const cmds = categoriesMap.get(selectedCategory) || [];
 			const emoji = CATEGORY_EMOJIS[selectedCategory] || '⚙️';
-			const label = CATEGORY_NAMES[selectedCategory] || selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1);
+			const label =
+				CATEGORY_NAMES[selectedCategory] ||
+				selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1);
 
 			const categoryEmbed = new EmbedBuilder()
 				.setTitle(`${emoji} ${label} Commands (${cmds.length})`)
 				.setColor(0x5865f2)
 				.setThumbnail(client.user?.displayAvatarURL() || null)
 				.setDescription(
-					cmds
-						.map(c => `• **/${c.name}**\n  > ${c.description}`)
-						.join('\n\n')
+					cmds.map(c => `• **/${c.name}**\n  > ${c.description}`).join('\n\n')
 				)
 				.setFooter({
 					text: `Category: ${label} • Type /help [command] for options`,
@@ -268,7 +269,8 @@ export class HelpCommand extends Command {
 export const help: CommandHelp = {
 	name: 'help',
 	category: 'other',
-	description: 'Explore the command list or view detailed info for a specific command.',
+	description:
+		'Explore the command list or view detailed info for a specific command.',
 	usage: '/help [command-name]',
 	examples: ['/help', '/help command-name: ping'],
 	options: [

@@ -2,12 +2,36 @@
 
 **Master-Bot** is a modern, production-grade Discord Bot and Next.js Web Dashboard built with **TypeScript**, **Sapphire Framework**, **tRPC v11**, **Prisma ORM**, **Next.js 15**, **Redis**, and **Lavalink v4**.
 
+```mermaid
+flowchart LR
+    subgraph Apps
+        Bot["apps/bot<br/>(Sapphire Framework)"]
+        Dashboard["apps/dashboard<br/>(Next.js 15 Web)"]
+    end
+
+    subgraph Packages
+        API["packages/api<br/>(tRPC v11 Routers)"]
+        Auth["packages/auth<br/>(NextAuth.js v5)"]
+        DB["packages/db<br/>(Prisma Client)"]
+        Config["packages/config<br/>(ESLint & Tailwind)"]
+    end
+
+    Dashboard --> API
+    Dashboard --> Auth
+    Bot --> DB
+    API --> DB
+    Dashboard --> Config
+    Bot --> Config
+```
+
 ---
 
 ## 📖 Wiki Navigation
 
 - **[Setup & Deployment Guide](Setup-and-Deployment.md)**: Step-by-step local development setup, unified launcher instructions (`pnpm dev` / `pnpm start`), and Docker Compose deployment.
+- **[Cloud Hosting Guide](Cloud-Hosting.md)**: Production cloud deployment instructions for **Render**, **Railway**, **Fly.io**, and Self-Hosted VPS.
 - **[Heroku Deployment Guide](Heroku-Deployment.md)**: Production cloud hosting on Heroku (Buildpacks, Docker containers, PostgreSQL & Redis add-ons, dyno scaling).
+- **[Web Dashboard Architecture](Dashboard-Architecture.md)**: Next.js 15 App Router architecture, 9 feature studios, tRPC v11 procedures, and glassmorphism command center.
 - **[Lavalink v4 Audio Engine](Lavalink.md)**: In-depth Lavalink v4 configuration, plugin management (`youtube-plugin`, `lavasrc-plugin`), remote signature deciphering, and automatic YouTube OAuth device authorization.
 - **[API Keys & Credentials](API-Keys.md)**: Guide on acquiring and setting up required and optional credentials (Discord, Twitch, Klipy, IGDB, NewsAPI, YouTube).
 - **[Commands Reference](Commands-Reference.md)**: Full reference for all available slash commands, interactive help browser, and parameters.

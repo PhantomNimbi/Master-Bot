@@ -7,10 +7,26 @@ import Logger from '../../lib/logger';
 function getWeatherColor(condition: string): number {
 	const lower = condition.toLowerCase();
 	if (lower.includes('sunny') || lower.includes('clear')) return 0xf1c40f; // gold
-	if (lower.includes('rain') || lower.includes('shower') || lower.includes('drizzle')) return 0x3498db; // blue
+	if (
+		lower.includes('rain') ||
+		lower.includes('shower') ||
+		lower.includes('drizzle')
+	)
+		return 0x3498db; // blue
 	if (lower.includes('thunder') || lower.includes('storm')) return 0x9b59b6; // purple
-	if (lower.includes('snow') || lower.includes('blizzard') || lower.includes('ice')) return 0xecf0f1; // light white/grey
-	if (lower.includes('cloud') || lower.includes('overcast') || lower.includes('mist') || lower.includes('fog')) return 0x95a5a6; // grey
+	if (
+		lower.includes('snow') ||
+		lower.includes('blizzard') ||
+		lower.includes('ice')
+	)
+		return 0xecf0f1; // light white/grey
+	if (
+		lower.includes('cloud') ||
+		lower.includes('overcast') ||
+		lower.includes('mist') ||
+		lower.includes('fog')
+	)
+		return 0x95a5a6; // grey
 	return 0x5865f2; // blurple default
 }
 
@@ -20,8 +36,18 @@ function getWeatherEmoji(condition: string): string {
 	if (lower.includes('partly cloudy')) return '⛅';
 	if (lower.includes('cloud') || lower.includes('overcast')) return '☁️';
 	if (lower.includes('thunder') || lower.includes('storm')) return '⛈️';
-	if (lower.includes('snow') || lower.includes('blizzard') || lower.includes('ice')) return '❄️';
-	if (lower.includes('rain') || lower.includes('shower') || lower.includes('drizzle')) return '🌧️';
+	if (
+		lower.includes('snow') ||
+		lower.includes('blizzard') ||
+		lower.includes('ice')
+	)
+		return '❄️';
+	if (
+		lower.includes('rain') ||
+		lower.includes('shower') ||
+		lower.includes('drizzle')
+	)
+		return '🌧️';
 	if (lower.includes('fog') || lower.includes('mist')) return '🌫️';
 	return '🌡️';
 }
@@ -81,7 +107,9 @@ export class WeatherCommand extends Command {
 			const areaName = area.areaName?.[0]?.value || query;
 			const region = area.region?.[0]?.value || '';
 			const country = area.country?.[0]?.value || '';
-			const locationHeader = [areaName, region, country].filter(Boolean).join(', ');
+			const locationHeader = [areaName, region, country]
+				.filter(Boolean)
+				.join(', ');
 
 			const conditionDesc = current.weatherDesc?.[0]?.value || 'Unknown';
 			const emoji = getWeatherEmoji(conditionDesc);
@@ -133,18 +161,24 @@ export class WeatherCommand extends Command {
 			// 3-Day Forecast
 			const forecasts = data.weather || [];
 			if (forecasts.length > 0) {
-				const forecastLines = forecasts.slice(0, 3).map((f: any, idx: number) => {
-					const dateStr = f.date;
-					const maxC = f.maxtempC;
-					const maxF = f.maxtempF;
-					const minC = f.mintempC;
-					const minF = f.mintempF;
-					const dayDesc = f.hourly?.[4]?.weatherDesc?.[0]?.value || f.hourly?.[0]?.weatherDesc?.[0]?.value || 'Partly Cloudy';
-					const dayEmoji = getWeatherEmoji(dayDesc);
-					const label = idx === 0 ? 'Today' : idx === 1 ? 'Tomorrow' : dateStr;
+				const forecastLines = forecasts
+					.slice(0, 3)
+					.map((f: any, idx: number) => {
+						const dateStr = f.date;
+						const maxC = f.maxtempC;
+						const maxF = f.maxtempF;
+						const minC = f.mintempC;
+						const minF = f.mintempF;
+						const dayDesc =
+							f.hourly?.[4]?.weatherDesc?.[0]?.value ||
+							f.hourly?.[0]?.weatherDesc?.[0]?.value ||
+							'Partly Cloudy';
+						const dayEmoji = getWeatherEmoji(dayDesc);
+						const label =
+							idx === 0 ? 'Today' : idx === 1 ? 'Tomorrow' : dateStr;
 
-					return `• **${label}**: ${dayEmoji} ${dayDesc} | High: **${maxC}°C** (${maxF}°F) • Low: **${minC}°C** (${minF}°F)`;
-				});
+						return `• **${label}**: ${dayEmoji} ${dayDesc} | High: **${maxC}°C** (${maxF}°F) • Low: **${minC}°C** (${minF}°F)`;
+					});
 
 				embed.addFields({
 					name: '📅 3-Day Forecast',
@@ -153,9 +187,11 @@ export class WeatherCommand extends Command {
 				});
 			}
 
-			embed.setFooter({
-				text: 'Weather Data provided by wttr.in • Master-Bot'
-			}).setTimestamp();
+			embed
+				.setFooter({
+					text: 'Weather Data provided by wttr.in • Master-Bot'
+				})
+				.setTimestamp();
 
 			return await interaction.editReply({ embeds: [embed] });
 		} catch (error) {

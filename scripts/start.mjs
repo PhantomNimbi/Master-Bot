@@ -21,11 +21,19 @@ import {
 
 loadEnv();
 
-const nextBuildId = path.join(rootDir, 'apps', 'dashboard', '.next', 'BUILD_ID');
+const nextBuildId = path.join(
+	rootDir,
+	'apps',
+	'dashboard',
+	'.next',
+	'BUILD_ID'
+);
 const botDist = path.join(rootDir, 'apps', 'bot', 'dist', 'index.js');
 
 if (!fs.existsSync(nextBuildId) || !fs.existsSync(botDist)) {
-	console.log('\n📦 Production build not detected. Building packages before launch...');
+	console.log(
+		'\n📦 Production build not detected. Building packages before launch...'
+	);
 	execSync('pnpm build', { cwd: rootDir, stdio: 'inherit' });
 	console.log('✅ Production build completed successfully.\n');
 }
@@ -69,7 +77,7 @@ const dashboardPort = process.env.PORT
 	: extractPortFromUrl(
 			process.env.NEXTAUTH_URL_INTERNAL || process.env.NEXTAUTH_URL,
 			3000
-	  );
+		);
 const lavaHost = process.env.LAVA_HOST || '0.0.0.0';
 const lavaPort = parseInt(process.env.LAVA_PORT || '2333', 10);
 let redisHost = process.env.REDIS_HOST || '127.0.0.1';
@@ -133,7 +141,9 @@ if (!isLavalinkEnabled) {
 			'SYSTEM',
 			`Existing Lavalink server detected running on ${hostToCheck}:${lavaPort}. Connected directly.`
 		);
-		console.log(`\n\x1b[1;32m✅ [LAVALINK ACTIVE]\x1b[0m Connected to existing Lavalink instance on port ${lavaPort}\n`);
+		console.log(
+			`\n\x1b[1;32m✅ [LAVALINK ACTIVE]\x1b[0m Connected to existing Lavalink instance on port ${lavaPort}\n`
+		);
 	} else if (isLavaExternal) {
 		lavalinkStatus = `EXTERNAL (${lavaHost}:${lavaPort})`;
 		writeLavalinkLog(
@@ -142,7 +152,9 @@ if (!isLavalinkEnabled) {
 		);
 		const isReady = await waitForPort(lavaPort, hostToCheck, 25000);
 		if (isReady) {
-			console.log(`\x1b[1;32m✅ [EXTERNAL LAVALINK READY]\x1b[0m Connected to external Lavalink on port ${lavaPort}\n`);
+			console.log(
+				`\x1b[1;32m✅ [EXTERNAL LAVALINK READY]\x1b[0m Connected to external Lavalink on port ${lavaPort}\n`
+			);
 		}
 	} else if (!keyStatus.hasAny) {
 		lavalinkStatus = 'DISABLED (No API Keys Configured)';
@@ -163,23 +175,35 @@ if (!isLavalinkEnabled) {
 			);
 			const javaCheck = checkJavaVersion();
 			if (!javaCheck.ok) {
-				console.error(`\n\x1b[1;31m⚠️  [JAVA VERSION ERROR]\x1b[0m\n${javaCheck.error}\n`);
+				console.error(
+					`\n\x1b[1;31m⚠️  [JAVA VERSION ERROR]\x1b[0m\n${javaCheck.error}\n`
+				);
 				lavalinkStatus = 'ERROR (Java missing or too old)';
 			} else {
 				if (javaCheck.version < 21) {
-					console.warn(`\n\x1b[1;33m⚠️  [JAVA VERSION WARNING]\x1b[0m Java ${javaCheck.version} detected. Java 21 LTS is recommended for best stability.\n`);
+					console.warn(
+						`\n\x1b[1;33m⚠️  [JAVA VERSION WARNING]\x1b[0m Java ${javaCheck.version} detected. Java 21 LTS is recommended for best stability.\n`
+					);
 				}
 				const javaArgs = getLavalinkJavaArgs();
 				lavalinkProcess = spawn('java', javaArgs, {
 					cwd: rootDir,
 					env: { ...process.env }
 				});
-				lavalinkProcess.stdout.on('data', data => writeLavalinkLog('LAVALINK', data));
-				lavalinkProcess.stderr.on('data', data => writeLavalinkLog('LAVALINK-ERR', data));
-				console.log('\n⏳ Waiting for Lavalink audio engine to become ready...');
+				lavalinkProcess.stdout.on('data', data =>
+					writeLavalinkLog('LAVALINK', data)
+				);
+				lavalinkProcess.stderr.on('data', data =>
+					writeLavalinkLog('LAVALINK-ERR', data)
+				);
+				console.log(
+					'\n⏳ Waiting for Lavalink audio engine to become ready...'
+				);
 				const isReady = await waitForPort(lavaPort, hostToCheck, 25000);
 				if (isReady) {
-					console.log(`\x1b[1;32m✅ [LAVALINK READY]\x1b[0m Audio engine listening on port ${lavaPort}\n`);
+					console.log(
+						`\x1b[1;32m✅ [LAVALINK READY]\x1b[0m Audio engine listening on port ${lavaPort}\n`
+					);
 				}
 			}
 		} else {
@@ -205,8 +229,12 @@ const dashboardProcess = spawn(`pnpm --filter @master-bot/dashboard start`, {
 	cwd: rootDir,
 	shell: true
 });
-dashboardProcess.stdout.on('data', data => writeDashboardLog('DASHBOARD', data));
-dashboardProcess.stderr.on('data', data => writeDashboardLog('DASHBOARD-ERR', data));
+dashboardProcess.stdout.on('data', data =>
+	writeDashboardLog('DASHBOARD', data)
+);
+dashboardProcess.stderr.on('data', data =>
+	writeDashboardLog('DASHBOARD-ERR', data)
+);
 
 const oauthNote = isLavalinkEnabled
 	? `
@@ -230,7 +258,8 @@ const activeServices = [
 ];
 
 if (isLavalinkEnabled && !lavalinkStatus.startsWith('DISABLED')) {
-	const cipherInfo = process.env.YOUTUBE_CIPHER_URL?.trim() || 'https://cipher.kikkia.dev/';
+	const cipherInfo =
+		process.env.YOUTUBE_CIPHER_URL?.trim() || 'https://cipher.kikkia.dev/';
 	activeServices.push(
 		`    • 🎵 Lavalink Audio:     ${lavalinkStatus}\n                                     └─ Cipher: ${cipherInfo}\n                                     └─ Log: logs/lavalink.log`
 	);

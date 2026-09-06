@@ -94,7 +94,11 @@ export class StatusManager {
 			}
 
 			// If music is actively playing in servers, occasionally feature music status
-			if (activePlayingCount > 0 && this.currentIndex % 2 === 0 && currentTrackTitle) {
+			if (
+				activePlayingCount > 0 &&
+				this.currentIndex % 2 === 0 &&
+				currentTrackTitle
+			) {
 				const displayTitle =
 					currentTrackTitle.length > 40
 						? `${currentTrackTitle.slice(0, 37)}...`
@@ -114,7 +118,8 @@ export class StatusManager {
 			}
 
 			const item = this.statuses[this.currentIndex];
-			const text = typeof item.text === 'function' ? item.text(this.client) : item.text;
+			const text =
+				typeof item.text === 'function' ? item.text(this.client) : item.text;
 
 			this.client.user.setPresence({
 				status: 'online',

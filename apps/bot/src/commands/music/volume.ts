@@ -59,9 +59,9 @@ export const help: CommandHelp = {
 	examples: ['/volume setting: value'],
 	options: [
 		{
-				"name": "setting",
-				"description": "What Volume? (0 to 200)",
-				"required": true
+			name: 'setting',
+			description: 'What Volume? (0 to 200)',
+			required: true
 		}
-]
+	]
 };

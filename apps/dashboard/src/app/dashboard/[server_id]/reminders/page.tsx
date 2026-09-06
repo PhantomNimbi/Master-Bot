@@ -42,7 +42,8 @@ export default async function ServerRemindersPage() {
 							Reminders Manager
 						</h1>
 						<p className="text-sm text-slate-400 mt-0.5">
-							Create and manage timed notifications with dynamic formatting tags and real-time preview.
+							Create and manage timed notifications with dynamic formatting tags
+							and real-time preview.
 						</p>
 					</div>
 				</div>
@@ -50,7 +51,7 @@ export default async function ServerRemindersPage() {
 
 			{/* Main Content */}
 			<div className="flex flex-col gap-8">
-				<ReminderForm username={session.user.name || 'Member'} />
+				<ReminderForm username={session.user.name ?? 'Member'} />
 				<RemindersList initialReminders={reminders} />
 			</div>
 		</div>
