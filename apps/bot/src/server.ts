@@ -36,7 +36,7 @@ export class BotCallbackServer {
 				if (dashboardHandled) return;
 
 				const reqUrl = req.url || '/';
-				const parsed = new URL(reqUrl, `http://localhost:${this.port}`);
+				const parsed = new URL(reqUrl, this.baseUrl);
 
 				if (parsed.pathname === '/api/health' || parsed.pathname === '/health') {
 					res.writeHead(200, { 'Content-Type': 'application/json' });
