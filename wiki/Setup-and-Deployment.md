@@ -163,6 +163,21 @@ sudo postgresql-setup --initdb
 sudo systemctl enable --now postgresql redis
 ```
 
+#### 4. Raspberry Pi (Raspberry Pi OS / Debian ARM64)
+
+```bash
+# 1. Install Node.js 20 LTS (ARM64)
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+sudo npm install -g pnpm
+
+# 2. Install OpenJDK 21 & backing databases
+sudo apt install -y openjdk-21-jre-headless postgresql redis-server
+
+# 3. Enable and start database services
+sudo systemctl enable --now postgresql redis-server
+```
+
 ---
 
 ## 🔄 Development & Production Lifecycle Workflow

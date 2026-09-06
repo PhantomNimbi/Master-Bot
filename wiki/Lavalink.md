@@ -128,14 +128,48 @@ Once a valid `YOUTUBE_REFRESH_TOKEN` is present, Lavalink's `youtube-plugin` han
 
 ---
 
-## 5. Connection Environment Variables
+## 5. Connection Topologies & Environment Configuration
 
-Ensure the following variables in `.env` match your Lavalink setup:
+Master-Bot supports three primary Lavalink deployment topologies:
 
-- `LAVA_HOST`: Hostname (default `localhost` or `0.0.0.0`)
-- `LAVA_PORT`: WebSocket port (default `2333`)
-- `LAVA_PASS`: Password (must match `lavalink.server.password` in `application.yml`)
-- `LAVA_EXTERNAL`: Set to `true` if connecting to a remote external Lavalink instance.
+### Topology A: Internal Local Server (Default for Development & Docker)
+
+Runs locally on the same host or inside the Docker Compose network.
+
+```env
+LAVA_ENABLED=true
+LAVA_EXTERNAL=false
+LAVA_HOST="127.0.0.1"
+LAVA_PORT=2333
+LAVA_PASS="youshallnotpass"
+LAVA_SECURE=false
+```
+
+### Topology B: Dedicated External Server (Recommended for Production Cloud)
+
+Runs on a dedicated VPS (e.g. Hetzner, DigitalOcean) with uninterrupted 24/7 uptime and SSL termination.
+
+```env
+LAVA_ENABLED=true
+LAVA_EXTERNAL=true
+LAVA_HOST="lava.yourdomain.com"
+LAVA_PORT=443
+LAVA_PASS="your_secure_lavalink_password"
+LAVA_SECURE=true
+```
+
+### Topology C: Public Community Lavalink Servers
+
+Connects to a verified public Lavalink v4 community node.
+
+```env
+LAVA_ENABLED=true
+LAVA_EXTERNAL=true
+LAVA_HOST="public-lavalink.example.com"
+LAVA_PORT=2333
+LAVA_PASS="public_lavalink_pass"
+LAVA_SECURE=false
+```
 
 ---
 
@@ -147,3 +181,15 @@ When music playback begins, Master-Bot automatically deploys a dedicated interac
 - **Live ASCII Progress Bar**: Renders real-time playback position (`00:00 ▰▰▰▰▰▰▱▱▱▱▱ 03:45`) that automatically ticks forward in 5-second intervals.
 - **Livestream Support**: Intelligently identifies live audio and video streams (e.g. YouTube Live, Twitch) and renders `🔴 LIVE STREAM`.
 - **Resource Management**: Automatically halts background timers and cleans up message components when tracks finish, pause, skip, or the bot leaves the voice channel.
+
+---
+
+## 7. Real-Time Audio DSP Filters
+
+Master-Bot provides real-time DSP filter commands powered by Lavalink:
+
+- **/bassboost**: Amplifies lower audio frequencies with selectable intensity levels (`low`, `medium`, `high`, `extreme`).
+- **/nightcore**: Increases speed and pitch for an upbeat tempo.
+- **/vaporwave**: Slows playback and lowers pitch for a retro aesthetic.
+- **/karaoke**: Suppresses centered mono vocal frequencies.
+- **/seek**: Seeks to any arbitrary timestamp position (`/seek 1:45`).
