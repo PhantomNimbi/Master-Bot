@@ -15,7 +15,7 @@
 
 Create an [application.yml](application.yml.example) file in the root folder.
 
-Download the latest Lavalink jar from [here](https://github.com/Cog-Creators/Lavalink-Jars/releases) and place it in the root folder as `Lavalink.jar`.
+Download the latest Lavalink jar from [here](https://github.com/lavalink-devs/lavalink/releases) and place it in the root folder as `Lavalink.jar`.
 
 ### Database & In-Memory Queue
 
