@@ -1,7 +1,7 @@
 {
 	"name": "@master-bot/eslint-config",
 	"version": "0.2.0",
-	"main": "index.js",
+	"main": "base.js",
 	"license": "ISC",
 	"scripts": {
 		"lint": "eslint ."

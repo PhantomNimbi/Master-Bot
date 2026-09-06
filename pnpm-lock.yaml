@@ -65,9 +65,15 @@ importers:
       '@sapphire/framework':
         specifier: ^4.8.2
         version: 4.8.2
+      '@sapphire/plugin-editable-commands':
+        specifier: ^2.0.1
+        version: 2.0.1
       '@sapphire/plugin-hmr':
         specifier: ^2.0.3
         version: 2.0.3
+      '@sapphire/plugin-subcommands':
+        specifier: ^7.0.0
+        version: 7.0.0
       '@sapphire/time-utilities':
         specifier: ^1.7.14
         version: 1.7.14
@@ -1175,11 +1181,26 @@ packages:
       tslib: 2.8.1
     dev: false
 
+  /@sapphire/plugin-editable-commands@2.0.1:
+    resolution: {integrity: sha512-uXM2YweVLgZWzZxR0TDRPertnWiR6Yi8kuABudLIJuSN4WtAUUxeE65iUNEGN8rzFnIvRwHTRLRPxgIub0I6VQ==}
+    engines: {node: '>=16.6.0', npm: '>=7.0.0'}
+    dependencies:
+      '@skyra/editable-commands': 2.1.4
+      tslib: 2.8.1
+    dev: false
+
   /@sapphire/plugin-hmr@2.0.3:
     resolution: {integrity: sha512-SYOep2Oi9VU8X7WFC4oiMYMIEQeVo7r4ygc+88HBvr4HhmkRccdg3+ACT1k4bt6uBBIgPsG/75hLYNTqezy02g==}
     engines: {node: '>=v18', npm: '>=7'}
     dependencies:
       chokidar: 3.5.3
+    dev: false
+
+  /@sapphire/plugin-subcommands@7.0.0:
+    resolution: {integrity: sha512-oBJ5o99hjq1sdBGcL4ksChyg73pZ1zhGVNBLnRHP4K5iegCA60GE4WRZqskrA94owy0hHNeCjj0etUpOCaihbQ==}
+    engines: {node: '>=v18', npm: '>=7'}
+    dependencies:
+      '@sapphire/utilities': 3.18.2
     dev: false
 
   /@sapphire/ratelimits@2.4.7:
@@ -1251,6 +1272,11 @@ packages:
   /@sapphire/utilities@3.18.2:
     resolution: {integrity: sha512-QGLdC9+pT74Zd7aaObqn0EUfq40c4dyTL65pFnkM6WO1QYN7Yg/s4CdH+CXmx0Zcu6wcfCWILSftXPMosJHP5A==}
     engines: {node: '>=v14.0.0'}
+    dev: false
+
+  /@skyra/editable-commands@2.1.4:
+    resolution: {integrity: sha512-W/m7GVmPCFKmEc49J4dLP6+TRlbBhXUPkN5KAV4PSzk5JaYLOTl5fgjEzHJOxtLHwiQBd36lrQdsWKxL+N9zBQ==}
+    engines: {node: '>=16.6', npm: '>=7.24.2'}
     dev: false
 
   /@so-ric/colorspace@1.1.6:

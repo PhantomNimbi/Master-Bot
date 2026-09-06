@@ -8,7 +8,7 @@
 		},
 		"build": {
 			"dependsOn": ["^build"],
-			"outputs": [".next/**", "dist/**"]
+			"outputs": ["dist/**"]
 		},
 		"lint": {},
 		"lint:fix": {},
@@ -55,7 +55,6 @@
 		"TWITCH_CLIENT_SECRET",
 		"KLIPY_API",
 		"NEWS_API",
-		"GENIUS_API",
-		"PORT"
+		"GENIUS_API"
 	]
 }
