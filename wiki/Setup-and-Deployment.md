@@ -282,4 +282,4 @@ docker compose down
 
 ### Option C: Cloud & Platform Hosting (Render, Railway, Fly.io, Heroku, Koyeb, Northflank, VPS, Pterodactyl)
 
-For step-by-step instructions on deploying the bot worker and web dashboard to cloud platforms with managed PostgreSQL and Redis, see the dedicated [Cloud & Platform Deployment Guide](Cloud-Hosting.md) and [Heroku Deployment Guide](Heroku-Deployment.md).
+For step-by-step instructions on deploying the bot worker and web dashboard to cloud platforms with managed PostgreSQL and Redis, see the dedicated [Cloud & Platform Deployment Guide](Cloud-Hosting.md).

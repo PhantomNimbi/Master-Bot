@@ -30,7 +30,6 @@ flowchart LR
 
 - **[Setup & Deployment Guide](Setup-and-Deployment.md)**: Step-by-step local development setup, unified launcher instructions (`pnpm dev` / `pnpm start`), and Docker Compose deployment.
 - **[Cloud & Platform Deployment Guide](Cloud-Hosting.md)**: Production deployment instructions for **Render**, **Railway**, **Fly.io**, **Heroku**, **Koyeb**, **Northflank**, **Linux VPS**, and **Pterodactyl**.
-- **[Heroku Deployment Guide](Heroku-Deployment.md)**: Comprehensive guide for deploying on Heroku (Buildpacks, Docker containers, PostgreSQL & Redis add-ons, dyno scaling).
 - **[Web Dashboard Architecture](Dashboard-Architecture.md)**: Next.js 15 App Router architecture, 9 feature studios, tRPC v11 procedures, and glassmorphism command center.
 - **[Lavalink v4 Audio Engine](Lavalink.md)**: In-depth Lavalink v4 configuration, plugin management (`youtube-plugin`, `lavasrc-plugin`), remote signature deciphering, and automatic YouTube OAuth device authorization.
 - **[API Keys & Credentials](API-Keys.md)**: Guide on acquiring and setting up required and optional credentials (Discord, Twitch, Klipy, IGDB, NewsAPI, YouTube).

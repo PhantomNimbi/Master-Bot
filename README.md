@@ -260,9 +260,7 @@ A full list of commands for use with Master Bot
 
 [Setup & Deployment Guide](wiki/Setup-and-Deployment.md)
 
-[Cloud Hosting (Render, Railway, Fly.io, Heroku, Docker)](wiki/Cloud-Hosting.md)
-
-[Heroku Deployment Guide](wiki/Heroku-Deployment.md)
+[Cloud & Platform Hosting (Render, Railway, Fly.io, Heroku, VPS, Pterodactyl)](wiki/Cloud-Hosting.md)
 
 [Lavalink v4 & YouTube Audio Setup](wiki/Lavalink.md)
 
