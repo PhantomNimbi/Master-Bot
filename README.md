@@ -31,7 +31,7 @@ Get [brew](https://brew.sh), then enter `brew install postgresql`.
 
 #### Windows
 
-Getting Postgres and Prisma to work together on Windows is easy with native PostgreSQL, Docker, or cloud databases. See the [Setup & Deployment Guide](wiki/Setup-and-Deployment.md) or [Cloud Hosting Guide](wiki/Cloud-Hosting.md) for step-by-step instructions.
+Getting Postgres and Prisma to work together on Windows is easy with native PostgreSQL, Docker, or cloud databases. See the [Setup Guide](wiki/Setup.md) or [Cloud Hosting Guide](wiki/Hosting.md) for step-by-step instructions.
 
 ### Redis
 
@@ -248,31 +248,21 @@ A full list of commands for use with Master Bot
 
 ## Resources
 
-[Getting a Klipy API key](wiki/API-Keys.md#klipy--gifs)
+[Master Documentation Wiki](wiki/Home.md)
 
-[Getting a NewsAPI API key](https://newsapi.org/)
+[Getting Started & Setup Guide](wiki/Setup.md)
 
-[Getting a Genius API key](https://genius.com/api-clients/new)
+[Cloud & Platform Hosting Guide](wiki/Hosting.md)
 
-[Getting an IGDB API key](wiki/API-Keys.md#twitch--igdb-game-search)
+[Lavalink v4 Audio Engine Guide](wiki/Lavalink.md)
 
-[Getting a Twitch API key](wiki/API-Keys.md#twitch--igdb-game-search)
+[Web Dashboard Guide](wiki/Dashboard.md)
 
-[Setup & Deployment Guide](wiki/Setup-and-Deployment.md)
+[Configuration & API Keys Guide](wiki/Configuration.md)
 
-[Cloud & Platform Hosting (Render, Railway, Fly.io, Heroku, VPS, Pterodactyl)](wiki/Cloud-Hosting.md)
+[Complete Commands Reference](wiki/Commands.md)
 
-[Lavalink v4 & YouTube Audio Setup](wiki/Lavalink.md)
-
-[Dashboard Architecture & API Guide](wiki/Dashboard-Architecture.md)
-
-[Full Commands Reference](wiki/Commands-Reference.md)
-
-[Discord Bot Architecture](apps/bot/README.md)
-
-[Web Dashboard Guide](apps/dashboard/README.md)
-
-[Vitest Test Suite Guide](tests/README.md)
+[Testing & Quality Assurance Guide](wiki/Testing.md)
 
 ## Contributing
 
