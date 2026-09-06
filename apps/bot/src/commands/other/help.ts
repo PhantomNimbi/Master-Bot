@@ -53,9 +53,12 @@ function getCategoryMeta(category: string) {
 	);
 }
 
-function formatCommandList(commands: CommandHelp[]): string {
-	if (commands.length === 0) return 'No commands available.';
-	return commands.map(c => `/${c.name}`).join(', ');
+function chunkArray<T>(arr: T[], size: number): T[][] {
+	const result: T[][] = [];
+	for (let i = 0; i < arr.length; i += size) {
+		result.push(arr.slice(i, i + size));
+	}
+	return result;
 }
 
 @ApplyOptions<CommandOptions>({
@@ -127,15 +130,14 @@ export class HelpCommand extends Command {
 
 			const meta = getCategoryMeta(targetHelp.category);
 
-			const detailEmbed = new EmbedBuilder()
-				.setTitle(`${meta.emoji}  ${targetHelp.name}`)
+			const embed = new EmbedBuilder()
+				.setTitle(targetHelp.name)
 				.setColor(0x5865f2)
-				.setThumbnail(client.user?.displayAvatarURL() || null)
 				.setDescription(targetHelp.description)
 				.addFields(
 					{
-						name: 'Category',
-						value: `${meta.emoji}  ${meta.label}`,
+						name: `${meta.emoji}  Category`,
+						value: meta.label,
 						inline: true
 					},
 					{
@@ -153,25 +155,25 @@ export class HelpCommand extends Command {
 			if (targetHelp.options && targetHelp.options.length > 0) {
 				const optionsText = targetHelp.options
 					.map(opt => {
-						const req = opt.required ? ' (required)' : ' (optional)';
-						return `${opt.name}${req}: ${opt.description}`;
+						const req = opt.required ? 'required' : 'optional';
+						return `${opt.name} (${req}): ${opt.description}`;
 					})
 					.join('\n');
 
-				detailEmbed.addFields({
+				embed.addFields({
 					name: 'Parameters',
 					value: optionsText
 				});
 			}
 
 			if (targetHelp.examples && targetHelp.examples.length > 0) {
-				detailEmbed.addFields({
+				embed.addFields({
 					name: 'Examples',
 					value: targetHelp.examples.join('\n')
 				});
 			}
 
-			return await interaction.reply({ embeds: [detailEmbed] });
+			return await interaction.reply({ embeds: [embed] });
 		}
 
 		// ─── Main Overview Embed ──────────────────────────────────────────────
@@ -180,36 +182,54 @@ export class HelpCommand extends Command {
 		const totalCommands = enabledCommands.length;
 
 		const mainEmbed = new EmbedBuilder()
-			.setTitle('Master-Bot Command List')
+			.setTitle('Master-Bot Help')
 			.setColor(0x5865f2)
 			.setThumbnail(client.user?.displayAvatarURL() || null)
 			.setDescription(
-				`Use the menu below to browse by category, or type /help followed by a command name to see full details.\n\n` +
-					`Total commands: ${totalCommands}`
+				'Browse commands by category below, or use /help with a command name to see full details.'
+			)
+			.addFields(
+				{
+					name: 'Commands',
+					value: String(totalCommands),
+					inline: true
+				},
+				{
+					name: 'Categories',
+					value: String(categoriesMap.size),
+					inline: true
+				},
+				{
+					name: 'Latency',
+					value: `${client.ws.ping}ms`,
+					inline: true
+				}
 			)
 			.setFooter({
-				text: 'Select a category below',
+				text: 'Select a category below to view commands',
 				iconURL: client.user?.displayAvatarURL() || undefined
 			})
 			.setTimestamp();
 
 		categoriesMap.forEach((cmds, cat) => {
 			const meta = getCategoryMeta(cat);
+			const names = cmds.map(c => `/${c.name}`).join(' ');
 			mainEmbed.addFields({
-				name: `${meta.emoji}  ${meta.label}  —  ${cmds.length} command${cmds.length !== 1 ? 's' : ''}`,
-				value: formatCommandList(cmds)
+				name: `${meta.emoji}  ${meta.label}`,
+				value: names || 'No commands',
+				inline: true
 			});
 		});
 
 		// ─── Category Select Menu ─────────────────────────────────────────────
 		const selectMenu = new StringSelectMenuBuilder()
 			.setCustomId('help_category_select')
-			.setPlaceholder('Browse a category...')
+			.setPlaceholder('Select a category...')
 			.addOptions(
 				new StringSelectMenuOptionBuilder()
 					.setLabel('All Categories')
 					.setValue('overview')
-					.setDescription('Return to the main command list')
+					.setDescription('Return to the main overview')
 					.setEmoji('\u{1F3E0}')
 			);
 
@@ -259,17 +279,22 @@ export class HelpCommand extends Command {
 			const cmds = categoriesMap.get(selected) || [];
 			const meta = getCategoryMeta(selected);
 
+			// Build a clean description with command names and descriptions
+			// Split into chunks of 10 to stay well within Discord's 4096 description limit
+			const commandLines = cmds.map(
+				c => `/${c.name} — ${c.description}`
+			);
+			const description =
+				`${cmds.length} command${cmds.length !== 1 ? 's' : ''} — ${meta.description}\n\n` +
+				commandLines.join('\n');
+
 			const categoryEmbed = new EmbedBuilder()
 				.setTitle(`${meta.emoji}  ${meta.label}`)
 				.setColor(0x5865f2)
 				.setThumbnail(client.user?.displayAvatarURL() || null)
-				.setDescription(meta.description)
-				.addFields({
-					name: `Commands in this category`,
-					value: formatCommandList(cmds)
-				})
+				.setDescription(description)
 				.setFooter({
-					text: `Use /help [command-name] for details on any command`,
+					text: 'Use /help [command-name] for detailed usage',
 					iconURL: client.user?.displayAvatarURL() || undefined
 				})
 				.setTimestamp();
