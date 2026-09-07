@@ -264,27 +264,24 @@ const main = async () => {
 		process.exit(1);
 	}
 
-	// Sync all actual Discord guilds to DB/Redis on ready (defensive, non-blocking)
-	setTimeout(async () => {
+	// Sync all actual Discord guilds to DB/Redis on ready (fix missing guild rows)
+	client.once('ready', async () => {
 		try {
-			const store = (client.session as any).store;
-			if (store?.guilds) {
-				for (const [gid, guild] of store.guilds.entries()) {
-					try {
-						await store.ensureGuildRow?.(guild);
-					} catch {}
-					if (client.music.queues?.redis) {
-						await client.music.queues.redis.hset(
-							'guilds', gid,
-							JSON.stringify({ name: guild.name || 'Unknown', id: gid, icon: null })
-						);
-					}
+			for (const [gid, guild] of client.session.guilds.entries()) {
+				try {
+					await client.session.store.ensureGuildRow(guild);
+				} catch {}
+				if (client.music.queues?.redis) {
+					await client.music.queues.redis.hset(
+						'guilds', gid,
+						JSON.stringify({ name: guild.name || 'Unknown', id: gid, icon: null })
+					);
 				}
 			}
 		} catch (e) {
 			Logger.warn('Guild sync note: ' + (e instanceof Error ? e.message : String(e)));
 		}
-	}, 3000);
+	});
 };
 
 void main();
