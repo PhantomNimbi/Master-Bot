@@ -23,13 +23,34 @@ export const guildRouter = createTRPCRouter({
 			return { guild };
 		}),
 	getAll: protectedProcedure.query(async ({ ctx }) => {
-		const guilds = await ctx.prisma.guild.findMany({
+		// Read live guild data from bot's Redis session (icon + name)
+		const liveGuilds: Record<string, { name: string; id: string; icon?: string | null }> = {};
+		try {
+			const redisGuilds = await ctx.redis.hgetall('guilds');
+			for (const [guildId, dataStr] of Object.entries(redisGuilds)) {
+				try {
+					const data = JSON.parse(dataStr as string);
+					liveGuilds[guildId] = { name: data.name, id: data.id, icon: data.icon || null };
+				} catch {}
+			}
+		} catch {}
+
+		// Fall back to SQLite for persistence
+		const dbGuilds = await ctx.prisma.guild.findMany({
 			orderBy: { name: 'asc' }
 		});
 
+		const merged = [...dbGuilds].map((g) => {
+			const live = liveGuilds[g.id];
+			if (live) {
+				return { ...g, name: live.name, icon: live.icon };
+			}
+			return { ...g, icon: null };
+		});
+
 		return {
-			guilds,
-			guildIds: guilds.map(g => g.id)
+			guilds: merged,
+			guildIds: merged.map(g => g.id)
 		};
 	}),
 	create: publicProcedure

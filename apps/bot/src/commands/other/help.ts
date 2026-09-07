@@ -82,15 +82,15 @@ export class HelpCommand extends Command {
 			const { help: targetHelp, disabled } = HelpRegistry.getCommand(query);
 
 			if (!targetHelp) {
-				return await interaction.reply({
-					content: `:x: Could not find command **/${query}**. Use \`/help\` to browse available commands.`,
+			return await interaction.reply({
+				content: `:x: Could not find command /${query}. Use /help to browse available commands.`,
 					ephemeral: true
 				});
 			}
 
 			if (disabled) {
-				return await interaction.reply({
-					content: `:warning: Command **/${query}** is currently disabled while system upgrades are underway.`,
+			return await interaction.reply({
+				content: `:warning: Command /${query} is currently disabled while system upgrades are underway.`,
 					ephemeral: true
 				});
 			}
@@ -101,49 +101,56 @@ export class HelpCommand extends Command {
 				category.charAt(0).toUpperCase() + category.slice(1);
 			const categoryEmoji = CATEGORY_EMOJIS[category] || '⚙️';
 
-			const detailEmbed = new EmbedBuilder()
-				.setTitle(`${categoryEmoji} Command: /${targetHelp.name}`)
-				.setColor(0x5865f2)
-				.setThumbnail(client.user?.displayAvatarURL() || null)
-				.setDescription(`> ${targetHelp.description}`)
-				.addFields(
-					{
-						name: '📂 Category',
-						value: `${categoryEmoji} ${categoryName}`,
-						inline: true
-					},
-					{
-						name: '💻 Usage',
-						value: `\`${targetHelp.usage || `/${targetHelp.name}`}\``,
-						inline: true
-					}
-				)
-				.setFooter({
-					text: 'Master-Bot Command Reference',
-					iconURL: client.user?.displayAvatarURL()
+		const detailEmbed = new EmbedBuilder()
+			.setTitle(`${categoryEmoji} /${targetHelp.name}`)
+			.setColor(0x5865f2)
+			.setThumbnail(client.user?.displayAvatarURL() || null)
+			.setDescription(`${targetHelp.description}`)
+			.addFields(
+				{
+					name: '📂 Category',
+					value: `${categoryEmoji} ${categoryName}`,
+					inline: true
+				},
+				{
+					name: '💻 Usage',
+					value: `${targetHelp.usage || '/' + targetHelp.name}`,
+					inline: true
+				},
+				{
+					name: '📝 Description',
+					value: targetHelp.description || 'No description provided.',
+					inline: false
+				}
+			)
+			.setFooter({
+				text: 'Master-Bot Command Reference • /help [name]',
+				iconURL: client.user?.displayAvatarURL()
+			})
+			.setTimestamp();
+
+		if (targetHelp.options && targetHelp.options.length > 0) {
+			const optionsFormatted = targetHelp.options
+				.map(opt => {
+					const req = opt.required ? '[Required]' : '[Optional]';
+					return `• ${opt.name} ${req} — ${opt.description}`;
 				})
-				.setTimestamp();
+				.join('\n');
 
-			if (targetHelp.options && targetHelp.options.length > 0) {
-				const optionsFormatted = targetHelp.options
-					.map(opt => {
-						const req = opt.required ? '`[Required]`' : '`[Optional]`';
-						return `• **${opt.name}** ${req}\n  ${opt.description}`;
-					})
-					.join('\n\n');
+			detailEmbed.addFields({
+				name: '⚙️ Options',
+				value: optionsFormatted,
+				inline: false
+			});
+		}
 
-				detailEmbed.addFields({
-					name: '⚙️ Parameters & Options',
-					value: optionsFormatted
-				});
-			}
-
-			if (targetHelp.examples && targetHelp.examples.length > 0) {
-				detailEmbed.addFields({
-					name: '💡 Examples',
-					value: targetHelp.examples.map(ex => `\`${ex}\``).join('\n')
-				});
-			}
+		if (targetHelp.examples && targetHelp.examples.length > 0) {
+			detailEmbed.addFields({
+				name: '💡 Examples',
+				value: targetHelp.examples.map(ex => `• ${ex}`).join('\n'),
+				inline: false
+			});
+		}
 
 			return await interaction.reply({ embeds: [detailEmbed] });
 		}
@@ -155,14 +162,10 @@ export class HelpCommand extends Command {
 
 		const mainEmbed = new EmbedBuilder()
 			.setTitle('🤖 Master-Bot Command Center')
-			.setColor(0x5865f2)
+			.setColor(0x4f46e5)
 			.setThumbnail(client.user?.displayAvatarURL() || null)
 			.setDescription(
-				`Welcome to **Master-Bot**! Use the select menu below to explore commands by category or type \`/help [command-name]\` for specific usage details.\n\n` +
-					`**📊 Quick Stats:**\n` +
-					`• Active Commands: **${totalCommands}**\n` +
-					`• Active Categories: **${categoriesMap.size}**\n` +
-					`• Gateway Latency: **${client.ws.ping}ms**`
+				`Welcome to Master-Bot. Browse by category below or type /help [command] for details.`
 			)
 			.setFooter({
 				text: 'Select a category below to view commands • Master-Bot',
@@ -175,8 +178,8 @@ export class HelpCommand extends Command {
 			const label =
 				CATEGORY_NAMES[cat] || cat.charAt(0).toUpperCase() + cat.slice(1);
 			mainEmbed.addFields({
-				name: `${emoji} ${label} (${cmds.length})`,
-				value: cmds.map(c => `\`/${c.name}\``).join('  '),
+				name: `${emoji} ${label} — ${cmds.length} commands`,
+				value: cmds.map(c => `• ${c.name}`).join('  '),
 				inline: false
 			});
 		});
@@ -243,14 +246,14 @@ export class HelpCommand extends Command {
 				selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1);
 
 			const categoryEmbed = new EmbedBuilder()
-				.setTitle(`${emoji} ${label} Commands (${cmds.length})`)
-				.setColor(0x5865f2)
+				.setTitle(`${emoji} ${label}`)
+				.setColor(0x4f46e5)
 				.setThumbnail(client.user?.displayAvatarURL() || null)
 				.setDescription(
-					cmds.map(c => `• **/${c.name}**\n  > ${c.description}`).join('\n\n')
+					cmds.map(c => `• /${c.name} — ${c.description}`).join('\n\n')
 				)
 				.setFooter({
-					text: `Category: ${label} • Type /help [command] for options`,
+					text: `Category: ${label} • Use /help [command] for details`,
 					iconURL: client.user?.displayAvatarURL()
 				})
 				.setTimestamp();

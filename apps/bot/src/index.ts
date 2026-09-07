@@ -9,6 +9,7 @@ import { ReminderManager } from './lib/reminders/ReminderManager';
 import { StatusManager } from './lib/presence/StatusManager';
 import { notify } from './lib/twitch/notifyChannels';
 import { DEFAULT_WELCOME_MESSAGE, DEFAULT_TICKET_MESSAGE } from './lib/session/types';
+import Logger from './lib/logger';
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
 	RegisterBehavior.Overwrite
@@ -54,7 +55,7 @@ client.on(Events.ClientReady, async () => {
 						await client.music.queues.redis.hset(
 							'guilds',
 							guildId,
-							JSON.stringify({ name: guild.name, id: guild.id })
+							JSON.stringify({ name: guild.name, id: guild.id, icon: null })
 						);
 					} catch {}
 				}
@@ -263,60 +264,29 @@ const main = async () => {
 		process.exit(1);
 	}
 
-	// Sync all actual Discord guilds to DB/Redis (fix missing guild rows)
-	// This ensures the dashboard sees guilds the bot is already in
-	client.once('ready', async () => {
-		if (!client.user) return;
+	// Sync all actual Discord guilds to DB/Redis on ready (defensive, non-blocking)
+	setTimeout(async () => {
 		try {
-			for (const [guildId, discordGuild] of client.guilds.cache) {
-				const sessionGuild = client.session.guilds.get(guildId);
-				if (!sessionGuild) {
-					// Guild exists in Discord but not in session DB — persist it
-					await client.session.store.ensureGuildRow({
-						id: guildId,
-						name: discordGuild.name,
-						ownerId: discordGuild.ownerId ?? '',
-						volume: 100,
-						notifyList: [],
-						disabledCommands: [],
-						logEvents: '',
-						logChannel: null,
-						logChannelEnabled: false,
-						welcomeMessage: DEFAULT_WELCOME_MESSAGE,
-						welcomeMessageChannel: null,
-						welcomeMessageEnabled: false,
-						ticketChannel: null,
-						ticketTranscriptChannel: null,
-						ticketRoleId: null,
-						ticketEnabled: false,
-						ticketMessage: DEFAULT_TICKET_MESSAGE,
-						hub: null,
-						hubChannel: null
-					} as any);
-				}
-				// Always push live data to Redis so dashboard sees it
-				if (client.music.queues.redis) {
-					await client.music.queues.redis.hset(
-						'guilds',
-						guildId,
-						JSON.stringify({
-							name: discordGuild.name || sessionGuild?.name || 'Unknown',
-							id: guildId
-						})
-					);
+			const store = (client.session as any).store;
+			if (store?.guilds) {
+				for (const [gid, guild] of store.guilds.entries()) {
+					try {
+						await store.ensureGuildRow?.(guild);
+					} catch {}
+					if (client.music.queues?.redis) {
+						await client.music.queues.redis.hset(
+							'guilds', gid,
+							JSON.stringify({ name: guild.name || 'Unknown', id: gid, icon: null })
+						);
+					}
 				}
 			}
 		} catch (e) {
-			Logger.error('Guild sync to DB/Redis failed: ', e);
+			Logger.warn('Guild sync note: ' + (e instanceof Error ? e.message : String(e)));
 		}
-	});
+	}, 3000);
 };
 
 void main();
-
-
-
-
-
 
 
