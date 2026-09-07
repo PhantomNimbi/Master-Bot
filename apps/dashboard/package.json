@@ -49,6 +49,7 @@
 		"autoprefixer": "^10.5.4",
 		"dotenv-cli": "^7.4.4",
 		"eslint": "^8.57.1",
+		"ioredis": "^5.6.1",
 		"postcss": "^8.5.26",
 		"tailwindcss": "^3.4.19",
 		"typescript": "^5.9.3"

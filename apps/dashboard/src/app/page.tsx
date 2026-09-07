@@ -2,6 +2,7 @@ import Link from 'next/link';
 import HeaderButtons from '~/components/header-buttons';
 import Logo from '~/components/logo';
 import { Sparkles, Bot, Music2, Send, ShieldCheck, Ticket, Bell, Activity, ChevronRight } from 'lucide-react';
+import { env } from '~/env.mjs';
 
 export default function HomePage() {
 	const features = [
@@ -87,7 +88,7 @@ export default function HomePage() {
 					</Link>
 
 					<a
-						href="https://discord.com/oauth2/authorize?client_id=744577840134160456&scope=bot%20applications.commands&permissions=8"
+						href={env.NEXT_PUBLIC_INVITE_URL}
 						target="_blank"
 						rel="noopener noreferrer"
 						className="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold text-sm border border-slate-700 transition-all flex items-center gap-2"

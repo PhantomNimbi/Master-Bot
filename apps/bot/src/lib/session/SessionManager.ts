@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import type { GuildRecord } from './types';
 import { SessionStore } from './SessionStore';
 import { createUsersHandlers } from './handlers/users';
 import { createGuildDataHandlers } from './handlers/guildData';
@@ -29,7 +30,7 @@ export type {
  * handler factory operating on a shared `SessionStore` (see `handlers/`).
  */
 export class SessionManager {
-	private readonly store: SessionStore;
+	public readonly store: SessionStore;
 
 	public readonly users: ReturnType<typeof createUsersHandlers>;
 	public readonly guildData: ReturnType<typeof createGuildDataHandlers>;
@@ -65,6 +66,10 @@ export class SessionManager {
 	 */
 	public async init(): Promise<void> {
 		await this.store.init();
+	}
+
+	public get guilds(): Map<string, GuildRecord> {
+		return this.store.guilds;
 	}
 
 	public getAllTwitchConfig(): {

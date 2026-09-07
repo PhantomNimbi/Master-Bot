@@ -22,6 +22,16 @@ export const guildRouter = createTRPCRouter({
 
 			return { guild };
 		}),
+	getAll: protectedProcedure.query(async ({ ctx }) => {
+		const guilds = await ctx.prisma.guild.findMany({
+			orderBy: { name: 'asc' }
+		});
+
+		return {
+			guilds,
+			guildIds: guilds.map(g => g.id)
+		};
+	}),
 	create: publicProcedure
 		.input(
 			z.object({
@@ -49,6 +59,11 @@ export const guildRouter = createTRPCRouter({
 				}
 			});
 
+			// Sync to Redis live state
+			try {
+				await ctx.redis.hset('guilds', id, JSON.stringify({ name, id }));
+			} catch {}
+
 			return { guild };
 		}),
 	delete: publicProcedure
@@ -66,6 +81,11 @@ export const guildRouter = createTRPCRouter({
 				}
 			});
 
+			// Remove from Redis live state
+			try {
+				await ctx.redis.hdel('guilds', id);
+			} catch {}
+
 			return { guild };
 		}),
 	updateVolume: publicProcedure
@@ -78,10 +98,22 @@ export const guildRouter = createTRPCRouter({
 		.mutation(async ({ ctx, input }) => {
 			const { guildId, volume } = input;
 
-			await ctx.prisma.guild.update({
+			const guild = await ctx.prisma.guild.update({
 				where: { id: guildId },
 				data: { volume }
 			});
+
+			// Update Redis live state
+			try {
+				const existing = await ctx.redis.hget('guilds', guildId);
+				if (existing) {
+					const data = JSON.parse(existing);
+					data.volume = volume;
+					await ctx.redis.hset('guilds', guildId, JSON.stringify(data));
+				}
+			} catch {}
+
+			return { guild };
 		}),
 	setLogChannel: publicProcedure
 		.input(
@@ -186,15 +218,5 @@ export const guildRouter = createTRPCRouter({
 			const roles = (await response.json()) as APIRole[];
 
 			return { roles };
-		}),
-	getAll: protectedProcedure.query(async ({ ctx }) => {
-		const guilds = await ctx.prisma.guild.findMany({
-			orderBy: { name: 'asc' }
-		});
-
-		return {
-			guilds,
-			guildIds: guilds.map(guild => guild.id)
-		};
-	})
+		})
 });

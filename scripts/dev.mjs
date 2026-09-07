@@ -183,7 +183,7 @@ if (!isLavalinkEnabled) {
 	}
 }
 
-// 2. Launch Bot in DEV mode
+// 2. Launch Bot & Dashboard in DEV mode (unified process)
 const botProcess = spawn(`pnpm --filter @master-bot/bot dev`, {
 	cwd: rootDir,
 	shell: true
@@ -191,7 +191,6 @@ const botProcess = spawn(`pnpm --filter @master-bot/bot dev`, {
 botProcess.stdout.on('data', data => writeBotLog('BOT', data));
 botProcess.stderr.on('data', data => writeBotLog('BOT-ERR', data));
 
-// 3. Launch Dashboard in DEV mode
 const dashboardProcess = spawn(`pnpm --filter @master-bot/dashboard dev`, {
 	cwd: rootDir,
 	shell: true
@@ -235,7 +234,7 @@ if (isLavalinkEnabled && !lavalinkStatus.startsWith('DISABLED')) {
 // Display Clean Terminal Status Banner
 console.log(`
 ====================================================================
-           🤖 MASTER-BOT UNIFIED CONSOLE (DEVELOPMENT)               
+   🤖 MASTER-BOT UNIFIED CONSOLE (DEVELOPMENT)               
 ====================================================================
   Execution Mode:    DEV
   Configured Ports:  Dashboard: ${dashboardPort} | Redis: ${redisPort}${isLavalinkEnabled ? ` | Lavalink: ${lavaPort}` : ''}
@@ -245,6 +244,7 @@ ${activeServices.join('\n')}
   
   Combined System Log: logs/combined.log
   Live Owner Web Logs: http://localhost:${dashboardPort}/dashboard/logs${oauthNote}
+====================================================================
 `);
 
 function cleanup() {

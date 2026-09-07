@@ -200,7 +200,7 @@ if (!isLavalinkEnabled) {
 	}
 }
 
-// 2. Launch Bot in START (Production) mode
+// 2. Launch Bot & Dashboard in START (Production) mode (unified process)
 const botProcess = spawn(`pnpm --filter @master-bot/bot start`, {
 	cwd: rootDir,
 	shell: true
@@ -208,7 +208,6 @@ const botProcess = spawn(`pnpm --filter @master-bot/bot start`, {
 botProcess.stdout.on('data', data => writeBotLog('BOT', data));
 botProcess.stderr.on('data', data => writeBotLog('BOT-ERR', data));
 
-// 3. Launch Dashboard in START (Production) mode
 const dashboardProcess = spawn(`pnpm --filter @master-bot/dashboard start`, {
 	cwd: rootDir,
 	shell: true
@@ -220,14 +219,7 @@ dashboardProcess.stderr.on('data', data =>
 	writeDashboardLog('DASHBOARD-ERR', data)
 );
 
-const oauthNote = isLavalinkEnabled
-	? `
-====================================================================
-  🔑 NOTE: YouTube OAuth / Device Auth prompts are output DIRECTLY 
-  to this console. Tokens are persisted in .youtube-oauth.json upon authorization.
-====================================================================`
-	: `
-====================================================================`;
+const oauthNote = '';
 
 const dashboardPublicUrl = process.env.NEXTAUTH_URL?.trim();
 const dashboardUrlDisplay = dashboardPublicUrl
@@ -252,7 +244,7 @@ if (isLavalinkEnabled && !lavalinkStatus.startsWith('DISABLED')) {
 // Display Clean Terminal Status Banner
 console.log(`
 ====================================================================
-           🤖 MASTER-BOT UNIFIED CONSOLE (PRODUCTION)               
+   🤖 MASTER-BOT UNIFIED CONSOLE (PRODUCTION)               
 ====================================================================
   Execution Mode:    PRODUCTION
   Configured Ports:  Dashboard: ${dashboardPort} | Redis: ${redisPort}${isLavalinkEnabled ? ` | Lavalink: ${lavaPort}` : ''}
@@ -262,6 +254,7 @@ ${activeServices.join('\n')}
   
   Combined System Log: logs/combined.log
   Live Owner Web Logs: http://localhost:${dashboardPort}/dashboard/logs${oauthNote}
+====================================================================
 `);
 
 function cleanup() {
