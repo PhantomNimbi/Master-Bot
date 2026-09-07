@@ -119,7 +119,7 @@ export class HelpCommand extends Command {
 				},
 				{
 					name: '📝 Description',
-					value: targetHelp.description || 'No description provided.',
+					value: targetHelp.description || '—',
 					inline: false
 				}
 			)
