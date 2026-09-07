@@ -102,31 +102,18 @@ export class HelpCommand extends Command {
 			const categoryEmoji = CATEGORY_EMOJIS[category] || '⚙️';
 
 		const detailEmbed = new EmbedBuilder()
-			.setTitle(`${categoryEmoji} /${targetHelp.name}`)
-			.setColor(0x5865f2)
+			.setTitle(`⚡ ${targetHelp.name}`)
+			.setColor(0x4f46e5)
 			.setThumbnail(client.user?.displayAvatarURL() || null)
-			.setDescription(`${targetHelp.description}`)
+			.setDescription(targetHelp.description || 'No description provided.')
 			.addFields(
-				{
-					name: '📂 Category',
-					value: `${categoryEmoji} ${categoryName}`,
-					inline: true
-				},
-				{
-					name: '💻 Usage',
-					value: `${targetHelp.usage || '/' + targetHelp.name}`,
-					inline: true
-				},
-				{
-					name: '📝 Description',
-					value: targetHelp.description || '—',
-					inline: false
-				}
+				{ name: '📂 Category', value: `${categoryEmoji} ${categoryName}`, inline: true },
+				{ name: '💻 Usage', value: `${targetHelp.usage || '/' + targetHelp.name}`, inline: true },
+				{ name: '📋 Description', value: targetHelp.description || '—', inline: false },
+				{ name: '⚙️ Options', value: targetHelp.options?.map(o => `• ${o.name}${o.required ? ' [Req]' : ''}`).join('  ') || 'None', inline: false },
+				{ name: '💡 Examples', value: targetHelp.examples?.map(ex => `• ${ex}`).join('  ') || 'None', inline: false }
 			)
-			.setFooter({
-				text: 'Master-Bot Command Reference • /help [name]',
-				iconURL: client.user?.displayAvatarURL()
-			})
+			.setFooter({ text: 'Master-Bot • /help [command]', iconURL: client.user?.displayAvatarURL() })
 			.setTimestamp();
 
 		if (targetHelp.options && targetHelp.options.length > 0) {
