@@ -157,7 +157,6 @@ export class HelpCommand extends Command {
 
 		// 2. Full Overview & Dynamic Category Browsing Mode
 		const categoriesMap = HelpRegistry.getCategoriesMap();
-		const enabledCommands = HelpRegistry.getEnabledCommands();
 
 		const mainEmbed = new EmbedBuilder()
 			.setTitle('🤖 Master-Bot Command Center')
