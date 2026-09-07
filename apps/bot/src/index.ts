@@ -8,7 +8,6 @@ import {
 import { ReminderManager } from './lib/reminders/ReminderManager';
 import { StatusManager } from './lib/presence/StatusManager';
 import { notify } from './lib/twitch/notifyChannels';
-import { DEFAULT_WELCOME_MESSAGE, DEFAULT_TICKET_MESSAGE } from './lib/session/types';
 import Logger from './lib/logger';
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
