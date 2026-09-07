@@ -158,15 +158,26 @@ export class HelpCommand extends Command {
 			})
 			.setTimestamp();
 
-		categoriesMap.forEach((cmds, cat) => {
-			const emoji = CATEGORY_EMOJIS[cat] || '⚙️';
-			const label =
-				CATEGORY_NAMES[cat] || cat.charAt(0).toUpperCase() + cat.slice(1);
 		mainEmbed.addFields({
-			name: `${emoji} ${label} — ${cmds.length} commands`,
-			value: cmds.map(c => `• /${c.name}`).join('  '),
+			name: '📂 Music & Audio',
+			value: 'Streaming, playlists, filters, and audio queues via Lavalink',
 			inline: true
-		});
+		}, {
+			name: '🎞 Reaction GIFs',
+			value: 'Search and share GIFs using the bot',
+			inline: true
+		}, {
+			name: '🎮 Twitch Live Alerts',
+			value: 'Notifications when streamers go live',
+			inline: true
+		}, {
+			name: '🔨 Moderation',
+			value: 'Server management, audit logging, moderation tools',
+			inline: true
+		}, {
+			name: '⚙️ Utilities & General',
+			value: 'Reminders, settings, commands, and server utilities',
+			inline: true
 		});
 
 		const selectMenu = new StringSelectMenuBuilder()
