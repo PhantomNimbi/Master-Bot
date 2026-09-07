@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/galnir/Master-Bot/pulls)
 
-**Master-Bot** is a production-ready, high-performance Discord Music and Utility Bot with a full-featured **Next.js Web Dashboard**. Built with **TypeScript**, **Sapphire Framework**, **discord.js v14**, **Next.js 15**, **tRPC v11**, **Prisma ORM**, **Redis**, and **Lavalink v4**.
+**Master-Bot** is a production-ready, high-performance Discord Music and Utility Bot with a full-featured **Next.js Web Dashboard**. Built with **TypeScript**, **Sapphire Framework**, **discord.js v14**, **Next.js 15**, **tRPC v11**, **Prisma ORM** (SQLite), and **Lavalink v4**.
 
 ---
 
@@ -21,47 +21,37 @@ Master-Bot/
 │   ├── bot/                 # Sapphire & Discord.js v14 Bot Application
 │   └── dashboard/           # Next.js 15 Web Dashboard (Tailwind CSS, NextAuth, tRPC)
 ├── packages/
-│   ├── api/                 # Shared tRPC v11 Routers & API Procedures
-│   ├── auth/                # Shared NextAuth.js Configuration
+│   ├── auth/                # Shared NextAuth.js (Discord OAuth) Configuration
 │   ├── config/              # Shared Tooling Config (eslint/, tailwind/)
-│   └── db/                  # Shared Prisma ORM Client & Database Schemas
+│   └── db/                  # Shared Prisma ORM Client & SQLite Schema
 ├── scripts/
 │   ├── common.mjs           # Shared cross-platform port management & log writers
 │   ├── dev.mjs              # Unified Development Launcher & Service Manager
 │   └── start.mjs            # Unified Production Launcher & Service Manager
-├── wiki/                    # Project documentation (Setup, Lavalink, API keys, Commands)
+├── wiki/                    # Project documentation (Setup, Configuration, Commands)
 ├── logs/                    # Service-specific log files (bot.log, dashboard.log, lavalink.log)
+├── packages/db/prisma/       # Prisma schema + db.sqlite (auto-created on install)
 ├── application.yml.example  # Lavalink v4 Configuration Template (copy to application.yml)
-├── docker-compose.yml       # Containerized deployment (Bot, Dashboard, PostgreSQL, Redis, Lavalink)
+├── Dockerfile               # Containerized single-service deployment
+└── docker-compose.yml       # Stack orchestration helpers (legacy; see the Wiki)
 ```
+
+> 🔄 **Note:** the project has migrated from a managed database server to **SQLite**. `docker-compose.yml` and the launcher helpers still contain some legacy service wiring that hasn't been migrated yet — for accurate deployment today, follow the [Deployment Wiki](wiki/Deployment.md).
 
 ---
 
 ## ⚡ Key Features
 
-- **🎵 High-Performance Audio Engine:** Powered by **Lavalink v4** with support for YouTube (multi-client failover), Spotify metadata resolution (`lavasrc-plugin`), free built-in SoundCloud, Twitch, Vimeo, and direct audio streams. Includes interactive channel player embeds with real-time ASCII progress bars (`00:00 ▰▰▰▰▰▰▱▱▱▱▱ 03:45`) and audio filters (`/bassboost`, `/karaoke`, `/nightcore`, `/vaporwave`).
-- **📚 Custom Playlists:** Per-user saved playlists via `/create-playlist`, `/save-to-playlist`, `/my-playlists`, `/display-playlist`, and `/delete-playlist`.
+- **🎵 High-Performance Audio Engine:** Powered by **Lavalink v4** with support for YouTube (multi-client + OAuth), Spotify metadata resolution (`lavasrc-plugin`), free built-in SoundCloud, Twitch, Vimeo, and direct audio streams. Includes interactive channel player embeds with real-time progress bars and audio filters (`/bassboost`, `/karaoke`, `/nightcore`, `/vaporwave`).
+- **📚 Custom Playlists:** Per-user, per-server playlists via `/create-playlist`, `/save-to-playlist`, `/my-playlists`, `/display-playlist`, `/delete-playlist`, and `/remove-from-playlist`.
 - **🔨 Full Moderation Suite:** Dedicated slash commands (`/ban`, `/kick`, `/slowmode`, `/timeout`, `/purge`) with permission hierarchy validation and safety checks.
-- **🎫 Thread-Based Support Ticket System:** Interactive ticket panel with auto-posting buttons (`ticket_create`, `ticket_close`), thread management, dynamic greeting templates (`{user}`, `{username}`, `{server}`), and secure `.txt` transcript archiving.
-- **📜 Granular Event & Audit Logging:** Multi-category logging system supporting 18 event triggers with customizable channel targets, managed via `/set` or the web dashboard.
-- **🗄️ Automatic Database Migrations:** `pnpm dev` and `pnpm start` automatically execute `prisma db push` on launch before the bot process starts.
-- **🔑 Native YouTube Device Flow OAuth:**
-  - Automated device-code prompt displayed directly in the terminal console, plus the `/youtube-auth` slash command (Owner only).
-  - Tokens persist atomically to `.youtube-oauth.json` (via write-to-temp + atomic rename), so no re-authentication is needed after restart.
-  - Native Spring environment variable binding (`refreshToken: "${YOUTUBE_REFRESH_TOKEN}"` in `application.yml`) prevents `.env` disk corruption.
-- **🌐 Interactive Web Dashboard:** Modern **Next.js 15** App Router glassmorphism command center featuring 9 dedicated studios:
-  - **Lavalink v4 Audio & Music Studio:** Live player controls, DSP audio filters (Bassboost, Nightcore, Vaporwave, Karaoke), and user playlist management.
-  - **Live WYSIWYG Embed Broadcaster:** Real-time side-by-side Discord client preview and one-click channel dispatcher.
-  - **18-Event Audit Stream:** Comprehensive event capture categorized by moderation, messages, members, channels, and voice.
-  - **Support Ticket Suite:** Dynamic thread-based tickets, staff role assignments, and transcript explorer.
-  - **Twitch Streamers & Integrations:** Live stream alert dispatcher and notification routing.
-  - **Cluster Telemetry & Diagnostics:** Live PostgreSQL latency ping, gateway WebSocket ping, shard health, and ecosystem totals.
-  - **Smart Reminders:** Personal user reminders and scheduled channel alerts.
-  - **Welcome & Farewell Designer:** Interactive embed builder with dynamic template placeholders.
-  - **Command Panel:** Guild-level command overrides and permission bit management.
-- **🧪 Comprehensive Test Suite:** Monorepo unit and integration tests powered by **Vitest v2** and v8 code coverage.
-- **🎯 Feature Flags:** Individual bot modules (Lavalink audio, GIFs, Twitch, News, IGDB) can be enabled or disabled dynamically via environment variables.
-- **🚀 Cross-Platform Unified Launchers:** `pnpm dev` and `pnpm start` automatically manage ports, clear lingering processes, route output to isolated log files (`logs/`), and present a clean console status UI.
+- **🎫 Thread-Based Support Ticket System:** Interactive ticket panel, thread management, a configurable manager role, and `.txt` transcript archiving.
+- **📜 Granular Audit Logging:** 20 event triggers across members, messages, channels, roles, voice, and moderation — tuned per server via `/set` or the dashboard.
+- **🗄️ Zero-Ops Database:** SQLite via Prisma. The schema is generated and pushed automatically on `pnpm install`; no database server to install or manage.
+- **🔑 Native YouTube Device-Flow OAuth:** `/youtube-auth` authorizes a streaming account; the refresh token persists to `.youtube-oauth.json` without rewriting `.env`.
+- **🌐 Interactive Web Dashboard:** Next.js 15 App Router command center — per-server studios for welcome messages, audit logs, tickets, reminders, per-command toggles, music, broadcasts, integrations, and system telemetry.
+- **🎯 Feature Flags:** Individual bot modules (Lavalink audio, GIFs, Twitch, News, IGDB) can be enabled or disabled via environment variables.
+- **🚀 Cross-Platform Unified Launchers:** `pnpm dev` and `pnpm start` manage ports, route output to isolated log files (`logs/`), and present a clean console status UI.
 - **🖼️ Reaction GIFs & Media:** Powered by Klipy API and Waifu.im (`/gif`, `/hug`, `/waifu`, `/cat`, `/doggo`, and more).
 - **🎮 Gaming & Info:** Live Twitch channel alerts, IGDB game search, TVMaze TV show info, and a suite of fun utilities (`/8ball`, `/urban`, `/trump`, `/kanye`, `/translate`, and more).
 
@@ -71,9 +61,8 @@ Master-Bot/
 
 - **Node.js**: `>=20.0.0`
 - **pnpm**: `>=8.0.0` (`npm install -g pnpm`)
-- **Java**: Java 17+ required · Java 21 LTS recommended (Required for Lavalink v4)
-- **PostgreSQL**: PostgreSQL database server
-- **Redis**: Redis server for queue state and caching
+- **Java**: Java 17+ (21 LTS recommended) — only required for a **local Lavalink** server (music)
+- **Database**: None — SQLite file (`db.sqlite`) is created automatically
 
 ---
 
@@ -87,136 +76,95 @@ cd Master-Bot
 pnpm install
 ```
 
+`pnpm install` generates the Prisma client and creates the SQLite database (`db.sqlite`).
+
 ### 2. Configure Environment Variables
 
-Create `.env` in the root workspace directory from `.env.example`:
+Create `.env` in the workspace root from `.env.example`:
 
 ```bash
 cp .env.example .env
 ```
 
-Fill in your mandatory Discord and database credentials:
+Fill in your mandatory credentials:
 
-- `DISCORD_TOKEN`: Bot token from Discord Developer Portal
+- `DISCORD_TOKEN`: Bot token from the Discord Developer Portal
 - `DISCORD_CLIENT_ID` & `DISCORD_CLIENT_SECRET`: Application OAuth2 credentials
-- `DATABASE_URL` & `SHADOW_DB_URL`: PostgreSQL connection strings
-- `REDIS_HOST` & `REDIS_PORT`: Redis cache connection details
-- `LAVA_ENABLED`: Set to `true` to enable Lavalink audio playback (defaults to `false`)
+- `NEXTAUTH_SECRET`: Random 32+ character signing secret
+- `NEXTAUTH_URL`: Public dashboard URL (e.g. `http://localhost:3000`)
 
-### 3. Run Test Suite
+Optional audio/feature keys (Spotify, YouTube, Twitch, News, Genius, Klipy) and the `LAVA_*` + feature-flag variables are documented in the [Configuration Wiki](wiki/Configuration.md).
 
-```bash
-# Run Vitest unit & integration tests
-pnpm test
-
-# Run tests with code coverage
-pnpm run test:coverage
-```
-
-### 4. Run Development Stack
+### 3. Run the Stack
 
 ```bash
 pnpm dev
 ```
 
-The unified launcher will automatically synchronize your Prisma schema (`prisma db push`), clear lingering ports, and start all services concurrently.
+Starts the bot, dashboard, and (when `LAVA_ENABLED=true` and Java is present) a local Lavalink server with a unified status console and `logs/`. For production: `pnpm build && pnpm start`.
 
 ---
 
 ## 🎵 YouTube OAuth Setup
 
-When launching for the first time without a YouTube refresh token:
+1. Run `/youtube-auth` in Discord (or the terminal device-flow prompt at first launch).
+2. Open the returned URL, log in with the YouTube account you want to stream through, and approve the scopes.
+3. The bot stores the refresh token atomically in `.youtube-oauth.json` and keeps a `YOUTUBE_REFRESH_TOKEN` binding for Lavalink.
 
-1. Lavalink's `youtube-plugin` triggers the OAuth device flow.
-2. The launcher displays a prompt in the terminal console containing the link (`https://www.google.com/device`) and user code (`XXXX-XXXX`).
-3. Visit the link in your browser and authorize the device code.
-4. The launcher automatically captures the issued token, saves it atomically to `.youtube-oauth.json`, and updates `process.env.YOUTUBE_REFRESH_TOKEN`.
-5. Lavalink binds the token natively via `${YOUTUBE_REFRESH_TOKEN}` in `application.yml` and Java system properties without modifying `.env` on disk.
-
-You can also re-trigger authorization any time with the `/youtube-auth` command (Owner only).
+Authorized playback defeats YouTube throttling/blocking. See [Music & Lavalink](wiki/Music.md#youtube-oauth).
 
 ---
 
 ## 📖 Available Commands
 
-> Master-Bot ships with **74 slash commands** across Music, Moderation, GIFs, Games, Utilities, News, Reminders, and more. For the complete, up-to-date list and the `/set` subcommands, see the [Commands Reference](wiki/Commands-Reference.md).
+> Master-Bot ships with **74 slash commands** across Music, Moderation, GIFs, Games, Utilities, News, and Reminders. For the complete, up-to-date list and the `/set` subcommands, see the [Commands Reference](wiki/Commands.md).
 
-### 🎵 Music
-
-| Command            | Description                            |
-| ------------------ | -------------------------------------- |
-| `/play`            | Play a song, playlist, or search query |
-| `/jump`            | Jump to a specific track in the queue  |
-| `/music-trivia`    | Start an interactive music trivia game |
-| `/create-playlist` | Create a custom user playlist          |
-| `/help`            | Browse commands & detailed help        |
-
-### 🔨 Moderation
-
-| Command     | Description             |
-| ----------- | ----------------------- |
-| `/ban`      | Ban a member            |
-| `/kick`     | Kick a member           |
-| `/timeout`  | Timeout (mute) a member |
-| `/slowmode` | Set channel slowmode    |
-| `/purge`    | Bulk delete messages    |
-
-### ⚙️ Utility, Games & Owner
-
-| Command          | Description                                             |
-| ---------------- | ------------------------------------------------------- |
-| `/set`           | Configure server settings                               |
-| `/poll`          | Create an interactive multi-choice poll with buttons    |
-| `/reminder`      | Set, list, and manage personal or server reminders      |
-| `/weather`       | Get current weather and 3-day forecast for any location |
-| `/bored`         | Generate a fun, random activity to cure your boredom    |
-| `/world-news`    | Fetch the latest world news headlines via NewsAPI       |
-| `/connect-four`  | Play Connect 4 interactively with buttons               |
-| `/tic-tac-toe`   | Play Tic-Tac-Toe interactively with buttons             |
-| `/about`         | Display detailed bot, server, or user information       |
-| `/youtube-auth`  | Re-trigger YouTube OAuth (Owner Only)                   |
-| `/game-search`   | Search video game info via IGDB                         |
-| `/twitch-status` | Check a Twitch streamer's live status                   |
-| `/dashboard`     | Get a link to the web dashboard                         |
+| Category | Highlights |
+| --- | --- |
+| 🎵 **Music** | `/play`, `/queue`, `/shuffle`, `/jump`, `/seek`, `/volume`, `/lyrics`, `/bassboost`, `/music-trivia`, playlists, `/youtube-auth` |
+| 🔨 **Moderation** | `/ban`, `/kick`, `/timeout`, `/slowmode`, `/purge` |
+| ⚙️ **Utility** | `/set`, `/help`, `/reminder`, `/poll`, `/weather`, `/translate`, `/world-news`, `/8ball`, `/reddit`, `/urban` |
+| 🎮 **Games** | `/connect-four`, `/tic-tac-toe`, `/rockpaperscissors`, `/game-search` |
+| 😂 **GIFs** | `/gif`, `/hug`, `/waifu`, `/cat`, `/doggo`, `/slap`, and more |
+| 🟣 **Twitch** | `/twitch-status` + live stream alerts via `/set twitch` |
 
 ---
 
 ## 🐳 Docker Deployment
 
-To run the complete stack (Bot, Dashboard, PostgreSQL, Redis, Lavalink v4) in containerized mode:
-
-```bash
-docker compose --env-file docker.env up -d --build
-```
+A portable**Dockerfile** (`node:20-slim`, port `3000`) is included. For single-service container deployment, a cloud walkthrough, and persistence guidance, see [Deployment Wiki](wiki/Deployment.md).
 
 ---
 
 ## 📚 Documentation & Wiki
 
-For detailed architecture guides, deployment steps, and API credential instructions, visit the project [Wiki](wiki/Home.md):
+Visit the [Wiki](wiki/Home.md) for full documentation:
 
-- 📘 [Setup & Deployment Guide](wiki/Setup-and-Deployment.md)
-- ☁️ [Cloud Hosting Guide (Render, Railway, Fly.io, VPS)](wiki/Cloud-Hosting.md)
-- 🟣 [Heroku Deployment Guide](wiki/Heroku-Deployment.md)
-- 🌐 [Web Dashboard Architecture](wiki/Dashboard-Architecture.md)
-- 🎵 [Lavalink v4 Setup Guide](wiki/Lavalink.md)
-- 🔑 [API Keys & Configuration](wiki/API-Keys.md)
-- 📜 [Complete Commands Reference](wiki/Commands-Reference.md)
+- 🚀 [Getting Started](wiki/Getting-Started.md)
+- ⚙️ [Configuration & API Keys](wiki/Configuration.md)
+- 🏗️ [Architecture & Database](wiki/Architecture.md)
+- ⌨️ [Commands Reference](wiki/Commands.md)
+- 🎵 [Music & Lavalink](wiki/Music.md)
+- 🌐 [Web Dashboard](wiki/Dashboard.md)
+- 🚀 [Deployment & Cloud Hosting](wiki/Deployment.md)
+- ❓ [FAQ & Troubleshooting](wiki/FAQ.md)
 
 ---
 
 ## 👥 Contributors ❤️
 
-**⭐ [Bacon Fixation](https://github.com/Bacon-Fixation) ⭐ - Countless contributions**
+> ⭐ **Bacon Fixation** — countless contributions across the project.
 
-- [ModoSN](https://github.com/ModoSN) - `resolve-ip`, `rps`, `8ball`, `bored`, `trump`, `advice`, `kanye`, `urban dictionary` commands and visual updates
-- [PhantomNimbi](https://github.com/PhantomNimbi) - GIF commands, Lavalink v4 engine, Next.js 15 migration, moderation suite, support ticket system, live ASCII progress bar & auto-updater
-- [rafaeldamasceno](https://github.com/rafaeldamasceno) - `music-trivia` and Dockerfile improvements, minor tweaks
-- [navidmafi](https://github.com/navidmafi) - `LeaveTimeOut` and `MaxResponseTime` options, update issue template, fix leave command
-- [Kyoyo](https://github.com/NotKyoyo) - added back `now-playing`
-- [MontejoJorge](https://github.com/MontejoJorge) - added back `remind`
-- [malokdev](https://github.com/malokdev) - `uptime` command
-- [chimaerra](https://github.com/chimaerra) - minor command tweaks
+| Contributor | Contributions |
+| --- | --- |
+| [ModoSN](https://github.com/ModoSN) | `resolve-ip`, `rps`, `8ball`, `bored`, `trump`, `advice`, `kanye`, `urban dictionary` commands and visual updates |
+| [PhantomNimbi](https://github.com/PhantomNimbi) | GIF commands, Lavalink v4 engine, Next.js 15 migration, moderation suite, support ticket system, live ASCII progress bar & auto-updater |
+| [rafaeldamasceno](https://github.com/rafaeldamasceno) | `music-trivia` and Dockerfile improvements |
+| [navidmafi](https://github.com/navidmafi) | `LeaveTimeOut` and `MaxResponseTime` options, update issue template, fix leave command |
+| [Kyoyo](https://github.com/NotKyoyo) | brought back `now-playing` |
+| [MontejoJorge](https://github.com/MontejoJorge) | brought back `remind` |
+| [malokdev](https://github.com/malokdev) | `uptime` command |
+| [chimaerra](https://github.com/chimaerra) | minor command tweaks |
 
 ---
 

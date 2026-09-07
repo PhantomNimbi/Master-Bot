@@ -23,7 +23,7 @@ export async function updateLogEvents(events: string[], server_id: string) {
 			id: server_id
 		},
 		data: {
-			logEvents: events
+			logEvents: JSON.stringify(events)
 		}
 	});
 

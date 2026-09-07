@@ -3,7 +3,6 @@ import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { PaginatedFieldMessageEmbed } from '@sapphire/discord.js-utilities';
 import { EmbedBuilder } from 'discord.js';
-import { trpcNode } from '../../trpc';
 
 @ApplyOptions<CommandOptions>({
 	name: 'my-playlists',
@@ -37,18 +36,19 @@ export class MyPlaylistsCommand extends Command {
 			iconURL: interaction.user.displayAvatarURL()
 		});
 
-		const playlistsQuery = await trpcNode.playlist.getAll.query({
+		const { playlists } = this.container.client.session.playlists.getAll({
+			guildId: interaction.guildId ?? '',
 			userId: interactionMember.id
 		});
 
-		if (!playlistsQuery || !playlistsQuery.playlists.length) {
+		if (!playlists.length) {
 			return await interaction.editReply(':x: You have no custom playlists');
 		}
 
 		new PaginatedFieldMessageEmbed()
 			.setTitleField('Custom Playlists')
 			.setTemplate(baseEmbed)
-			.setItems(playlistsQuery.playlists)
+			.setItems(playlists)
 			.formatItems((playlist: any) => playlist.name)
 			.setItemsPerPage(5)
 			.make()
@@ -66,3 +66,4 @@ export const help: CommandHelp = {
 	examples: ['/my-playlists'],
 	options: []
 };
+

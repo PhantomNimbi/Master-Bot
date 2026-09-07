@@ -2,7 +2,6 @@ import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import searchSong from '../../lib/music/searchSong';
-import { trpcNode } from '../../trpc';
 import Logger from '../../lib/logger';
 
 @ApplyOptions<CommandOptions>({
@@ -55,16 +54,17 @@ export class SaveToPlaylistCommand extends Command {
 			);
 		}
 
-		const playlistQuery = await trpcNode.playlist.getPlaylist.query({
+		const { playlist } = this.container.client.session.playlists.getPlaylist({
 			name: playlistName,
+			guildId: interaction.guildId ?? '',
 			userId: interactionMember.id
 		});
 
-		if (!playlistQuery.playlist) {
+		if (!playlist) {
 			return await interaction.editReply('Playlist does not exist');
 		}
 
-		const playlistId = playlistQuery.playlist.id;
+		const playlistId = playlist.id;
 
 		const songTuple = await searchSong(url, interaction.user);
 		if (!songTuple[1].length) {
@@ -89,7 +89,7 @@ export class SaveToPlaylistCommand extends Command {
 		}));
 
 		try {
-			await trpcNode.song.createMany.mutate({
+			this.container.client.session.songs.createMany({
 				songs: songsToAdd
 			});
 
@@ -122,3 +122,5 @@ export const help: CommandHelp = {
 		}
 	]
 };
+
+

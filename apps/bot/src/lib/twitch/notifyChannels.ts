@@ -3,7 +3,6 @@ import type { TwitchGame, TwitchStream } from './twitchAPI-types';
 import { TwitchEmbed } from './TwitchEmbed';
 import { container } from '@sapphire/framework';
 import type { Message } from 'discord.js';
-import { trpcNode } from '../../trpc';
 import Logger from '../logger';
 
 // Twitch ids are non changeable, usernames are not good for reference
@@ -108,7 +107,7 @@ export async function notify(query: string[]) {
 							client.twitch.notifyList[entry].messageSent = true;
 
 							// Update DataBase
-							await trpcNode.twitch.updateNotificationStatus.mutate({
+							client.session.twitchConfig.updateNotificationStatus({
 								userId: entry,
 								sent: true,
 								live: true
@@ -204,7 +203,7 @@ export async function notify(query: string[]) {
 						client.twitch.notifyList[entry].messageSent = false;
 						client.twitch.notifyList[entry].messageHandler = {};
 						// Update DataBase
-						await trpcNode.twitch.updateNotificationStatus.mutate({
+						client.session.twitchConfig.updateNotificationStatus({
 							userId: entry,
 							sent: false,
 							live: false
@@ -232,3 +231,4 @@ export async function notify(query: string[]) {
 			});
 	}
 }
+

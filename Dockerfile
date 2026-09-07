@@ -19,7 +19,6 @@ COPY ./ ./
 RUN pnpm install --ignore-scripts && pnpm build 
 
 # If you are running Master-Bot in a Standalone Container and need to connect to a service on localhost uncomment the following ENV for each service running on the containers host
-# ENV POSTGRES_HOST="host.docker.internal"
 # ENV REDIS_HOST="host.docker.internal"
 # ENV LAVA_HOST="host.docker.internal"
 

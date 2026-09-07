@@ -1,31 +1,63 @@
 import type { CommandHelp } from '../../lib/structures/CommandHelp';
-import { MessageChannel } from '../../lib/structures/ExtendedClient';
 import { ApplyOptions } from '@sapphire/decorators';
-import { Command, CommandOptions, container } from '@sapphire/framework';
+import { Command, CommandOptions } from '@sapphire/framework';
 import {
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
 	ChannelType,
-	EmbedBuilder,
 	PermissionFlagsBits,
 	type ChatInputCommandInteraction,
-	type GuildMember,
-	type TextChannel
+	type GuildMember
 } from 'discord.js';
-import { PaginatedFieldMessageEmbed } from '@sapphire/discord.js-utilities';
-import { notify } from '../../lib/twitch/notifyChannels';
-import { trpcNode } from '../../trpc';
 import Logger from '../../lib/logger';
+import { checkTwitchEnabled } from '../../lib/set/twitch';
+import {
+	handleWelcomeChannel,
+	handleWelcomeMessage,
+	handleWelcomeToggle,
+	handleWelcomeTest
+} from '../../lib/set/welcome';
+import {
+	handleTwitchAdd,
+	handleTwitchRemove,
+	handleTwitchList
+} from '../../lib/set/twitch';
+import {
+	handleLogChannel,
+	handleLogToggle,
+	handleLogDisable
+} from '../../lib/set/logging';
+import {
+	handleTicketChannel,
+	handleTicketToggle,
+	handleTicketPanel,
+	handleTicketTranscript,
+	handleTicketTranscriptDisable,
+	handleTicketRole,
+	handleTicketRoleDisable
+} from '../../lib/set/tickets';
+import { handleDefaultVolume } from '../../lib/set/volume';
+import { handleView } from '../../lib/set/view';
 
-function checkTwitchEnabled(): boolean {
-	const enabled = (process.env.TWITCH_ENABLED || '').toLowerCase() !== 'false';
-	return (
-		enabled &&
-		Boolean(process.env.TWITCH_CLIENT_ID) &&
-		Boolean(process.env.TWITCH_CLIENT_SECRET)
-	);
-}
+const subcommandHandlers: Record<string, (interaction: ChatInputCommandInteraction) => Promise<unknown>> = {
+	'welcome-channel': handleWelcomeChannel,
+	'welcome-message': handleWelcomeMessage,
+	'welcome-toggle': handleWelcomeToggle,
+	'welcome-test': handleWelcomeTest,
+	'twitch-add': handleTwitchAdd,
+	'twitch-remove': handleTwitchRemove,
+	'twitch-list': handleTwitchList,
+	'log-channel': handleLogChannel,
+	'log-toggle': handleLogToggle,
+	'log-disable': handleLogDisable,
+	'ticket-channel': handleTicketChannel,
+	'ticket-toggle': handleTicketToggle,
+	'ticket-panel': handleTicketPanel,
+	'ticket-transcript': handleTicketTranscript,
+	'ticket-transcript-disable': handleTicketTranscriptDisable,
+	'ticket-role': handleTicketRole,
+	'ticket-role-disable': handleTicketRoleDisable,
+	'default-volume': handleDefaultVolume,
+	view: handleView
+};
 
 @ApplyOptions<CommandOptions>({
 	name: 'set',
@@ -263,9 +295,7 @@ export class SetCommand extends Command {
 	}
 
 	public override async chatInputRun(interaction: ChatInputCommandInteraction) {
-		const guildId = interaction.guildId!;
 		const member = interaction.member as GuildMember;
-		const { client } = container;
 
 		if (!member.permissions.has(PermissionFlagsBits.ManageGuild)) {
 			return await interaction.reply({
@@ -278,686 +308,15 @@ export class SetCommand extends Command {
 		await interaction.deferReply();
 
 		const subcommand = interaction.options.getSubcommand(true);
+		const handler = subcommandHandlers[subcommand];
 
 		try {
-			switch (subcommand) {
-				// --- WELCOME ---
-				case 'welcome-channel': {
-					const channel = interaction.options.getChannel('channel', true);
-					await trpcNode.welcome.setChannel.mutate({
-						guildId,
-						channelId: channel.id
-					});
-					return await interaction.editReply({
-						content: `:white_check_mark: Welcome messages will now be sent in <#${channel.id}>.`
-					});
-				}
-
-				case 'welcome-message': {
-					const message = interaction.options.getString('message', true);
-					await trpcNode.welcome.setMessage.mutate({
-						guildId,
-						message
-					});
-					return await interaction.editReply({
-						content: `:white_check_mark: Custom welcome message updated!\n\n**Preview:**\n> ${message}`
-					});
-				}
-
-				case 'welcome-toggle': {
-					const enabled = interaction.options.getBoolean('enabled', true);
-					await trpcNode.welcome.toggle.mutate({
-						guildId,
-						status: enabled
-					});
-					return await interaction.editReply({
-						content: `:white_check_mark: Welcome message system is now **${
-							enabled ? 'ENABLED' : 'DISABLED'
-						}**.`
-					});
-				}
-
-				case 'welcome-test': {
-					const guildData = await trpcNode.guild.getGuild.query({
-						id: guildId
-					});
-					const welcomeChannelId = guildData?.guild?.welcomeMessageChannel;
-					const rawMessage =
-						guildData?.guild?.welcomeMessage ||
-						'👋 Welcome {user} to **{server}**! You are member #{memberCount}.';
-
-					if (!welcomeChannelId) {
-						return await interaction.editReply({
-							content:
-								':x: No welcome channel configured yet. Use `/set welcome-channel` first.'
-						});
-					}
-
-					const targetChannel = (await interaction.guild?.channels.fetch(
-						welcomeChannelId
-					)) as TextChannel;
-					if (!targetChannel) {
-						return await interaction.editReply({
-							content: ':x: Configured welcome channel could not be found.'
-						});
-					}
-
-					const formatted = rawMessage
-						.replace(/\{user\}|\{mention\}/g, `<@${interaction.user.id}>`)
-						.replace(/\{username\}/g, interaction.user.username)
-						.replace(
-							/\{server\}|\{guild\}/g,
-							interaction.guild?.name || 'this server'
-						)
-						.replace(
-							/\{memberCount\}|\{position\}/g,
-							String(interaction.guild?.memberCount || 1)
-						);
-
-					await targetChannel.send({ content: formatted });
-					return await interaction.editReply({
-						content: `:white_check_mark: Sent a test welcome message to <#${welcomeChannelId}>!`
-					});
-				}
-
-				// --- TWITCH ---
-				case 'twitch-add': {
-					if (!checkTwitchEnabled()) {
-						return await interaction.editReply({
-							content:
-								':warning: Twitch features are currently disabled in configuration.'
-						});
-					}
-					const streamerName = interaction.options.getString('streamer', true);
-					const channelData = interaction.options.getChannel('channel', true);
-
-					let user: any;
-					try {
-						user = await client.twitch.api.getUser({
-							login: streamerName,
-							token: client.twitch.auth.access_token
-						});
-					} catch {
-						return await interaction.editReply({
-							content: `:x: Could not lookup streamer '${streamerName}'. Please check the name.`
-						});
-					}
-
-					if (!user) {
-						return await interaction.editReply({
-							content: `:x: Streamer **${streamerName}** was not found on Twitch.`
-						});
-					}
-
-					const guildDB = await trpcNode.guild.getGuild.query({
-						id: guildId
-					});
-					if (!guildDB.guild) {
-						return await interaction.editReply({
-							content: ':x: Server data not found.'
-						});
-					}
-
-					if (guildDB.guild.notifyList.includes(user.id)) {
-						return await interaction.editReply({
-							content: `:x: **${user.display_name}** is already on your alert list.`
-						});
-					}
-
-					const existingSendTo =
-						client.twitch.notifyList[user.id]?.sendTo || [];
-					const updatedSendTo = Array.from(
-						new Set([...existingSendTo, channelData.id])
-					);
-
-					client.twitch.notifyList[user.id] = {
-						sendTo: updatedSendTo,
-						live: false,
-						logo: user.profile_image_url,
-						messageSent: false,
-						messageHandler: {}
-					};
-
-					await trpcNode.twitch.create.mutate({
-						userId: user.id,
-						userImage: user.profile_image_url,
-						channelId: channelData.id,
-						sendTo: updatedSendTo
-					});
-
-					const concatedArray = Array.from(
-						new Set([...guildDB.guild.notifyList, user.id])
-					);
-					await trpcNode.twitch.createViaTwitchNotification.mutate({
-						name: interaction.guild?.name || '',
-						guildId,
-						notifyList: concatedArray,
-						ownerId: guildDB.guild.ownerId,
-						userId: interaction.user.id
-					});
-
-					await notify(Object.keys(client.twitch.notifyList));
-					return await interaction.editReply({
-						content: `:white_check_mark: Stream alerts for **${user.display_name}** will be sent to <#${channelData.id}>.`
-					});
-				}
-
-				case 'twitch-remove': {
-					if (!checkTwitchEnabled()) {
-						return await interaction.editReply({
-							content:
-								':warning: Twitch features are currently disabled in configuration.'
-						});
-					}
-					const streamerName = interaction.options.getString('streamer', true);
-					const channelData = interaction.options.getChannel('channel', true);
-
-					let user: any;
-					try {
-						user = await client.twitch.api.getUser({
-							login: streamerName,
-							token: client.twitch.auth.access_token
-						});
-					} catch {
-						return await interaction.editReply({
-							content: `:x: Error looking up streamer '${streamerName}'.`
-						});
-					}
-
-					if (!user)
-						return await interaction.editReply({
-							content: `:x: Streamer **${streamerName}** not found.`
-						});
-
-					const guildDB = await trpcNode.guild.getGuild.query({
-						id: guildId
-					});
-					if (!guildDB.guild || !guildDB.guild.notifyList.includes(user.id)) {
-						return await interaction.editReply({
-							content: `:x: **${user.display_name}** is not in this server's alert list.`
-						});
-					}
-
-					const filteredTwitchIds = guildDB.guild.notifyList.filter(
-						id => id !== user.id
-					);
-					await trpcNode.twitch.updateTwitchNotifications.mutate({
-						guildId,
-						notifyList: filteredTwitchIds
-					});
-
-					const notifyDB = await trpcNode.twitch.findUserById.query({
-						id: user.id
-					});
-					if (notifyDB?.notification) {
-						const filteredChannels = notifyDB.notification.channelIds.filter(
-							id => id !== channelData.id
-						);
-						if (filteredChannels.length === 0) {
-							await trpcNode.twitch.delete.mutate({
-								userId: user.id
-							});
-							delete client.twitch.notifyList[user.id];
-						} else {
-							await trpcNode.twitch.updateNotification.mutate({
-								userId: user.id,
-								channelIds: filteredChannels
-							});
-							if (client.twitch.notifyList[user.id]) {
-								client.twitch.notifyList[user.id].sendTo = filteredChannels;
-							}
-						}
-					}
-
-					return await interaction.editReply({
-						content: `:white_check_mark: Removed **${user.display_name}** alerts from <#${channelData.id}>.`
-					});
-				}
-
-				case 'twitch-list': {
-					if (!checkTwitchEnabled()) {
-						return await interaction.editReply({
-							content:
-								':warning: Twitch features are currently disabled in configuration.'
-						});
-					}
-					const guildDB = await trpcNode.guild.getGuild.query({
-						id: guildId
-					});
-					if (!guildDB?.guild || guildDB.guild.notifyList.length === 0) {
-						return await interaction.editReply({
-							content:
-								':information_source: No Twitch streamers configured for alerts in this server.'
-						});
-					}
-
-					const users = await client.twitch.api.getUsers({
-						ids: guildDB.guild.notifyList,
-						token: client.twitch.auth.access_token
-					});
-
-					const myList: object[] = [];
-					for (const streamer of users || []) {
-						const sendTo = client.twitch.notifyList[streamer.id]?.sendTo || [];
-						for (const chId of sendTo) {
-							const ch = client.channels.cache.get(chId) as MessageChannel;
-							if (ch && ch.guild.id === guildId) {
-								myList.push({
-									name: streamer.display_name,
-									channel: ch.name
-								});
-							}
-						}
-					}
-
-					const baseEmbed = new EmbedBuilder().setColor('Purple').setAuthor({
-						name: `${interaction.guild?.name} - Twitch Alerts`,
-						iconURL: interaction.guild?.iconURL() || undefined
-					});
-
-					new PaginatedFieldMessageEmbed()
-						.setTitleField('Streamers')
-						.setTemplate(baseEmbed)
-						.setItems(myList)
-						.formatItems(
-							(item: any) => `• **${item.name}** ➔ **#${item.channel}**`
-						)
-						.setItemsPerPage(10)
-						.make()
-						.run(interaction);
-					return;
-				}
-
-				// --- LOGGING ---
-				case 'log-channel': {
-					const channel = interaction.options.getChannel('channel', true);
-					await trpcNode.guild.setLogChannel.mutate({
-						guildId,
-						channelId: channel.id
-					});
-					return await interaction.editReply({
-						content: `:white_check_mark: Server audit & moderation logs enabled and routed to <#${channel.id}>.`
-					});
-				}
-
-				case 'log-toggle': {
-					const enabled = interaction.options.getBoolean('enabled', true);
-					await trpcNode.guild.toggleLogChannel.mutate({
-						guildId,
-						status: enabled
-					});
-					return await interaction.editReply({
-						content: `:white_check_mark: Server audit & moderation logging is now **${
-							enabled ? 'ENABLED' : 'DISABLED'
-						}**.`
-					});
-				}
-
-				case 'log-disable': {
-					await trpcNode.guild.setLogChannel.mutate({
-						guildId,
-						channelId: null
-					});
-					return await interaction.editReply({
-						content:
-							':white_check_mark: Server audit & moderation logging has been **DISABLED**.'
-					});
-				}
-
-				// --- TICKETS ---
-				case 'ticket-channel': {
-					const channel = interaction.options.getChannel(
-						'channel',
-						true
-					) as TextChannel;
-					await trpcNode.tickets.setChannel.mutate({
-						guildId,
-						channelId: channel.id
-					});
-
-					const ticketConfig = await trpcNode.tickets.getConfig.query({
-						guildId
-					});
-					const template =
-						ticketConfig.guild?.ticketMessage &&
-						ticketConfig.guild.ticketMessage.trim().length > 0
-							? ticketConfig.guild.ticketMessage
-							: '👋 Welcome to **{server}** Support!\n\n' +
-								'Need assistance, have an inquiry, or want to speak with server staff?\n' +
-								'• Please have any relevant screenshots, error logs, or details ready.\n' +
-								'• A support representative or moderator will assist you shortly.\n\n' +
-								'Click the **Open Ticket** button below to create your private support thread.';
-
-					const formatted = template
-						.replace(
-							/\{server\}|\{guild\}/g,
-							interaction.guild?.name || 'Server'
-						)
-						.replace(/\{user\}|\{mention\}|\{username\}/g, 'you');
-
-					// Automatically send the ticket panel message to the configured channel
-					const panelEmbed = new EmbedBuilder()
-						.setTitle(
-							`🎫 ${interaction.guild?.name || 'Server'} Support Tickets`
-						)
-						.setDescription(formatted)
-						.setColor(0x5865f2)
-						.setFooter({
-							text: 'Support Ticket System • Master-Bot',
-							iconURL: interaction.guild?.iconURL() || undefined
-						})
-						.setTimestamp();
-
-					const openButton = new ButtonBuilder()
-						.setCustomId('ticket_create')
-						.setLabel('Open Ticket')
-						.setStyle(ButtonStyle.Primary)
-						.setEmoji('🎫');
-
-					const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-						openButton
-					);
-
-					await channel
-						.send({
-							embeds: [panelEmbed],
-							components: [row]
-						})
-						.catch(() => {});
-
-					return await interaction.editReply({
-						content: `:white_check_mark: Support ticket channel set to <#${channel.id}> and the interactive ticket panel has been posted!`
-					});
-				}
-
-				case 'ticket-toggle': {
-					const enabled = interaction.options.getBoolean('enabled', true);
-					await trpcNode.tickets.toggle.mutate({
-						guildId,
-						status: enabled
-					});
-
-					if (enabled && interaction.guild) {
-						const ticketConfig = await trpcNode.tickets.getConfig.query({
-							guildId
-						});
-						const channelId = ticketConfig.guild?.ticketChannel;
-
-						if (channelId) {
-							const targetChannel = (await interaction.guild.channels
-								.fetch(channelId)
-								.catch(() => null)) as TextChannel | null;
-
-							if (targetChannel) {
-								const template =
-									ticketConfig.guild?.ticketMessage &&
-									ticketConfig.guild.ticketMessage.trim().length > 0
-										? ticketConfig.guild.ticketMessage
-										: '👋 Welcome to **{server}** Support!\n\n' +
-											'Need assistance, have an inquiry, or want to speak with server staff?\n' +
-											'• Please have any relevant screenshots, error logs, or details ready.\n' +
-											'• A support representative or moderator will assist you shortly.\n\n' +
-											'Click the **Open Ticket** button below to create your private support thread.';
-
-								const formatted = template
-									.replace(/\{server\}|\{guild\}/g, interaction.guild.name)
-									.replace(/\{user\}|\{mention\}|\{username\}/g, 'you');
-
-								const panelEmbed = new EmbedBuilder()
-									.setTitle(`🎫 ${interaction.guild.name} Support Tickets`)
-									.setDescription(formatted)
-									.setColor(0x5865f2)
-									.setFooter({
-										text: 'Support Ticket System • Master-Bot',
-										iconURL: interaction.guild.iconURL() || undefined
-									})
-									.setTimestamp();
-
-								const openButton = new ButtonBuilder()
-									.setCustomId('ticket_create')
-									.setLabel('Open Ticket')
-									.setStyle(ButtonStyle.Primary)
-									.setEmoji('🎫');
-
-								const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-									openButton
-								);
-
-								await targetChannel
-									.send({
-										embeds: [panelEmbed],
-										components: [row]
-									})
-									.catch(() => {});
-							}
-						}
-					}
-
-					return await interaction.editReply({
-						content: `:white_check_mark: Support ticket system is now **${
-							enabled ? 'ENABLED' : 'DISABLED'
-						}**${enabled ? ' and the ticket panel has been posted to the ticket channel.' : '.'}`
-					});
-				}
-
-				case 'ticket-panel': {
-					const ticketConfig = await trpcNode.tickets.getConfig.query({
-						guildId
-					});
-					const channelId = ticketConfig.guild?.ticketChannel;
-
-					if (!channelId) {
-						return await interaction.editReply({
-							content:
-								':x: No ticket channel configured yet. Use `/set ticket-channel` first.'
-						});
-					}
-
-					const targetChannel = (await interaction.guild?.channels.fetch(
-						channelId
-					)) as TextChannel;
-					if (!targetChannel) {
-						return await interaction.editReply({
-							content: ':x: Configured ticket channel could not be found.'
-						});
-					}
-
-					const template =
-						ticketConfig.guild?.ticketMessage &&
-						ticketConfig.guild.ticketMessage.trim().length > 0
-							? ticketConfig.guild.ticketMessage
-							: '👋 Welcome to **{server}** Support!\n\n' +
-								'Need assistance, have an inquiry, or want to speak with server staff?\n' +
-								'• Please have any relevant screenshots, error logs, or details ready.\n' +
-								'• A support representative or moderator will assist you shortly.\n\n' +
-								'Click the **Open Ticket** button below to create your private support thread.';
-
-					const formatted = template
-						.replace(
-							/\{server\}|\{guild\}/g,
-							interaction.guild?.name || 'Server'
-						)
-						.replace(/\{user\}|\{mention\}|\{username\}/g, 'you');
-
-					const panelEmbed = new EmbedBuilder()
-						.setTitle(
-							`🎫 ${interaction.guild?.name || 'Server'} Support Tickets`
-						)
-						.setDescription(formatted)
-						.setColor(0x5865f2)
-						.setFooter({
-							text: 'Support Ticket System • Master-Bot',
-							iconURL: interaction.guild?.iconURL() || undefined
-						})
-						.setTimestamp();
-
-					const openButton = new ButtonBuilder()
-						.setCustomId('ticket_create')
-						.setLabel('Open Ticket')
-						.setStyle(ButtonStyle.Primary)
-						.setEmoji('🎫');
-
-					const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-						openButton
-					);
-
-					await targetChannel.send({
-						embeds: [panelEmbed],
-						components: [row]
-					});
-
-					return await interaction.editReply({
-						content: `:white_check_mark: Interactive ticket panel has been posted in <#${channelId}>!`
-					});
-				}
-
-				case 'ticket-transcript': {
-					const channel = interaction.options.getChannel('channel', true);
-					await trpcNode.tickets.setTranscriptChannel.mutate({
-						guildId,
-						channelId: channel.id
-					});
-					return await interaction.editReply({
-						content: `:white_check_mark: Ticket transcripts will now be saved and posted to <#${channel.id}> when tickets are closed.`
-					});
-				}
-
-				case 'ticket-transcript-disable': {
-					await trpcNode.tickets.setTranscriptChannel.mutate({
-						guildId,
-						channelId: null
-					});
-					return await interaction.editReply({
-						content:
-							':white_check_mark: Ticket transcript archival has been **DISABLED**.'
-					});
-				}
-
-				case 'ticket-role': {
-					const role = interaction.options.getRole('role', true);
-					await trpcNode.tickets.setRole.mutate({
-						guildId,
-						roleId: role.id
-					});
-					return await interaction.editReply({
-						content: `:white_check_mark: Ticket manager role set to <@&${role.id}>. Members with this role will be added to newly created support tickets.`
-					});
-				}
-
-				case 'ticket-role-disable': {
-					await trpcNode.tickets.setRole.mutate({
-						guildId,
-						roleId: null
-					});
-					return await interaction.editReply({
-						content:
-							':white_check_mark: Ticket manager role has been **DISABLED**.'
-					});
-				}
-
-				// --- VOLUME ---
-				case 'default-volume': {
-					const volume = interaction.options.getInteger('volume', true);
-					await trpcNode.guild.updateVolume.mutate({
-						guildId,
-						volume
-					});
-					return await interaction.editReply({
-						content: `:white_check_mark: Default playback volume for this server set to **${volume}%**.`
-					});
-				}
-
-				// --- VIEW ---
-				case 'view': {
-					const guildData = await trpcNode.guild.getGuild.query({
-						id: guildId
-					});
-					const ticketConfig = await trpcNode.tickets.getConfig.query({
-						guildId
-					});
-					const g = guildData?.guild;
-					const t = ticketConfig?.guild;
-					const twitchActive = checkTwitchEnabled();
-
-					const embed = new EmbedBuilder()
-						.setTitle(`⚙️ Server Settings - ${interaction.guild?.name}`)
-						.setColor('Blue')
-						.addFields(
-							{
-								name: '👋 Welcome System',
-								value: g?.welcomeMessageEnabled
-									? '🟢 **Enabled**'
-									: '🔴 **Disabled**',
-								inline: true
-							},
-							{
-								name: '📢 Welcome Channel',
-								value: g?.welcomeMessageChannel
-									? `<#${g.welcomeMessageChannel}>`
-									: '*Not set*',
-								inline: true
-							},
-							{
-								name: '📜 Log Channel',
-								value:
-									g?.logChannelEnabled && g?.logChannel
-										? `🟢 <#${g.logChannel}>`
-										: g?.logChannel
-											? `🔴 <#${g.logChannel}> *(Paused)*`
-											: '*Disabled*',
-								inline: true
-							},
-							{
-								name: '🎫 Support Tickets',
-								value:
-									t?.ticketEnabled && t?.ticketChannel
-										? `🟢 <#${t.ticketChannel}>`
-										: t?.ticketChannel
-											? `🔴 <#${t.ticketChannel}> *(Disabled)*`
-											: '*Not configured*',
-								inline: true
-							},
-							{
-								name: '📑 Transcript Channel',
-								value: t?.ticketTranscriptChannel
-									? `🟢 <#${t.ticketTranscriptChannel}>`
-									: '*Not set*',
-								inline: true
-							},
-							{
-								name: '🛡️ Ticket Manager Role',
-								value: t?.ticketRoleId ? `<@&${t.ticketRoleId}>` : '*Not set*',
-								inline: true
-							},
-							{
-								name: '🔊 Default Music Volume',
-								value: `${g?.volume ?? 100}%`,
-								inline: true
-							},
-							{
-								name: '🟣 Twitch Alerts',
-								value: twitchActive
-									? `${g?.notifyList?.length || 0} streamer(s) monitored`
-									: '*Disabled in config*',
-								inline: true
-							},
-							{
-								name: '📝 Welcome Template',
-								value: g?.welcomeMessage
-									? `> ${g.welcomeMessage}`
-									: '> 👋 Welcome {user} to **{server}**! You are member #{memberCount}. *(Default)*',
-								inline: false
-							}
-						)
-						.setFooter({
-							text: 'Use /set <subcommand> to configure settings'
-						})
-						.setTimestamp();
-
-					return await interaction.editReply({ embeds: [embed] });
-				}
+			if (handler) {
+				return await handler(interaction);
 			}
-			return;
+			return await interaction.editReply({
+				content: ':warning: Unknown `/set` subcommand.'
+			});
 		} catch (error) {
 			Logger.error(error);
 			if (interaction.deferred || interaction.replied) {

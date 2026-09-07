@@ -9,7 +9,6 @@ import {
 	extractPortFromUrl,
 	freePort,
 	isPortInUse,
-	ensurePostgresService,
 	ensureRedisService,
 	waitForPort,
 	checkJavaVersion,
@@ -73,15 +72,6 @@ if (process.env.REDIS_URL) {
 	} catch {}
 }
 
-const postgresPort = extractPortFromUrl(process.env.DATABASE_URL, 5432);
-let postgresHost = '127.0.0.1';
-try {
-	if (process.env.DATABASE_URL) {
-		const parsed = new URL(process.env.DATABASE_URL);
-		postgresHost = parsed.hostname || '127.0.0.1';
-	}
-} catch {}
-
 const isLavaExternal = process.env.LAVA_EXTERNAL?.toLowerCase() === 'true';
 
 // Free up configured dashboard port before launching dev services
@@ -90,13 +80,7 @@ if (!isLavaExternal && isLavalinkEnabled) {
 	freePort(lavaPort);
 }
 
-// 1. Dynamic Service Check & Launch for PostgreSQL Database
-const { status: postgresStatus } = await ensurePostgresService(
-	postgresPort,
-	postgresHost
-);
-
-// 2. Dynamic Service Check & Launch for Redis Cache
+// 1. Dynamic Service Check & Launch for Redis Cache
 const { status: redisStatus, process: redisProcess } = await ensureRedisService(
 	redisPort,
 	redisHost,
@@ -236,7 +220,7 @@ const dashboardUrlDisplay = dashboardPublicUrl
 const activeServices = [
 	`    • 🤖 Bot Service:       RUNNING  └─ Log: logs/bot.log`,
 	`    • 🌐 Web Dashboard:      RUNNING (${dashboardUrlDisplay})\n                                     └─ Log: logs/dashboard.log`,
-	`    • 🐘 PostgreSQL DB:      ${postgresStatus}`,
+	`    • 🗄️  SQLite Database:    FILE (db.sqlite)`,
 	`    • 🗄️  Redis Cache:       ${redisStatus}${redisProcess ? '\n                                     └─ Log: logs/redis.log' : ''}`
 ];
 
@@ -254,7 +238,7 @@ console.log(`
            🤖 MASTER-BOT UNIFIED CONSOLE (DEVELOPMENT)               
 ====================================================================
   Execution Mode:    DEV
-  Configured Ports:  Dashboard: ${dashboardPort} | Postgres: ${postgresPort} | Redis: ${redisPort}${isLavalinkEnabled ? ` | Lavalink: ${lavaPort}` : ''}
+  Configured Ports:  Dashboard: ${dashboardPort} | Redis: ${redisPort}${isLavalinkEnabled ? ` | Lavalink: ${lavaPort}` : ''}
   
   Active Services:
 ${activeServices.join('\n')}

@@ -5,7 +5,6 @@ import {
 	PreconditionOptions
 } from '@sapphire/framework';
 import { ChatInputCommandInteraction } from 'discord.js';
-import { trpcNode } from '../trpc';
 
 import { container } from '@sapphire/framework';
 import { env } from '../env';
@@ -109,17 +108,10 @@ export class IsCommandDisabledPrecondition extends Precondition {
 			if (cached && cached.expiresAt > Date.now()) {
 				disabledCommands = cached.commands;
 			} else {
-				const queryPromise = trpcNode.command.getDisabledCommands.query({
-					guildId: guildID
-				});
-				const timeoutPromise = new Promise<never>((_, reject) =>
-					setTimeout(() => reject(new Error('Precondition timeout')), 300)
-				);
-
-				const data = (await Promise.race([
-					queryPromise,
-					timeoutPromise
-				])) as any;
+				const data =
+					this.container.client.session.commands.getDisabledCommands({
+						guildId: guildID
+					});
 				disabledCommands = data?.disabledCommands || [];
 				disabledCommandsCache.set(guildID, {
 					commands: disabledCommands,
@@ -146,3 +138,4 @@ declare module '@sapphire/framework' {
 		isCommandDisabled: never;
 	}
 }
+

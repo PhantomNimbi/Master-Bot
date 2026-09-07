@@ -1,5 +1,5 @@
-import { EmbedBuilder, type Client, type User } from 'discord.js';
-import { trpcNode } from '../../trpc';
+import { EmbedBuilder, type User } from 'discord.js';
+import type { ExtendedClient } from '../structures/ExtendedClient';
 import Logger from '../logger';
 
 export interface FormatContext {
@@ -49,11 +49,11 @@ export function formatReminderText(
 }
 
 export class ReminderManager {
-	private static client: Client | null = null;
+	private static client: ExtendedClient | null = null;
 	private static interval: NodeJS.Timeout | null = null;
 	private static isProcessing = false;
 
-	public static start(client: Client): void {
+	public static start(client: ExtendedClient): void {
 		this.client = client;
 		if (this.interval) clearInterval(this.interval);
 
@@ -85,10 +85,10 @@ export class ReminderManager {
 
 		try {
 			const nowIso = new Date().toISOString();
-			const result = await trpcNode.reminder.getDueReminders.mutate({
-				beforeIsoDate: nowIso
-			});
-			const dueReminders = result.reminders || [];
+			const { reminders: dueReminders = [] } =
+				this.client.session.reminders.getDueReminders({
+					beforeIsoDate: nowIso
+				});
 
 			if (dueReminders.length === 0) {
 				this.isProcessing = false;
@@ -180,13 +180,13 @@ export class ReminderManager {
 						}
 					}
 
-					// Delete dispatched reminder
-					await trpcNode.reminder.delete
-						.mutate({
-							userId: reminder.userId,
-							event: reminder.event
-						})
-						.catch(() => {});
+// Delete dispatched reminder
+				this.client.session.reminders
+					.delete({
+						userId: reminder.userId,
+						guildId: reminder.guildId,
+						event: reminder.event
+					});
 				} catch (reminderErr) {
 					Logger.error(
 						`Error processing reminder #${reminder.id}: `,

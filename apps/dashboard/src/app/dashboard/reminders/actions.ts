@@ -23,6 +23,14 @@ export async function createReminder(formData: FormData) {
 		throw new Error('Please select a valid future date and time');
 	}
 
+	const guild = await prisma.guild.findFirst({
+		where: { ownerId: discordId },
+		select: { id: true }
+	});
+	if (!guild) {
+		throw new Error('You must own a server before creating reminders');
+	}
+
 	await prisma.reminder.create({
 		data: {
 			event,
@@ -30,6 +38,7 @@ export async function createReminder(formData: FormData) {
 			dateTime: targetDate.toISOString(),
 			repeat: null,
 			timeOffset: 0,
+			guild: { connect: { id: guild.id } },
 			user: { connect: { discordId } }
 		}
 	});

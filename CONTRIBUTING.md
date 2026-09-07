@@ -32,11 +32,15 @@ Master-Bot is organized as a [Turborepo](https://turbo.build/) workspace managed
 | Package / App               | Location         | Technology Stack                                           | Responsibility                                                            |
 | :-------------------------- | :--------------- | :--------------------------------------------------------- | :------------------------------------------------------------------------ |
 | **`@master-bot/bot`**       | `apps/bot`       | Sapphire Framework, `discord.js` v14, `lavalink-client` v2 | Discord client, music playback, slash commands, moderation, ticket system |
-| **`@master-bot/dashboard`** | `apps/dashboard` | Next.js 15 (App Router), Tailwind CSS, React Query v5      | Web dashboard, server settings, live preview editors, owner log viewer    |
-| **`@master-bot/api`**       | `packages/api`   | tRPC v11, `superjson`, Zod                                 | Shared type-safe RPC routers and database procedures                      |
-| **`@master-bot/auth`**      | `packages/auth`  | NextAuth.js v5 beta, `@auth/prisma-adapter`                | Discord OAuth authentication, session validation, token refresh           |
-| **`@master-bot/db`**        | `packages/db`    | Prisma ORM v5, PostgreSQL                                  | Schema definitions, database client instance, automatic migrations        |
-| **`Launcher Scripts`**      | `scripts/`       | Node.js ESM (`.mjs`), child processes                      | Cross-platform dev & prod orchestration, port cleanup, log routing        |
+| **`@master-bot/dashboard`** | `apps/dashboard` | Next.js 15 (App Router), Tailwind CSS, tRPC v11, React Query v5 | Web dashboard, server settings studios, audit-log & telemetry views |
+| **`@master-bot/auth`**      | `packages/auth`  | NextAuth.js v5 beta, `@auth/prisma-adapter`                | Discord OAuth authentication, session validation, user upsert by Discord ID |
+| **`@master-bot/db`**        | `packages/db`    | Prisma ORM v5, SQLite                                       | Schema definitions, typed client instance, zero-ops database file |
+| **`@master-bot/config`**    | `packages/config`| ESLint, Tailwind presets                                   | Shared lint & design tooling for workspaces |
+| **`Launcher Scripts`**      | `scripts/`       | Node.js ESM (`.mjs`), child processes                      | Cross-platform dev & prod orchestration, port cleanup, log routing |
+
+### Runtime State
+
+The bot keeps all runtime state in an in-memory **`SessionManager`** (`apps/bot/src/lib/session`), hydrating from and persisting to SQLite through Prisma. There is no separate API package or database server: the dashboard shares the same Prisma client and `db.sqlite` as the bot.
 
 ---
 
@@ -46,9 +50,8 @@ Master-Bot is organized as a [Turborepo](https://turbo.build/) workspace managed
 
 - **Node.js**: `>=20.0.0`
 - **pnpm**: `>=8.0.0` (`npm install -g pnpm`)
-- **Java**: Java 17 or higher (Java 21 LTS recommended for Lavalink v4)
-- **PostgreSQL**: Local or remote PostgreSQL instance
-- **Redis**: Local or remote Redis instance (for queue state & caching)
+- **Java**: Java 17 or higher (Java 21 LTS recommended) — only for a local Lavalink v4 (music)
+- **Database**: None — SQLite (`db.sqlite`) is created automatically on install
 
 ### Setup Steps
 
@@ -59,14 +62,13 @@ Master-Bot is organized as a [Turborepo](https://turbo.build/) workspace managed
    cd Master-Bot
    ```
 
-2. **Install Dependencies**:
+2. **Install Dependencies** (creates & migrates the SQLite schema):
 
    ```bash
    pnpm install
    ```
 
-3. **Configure Environment Variables**:
-   Copy `.env.example` to `.env`:
+3. **Configure Environment Variables**: copy `.env.example` to `.env`:
 
    ```bash
    cp .env.example .env
@@ -75,18 +77,22 @@ Master-Bot is organized as a [Turborepo](https://turbo.build/) workspace managed
    Fill in your development credentials:
    - `DISCORD_TOKEN`: Bot token from the [Discord Developer Portal](https://discord.com/developers/applications)
    - `DISCORD_CLIENT_ID` & `DISCORD_CLIENT_SECRET`: Application OAuth2 credentials
-   - `DATABASE_URL` & `SHADOW_DB_URL`: PostgreSQL connection URLs
-   - `REDIS_HOST` & `REDIS_PORT`: Redis cache host and port (default: `127.0.0.1:6379`)
+   - `NEXTAUTH_SECRET`: Random 32+ character signing secret
+   - `NEXTAUTH_URL`: Dashboard URL (e.g. `http://localhost:3000`)
    - `LAVA_ENABLED`: Set to `true` if you wish to run and test audio playback.
+
+   See the [Configuration Wiki](wiki/Configuration.md) for every optional key and feature flag.
 
 4. **Lavalink Configuration (Optional for non-music development)**:
    If developing audio features, copy `application.yml.example` to `application.yml` and ensure `Lavalink.jar` (v4) is present in the workspace root.
 
 5. **Start Development Stack**:
+
    ```bash
    pnpm dev
    ```
-   The unified launcher automatically synchronizes your Prisma database schema (`prisma db push`), clears lingering ports, and launches all services with live reload.
+
+   The unified launcher starts the bot, dashboard, and optionally Lavalink, with a combined status console and logs written to `logs/`.
 
 ---
 
@@ -106,16 +112,17 @@ Master-Bot is organized as a [Turborepo](https://turbo.build/) workspace managed
 Before committing or opening a pull request, always verify that your changes compile and pass type checks with **0 errors**:
 
 ```bash
-# Type-check all packages
-pnpm --filter @master-bot/auth type-check
-pnpm --filter @master-bot/api type-check
+# Type-check the bot
+pnpm --filter @master-bot/bot type-check
+
+# Type-check / build the dashboard
 pnpm --filter @master-bot/dashboard type-check
 
-# Compile the Discord bot application
-pnpm --filter @master-bot/bot build
+# Full workspace build
+pnpm build
 
-# Build the web dashboard
-pnpm --filter @master-bot/dashboard build
+# Lint + monorepo consistency check
+pnpm lint
 ```
 
 ---
@@ -132,19 +139,20 @@ pnpm --filter @master-bot/dashboard build
 
 - **Sapphire Events**: Always use the official `Events` enum from `@sapphire/framework` (e.g. `Events.ChatInputCommandError`, `Events.ClientReady`). Never use magic strings.
 - **Lightweight Preconditions**: Avoid slow, uncached database or network queries in preconditions to ensure Discord interaction tokens do not exceed the strict 3-second response deadline.
+- **Session-Access Pattern**: Read and mutate state via `client.session` (the `SessionManager`) — methods are synchronous. Never reach for a separate API layer or raw Prisma calls inside commands.
 - **Interaction Reply Safety**: Use `interaction.deferReply()` for long-running commands, and ensure deferred interactions are updated via `interaction.editReply()`.
 - **Structured Logging**: Route errors through `Logger.error()` (`apps/bot/src/lib/logger.ts`) with contextual metadata.
 
-### Dashboard & API Standards (`apps/dashboard`, `packages/api`)
+### Dashboard Standards (`apps/dashboard`)
 
 - **React Server vs. Client Components**: Clearly delineate CSR vs. SSR boundaries in Next.js 15 (`'use client'` at the top of interactive components).
-- **Type-Safe RPC**: Define all shared API procedures in `packages/api` with Zod input validation and tRPC routers.
-- **Tailwind CSS**: Use consistent utility classes adhering to the dark mode palette and design system.
+- **Type-Safe API**: Studio mutations go through the tRPC layer with Zod validation; render from hydrated session data where possible.
+- **Tailwind CSS**: Use consistent utility classes adhering to the dark-mode palette and design system.
 
 ### Security & Git Hygiene
 
 - **Zero Disk Secret Mutation**: Never write runtime credentials into `.env` at runtime.
-- **Strict Gitignore**: Runtime files (`.env`, `.youtube-oauth.json`, `Lavalink.jar`, `logs/`) must **never** be tracked or committed to Git.
+- **Strict Gitignore**: Runtime files (`.env`, `.youtube-oauth.json`, `Lavalink.jar`, `logs/`, `db.sqlite`) must **never** be tracked or committed to Git.
 
 ---
 
@@ -172,11 +180,11 @@ All commit messages must strictly follow the [Conventional Commits](https://www.
 
 #### Common Scopes
 
-- `bot`, `dashboard`, `api`, `auth`, `db`, `music`, `moderation`, `tickets`, `settings`, `launcher`, `deps`
+- `bot`, `dashboard`, `auth`, `db`, `music`, `moderation`, `tickets`, `settings`, `session`, `launcher`, `deps`
 
 #### Examples
 
-- `feat(music): add live ascii progress bar and auto-updating player embed`
+- `feat(music): add live progress bar and auto-updating player embed`
 - `fix(bot): replace followUp with editReply on deferred interactions`
 - `docs(readme): update commands table and contributor references`
 

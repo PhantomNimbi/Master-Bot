@@ -67,7 +67,7 @@ export default function SystemClient() {
 							{health?.database.latencyMs ?? 0} ms
 						</span>
 						<span className="text-xs text-emerald-400 font-medium">
-							PostgreSQL
+							SQLite
 						</span>
 					</div>
 					<div className="mt-4 flex items-center gap-2 text-xs text-emerald-400">

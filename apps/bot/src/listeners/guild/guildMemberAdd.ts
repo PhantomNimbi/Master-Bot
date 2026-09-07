@@ -2,21 +2,25 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Listener, type ListenerOptions } from '@sapphire/framework';
 import type { GuildMember, TextChannel } from 'discord.js';
-import { trpcNode } from '../../trpc';
 
 @ApplyOptions<ListenerOptions>({
 	name: 'guildMemberAdd'
 })
 export class GuildMemberListener extends Listener {
 	public override async run(member: GuildMember): Promise<void> {
-		const guildQuery = await trpcNode.guild.getGuild.query({
+		this.container.client.session.members.create({
+			guildId: member.guild.id,
+			userId: member.id
+		});
+
+		const { guild } = this.container.client.session.guildData.getGuild({
 			id: member.guild.id
 		});
 
-		if (!guildQuery || !guildQuery.guild) return;
+		if (!guild) return;
 
 		const { welcomeMessage, welcomeMessageEnabled, welcomeMessageChannel } =
-			guildQuery.guild;
+			guild;
 
 		if (!welcomeMessageEnabled || !welcomeMessageChannel) {
 			return;
@@ -49,3 +53,4 @@ export class GuildMemberListener extends Listener {
 		}
 	}
 }
+

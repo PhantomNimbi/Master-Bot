@@ -1,7 +1,6 @@
 import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
-import { trpcNode } from '../../trpc';
 
 @ApplyOptions<CommandOptions>({
 	name: 'create-playlist',
@@ -46,12 +45,11 @@ export class CreatePlaylistCommand extends Command {
 		}
 
 		try {
-			const playlist = await trpcNode.playlist.create.mutate({
+			this.container.client.session.playlists.create({
 				name: playlistName,
+				guildId: interaction.guildId ?? '',
 				userId: interactionMember.id
 			});
-
-			if (!playlist) throw new Error();
 		} catch (error) {
 			return await interaction.editReply({
 				content: `:x: You already have a playlist named **${playlistName}**`
@@ -78,3 +76,4 @@ export const help: CommandHelp = {
 		}
 	]
 };
+

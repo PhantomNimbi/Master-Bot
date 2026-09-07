@@ -2,6 +2,7 @@ import { SapphireClient } from '@sapphire/framework';
 import '@sapphire/plugin-hmr/register';
 import { QueueClient } from '../music/classes/QueueClient';
 import Redis from 'ioredis';
+import { PrismaClient } from '@prisma/client';
 import {
 	IntentsBitField,
 	NewsChannel,
@@ -13,9 +14,12 @@ import type { ClientTwitchExtension } from './../../lib/twitch/twitchAPI-types';
 import { TwitchAPI } from '../twitch/twitchAPI';
 import Logger from '../logger';
 import type { TriviaSession } from '../music/classes/TriviaSession';
+import { SessionManager } from '../session/SessionManager';
 
 export class ExtendedClient extends SapphireClient {
 	readonly music: QueueClient;
+	readonly prisma: PrismaClient;
+	readonly session: SessionManager;
 	leaveTimers: { [key: string]: NodeJS.Timeout };
 	triviaSessions: Map<string, TriviaSession> = new Map();
 	twitch: ClientTwitchExtension = {
@@ -47,6 +51,9 @@ export class ExtendedClient extends SapphireClient {
 				enabled: process.env.NODE_ENV === 'development'
 			}
 		});
+
+		this.prisma = new PrismaClient();
+		this.session = new SessionManager(this.prisma);
 
 		this.music = new QueueClient({
 			redis: process.env.REDIS_URL
@@ -124,6 +131,8 @@ export type MessageChannel = TextChannel | ThreadChannel | NewsChannel | null;
 declare module '@sapphire/framework' {
 	interface SapphireClient {
 		readonly music: QueueClient;
+		readonly prisma: PrismaClient;
+		readonly session: SessionManager;
 		leaveTimers: { [key: string]: NodeJS.Timeout };
 		triviaSessions: Map<string, TriviaSession>;
 		twitch: ClientTwitchExtension;

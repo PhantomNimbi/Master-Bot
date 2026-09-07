@@ -20,8 +20,7 @@ export default async function Layout({
 
 	const guild = await prisma.guild.findUnique({
 		where: {
-			id: server_id,
-			ownerId: session.user.discordId
+			id: server_id
 		}
 	});
 

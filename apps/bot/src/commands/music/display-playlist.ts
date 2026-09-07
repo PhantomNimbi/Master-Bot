@@ -3,7 +3,6 @@ import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
 import { PaginatedFieldMessageEmbed } from '@sapphire/discord.js-utilities';
-import { trpcNode } from '../../trpc';
 
 @ApplyOptions<CommandOptions>({
 	name: 'display-playlist',
@@ -48,12 +47,11 @@ export class DisplayPlaylistCommand extends Command {
 			});
 		}
 
-		const playlistQuery = await trpcNode.playlist.getPlaylist.query({
+		const { playlist } = this.container.client.session.playlists.getPlaylist({
 			name: playlistName,
+			guildId: interaction.guildId ?? '',
 			userId: interactionMember.id
 		});
-
-		const { playlist } = playlistQuery;
 
 		if (!playlist) {
 			return await interaction.editReply(
@@ -93,3 +91,4 @@ export const help: CommandHelp = {
 		}
 	]
 };
+

@@ -2,7 +2,6 @@ import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
-import { trpcNode } from '../../trpc';
 import { formatReminderText } from '../../lib/reminders/ReminderManager';
 import Logger from '../../lib/logger';
 
@@ -139,8 +138,9 @@ export class ReminderCommand extends Command {
 				const targetDate = new Date(Date.now() + durationMs);
 
 				try {
-					await trpcNode.reminder.create.mutate({
+					this.container.client.session.reminders.create({
 						userId,
+						guildId: interaction.guildId ?? '',
 						event,
 						description,
 						dateTime: targetDate.toISOString(),
@@ -148,7 +148,7 @@ export class ReminderCommand extends Command {
 						timeOffset: 0
 					});
 				} catch (err) {
-					Logger.error('Failed to save reminder to DB: ', err);
+					Logger.error('Failed to save reminder to session: ', err);
 				}
 
 				const formattedEvent = formatReminderText(event, {
@@ -242,10 +242,9 @@ export class ReminderCommand extends Command {
 								}
 							});
 
-						// Clean up from database
-						await trpcNode.reminder.delete
-							.mutate({ userId, event })
-							.catch(() => {});
+						// Clean up from session
+						this.container.client.session.reminders
+							.delete({ userId, guildId: interaction.guildId ?? '', event });
 					} catch (notifyErr) {
 						Logger.error('Reminder notification delivery error: ', notifyErr);
 					}
@@ -256,8 +255,11 @@ export class ReminderCommand extends Command {
 
 			case 'list': {
 				try {
-					const result = await trpcNode.reminder.getByUserId.mutate({ userId });
-					const reminders = result.reminders || [];
+					const { reminders } =
+						this.container.client.session.reminders.getByUserId({
+							userId,
+							guildId: interaction.guildId ?? ''
+						});
 
 					if (reminders.length === 0) {
 						return interaction.editReply({
@@ -296,8 +298,13 @@ export class ReminderCommand extends Command {
 			case 'delete': {
 				const event = interaction.options.getString('event', true);
 				try {
-					const del = await trpcNode.reminder.delete.mutate({ userId, event });
-					if (del.reminder?.count === 0) {
+					const { reminder: del } =
+						this.container.client.session.reminders.delete({
+							userId,
+							guildId: interaction.guildId ?? '',
+							event
+						});
+					if (del?.count === 0) {
 						return interaction.editReply({
 							content: `:warning: No active reminder matching **${event}** was found.`
 						});
@@ -349,3 +356,4 @@ export const help: CommandHelp = {
 		}
 	]
 };
+

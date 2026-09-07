@@ -3,9 +3,8 @@ generator client {
 }
 
 datasource db {
-    provider          = "postgresql"
-    url               = env("DATABASE_URL")
-    shadowDatabaseUrl = env("SHADOW_DB_URL")
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
 }
 
 // Necessary for Next auth
@@ -46,6 +45,7 @@ model User {
     sessions      Session[]
     playlists     Playlist[]
     guilds        Guild[]
+    members       GuildMember[]
     reminders     Reminder[]
     timeOffset    Int?
 }
@@ -80,9 +80,13 @@ model Playlist {
     id        Int      @id @default(autoincrement())
     createdAt DateTime @default(now())
     name      String
+    guildId   String   @map("guild_id")
+    guild     Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
     userId    String?
     user      User?    @relation(fields: [userId], references: [id])
     songs     Song[]
+
+    @@unique([userId, guildId, name])
 }
 
 model Guild {
@@ -90,14 +94,14 @@ model Guild {
     name                  String
     added                 DateTime      @default(now())
     volume                Int           @default(100)
-    notifyList            String[]
+    notifyList            String
     ownerId               String
     owner                 User          @relation(fields: [ownerId], references: [discordId])
     // Settings
-    disabledCommands      String[]      @map("disabled_commands")
+    disabledCommands      String        @map("disabled_commands")
     logChannel            String?       @map("log_channel")
     logChannelEnabled     Boolean       @default(false) @map("log_channel_enabled")
-    logEvents             String[]      @default([]) @map("log_events")
+    logEvents             String        @map("log_events")
     welcomeMessageChannel String?       @map("welcome_message_channel")
     welcomeMessage        String?       @map("welcome_message")
     welcomeMessageEnabled Boolean       @default(false) @map("welcome_message_enabled")
@@ -107,11 +111,14 @@ model Guild {
     ticketRoleId            String?       @map("ticket_role_id")
     ticketEnabled           Boolean       @default(false) @map("ticket_enabled")
     ticketMessage           String?       @map("ticket_message")
-    tickets                 Ticket[]
+    tickets               Ticket[]
     // Temp Channels
     hub                   String?
     hubChannel            String?       @map("hub_channel") // The channel that users enter to get redirected
     tempChannels          TempChannel[]
+    members               GuildMember[]
+    playlists             Playlist[]
+    reminders             Reminder[]    @relation("ReminderGuild")
 }
 
 model Ticket {
@@ -132,11 +139,21 @@ model TempChannel {
     ownerId String @unique
 }
 
+model GuildMember {
+    guildId  String
+    userId   String
+    joinedAt DateTime @default(now()) @map("joined_at")
+    guild    Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+    user     User     @relation(fields: [userId], references: [discordId], onDelete: Cascade)
+
+    @@id([guildId, userId])
+}
+
 model TwitchNotify {
     twitchId   String   @id
     logo       String
     live       Boolean  @default(false)
-    channelIds String[]
+    channelIds String
     sent       Boolean
 }
 
@@ -149,5 +166,7 @@ model Reminder {
     dateTime    String
     userId      String
     user        User?    @relation(fields: [userId], references: [discordId])
+    guildId     String   @map("guild_id")
+    guild       Guild    @relation("ReminderGuild", fields: [guildId], references: [id], onDelete: Cascade)
     timeOffset  Int
 }

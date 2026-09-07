@@ -8,12 +8,11 @@ import {
 	ButtonStyle,
 	ChannelType,
 	EmbedBuilder,
-	Interaction,
 	TextChannel,
 	ThreadAutoArchiveDuration,
 	ThreadChannel
 } from 'discord.js';
-import { trpcNode } from '../../trpc';
+import type { Interaction } from 'discord.js';
 
 export const DEFAULT_TICKET_MESSAGE =
 	'👋 Hello {user}, thank you for contacting support in **{server}**!\n\n' +
@@ -53,7 +52,7 @@ export class TicketButtonListener extends Listener {
 		await interaction.deferReply({ ephemeral: true });
 
 		try {
-			const config = await trpcNode.tickets.getConfig.query({
+			const config = this.container.client.session.tickets.getConfig({
 				guildId: guild.id
 			});
 
@@ -114,7 +113,7 @@ export class TicketButtonListener extends Listener {
 			}
 
 			// Register in database
-			await trpcNode.tickets.createTicket.mutate({
+			this.container.client.session.tickets.createTicket({
 				guildId: guild.id,
 				threadId: thread.id,
 				creatorId: user.id
@@ -211,18 +210,14 @@ export class TicketButtonListener extends Listener {
 
 		try {
 			// Record closed in database
-			await trpcNode.tickets.closeTicket
-				.mutate({
-					threadId: thread.id
-				})
-				.catch(() => {});
+			this.container.client.session.tickets.closeTicket({
+				threadId: thread.id
+			});
 
 			// Query guild ticket configuration to check transcript channel
-			const ticketConfig = await trpcNode.tickets.getConfig
-				.query({
-					guildId: guild.id
-				})
-				.catch(() => null);
+			const ticketConfig = this.container.client.session.tickets.getConfig({
+				guildId: guild.id
+			});
 
 			const transcriptChannelId = ticketConfig?.guild?.ticketTranscriptChannel;
 
@@ -327,3 +322,4 @@ export class TicketButtonListener extends Listener {
 		}
 	}
 }
+

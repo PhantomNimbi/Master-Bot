@@ -5,7 +5,6 @@ import { container } from '@sapphire/framework';
 import searchSong from '../../lib/music/searchSong';
 import { updatePlayerEmbed } from '../../lib/music/buttonHandler';
 import { Song } from '../../lib/music/classes/Song';
-import { trpcNode } from '../../trpc';
 import { GuildMember } from 'discord.js';
 
 @ApplyOptions<CommandOptions>({
@@ -115,12 +114,11 @@ export class PlayCommand extends Command {
 		let message: string = '';
 
 		if (isCustomPlaylist == 'Yes') {
-			const data = await trpcNode.playlist.getPlaylist.query({
+			const { playlist } = client.session.playlists.getPlaylist({
 				userId: interactionMember.id,
+				guildId: interaction.guildId ?? '',
 				name: query
 			});
-
-			const { playlist } = data;
 
 			if (!playlist) {
 				return await reply(`:x: You have no such playlist!`);
@@ -191,3 +189,4 @@ export const help: CommandHelp = {
 		}
 	]
 };
+

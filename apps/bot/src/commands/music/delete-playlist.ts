@@ -1,7 +1,6 @@
 import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
-import { trpcNode } from '../../trpc';
 import Logger from '../../lib/logger';
 
 @ApplyOptions<CommandOptions>({
@@ -48,8 +47,9 @@ export class DeletePlaylistCommand extends Command {
 		}
 
 		try {
-			const playlist = await trpcNode.playlist.delete.mutate({
+			const playlist = this.container.client.session.playlists.delete({
 				name: playlistName,
+				guildId: interaction.guildId ?? '',
 				userId: interactionMember.id
 			});
 
@@ -81,3 +81,4 @@ export const help: CommandHelp = {
 		}
 	]
 };
+

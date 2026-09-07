@@ -25,8 +25,8 @@ export default async function DashboardIndexPage() {
 					<span>⏰ My Reminders</span>
 				</Link>
 			</header>
-			<main className="flex flex-col items-center justify-center mx-80">
-				<h1 className="text-white text-5xl font-semibold mb-10">
+			<main className="w-full max-w-6xl mx-auto px-6 py-10">
+				<h1 className="text-white text-3xl sm:text-4xl font-semibold mb-10 text-center">
 					Select a guild
 				</h1>
 				<GuildsList />

@@ -9,7 +9,6 @@ import { ReminderManager } from './lib/reminders/ReminderManager';
 import { StatusManager } from './lib/presence/StatusManager';
 import Logger from './lib/logger';
 import { notify } from './lib/twitch/notifyChannels';
-import { trpcNode } from './trpc';
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
 	RegisterBehavior.Overwrite
@@ -57,11 +56,11 @@ client.on(Events.ClientReady, async () => {
 	) {
 		const initTwitch = async () => {
 			try {
-				const notifyDB = await trpcNode.twitch.getAll.query();
+				const notifyDB = await client.session.getAllTwitchConfig();
 				const query = notifyDB.notifications.map(user => {
 					client.twitch.notifyList[user.twitchId] = {
 						sendTo: user.channelIds,
-						logo: user.logo,
+						logo: user.logo ?? '',
 						live: user.live,
 						messageSent: user.sent,
 						messageHandler: {}
@@ -238,6 +237,7 @@ if (isLavalinkEnabled) {
 
 const main = async () => {
 	try {
+		await client.session.init();
 		await client.login(env.DISCORD_TOKEN);
 	} catch (error) {
 		Logger.error('Bot failed to login / errored out: ', error);
@@ -247,3 +247,10 @@ const main = async () => {
 };
 
 void main();
+
+
+
+
+
+
+

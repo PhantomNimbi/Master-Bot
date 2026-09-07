@@ -1,56 +1,61 @@
-# Welcome to the Master-Bot Wiki
+# 🤖 Master-Bot
 
-**Master-Bot** is a modern, production-grade Discord Bot and Next.js Web Dashboard built with **TypeScript**, **Sapphire Framework**, **tRPC v11**, **Prisma ORM**, **Next.js 15**, **Redis**, and **Lavalink v4**.
+[![TypeScript](https://img.shields.io/badge/Language-TypeScript-blue.svg)](https://www.typescriptlang.org)
+[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
+[![pnpm](https://img.shields.io/badge/Package_Manager-pnpm-orange.svg)](https://pnpm.io/)
+[![Lavalink](https://img.shields.io/badge/Lavalink-v4.x-purple.svg)](https://github.com/lavalink-devs/Lavalink)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../LICENSE.md)
+
+**Master-Bot** is a production-ready Discord music, moderation, and utility bot with a full-featured **Next.js web dashboard**. It is built with **TypeScript**, **Sapphire Framework**, **discord.js v14**, **Prisma ORM** (SQLite), and **Lavalink v4** for high-fidelity audio.
+
+---
+
+## 🏗️ Architecture Overview
 
 ```mermaid
 flowchart LR
     subgraph Apps
         Bot["apps/bot<br/>(Sapphire Framework)"]
-        Dashboard["apps/dashboard<br/>(Next.js 15 Web)"]
+        Dashboard["apps/dashboard<br/>(Next.js 15)"]
     end
 
     subgraph Packages
-        API["packages/api<br/>(tRPC v11 Routers)"]
-        Auth["packages/auth<br/>(NextAuth.js v5)"]
         DB["packages/db<br/>(Prisma Client)"]
+        Auth["packages/auth<br/>(NextAuth.js)"]
         Config["packages/config<br/>(ESLint & Tailwind)"]
     end
 
-    Dashboard --> API
+    Bot -->|"SessionManager<br/>(in-memory hub)"| DB
+    DB --> SQLiteDB[("SQLite Database<br/>db.sqlite")]
     Dashboard --> Auth
-    Bot --> DB
-    API --> DB
+    Dashboard -->|tRPC + Prisma| DB
     Dashboard --> Config
-    Bot --> Config
+    Bot --> Lavalink["Lavalink v4<br/>Audio Engine"]
 ```
 
----
-
-## 📖 Wiki Navigation
-
-- **[Setup & Deployment Guide](Setup-and-Deployment.md)**: Step-by-step local development setup, unified launcher instructions (`pnpm dev` / `pnpm start`), and Docker Compose deployment.
-- **[Cloud Hosting Guide](Cloud-Hosting.md)**: Production cloud deployment instructions for **Render**, **Railway**, **Fly.io**, and Self-Hosted VPS.
-- **[Heroku Deployment Guide](Heroku-Deployment.md)**: Production cloud hosting on Heroku (Buildpacks, Docker containers, PostgreSQL & Redis add-ons, dyno scaling).
-- **[Web Dashboard Architecture](Dashboard-Architecture.md)**: Next.js 15 App Router architecture, 9 feature studios, tRPC v11 procedures, and glassmorphism command center.
-- **[Lavalink v4 Audio Engine](Lavalink.md)**: In-depth Lavalink v4 configuration, plugin management (`youtube-plugin`, `lavasrc-plugin`), remote signature deciphering, and automatic YouTube OAuth device authorization.
-- **[API Keys & Credentials](API-Keys.md)**: Guide on acquiring and setting up required and optional credentials (Discord, Twitch, Klipy, IGDB, NewsAPI, YouTube).
-- **[Commands Reference](Commands-Reference.md)**: Full reference for all available slash commands, interactive help browser, and parameters.
+The bot keeps all runtime state — users, guilds, welcome messages, tickets, playlists, reminders, temp channels, and Twitch subscriptions — in an in-memory **SessionManager** that persists every change to SQLite through Prisma. Settings, playlists, and reminders survive bot restarts.
 
 ---
 
-## ⚡ Key Highlights
+## ⚡ Key Features
 
-- **Workspace Architecture:** Managed via `pnpm` workspaces and Turborepo (`apps/bot`, `apps/dashboard`, `packages/api`, `packages/auth`, `packages/db`).
-- **🔨 Moderation Suite:** Built-in slash commands for `/ban`, `/kick`, `/slowmode`, `/timeout`, and `/purge` with permission hierarchy validation.
-- **🎫 Support Ticket System:** Thread-based ticket system with auto-posting panels, interactive button handlers (`ticket_create`, `ticket_close`), and secure transcript generation.
-- **📜 Multi-Category Audit Logging:** 18 granular event triggers configurable via the dashboard.
-- **Unified Cross-Platform Launchers:** `scripts/dev.mjs` and `scripts/start.mjs` automatically manage ports (`3000`, `6379`, `2333`), redirect service logs to separate files (`logs/bot.log`, `logs/dashboard.log`, `logs/lavalink.log`), and format YouTube OAuth device codes.
-- **Native YouTube OAuth:** Terminal prompts and slash command (`/youtube-auth`) for YouTube device authorization, with atomic token persistence to `.youtube-oauth.json`.
-- **Interactive Help System:** Built-in category browser dropdown menu (`StringSelectMenuBuilder`) and detailed command lookup.
+- **🎵 High-Fidelity Audio:** Powered by Lavalink v4 with YouTube (multi-client + OAuth), Spotify metadata resolution (`lavasrc-plugin`), free built-in SoundCloud, Twitch, and Vimeo. Live player embeds with real-time progress bars and DSP filters (`/bassboost`, `/karaoke`, `/nightcore`, `/vaporwave`).
+- **📚 Custom Playlists:** Per-user playlists, scoped per server, via `/create-playlist`, `/save-to-playlist`, `/my-playlists`, `/display-playlist`, and `/delete-playlist`.
+- **🔨 Moderation Suite:** `/ban`, `/kick`, `/timeout`, `/slowmode`, and `/purge` with permission hierarchy validation.
+- **📜 Audit Logging:** 20 granular server event triggers across members, messages, channels, roles, voice, and moderation.
+- **🎫 Support Tickets:** Thread-based ticketing with interactive panels, custom greeting templates, manager roles, and `.txt` transcript archiving.
+- **👋 Welcome Messages:** Templated join greetings in any channel with `{user}`, `{server}`, `{position}` placeholders.
+- **🔊 Temp Voice Channels:** Users join a hub channel and get a private temporary voice channel on demand.
+- **⏰ Reminders:** Personal and per-server scheduled reminders delivered by DM with a 30-second background scheduler.
+- **🟣 Twitch Alerts:** Live stream notifications for managed streamers plus `/twitch-status`.
+- **🌐 Web Dashboard:** Next.js 15 command center for server settings, welcome/ticket/log design, music controls, broadcast composer, system telemetry, and reminders.
+- **🚀 Unified Launchers:** `pnpm dev` / `pnpm start` manage ports, route logs to `logs/`, optionally spawn Lavalink, and print a unified status console.
 
 ---
 
-## 🔗 Quick Links
+## 📖 Continue Reading
 
-- **Repository:** [galnir/Master-Bot](https://github.com/galnir/Master-Bot)
-- **Lavalink v4 Releases:** [lavalink-devs/Lavalink](https://github.com/lavalink-devs/Lavalink/releases)
+- Want to run it? → [**Getting Started**](Getting-Started.md)
+- Full command list? → [**Commands Reference**](Commands.md)
+- How data is stored? → [**Architecture**](Architecture.md)
+- Everything in the wiki is linked in the [**sidebar**](_Sidebar.md).

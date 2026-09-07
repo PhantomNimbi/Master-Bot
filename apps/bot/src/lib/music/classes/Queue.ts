@@ -13,7 +13,6 @@ import type { QueueStore } from './QueueStore';
 import { Time } from '@sapphire/time-utilities';
 import { isNullish } from '@sapphire/utilities';
 import { deletePlayerEmbed } from '../buttonsCollector';
-import { trpcNode } from '../../../trpc';
 import Logger from '../../logger';
 
 export enum LoopType {
@@ -264,16 +263,16 @@ export class Queue {
 		let data = await this.store.redis.get(this.keys.volume);
 
 		if (!data) {
-			const guildQuery = await trpcNode.guild.getGuild.query({
-				id: this.guildID
-			});
+			const guildData = this.client.session.guildData
+				.getGuild({ id: this.guildID })
+				.guild;
 
-			if (!guildQuery || !guildQuery.guild)
+			if (!guildData || !guildData.volume)
 				await this.setVolume(this.player.volume ?? 100); // saves to both
 
-			if (guildQuery.guild)
+			if (guildData && guildData.volume)
 				data =
-					guildQuery.guild.volume.toString() || this.player.volume.toString();
+					guildData.volume.toString() || this.player.volume.toString();
 		}
 
 		return data ? Number(data) : 100;
@@ -287,9 +286,9 @@ export class Queue {
 		const previous = await this.store.redis.getset(this.keys.volume, value);
 		await this.refresh();
 
-		await trpcNode.guild.updateVolume.mutate({
+		this.client.session.guildData.updateVolume({
 			guildId: this.guildID,
-			volume: this.player.volume
+			volume: value
 		});
 
 		this.client.emit('musicSongVolumeUpdate', this, value);

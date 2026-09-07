@@ -1,7 +1,6 @@
 import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptions } from '@sapphire/framework';
-import { trpcNode } from '../../trpc';
 
 @ApplyOptions<CommandOptions>({
 	name: 'remove-from-playlist',
@@ -57,12 +56,14 @@ export class RemoveFromPlaylistCommand extends Command {
 
 		let playlist;
 		try {
-			const playlistQuery = await trpcNode.playlist.getPlaylist.query({
-				name: playlistName,
-				userId: interactionMember.id
-			});
+			const { playlist: foundPlaylist } =
+				this.container.client.session.playlists.getPlaylist({
+					name: playlistName,
+					guildId: interaction.guildId ?? '',
+					userId: interactionMember.id
+				});
 
-			playlist = playlistQuery.playlist;
+			playlist = foundPlaylist;
 		} catch (error) {
 			return await interaction.editReply(':x: Something went wrong!');
 		}
@@ -79,16 +80,17 @@ export class RemoveFromPlaylistCommand extends Command {
 
 		const id = songs[location - 1].id;
 
-		const song = await trpcNode.song.delete.mutate({
-			id
-		});
-
-		if (!song) {
+		let song;
+		try {
+			({ song } = this.container.client.session.songs.delete({
+				id
+			}));
+		} catch {
 			return await interaction.editReply(':x: Something went wrong!');
 		}
 
 		await interaction.editReply(
-			`:wastebasket: Deleted **${song.song.title}** from **${playlistName}**`
+			`:wastebasket: Deleted **${song.title}** from **${playlistName}**`
 		);
 		return;
 	}
@@ -114,3 +116,5 @@ export const help: CommandHelp = {
 		}
 	]
 };
+
+

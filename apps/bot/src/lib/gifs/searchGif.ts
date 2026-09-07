@@ -2,58 +2,64 @@ import { env } from '../../env';
 
 const FALLBACK_GIFS: Record<string, string[]> = {
 	anime: [
-		'https://media.giphy.com/media/13HgwGsXF0aiGY/giphy.gif',
-		'https://media.giphy.com/media/oF5oUYTOhvFnO/giphy.gif',
-		'https://media.giphy.com/media/v0VvNLK6qnT8c/giphy.gif'
+		'https://media.giphy.com/media/6kakh9bc9gImPt2PeM/giphy.gif',
+		'https://media.giphy.com/media/qetTtxaGe11daXlVxu/giphy.gif',
+		'https://media.giphy.com/media/fpvLiBtx593G4OghfL/giphy.gif'
 	],
 	hug: [
-		'https://media.giphy.com/media/od5H3PmEG5EVq/giphy.gif',
-		'https://media.giphy.com/media/lrr9rHuoJOE0w/giphy.gif',
-		'https://media.giphy.com/media/xJlOdEYy0N55K/giphy.gif'
+		'https://media.giphy.com/media/CxBUkGkh91rfiN4Is9/giphy.gif',
+		'https://media.giphy.com/media/7KmCCmbmv850stIY8Q/giphy.gif',
+		'https://media.giphy.com/media/atAXRsbDK786cs9lqG/giphy.gif'
 	],
 	slap: [
-		'https://media.giphy.com/media/jLeyZWgtwWP2U/giphy.gif',
-		'https://media.giphy.com/media/Gf3AUz3eBNbTW/giphy.gif',
-		'https://media.giphy.com/media/Zau0yrl15oqdK480Av/giphy.gif'
+		'https://media.giphy.com/media/cFkjszYqxaUr4sjZe7/giphy.gif',
+		'https://media.giphy.com/media/vVGcjAu5LgbDm9IWfD/giphy.gif',
+		'https://media.giphy.com/media/bdrreSrSNK9EtLc9q2/giphy.gif'
 	],
 	pat: [
-		'https://media.giphy.com/media/L2z7dnOduqEow/giphy.gif',
-		'https://media.giphy.com/media/5tmRHwTlHAA9WkVxTU/giphy.gif',
-		'https://media.giphy.com/media/ye7OTQgwmVuNTY22BQ/giphy.gif'
+		'https://media.giphy.com/media/ozdUXyzG6X1IHboV0I/giphy.gif',
+		'https://media.giphy.com/media/51a3tE91baVGh7U6o5/giphy.gif',
+		'https://media.giphy.com/media/jLMOq79F9XIrS4ozsa/giphy.gif'
 	],
 	cat: [
-		'https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif',
-		'https://media.giphy.com/media/mlvseq9yvZhba/giphy.gif',
+		'https://media.giphy.com/media/bEI6Dsej0pVeasnPxi/giphy.gif',
+		'https://media.giphy.com/media/6hKL8BI8rRNrMRFtAx/giphy.gif',
 		'https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif'
 	],
 	doggo: [
-		'https://media.giphy.com/media/mCRJDo24UvJMA/giphy.gif',
-		'https://media.giphy.com/media/bbshzgyFQDqPHXBo4c/giphy.gif',
-		'https://media.giphy.com/media/4Zo41lhzKt6iZ8xff9/giphy.gif'
+		'https://media.giphy.com/media/1keIlrrife8A5luADE/giphy.gif',
+		'https://media.giphy.com/media/6eLbMsIfUUpTQMLM0A/giphy.gif',
+		'https://media.giphy.com/media/6Ml2jjZbq6zXytByAW/giphy.gif'
 	],
 	baka: [
-		'https://media.giphy.com/media/bOCMPVgsVnRT2/giphy.gif',
-		'https://media.giphy.com/media/tO1daDbaecjy0/giphy.gif'
+		'https://media.giphy.com/media/449KlGQiNgUJcLN8Gg/giphy.gif',
+		'https://media.giphy.com/media/0k9oZgI9OZyvE32CS8/giphy.gif',
+		'https://media.giphy.com/media/fL17USlobBBQbvoYTn/giphy.gif'
 	],
 	gintama: [
-		'https://media.giphy.com/media/8v6Z3YyUL6GOQ/giphy.gif',
-		'https://media.giphy.com/media/Y4gtaaRlLXjLg6MUEg/giphy.gif'
+		'https://media.giphy.com/media/VO7QEhanuAlEu3LhL0/giphy.gif',
+		'https://media.giphy.com/media/iw223RP3FSk62M79qt/giphy.gif',
+		'https://media.giphy.com/media/DyUejnK0SkLp4vsuyD/giphy.gif'
 	],
 	jojo: [
-		'https://media.giphy.com/media/f9jxYYRVPHtKsCf9sy/giphy.gif',
-		'https://media.giphy.com/media/TI9HiyUqRm75jDRUUp/giphy.gif'
+		'https://media.giphy.com/media/SICRE9mOzgBOATPUtS/giphy.gif',
+		'https://media.giphy.com/media/fXG7DfHYVsrGm5E9zL/giphy.gif',
+		'https://media.giphy.com/media/c1PecNgUkkE2X8UwVL/giphy.gif'
 	],
 	waifu: [
-		'https://media.giphy.com/media/13HgwGsXF0aiGY/giphy.gif',
-		'https://media.giphy.com/media/v0VvNLK6qnT8c/giphy.gif'
+		'https://media.giphy.com/media/OrHEJYbSzwz8QfRUl5/giphy.gif',
+		'https://media.giphy.com/media/5JcxsXWUV6Q4k9iDhd/giphy.gif',
+		'https://media.giphy.com/media/MmUGJI3JQ1rWIsDtkV/giphy.gif'
 	],
 	amongus: [
-		'https://media.giphy.com/media/RtdRhc7TxBxB0YAsK6/giphy.gif',
-		'https://media.giphy.com/media/0dvhnK4yW1H2S0rU1E/giphy.gif'
+		'https://media.giphy.com/media/0tyOasM1BTUtdyf4nt/giphy.gif',
+		'https://media.giphy.com/media/4xe7fdnUbZHMTNPTXc/giphy.gif',
+		'https://media.giphy.com/media/kkgGWkhttFE3LgW0Ni/giphy.gif'
 	],
 	gif: [
-		'https://media.giphy.com/media/ule4akeEDWA0/giphy.gif',
-		'https://media.giphy.com/media/3o7TKSjRrfIPjeiVyM/giphy.gif'
+		'https://media.giphy.com/media/l0He4tYoErhi0kCDe/giphy.gif',
+		'https://media.giphy.com/media/H2fORSKZw4SCQ/giphy.gif',
+		'https://media.giphy.com/media/bEI6Dsej0pVeasnPxi/giphy.gif'
 	]
 };
 

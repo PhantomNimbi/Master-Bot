@@ -1,17 +1,7 @@
 import Link from 'next/link';
 import HeaderButtons from '~/components/header-buttons';
 import Logo from '~/components/logo';
-import {
-	Sparkles,
-	Bot,
-	Music2,
-	Send,
-	ShieldCheck,
-	Ticket,
-	Bell,
-	Activity,
-	ChevronRight
-} from 'lucide-react';
+import { Sparkles, Bot, Music2, Send, ShieldCheck, Ticket, Bell, Activity, ChevronRight } from 'lucide-react';
 
 export default function HomePage() {
 	const features = [
@@ -68,7 +58,7 @@ export default function HomePage() {
 			</header>
 
 			{/* Hero Section */}
-			<main className="flex-1 flex flex-col items-center justify-center px-4 py-16 sm:py-24 max-w-6xl mx-auto w-full text-center">
+			<main className="flex-1 flex flex-col items-center justify-center px-4 py-16 sm:py-24 max-w-7xl mx-auto w-full text-center">
 				<div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/80 border border-slate-800 text-slate-300 text-xs font-medium mb-8">
 					<Sparkles className="w-3.5 h-3.5 text-indigo-400" />
 					<span>Enterprise Discord Management & Automation</span>
@@ -112,7 +102,7 @@ export default function HomePage() {
 					{features.map((feat, idx) => (
 						<div
 							key={idx}
-							className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 hover:bg-slate-900/80 transition-all duration-200 group shadow-md"
+							className="group p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 hover:bg-slate-900/80 transition-colors duration-200 shadow-md"
 						>
 							<div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-105 transition-transform">
 								<feat.icon className="w-5 h-5" />
@@ -129,10 +119,9 @@ export default function HomePage() {
 			</main>
 
 			{/* Footer */}
-			<footer className="border-t border-slate-800/80 py-6 px-6 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-4 max-w-6xl mx-auto w-full">
+			<footer className="border-t border-slate-800/80 py-6 px-6 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-4 max-w-7xl mx-auto w-full">
 				<p>
-					© {new Date().getFullYear()} Master-Bot. Open Source Community
-					Edition.
+					© {new Date().getFullYear()} Master-Bot. Open Source Community Edition.
 				</p>
 				<div className="flex items-center gap-6">
 					<Link
