@@ -109,9 +109,9 @@ export class HelpCommand extends Command {
 			.addFields(
 				{ name: '📂 Category', value: `${categoryEmoji} ${categoryName}`, inline: true },
 				{ name: '💻 Usage', value: `${targetHelp.usage || '/' + targetHelp.name}`, inline: true },
-				{ name: '📋 Description', value: targetHelp.description || '—', inline: false },
-				{ name: '⚙️ Options', value: targetHelp.options?.map(o => `• ${o.name}${o.required ? ' [Req]' : ''}`).join('  ') || 'None', inline: false },
-				{ name: '💡 Examples', value: targetHelp.examples?.map(ex => `• ${ex}`).join('  ') || 'None', inline: false }
+				{ name: '📋 Description', value: targetHelp.description || '—', inline: true },
+				{ name: '⚙️ Options', value: targetHelp.options?.map(o => `• ${o.name}${o.required ? ' [Req]' : ''}`).join('  ') || 'None', inline: true },
+				{ name: '💡 Examples', value: targetHelp.examples?.map(ex => `• ${ex}`).join('  ') || 'None', inline: true }
 			)
 			.setFooter({ text: 'Master-Bot • /help [command]', iconURL: client.user?.displayAvatarURL() })
 			.setTimestamp();
@@ -162,11 +162,11 @@ export class HelpCommand extends Command {
 			const emoji = CATEGORY_EMOJIS[cat] || '⚙️';
 			const label =
 				CATEGORY_NAMES[cat] || cat.charAt(0).toUpperCase() + cat.slice(1);
-			mainEmbed.addFields({
-				name: `${emoji} ${label} — ${cmds.length} commands`,
-				value: cmds.map(c => `• ${c.name}`).join('  '),
-				inline: false
-			});
+		mainEmbed.addFields({
+			name: `${emoji} ${label} — ${cmds.length} commands`,
+			value: cmds.map(c => `• /${c.name}`).join('  '),
+			inline: true
+		});
 		});
 
 		const selectMenu = new StringSelectMenuBuilder()
