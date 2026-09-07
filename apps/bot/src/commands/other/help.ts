@@ -108,10 +108,7 @@ export class HelpCommand extends Command {
 			.setDescription(targetHelp.description || 'No description provided.')
 			.addFields(
 				{ name: '📂 Category', value: `${categoryEmoji} ${categoryName}`, inline: true },
-				{ name: '💻 Usage', value: `${targetHelp.usage || '/' + targetHelp.name}`, inline: true },
-				{ name: '📋 Description', value: targetHelp.description || '—', inline: true },
-				{ name: '⚙️ Options', value: targetHelp.options?.map(o => `• ${o.name}${o.required ? ' [Req]' : ''}`).join('  ') || 'None', inline: true },
-				{ name: '💡 Examples', value: targetHelp.examples?.map(ex => `• ${ex}`).join('  ') || 'None', inline: true }
+				{ name: '💻 Usage', value: `${targetHelp.usage || '/' + targetHelp.name}`, inline: true }
 			)
 			.setFooter({ text: 'Master-Bot • /help [command]', iconURL: client.user?.displayAvatarURL() })
 			.setTimestamp();
@@ -134,7 +131,7 @@ export class HelpCommand extends Command {
 		if (targetHelp.examples && targetHelp.examples.length > 0) {
 			detailEmbed.addFields({
 				name: '💡 Examples',
-				value: targetHelp.examples.map(ex => `• ${ex}`).join('\n'),
+				value: targetHelp.examples.map(ex => `${ex}`).join('\n'),
 				inline: false
 			});
 		}
@@ -246,7 +243,7 @@ export class HelpCommand extends Command {
 				.setColor(0x4f46e5)
 				.setThumbnail(client.user?.displayAvatarURL() || null)
 				.setDescription(
-					cmds.map(c => `• /${c.name} — ${c.description}`).join('\n\n')
+					cmds.map(c => `**/${c.name}**: ${c.description}`).join('\n')
 				)
 				.setFooter({
 					text: `Category: ${label} • Use /help [command] for details`,
