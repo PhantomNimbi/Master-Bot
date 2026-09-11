@@ -14,9 +14,12 @@ docker-compose.yaml
 LICENSE*
 README.md
 
-# Node Modules and lint settings
+# Node Modules, lock files and lint settings
 node_modules
 .prettierrc
 dist
 logs
 Lavalink.jar
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
