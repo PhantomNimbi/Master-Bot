@@ -45,24 +45,21 @@ LAVA_SECURE=true
 
 > 📊 **Server Dashboard:** You can access live node information and server status directly from the dashboard at [https://lavalink-server-4n9o.onrender.com/](https://lavalink-server-4n9o.onrender.com/).
 
-### Option B: 1-Click External Lavalink Server (Recommended for Cloud Hosting)
+### Option B: 1-Click External Lavalink Server on Heroku
 
-Cloud free tiers (Render, Railway, Heroku, Fly.io) cannot run an internal Lavalink instance alongside the bot due to strict memory limits.
+Cloud free tiers cannot run an internal Lavalink instance alongside the bot due to strict memory limits.
 
-You can deploy your own standalone **[Lavalink v4 Server](https://github.com/HELIX-Origin/Lavalink-Server)** with one click:
+You can deploy your own standalone **[Lavalink v4 Server](https://github.com/HELIX-Origin/Lavalink-Server)** to Heroku with one click:
 
-| Platform | Free Tier | Deploy Button |
-| :--- | :---: | :--- |
-| **Render** | ✅ 100% Free | [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/HELIX-Origin/Lavalink-Server) |
-| **Railway** | ✅ Free Starter | [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2FHELIX-Origin%2FLavalink-Server) |
-| **Heroku** | ✅ Eco Dyno | [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/HELIX-Origin/Lavalink-Server) |
-| **Fly.io** | ✅ Free MicroVM | [![Deploy to Fly.io](https://img.shields.io/badge/Deploy%20to-Fly.io-24185b?style=for-the-badge&logo=flydotio&logoColor=white)](https://github.com/HELIX-Origin/Lavalink-Server/blob/main/wiki/Deployment.md#flyio) |
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/HELIX-Origin/Lavalink-Server)
+
+> 💡 **Cloud Hosting Note:** Heroku is our only supported one-click cloud deployment for Lavalink Server. Other shared PaaS platforms (Render, Railway) prohibit continuous audio streaming containers. Self-hosting via Docker Compose on a dedicated VPS is also fully supported.
 
 Once deployed, set the following in Master-Bot's `.env`:
 ```env
 LAVA_ENABLED=true
 LAVA_EXTERNAL=true
-LAVA_HOST="your-lavalink-server.onrender.com"
+LAVA_HOST="your-app-name.herokuapp.com"
 LAVA_PORT=443
 LAVA_PASS="youshallnotpass"
 LAVA_SECURE=true

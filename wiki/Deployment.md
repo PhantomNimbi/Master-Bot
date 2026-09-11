@@ -45,7 +45,7 @@ flowchart TD
 ## 🎵 Audio Engine on Cloud Hosts (External Lavalink Required)
 
 > [!IMPORTANT]
-> **One-click cloud deployments (Render, Railway, Heroku, Fly.io) cannot run an internal Lavalink server.**
+> **One-click cloud deployments cannot run an internal Lavalink server.**
 > Cloud free tiers run in standard single-process Node.js container environments with strict RAM limits (typically 512 MB) and no Java runtime. Running an internal Lavalink audio engine with YouTube Java plugins inside the same free container would cause immediate Out-Of-Memory (OOM) crashes.
 >
 > Therefore:
@@ -69,20 +69,19 @@ LAVA_SECURE=true
 
 > 📊 **Server Dashboard:** You can access live node information and server status directly from the dashboard at [https://lavalink-server-4n9o.onrender.com/](https://lavalink-server-4n9o.onrender.com/).
 
-#### 🚀 Option B: Deploy Your Own Standalone Lavalink Server
+#### 🚀 Option B: Deploy Your Own Standalone Lavalink Server on Heroku
 
-| Platform | Free Tier | Lavalink Deploy Button |
-| :--- | :---: | :--- |
-| **Render** | ✅ 100% Free | [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/HELIX-Origin/Lavalink-Server) |
-| **Railway** | ✅ Free Starter | [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2FHELIX-Origin%2FLavalink-Server) |
-| **Heroku** | ✅ Eco Dyno | [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/HELIX-Origin/Lavalink-Server) |
-| **Fly.io** | ✅ Free MicroVM | [![Deploy to Fly.io](https://img.shields.io/badge/Deploy%20to-Fly.io-24185b?style=for-the-badge&logo=flydotio&logoColor=white)](https://github.com/HELIX-Origin/Lavalink-Server#flyio-deployment) |
+Deploy the standalone [**HELIX-Origin Lavalink v4 Server**](https://github.com/HELIX-Origin/Lavalink-Server) to Heroku with one click:
+
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/HELIX-Origin/Lavalink-Server)
+
+> 💡 **Cloud Hosting Note:** Heroku is our only supported one-click cloud deployment for Lavalink Server. Other shared PaaS platforms (Render, Railway) prohibit continuous audio streaming containers. Self-hosting via Docker Compose on a dedicated VPS is also fully supported.
 
 Once your external server is up, configure your bot's environment variables:
 ```env
 LAVA_ENABLED=true
 LAVA_EXTERNAL=true
-LAVA_HOST=your-lavalink-server.onrender.com
+LAVA_HOST=your-app-name.herokuapp.com
 LAVA_PORT=443
 LAVA_PASS=youshallnotpass
 LAVA_SECURE=true

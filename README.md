@@ -17,10 +17,7 @@ Deploy Master-Bot instantly to your preferred cloud hosting platform with zero s
 
 | Platform | Free Tier | Deploy Button |
 | :--- | :---: | :--- |
-| **Render** | ✅ 100% Free | [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/galnir/Master-Bot) |
-| **Railway** | ✅ Free Starter | [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2Fgalnir%2FMaster-Bot) |
 | **Heroku** | ✅ Eco Dyno | [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/galnir/Master-Bot) |
-| **Fly.io** | ✅ Free Tier | [![Deploy to Fly.io](https://img.shields.io/badge/Deploy%20to-Fly.io-24185b?style=for-the-badge&logo=flydotio&logoColor=white)](wiki/Deployment.md#3--flyio-flyio) |
 
 > 💡 **Audio Engine Notice:** One-click cloud free tiers do not run an internal Lavalink audio engine due to memory constraints. To enable music commands on cloud platforms, deploy an external Lavalink server using the one-click buttons below or connect to an existing instance. See the [Deployment Wiki](wiki/Deployment.md) for instructions.
 >
@@ -28,16 +25,13 @@ Deploy Master-Bot instantly to your preferred cloud hosting platform with zero s
 
 ### 🔊 One-Click External Lavalink Server Deployment
 
-Deploy the standalone [**HELIX-Origin Lavalink v4 Server**](https://github.com/HELIX-Origin/Lavalink-Server) (pre-configured with YouTube, remote cipher, and Spotify plugins) to free cloud hosting with one click:
+Deploy the standalone [**HELIX-Origin Lavalink v4 Server**](https://github.com/HELIX-Origin/Lavalink-Server) (pre-configured with YouTube, remote cipher, and Spotify plugins) to Heroku with one click:
 
-| Platform | Free Tier | Lavalink Deploy Button |
-| :--- | :---: | :--- |
-| **Render** | ✅ 100% Free | [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/HELIX-Origin/Lavalink-Server) |
-| **Railway** | ✅ Free Starter | [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2FHELIX-Origin%2FLavalink-Server) |
-| **Heroku** | ✅ Eco Dyno | [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/HELIX-Origin/Lavalink-Server) |
-| **Fly.io** | ✅ Free MicroVM | [![Deploy to Fly.io](https://img.shields.io/badge/Deploy%20to-Fly.io-24185b?style=for-the-badge&logo=flydotio&logoColor=white)](https://github.com/HELIX-Origin/Lavalink-Server#flyio-deployment) |
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/HELIX-Origin/Lavalink-Server)
 
-Once deployed, simply copy your server domain into Master-Bot's `LAVA_HOST` environment variable with `LAVA_EXTERNAL=true`.
+> 💡 **Cloud Hosting Note:** Heroku is the only supported one-click cloud deployment for Lavalink Server. Other shared PaaS platforms (such as Render or Railway) prohibit continuous audio streaming proxies. Dedicated VPS hosting (via Docker Compose) is also supported.
+
+Once deployed, simply copy your server domain into Master-Bot's `LAVA_HOST` environment variable with `LAVA_EXTERNAL=true`, `LAVA_PORT=443`, and `LAVA_SECURE=true`.
 
 ---
 
