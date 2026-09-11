@@ -16,8 +16,9 @@ let activeServer: http.Server | null = null;
 function resolveDashboardDir(): string {
 	const candidates = [
 		path.resolve(process.cwd(), 'apps', 'dashboard'),
+		path.resolve(process.cwd(), '..', 'dashboard'),
 		path.resolve(__dirname, '..', '..', '..', '..', 'apps', 'dashboard'),
-		path.resolve(__dirname, '..', '..', '..', 'dashboard'),
+		path.resolve(__dirname, '..', '..', '..', '..', 'dashboard'),
 		path.resolve(process.cwd(), 'dashboard'),
 		path.resolve(__dirname, 'apps', 'dashboard')
 	];
@@ -32,7 +33,7 @@ function resolveDashboardDir(): string {
 		}
 	}
 
-	return path.resolve(process.cwd(), 'apps', 'dashboard');
+	return path.resolve(process.cwd(), '..', 'dashboard');
 }
 
 /**
