@@ -107,6 +107,8 @@ heroku create your-master-bot-app
 heroku buildpacks:set heroku/nodejs
 ```
 
+> ⚠️ **Use a custom domain.** Heroku now generates random-suffix URLs like `your-master-bot-app-<random8>.herokuapp.com`. These domains are frequently abused and **often get flagged by Google Safe Browsing**, which shows a bogus "dangerous site" warning in browsers (including during Discord login). Eco dynos support custom domains with free auto SSL (ACM) — add one before sharing the invite/auth links. Run `heroku apps:rename` if you want a cleaner app name.
+
 ### Step 3 — Push your environment variables from `.env`
 
 The Heroku CLI reads `.env` files through the official `heroku-config` plugin — a single command imports every variable from your repo-root `.env`:
