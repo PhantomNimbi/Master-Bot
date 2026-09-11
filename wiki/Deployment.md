@@ -103,7 +103,7 @@ LAVA_SECURE=true
 
 ## 1. 🟣 Render (`render.com`)
 
-Render offers managed Node.js Web Services on its 100% Free Tier plan.
+Render offers managed containerized Web Services on its 100% Free Tier plan. Master-Bot deploys via `Dockerfile` (`runtime: docker` in `render.yaml`), guaranteeing that all native system libraries (such as `libfontconfig1` for canvas and `openssl`), Node runtime, Prisma Client, and Turborepo build tools are compiled and executed in a clean Linux environment.
 
 ### ⚠️ Critical Notice: Custom Domains & Browser Phishing Protections
 
@@ -128,7 +128,7 @@ Master-Bot includes an integrated **Keep-Alive Service** (`apps/bot/src/lib/serv
 ### One-Click Deploy on Render
 Click the **Deploy to Render** button in the [README.md](../README.md) or use Blueprint:
 1. In the [Render Dashboard](https://dashboard.render.com), click **New +** > **Blueprint**.
-2. Connect your repository fork. Render reads `render.yaml` automatically.
+2. Connect your repository fork. Render reads `render.yaml` automatically and builds using the repository `Dockerfile`.
 3. Fill in your required environment variables:
    - `DISCORD_TOKEN`: Bot token from [Discord Developer Portal](https://discord.com/developers/applications).
    - `DISCORD_CLIENT_ID`: Application ID.
@@ -139,16 +139,15 @@ Click the **Deploy to Render** button in the [README.md](../README.md) or use Bl
 ### Manual Render Setup
 1. **New Web Service** > Connect Git repository.
 2. Settings:
-   - **Environment:** `Node`
+   - **Environment / Runtime:** `Docker`
    - **Plan:** `Free`
-   - **Build Command:** `pnpm install && pnpm build`
-   - **Start Command:** `pnpm start`
+   - **Dockerfile Path:** `./Dockerfile`
 3. Environment Variables:
-   - `NODE_ENV`: `production`
    - `PORT`: `10000`
    - `KEEP_ALIVE_ENABLED`: `true`
    - `LAVA_ENABLED`: `false`
    - `LAVA_EXTERNAL`: `true`
+   - `DATABASE_URL`: `file:./db.sqlite`
    - `INTERNAL_URL`: `http://localhost:10000`
    - `PUBLIC_URL`: `https://bot.yourdomain.com`
    - `DISCORD_CALLBACK_URL`: `https://discord.com/api/oauth2/authorize?client_id=your_client_id&permissions=8&scope=bot`
