@@ -45,24 +45,19 @@ LAVA_SECURE=true
 
 > 📊 **Server Dashboard:** You can access live node information and server status directly from the dashboard at [https://lavalink-server-4n9o.onrender.com/](https://lavalink-server-4n9o.onrender.com/).
 
-### Option B: 1-Click External Lavalink Server on Heroku
+### Option B: Embedded Lavalink on Heroku (Recommended)
 
-Cloud free tiers cannot run an internal Lavalink instance alongside the bot due to strict memory limits.
+Master-Bot's Heroku deployment downloads the **latest Lavalink v4 jar** at build time and starts it in the same eco dyno as the bot — no separate audio server to host. See the [Deployment Wiki](Deployment.md#-audio-engine-embedded-lavalink-on-heroku) for the full setup.
 
-You can deploy your own standalone **[Lavalink v4 Server](https://github.com/HELIX-Origin/Lavalink-Server)** to Heroku with one click:
+In `.env`:
 
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/HELIX-Origin/Lavalink-Server)
-
-> 💡 **Cloud Hosting Note:** Heroku is our only supported one-click cloud deployment for Lavalink Server. Other shared PaaS platforms (Render, Railway) prohibit continuous audio streaming containers. Self-hosting via Docker Compose on a dedicated VPS is also fully supported.
-
-Once deployed, set the following in Master-Bot's `.env`:
 ```env
 LAVA_ENABLED=true
-LAVA_EXTERNAL=true
-LAVA_HOST="your-app-name.herokuapp.com"
-LAVA_PORT=443
-LAVA_PASS="youshallnotpass"
-LAVA_SECURE=true
+LAVA_EXTERNAL=false
+LAVA_HOST=localhost
+LAVA_PORT=2333
+LAVA_PASS=youshallnotpass
+LAVA_SECURE=false
 ```
 
 ### Option C: Local Lavalink Server (For Local / Dedicated VPS Development)

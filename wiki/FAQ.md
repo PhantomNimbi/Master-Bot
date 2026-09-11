@@ -18,7 +18,7 @@ Register happens at boot — restart the bot after flipping a feature flag (`LAV
 ## 🎵 Music
 
 **“No available audio players” / nothing plays.**
-Lavalink isn't running or isn't reachable. Start it locally (`java -jar Lavalink.jar`), deploy an external server with one click via [**HELIX-Origin/Lavalink-Server**](https://github.com/HELIX-Origin/Lavalink-Server), or connect to the public Lavalink server hosted by HELIX Origin (`lavalink-server-4n9o.onrender.com`, port `443`, secure `true`). Check that `LAVA_HOST`, `LAVA_PORT`, and `LAVA_PASS` match. On a remote host also set `LAVA_EXTERNAL=true` (and `LAVA_SECURE=true` if using TLS/WSS).
+Lavalink isn't running or isn't reachable. On Heroku it starts automatically in the same dyno (`LAVA_ENABLED=true`, `LAVA_HOST=localhost`). Locally, start it with `java -jar Lavalink.jar`, or connect to the public Lavalink server hosted by HELIX Origin (`lavalink-server-4n9o.onrender.com`, port `443`, secure `true`). Verify that `LAVA_HOST`, `LAVA_PORT`, `LAVA_PASS`, and `LAVA_SECURE` all match your setup. On an external instance also set `LAVA_EXTERNAL=true`.
 
 **Spotify links do nothing.** Add `SPOTIFY_CLIENT_ID` + `SPOTIFY_CLIENT_SECRET`.
 

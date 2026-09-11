@@ -1,1 +1,1 @@
-web: pnpm start
+web: sh -c 'env PORT="${LAVA_PORT:-2333}" java -jar Lavalink.jar & pnpm start'

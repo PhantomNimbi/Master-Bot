@@ -11,27 +11,16 @@
 
 ---
 
-## 🚀 One-Click Cloud Deployment (100% Free Tiers)
+## 🚀 Deployment
 
-Deploy Master-Bot instantly to your preferred cloud hosting platform with zero server setup. Powered by an in-memory `ioredis-mock` cache and zero-ops SQLite persistence, you don't need any external database or Redis instances.
+Master-Bot deploys as a single Heroku app (one eco dyno) that hosts the **Discord bot**, the **Next.js dashboard**, and the **Lavalink v4 audio server** all in the same process/dyno. The Heroku build automatically downloads the latest Lavalink v4 jar and the web process starts it alongside the bot — no separate hosting required.
 
-| Platform | Free Tier | Deploy Button |
-| :--- | :---: | :--- |
-| **Heroku** | ✅ Eco Dyno | [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/galnir/Master-Bot) |
+| Platform | Notes |
+| :--- | :--- |
+| **Heroku** | Single eco dyno (flat **$5/mo**, no free tier): bot + dashboard + embedded Lavalink. Deploy with the Heroku CLI — full guide in the [Deployment Wiki](wiki/Deployment.md). |
+| **Docker / VPS** | Self-hosted `Dockerfile` + `docker-compose.yml` (Lavalink runs in its own container). See [Deployment Wiki](wiki/Deployment.md). |
 
-> 💡 **Audio Engine Notice:** One-click cloud free tiers do not run an internal Lavalink audio engine due to memory constraints. To enable music commands on cloud platforms, deploy an external Lavalink server using the one-click buttons below or connect to an existing instance. See the [Deployment Wiki](wiki/Deployment.md) for instructions.
->
-> ⚠️ **Render Custom Domain Notice:** Render's default `*.onrender.com` URLs get falsely flagged by browser protections and Discord filters. Attach a free custom domain (e.g., from [ifreedomains.com](https://ifreedomains.com)) in Render's dashboard. See the [Render Setup Guide](wiki/Deployment.md#1--render-rendercom).
-
-### 🔊 One-Click External Lavalink Server Deployment
-
-Deploy the standalone [**HELIX-Origin Lavalink v4 Server**](https://github.com/HELIX-Origin/Lavalink-Server) (pre-configured with YouTube, remote cipher, and Spotify plugins) to Heroku with one click:
-
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/HELIX-Origin/Lavalink-Server)
-
-> 💡 **Cloud Hosting Note:** Heroku is the only supported one-click cloud deployment for Lavalink Server. Other shared PaaS platforms (such as Render or Railway) prohibit continuous audio streaming proxies. Dedicated VPS hosting (via Docker Compose) is also supported.
-
-Once deployed, simply copy your server domain into Master-Bot's `LAVA_HOST` environment variable with `LAVA_EXTERNAL=true`, `LAVA_PORT=443`, and `LAVA_SECURE=true`.
+> 💡 **Audio Engine:** On Heroku the latest Lavalink v4 server is downloaded at build time (`scripts/heroku-setup-lavalink.sh`) and started from the `Procfile`, listening on `LAVA_PORT` (default `2333`) inside the dyno. Since there is no separate proxy/streaming host, the eco dyno is all you need.
 
 ---
 
@@ -51,12 +40,10 @@ Master-Bot/
 ├── wiki/                    # Complete Project Documentation & Deployment Guides
 ├── packages/db/prisma/       # Prisma schema + db.sqlite (auto-created on install)
 ├── application.yml.example  # Lavalink v4 Configuration Template (copy to application.yml)
-├── render.yaml              # Render 1-Click Free Tier Blueprint
-├── railway.json             # Railway 1-Click Deployment Specification
-├── app.json                 # Heroku 1-Click Deployment Manifest
-├── Procfile                 # Process manifest for Heroku and cloud managers
-├── fly.toml                 # Fly.io Free-Tier MicroVM Configuration
-└── Dockerfile               # Containerized single-service deployment
+├── Procfile                 # Heroku process manifest (bot + embedded Lavalink)
+├── scripts/                 # Deployment helper scripts (Heroku Lavalink downloader)
+├── Dockerfile               # Containerized single-service deployment
+└── docker-compose.yml       # Bot + Lavalink containers for VPS self-hosting
 ```
 
 > 🔄 **Consolidated Runtime:** Master-Bot runs both the Discord bot gateway and the Next.js web dashboard inside a single Node.js process on port `PORT` (`/dashboard`), with a single console window and zero external Redis dependencies. For full deployment details, follow the [Deployment Wiki](wiki/Deployment.md).
@@ -82,9 +69,9 @@ Master-Bot/
 
 ## 📋 System Requirements
 
-- **Node.js**: `>=20.0.0`
+- **Node.js**: `24.x` LTS recommended (`>=20.0.0` supported)
 - **pnpm**: `>=8.0.0` (`npm install -g pnpm`)
-- **Java**: Java 17+ (21 LTS recommended) — only required for a **local Lavalink** server. If using an external server like [**HELIX-Origin/Lavalink-Server**](https://github.com/HELIX-Origin/Lavalink-Server), Java is not required on your machine.
+- **Java**: Java 17+ (21 LTS recommended) — required only if you self-host Lavalink locally or via Docker. On Heroku the `heroku/jvm` buildpack provides it and the build downloads the Lavalink v4 jar automatically.
 - **Database**: None — SQLite file (`db.sqlite`) is created automatically
 
 ---
