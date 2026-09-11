@@ -3,6 +3,7 @@ services:
   master-bot:
     platform: 'linux/amd64'
     env_file:
+      - .env
       - docker.env
     restart: always
     build: .
@@ -10,7 +11,7 @@ services:
       - '3000:3000' # Dashboard & Health
       # - "5555:5555" # Prisma Studio Port  - uncomment to open
     command: >
-      sh -c "pnpm run db:push && pnpm run -r start"
+      sh -c "pnpm run db:push && pnpm start"
     depends_on:
       lavalink:
         condition: service_healthy

@@ -19,9 +19,7 @@ RUN apt-get update && apt-get upgrade -y -q && \
 # Copy repository contents into container
 COPY ./ ./
 
-# Ensure lock file is deleted on build/rebuild to prevent locked builds
-RUN rm -f pnpm-lock.yaml package-lock.json yarn.lock && \
-    pnpm install --no-frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 # Build all workspace packages, Prisma Client, and Next.js dashboard
 RUN pnpm build

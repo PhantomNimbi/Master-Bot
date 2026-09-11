@@ -1,5 +1,6 @@
 # Nextjs Files
 .next
+**/.next
 
 # Docker Files
 Dockerfile
@@ -11,15 +12,39 @@ docker-compose.yaml
 .git
 .github
 .gitignore
+
+# Environment / Secrets
+.env
+.env*.local
+docker.env.example
+
+# Node Modules
+node_modules
+**/node_modules
+
+# Build Output
+dist
+build
+.turbo
+*.tsbuildinfo
+
+# Databases
+*.sqlite
+*-journal
+
+# Logs
+logs
+*.log
+
+# Tooling output
+.prettierrc
+Lavalink.jar
+plugins
+application.yml
+application.yaml
 LICENSE*
 README.md
-
-# Node Modules, lock files and lint settings
-node_modules
-.prettierrc
-dist
-logs
-Lavalink.jar
-pnpm-lock.yaml
-package-lock.json
-yarn.lock
+PLAN.md
+AGENTS.md
+scratch
+tests
