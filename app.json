@@ -1,7 +1,14 @@
 {
   "name": "Master-Bot",
   "description": "High-performance Discord bot and Next.js dashboard with zero-binary ioredis-mock and SQLite persistence.",
-  "keywords": ["discord", "bot", "music", "dashboard", "nextjs", "typescript"],
+  "keywords": [
+    "discord",
+    "bot",
+    "music",
+    "dashboard",
+    "nextjs",
+    "typescript"
+  ],
   "repository": "https://github.com/galnir/Master-Bot",
   "logo": "https://raw.githubusercontent.com/galnir/Master-Bot/main/apps/dashboard/public/favicon.ico",
   "success_url": "/dashboard",
@@ -20,6 +27,11 @@
     "NODE_ENV": {
       "value": "production"
     },
+    "NODEJS_ALLOW_WIDE_RANG": {
+      "description": "Allow wide range requests",
+      "value": "true",
+      "required": false
+    },
     "DISCORD_TOKEN": {
       "description": "Discord Bot Token from the Discord Developer Portal",
       "required": true
@@ -32,21 +44,19 @@
       "description": "Discord Application Client Secret",
       "required": true
     },
-    "NEXTAUTH_SECRET": {
-      "description": "Random 32+ character secret used to sign dashboard session tokens",
-      "generator": "secret"
+    "INTERNAL_URL": {
+      "description": "The internal URL of your deployed application (e.g. https://localhost:3000)",
+      "value": "https://localhost:3000",
+      "required": true
     },
     "PUBLIC_URL": {
-      "description": "The public HTTPS URL of your deployed application (e.g. https://your-app.herokuapp.com)",
-      "required": false
+      "description": "The public URL of your deployed application (e.g. https://your-app.herokuapp.com)",
+      "required": true
     },
     "DISCORD_CALLBACK_URL": {
-      "description": "Public OAuth2 bot invite URL",
-      "required": false
-    },
-    "KEEP_ALIVE_ENABLED": {
-      "value": "true",
-      "required": false
+      "value": "https://discord.com/api/oauth2/authorize?client_id=your-client-id&permissions=8&scope=bot",
+      "description": "Public OAuth2 bot invite URL (Replace your-clinet-id with your discord application's client id)",
+      "required": true
     },
     "LAVA_ENABLED": {
       "value": "false",
@@ -54,8 +64,44 @@
       "required": false
     },
     "LAVA_EXTERNAL": {
-      "value": "true",
+      "value": "false",
       "description": "Defaults to true for cloud deployments to connect to an external Lavalink instance",
+      "required": false
+    },
+    "LAVA_HOST": {
+      "description": "The public URL of the Lavalink instance (e.g. https://your-domain.com)",
+      "required": false
+    },
+    "LAVA_PASS": {
+      "value": "youshallnotpass",
+      "required": false
+    },
+    "LAVA_PORT": {
+      "value": "2333",
+      "required": false
+    },
+    "LAVA_SECURE": {
+      "value": "true",
+      "required": false
+    },
+    "TWITCH_CLIENT_ID": {
+      "description": "Twitch Application Client ID",
+      "required": false
+    },
+    "TWITCH_CLIENT_SECRET": {
+      "description": "Twitch Application Client Secret",
+      "required": false
+    },
+    "KLIPY_API": {
+      "description": "Klipy API Key",
+      "required": false
+    },
+    "NEWS_API": {
+      "description": "News API Key",
+      "required": false
+    },
+    "GENIUS_API": {
+      "description": "Genius API Key",
       "required": false
     }
   }
