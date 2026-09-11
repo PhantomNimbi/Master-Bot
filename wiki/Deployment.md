@@ -48,9 +48,11 @@ Master-Bot bundles a **Lavalink v4** audio server into the same Heroku app. On a
 
 How it works:
 
-1. During the Heroku build, the `heroku-prebuild` step (see `scripts/heroku-setup-lavalink.sh`) downloads the **latest Lavalink v4 jar** from [lavalink-devs/Lavalink](https://github.com/lavalink-devs/Lavalink) and copies `application.yml.example` → `application.yml`.
+1. During the Heroku build, the `heroku-prebuild` step (see `scripts/heroku-setup-lavalink.sh`) downloads the **latest Lavalink v4 jar** from [lavalink-devs/Lavalink](https://github.com/lavalink-devs/Lavalink) and copies the repo's `application.yml.example` → `application.yml`.
 2. The `Procfile` web process starts `java -jar Lavalink.jar` on `LAVA_PORT` (default `2333`) in the background, then boots the bot.
 3. The bot connects to the audio server over `localhost` with `LAVA_SECURE=false`.
+
+> ⚠️ **Configuration:** `application.yml` is created from **Master-Bot's own `application.yml.example`**, which contains custom fixes (YouTube multi-client + OAuth via the `youtube-plugin`, Spotify → YouTube resolution via `lavasrc`, tuned streaming buffers) that are **broken in Lavalink's stock default config**. Do **not** replace it with the `application.yml` from the Lavalink release — see [Lavalink Configuration](Lavalink.md).
 
 Required audio environment variables:
 

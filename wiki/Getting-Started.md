@@ -75,7 +75,8 @@ Install Lavalink for local music (optional):
 
 ```bash
 # Download the latest Lavalink v4 jar from the releases page,
-# then copy the provided example config:
+# then copy the repo's config template (not Lavalink's stock application.yml —
+# it lacks the YouTube/Spotify fixes, see wiki/Lavalink.md):
 cp application.yml.example application.yml
 java -jar Lavalink.jar
 ```
