@@ -8,7 +8,7 @@ This guide walks you through installing, configuring, and launching **Master-Bot
 | --- | --- | --- |
 | **Node.js** | `>= 20.0` | Runtime for the bot and dashboard |
 | **pnpm** | `8.x` (repo pins `pnpm@8.6.7`) | Package manager for the workspace |
-| **Java** | `17+` | Only required if running a **local Lavalink** server. Not needed if using an external server like [HELIX-Origin/Lavalink-Server](https://github.com/HELIX-Origin/Lavalink-Server) (see [Music & Lavalink](Music.md)) |
+| **Java** | `17+` | Only required if running a **local Lavalink** server. Not needed if using an external server like [HELIX-Origin/Lavalink-Server](https://github.com/HELIX-Origin/Lavalink-Server) or HELIX Origin's public Lavalink server (see [Music & Lavalink](Music.md)) |
 | **Discord Application** | — | Bot token, client ID, and secret from the [Discord Developer Portal](https://discord.com/developers/applications) |
 
 > 💡 **Music is optional.** If you don't provide Lavalink (or set `LAVA_ENABLED=false`), every other feature still works.

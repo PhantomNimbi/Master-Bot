@@ -35,3 +35,4 @@
 
 - **Repository:** https://github.com/galnir/Master-Bot
 - **Lavalink v4 Releases:** https://github.com/lavalink-devs/Lavalink/releases
+- **HELIX Origin Lavalink Dashboard:** https://lavalink-server-4n9o.onrender.com/

@@ -52,7 +52,24 @@ flowchart TD
 > - `LAVA_ENABLED` defaults to `false` on all one-click cloud deployment templates.
 > - To enable music commands on cloud platforms, deploy a standalone external Lavalink server using the one-click buttons below:
 
-### 🔊 One-Click External Lavalink Server Deployment
+### 🔊 External Lavalink Server Setup
+
+#### 🌐 Option A: Public Lavalink Server Hosted by HELIX Origin (Instant Setup)
+
+If you want music functionality without deploying or maintaining your own audio server, connect directly to the public Lavalink server hosted by **HELIX Origin**:
+
+```env
+LAVA_ENABLED=true
+LAVA_EXTERNAL=true
+LAVA_HOST="lavalink-server-4n9o.onrender.com"
+LAVA_PORT=443
+LAVA_PASS="youshallnotpass"
+LAVA_SECURE=true
+```
+
+> 📊 **Server Dashboard:** You can access live node information and server status directly from the dashboard at [https://lavalink-server-4n9o.onrender.com/](https://lavalink-server-4n9o.onrender.com/).
+
+#### 🚀 Option B: Deploy Your Own Standalone Lavalink Server
 
 | Platform | Free Tier | Lavalink Deploy Button |
 | :--- | :---: | :--- |

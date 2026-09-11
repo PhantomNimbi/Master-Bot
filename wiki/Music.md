@@ -28,12 +28,28 @@ flowchart LR
 
 ## 🗄️ Lavalink Setup
 
-Master-Bot supports two Lavalink hosting models:
+Master-Bot supports three Lavalink setup options:
 
-### Option A: 1-Click External Lavalink Server (Recommended for Cloud Hosting)
+### Option A: Public Lavalink Server Hosted by HELIX Origin (Quickest Setup)
+
+If you want music functionality without deploying or hosting your own Lavalink server, you can use the free public Lavalink server hosted by **HELIX Origin**:
+
+```env
+LAVA_ENABLED=true
+LAVA_EXTERNAL=true
+LAVA_HOST="lavalink-server-4n9o.onrender.com"
+LAVA_PORT=443
+LAVA_PASS="youshallnotpass"
+LAVA_SECURE=true
+```
+
+> 📊 **Server Dashboard:** You can access live node information and server status directly from the dashboard at [https://lavalink-server-4n9o.onrender.com/](https://lavalink-server-4n9o.onrender.com/).
+
+### Option B: 1-Click External Lavalink Server (Recommended for Cloud Hosting)
+
 Cloud free tiers (Render, Railway, Heroku, Fly.io) cannot run an internal Lavalink instance alongside the bot due to strict memory limits.
 
-You can deploy HELIX Origin's standalone **[Lavalink v4 Server](https://github.com/HELIX-Origin/Lavalink-Server)** with one click:
+You can deploy your own standalone **[Lavalink v4 Server](https://github.com/HELIX-Origin/Lavalink-Server)** with one click:
 
 | Platform | Free Tier | Deploy Button |
 | :--- | :---: | :--- |
@@ -52,7 +68,7 @@ LAVA_PASS="youshallnotpass"
 LAVA_SECURE=true
 ```
 
-### Option B: Local Lavalink Server (For Local / Dedicated VPS Development)
+### Option C: Local Lavalink Server (For Local / Dedicated VPS Development)
 1. Download the latest **Lavalink v4** jar from the [Lavalink releases page](https://github.com/lavalink-devs/Lavalink/releases).
 2. Copy the repo's config: `cp application.yml.example application.yml`
 3. Launch the server: `java -jar Lavalink.jar`
