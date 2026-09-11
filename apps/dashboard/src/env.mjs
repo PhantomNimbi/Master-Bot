@@ -1,6 +1,16 @@
 import { createEnv } from '@t3-oss/env-nextjs';
 import { z } from 'zod';
 
+const DEFAULT_INVITE_URL =
+	'https://discord.com/api/oauth2/authorize?client_id=placeholder&permissions=8&scope=bot';
+
+const resolveInviteUrl = () =>
+	process.env.NEXT_PUBLIC_INVITE_URL ||
+	process.env.DISCORD_CALLBACK_URL ||
+	(process.env.DISCORD_CLIENT_ID
+		? `https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&permissions=8&scope=bot`
+		: DEFAULT_INVITE_URL);
+
 export const env = createEnv({
 	/**
 	 * Specify your server-side environment variables schema here. This way you can ensure the app isn't
@@ -30,11 +40,7 @@ export const env = createEnv({
 	 * For them to be exposed to the client, prefix them with `NEXT_PUBLIC_`.
 	 */
 	client: {
-		NEXT_PUBLIC_INVITE_URL: z
-			.string()
-			.default(
-				'https://discord.com/api/oauth2/authorize?client_id=placeholder&permissions=8&scope=bot'
-			)
+		NEXT_PUBLIC_INVITE_URL: z.string().default(DEFAULT_INVITE_URL)
 	},
 	/**
 	 * Destructure all variables from `process.env` to make sure they aren't tree-shaken away.
@@ -55,10 +61,7 @@ export const env = createEnv({
 		YOUTUBE_CIPHER_PASSWORD: process.env.YOUTUBE_CIPHER_PASSWORD,
 		SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
 		SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
-		NEXT_PUBLIC_INVITE_URL:
-			process.env.NEXT_PUBLIC_INVITE_URL ||
-			process.env.DISCORD_CALLBACK_URL ||
-			'https://discord.com/api/oauth2/authorize?client_id=placeholder&permissions=8&scope=bot'
+		NEXT_PUBLIC_INVITE_URL: resolveInviteUrl()
 	},
 	skipValidation: !!process.env.CI || !!process.env.SKIP_ENV_VALIDATION
 });
