@@ -24,7 +24,6 @@
 		"lint:fix": "turbo lint:fix && manypkg fix",
 		"type-check": "turbo type-check",
 		"postinstall": "pnpm db:generate && pnpm db:push",
-		"heroku-prebuild": "sh scripts/heroku-setup-lavalink.sh",
 		"docker-compose": "docker compose --env-file docker.env up -d --build"
 	},
 	"dependencies": {

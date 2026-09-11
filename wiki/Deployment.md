@@ -29,50 +29,24 @@ flowchart TD
     Dashboard <--> Cache
     Bot --> DB
     Dashboard --> DB
-    Bot -.->|"Audio (localhost:LAVA_PORT)"| Lavalink
+    Bot -.->|"Audio (WSS)"| Lavalink
     KeepAlive -->|"GET /health"| Dashboard
 ```
 
 - **Single Console Window:** No child-process console popups or separate terminal windows.
 - **Only Two Ports Required Across Entire System:**
   1. `PORT` (default `3000`): Unified web port shared by the Discord bot gateway, Next.js web dashboard (`/dashboard`), and health/keep-alive endpoints (`/health`).
-  2. `LAVA_PORT` (default `2333`): The embedded Lavalink audio server, bound to the dyno's loopback interface.
+  2. `LAVA_PORT` (default `2333`): The external Lavalink audio server port (bot connects over WebSocket).
 - **Zero Redis Server Process:** In-process in-memory `ioredis-mock` shares live state seamlessly between the bot and dashboard with zero separate binaries, processes, or ports.
 - **SQLite Persistence Layer:** Single embedded file (`db.sqlite`) preserves all guild configurations, roles, tickets, and playlists across restarts without requiring an external database server or port.
 
 ---
 
-## 🎵 Audio Engine: Embedded Lavalink on Heroku
+## 🎵 Audio Engine: External Lavalink (Heroku does not run it)
 
-Master-Bot bundles a **Lavalink v4** audio server into the same Heroku app. On a single **eco dyno** the bot, the dashboard, *and* Lavalink all run together — there is no separate audio server to host or pay for.
+Master-Bot does **not** bundle a Lavalink server on Heroku: a Java audio server alongside Node exceeds the eco dyno's 512 MB memory limit (R14 crash), so the app hosts the **bot + dashboard only** and connects to an **external Lavalink v4** server.
 
-How it works:
-
-1. During the Heroku build, the `heroku-prebuild` step (see `scripts/heroku-setup-lavalink.sh`) downloads the **latest Lavalink v4 jar** from [lavalink-devs/Lavalink](https://github.com/lavalink-devs/Lavalink) and copies the repo's `application.yml.example` → `application.yml`.
-2. The `Procfile` web process starts `java -jar Lavalink.jar` on `LAVA_PORT` (default `2333`) in the background, then boots the bot.
-3. The bot connects to the audio server over `localhost` with `LAVA_SECURE=false`.
-
-> ⚠️ **Configuration:** `application.yml` is created from **Master-Bot's own `application.yml.example`**, which contains custom fixes (YouTube multi-client + OAuth via the `youtube-plugin`, Spotify → YouTube resolution via `lavasrc`, tuned streaming buffers) that are **broken in Lavalink's stock default config**. Do **not** replace it with the `application.yml` from the Lavalink release — see [Lavalink Configuration](Lavalink.md).
-
-Required audio environment variables:
-
-```env
-LAVA_ENABLED=true
-LAVA_EXTERNAL=false
-LAVA_HOST=localhost
-LAVA_PORT=2333
-LAVA_PASS=youshallnotpass
-LAVA_SECURE=false
-```
-
-> ℹ️ **Details:**
-> - Java is provided at runtime by the **`heroku/jvm`** buildpack.
-> - Pin a specific Lavalink release instead of "latest" by setting the `LAVALINK_VERSION` config var (e.g. `4.2.2`).
-> - Lavalink downloads its plugins (`youtube-plugin`, `lavasrc`) from Maven on first boot; the HTTP port it listens on is overridden to `LAVA_PORT` at runtime by the `Procfile` (the Heroku `PORT` value is only used by the Node web server).
-
-### Alternative: External Lavalink
-
-If you prefer an external audio server (e.g. a dedicated VPS or the public **HELIX Origin** instance — see [Music & Lavalink](Music.md)), set:
+Connect to the public **HELIX Origin** instance (see [Music & Lavalink](Music.md)) or self-host Lavalink via Docker/VPS:
 
 ```env
 LAVA_ENABLED=true
@@ -83,7 +57,9 @@ LAVA_PASS=youshallnotpass
 LAVA_SECURE=true
 ```
 
-(Leave `LAVA_HOST=localhost` when using the embedded server, or omit it — the bot defaults to `localhost`.)
+> ⚠️ **Configuration:** whichever server you use must run with a Lavalink v4 config equivalent to **Master-Bot's `application.yml.example`**, which contains custom fixes (YouTube multi-client + OAuth via the `youtube-plugin`, Spotify → YouTube resolution via `lavasrc`, tuned streaming buffers) that are **broken in Lavalink's stock default config**. Do **not** use the `application.yml` from the Lavalink release as-is — see [Lavalink Configuration](Lavalink.md).
+>
+> ℹ️ **While your Lavalink server is offline,** set `LAVA_ENABLED=false` on Heroku to run the bot and dashboard normally without music commands (no memory overhead, no crash risk).
 
 ---
 
@@ -91,19 +67,19 @@ LAVA_SECURE=true
 
 | Platform | Notes |
 | :--- | :--- |
-| **Heroku** | Recommended. One eco dyno hosts the bot, dashboard, and embedded Lavalink. Deployed entirely through the Heroku CLI (below). |
+| **Heroku** | Recommended. One eco dyno hosts the bot + dashboard; Lavalink runs externally. Deployed entirely through the Heroku CLI (below). |
 | **Docker / VPS** | Self-hosted. `Dockerfile` + `docker-compose.yml` run bot + dashboard and Lavalink in dedicated containers with persistent storage. |
 
 ---
 
 ## 1. 🟪 Heroku (`heroku.com`)
 
-Heroku is the supported cloud platform. The app uses the official **`heroku/nodejs`** buildpack (pnpm) plus the **`heroku/jvm`** buildpack for the embedded Lavalink server. Everything is managed from the Heroku CLI — no dashboard clicks required.
+Heroku is the supported cloud platform. The app uses the official **`heroku/nodejs`** buildpack (pnpm). Everything is managed from the Heroku CLI — no dashboard clicks required.
 
 > 💰 **Pricing:** Heroku no longer offers a free tier. This deployment requires a paid **Eco dyno** — a flat **$5/month** subscription that provides a pool of **1,000 dyno-hours per month, shared by every Eco dyno in your account**. A credit card is required to run the app.
 >
 > - Eco dynos **sleep after ~30 minutes of inactivity** to conserve the shared hour pool; Master-Bot's keep-alive pings keep the web process awake, so one bot easily fits in the 1,000 monthly hours. Watch the pool if you run *other* Eco apps in the same account.
-> - Eco plans allow **one dyno per process type** — the embedded design intentionally runs everything in a single `web` dyno, so this constraint is satisfied.
+> - Eco plans allow **one dyno per process type** — the app runs bot + dashboard in a single `web` dyno, so this constraint is satisfied.
 > - The subscription renews on the 1st of each month; you're billed the full $5/month whether or not the app is used, and you can unsubscribe at any time. (See [Eco Dyno Hours](https://devcenter.heroku.com/articles/eco-dyno-hours).)
 
 ### Step 1 — Install the Heroku CLI and log in
@@ -127,9 +103,8 @@ heroku login
 ```bash
 heroku create your-master-bot-app
 
-# Node.js first (app detection), then Java for the embedded Lavalink server
+# Node.js buildpack only (Java/Lavalink run externally, not on Heroku)
 heroku buildpacks:set heroku/nodejs
-heroku buildpacks:add heroku/jvm
 ```
 
 ### Step 3 — Push your environment variables from `.env`
@@ -154,7 +129,7 @@ NEXTAUTH_SECRET=            # random 32+ character string
 NEXTAUTH_URL="https://your-master-bot-app.herokuapp.com"
 PUBLIC_URL="https://your-master-bot-app.herokuapp.com"
 INTERNAL_URL="http://localhost:3000"
-LAVA_ENABLED=true
+LAVA_ENABLED=true      # set to false while your external Lavalink is offline
 ```
 
 > 🚀 **pnpm prerequisites** — Master-Bot installs and runs with pnpm, and its runtime scripts depend on devDependencies (`prisma`, `dotenv-cli`). Disable dependency pruning on Heroku:
@@ -171,7 +146,7 @@ LAVA_ENABLED=true
 git push heroku main
 ```
 
-The build output shows the Lavalink download (`heroku-prebuild`), the pnpm install/build, and finally the release. Once it's live:
+The build output shows the pnpm install/build, and finally the release. Once it's live:
 
 - **Dashboard:** `https://your-master-bot-app.herokuapp.com/dashboard`
 - **Health check:** `https://your-master-bot-app.herokuapp.com/health`
@@ -188,7 +163,7 @@ heroku ps                     # dyno status / restarts
 ```
 
 > [!WARNING]
-> **Ephemeral Filesystem:** Heroku dynos use an ephemeral filesystem. SQLite data is lost on restarts and redeploys, so take regular backups (see [Backups](#-backups)) or move persistence to an external database. The embedded Lavalink is stateless — its plugins are re-downloaded on boot — so nothing needs persisting for audio.
+> **Ephemeral Filesystem:** Heroku dynos use an ephemeral filesystem. SQLite data is lost on restarts and redeploys, so take regular backups (see [Backups](#-backups)) or move persistence to an external database.
 
 ---
 
@@ -254,11 +229,10 @@ The SQLite database lives at `packages/db/prisma/db.sqlite`.
 | `DATABASE_URL` | No | SQLite file path (default `file:./db.sqlite`). |
 | `PORT` | No | Listening port for web dashboard and health check (default: `3000`). |
 | `KEEP_ALIVE_ENABLED` | No | Set to `true` to enable background HTTP pings for cloud hosts. |
-| `LAVA_ENABLED` | No | Set to `true` to enable the audio engine (embedded Lavalink on Heroku). |
-| `LAVA_EXTERNAL` | No | `false` for the embedded server; `true` when connecting to an external one. |
-| `LAVA_HOST` | No | `localhost` (embedded) or the external Lavalink hostname / IP. |
+| `LAVA_ENABLED` | No | Set to `true` to enable the audio engine (external Lavalink). |
+| `LAVA_EXTERNAL` | No | `true` when connecting to an external Lavalink server. |
+| `LAVA_HOST` | No | The external Lavalink hostname / IP. |
 | `LAVA_PORT` | No | Lavalink port (default `2333`; `443` for TLS external instances). |
 | `LAVA_PASS` | No | Lavalink password (must match `application.yml`). |
-| `LAVA_SECURE` | No | `false` for embedded; `true` for TLS (WSS) external instances. |
-| `LAVALINK_VERSION` | No | Pin the Lavalink release (default: latest v4 from `lavalink-devs/Lavalink`). |
+| `LAVA_SECURE` | No | `true` for TLS (WSS) external instances. |
 | `PNPM_SKIP_PRUNING` | **Yes (Heroku)** | `true` — keeps pnpm devDependencies (prisma, dotenv-cli) at runtime. |

@@ -13,14 +13,14 @@
 
 ## 🚀 Deployment
 
-Master-Bot deploys as a single Heroku app (one eco dyno) that hosts the **Discord bot**, the **Next.js dashboard**, and the **Lavalink v4 audio server** all in the same process/dyno. The Heroku build automatically downloads the latest Lavalink v4 jar and the web process starts it alongside the bot — no separate hosting required.
+Master-Bot deploys to Heroku as a single app (one eco dyno) hosting the **Discord bot** and the **Next.js dashboard**. Music requires a **Lavalink v4 server running externally** — either the public HELIX Origin server or a Lavalink you host yourself (Docker/VPS). See the [Deployment Wiki](wiki/Deployment.md).
 
 | Platform | Notes |
 | :--- | :--- |
-| **Heroku** | Single eco dyno (flat **$5/mo**, no free tier): bot + dashboard + embedded Lavalink. Deploy with the Heroku CLI — full guide in the [Deployment Wiki](wiki/Deployment.md). |
+| **Heroku** | Single eco dyno (flat **$5/mo**, no free tier) hosts bot + dashboard. Music needs an external Lavalink server. Full guide in the [Deployment Wiki](wiki/Deployment.md). |
 | **Docker / VPS** | Self-hosted `Dockerfile` + `docker-compose.yml` (Lavalink runs in its own container). See [Deployment Wiki](wiki/Deployment.md). |
 
-> 💡 **Audio Engine:** On Heroku the latest Lavalink v4 server is downloaded at build time (`scripts/heroku-setup-lavalink.sh`) and started from the `Procfile`, listening on `LAVA_PORT` (default `2333`) inside the dyno. Since there is no separate proxy/streaming host, the eco dyno is all you need.
+> 💡 **Audio Engine:** Master-Bot does **not** bundle Lavalink on Heroku — a Java server alongside Node exceeds the eco dyno's 512 MB limit. Connect to an external Lavalink (public HELIX Origin instance or self-hosted) with `LAVA_ENABLED=true`; set `LAVA_ENABLED=false` to run without music while offline.
 
 ---
 
@@ -40,8 +40,7 @@ Master-Bot/
 ├── wiki/                    # Complete Project Documentation & Deployment Guides
 ├── packages/db/prisma/       # Prisma schema + db.sqlite (auto-created on install)
 ├── application.yml.example  # Lavalink v4 Configuration Template (copy to application.yml)
-├── Procfile                 # Heroku process manifest (bot + embedded Lavalink)
-├── scripts/                 # Deployment helper scripts (Heroku Lavalink downloader)
+├── Procfile                 # Heroku process manifest (bot + dashboard)
 ├── Dockerfile               # Containerized single-service deployment
 └── docker-compose.yml       # Bot + Lavalink containers for VPS self-hosting
 ```
@@ -71,7 +70,7 @@ Master-Bot/
 
 - **Node.js**: `24.x` LTS recommended (`>=20.0.0` supported)
 - **pnpm**: `>=8.0.0` (`npm install -g pnpm`)
-- **Java**: Java 17+ (21 LTS recommended) — required only if you self-host Lavalink locally or via Docker. On Heroku the `heroku/jvm` buildpack provides it and the build downloads the Lavalink v4 jar automatically.
+- **Java**: Java 17+ (21 LTS recommended) — required only to self-host a Lavalink server (locally or via Docker/VPS). Heroku does not run Lavalink.
 - **Database**: None — SQLite file (`db.sqlite`) is created automatically
 
 ---

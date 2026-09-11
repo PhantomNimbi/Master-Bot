@@ -46,14 +46,14 @@ Lavalink downloads these artifacts (plus the plugin's YouTube clients) from Mave
 | `SPOTIFY_CLIENT_ID` | Spotify → YouTube resolution | empty |
 | `SPOTIFY_CLIENT_SECRET` | Spotify → YouTube resolution | empty |
 
-> 💡 **Why `PORT` matters on Heroku:** the template binds `server.port` to `${PORT:${LAVA_PORT:2333}}`. Heroku *always* injects a `PORT` value, which is the web port the dashboard uses — so the embedded server is launched with `PORT` overridden to `LAVA_PORT` (see the `Procfile`) and keeps audio on `2333` while Node uses the Heroku `PORT`.
+> 💡 **Why `PORT` matters:** the template binds `server.port` to `${PORT:${LAVA_PORT:2333}}`. On hosts that inject a `PORT` value (e.g. Heroku), set `PORT`/`LAVA_PORT` so audio stays on the port your bot expects; locally it just defaults to `2333`.
 
 ## Where this config is used
 
 | Setup | How `application.yml` appears |
 | --- | --- |
 | **Local dev / VPS** | `pnpm dev` auto-starts Lavalink with the repo config when Java 17+ is detected (see [Music & Lavalink](Music.md#option-c-local-lavalink-server-for-local--dedicated-vps-development)). |
-| **Heroku (embedded)** | The `heroku-prebuild` step runs `scripts/heroku-setup-lavalink.sh`, which downloads the Lavalink v4 jar and copies our `application.yml.example` → `application.yml` automatically. |
+| **External / Heroku** | Heroku does not run Lavalink (512 MB eco limit); your external server must be configured with this file as `application.yml`. |
 | **Docker / VPS compose** | `docker-compose.yml` mounts the repo and starts Lavalink from our config in its own container. |
 
 ## Updating plugin versions
@@ -68,5 +68,5 @@ After changing the config, restart Lavalink so it re-downloads the plugin artifa
 ## Related pages
 
 - [Music & Lavalink](Music.md) — setup options and playback
-- [Deployment](Deployment.md) — Heroku embedded + Docker deployment
+- [Deployment](Deployment.md) — Heroku (external Lavalink) + Docker deployment
 - [FAQ & Troubleshooting](FAQ.md)

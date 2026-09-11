@@ -45,20 +45,24 @@ LAVA_SECURE=true
 
 > 📊 **Server Dashboard:** You can access live node information and server status directly from the dashboard at [https://lavalink-server-4n9o.onrender.com/](https://lavalink-server-4n9o.onrender.com/).
 
-### Option B: Embedded Lavalink on Heroku (Recommended)
+> ⚠️ **HELIX Origin availability:** the public [lavalink-server-4n9o.onrender.com](https://lavalink-server-4n9o.onrender.com/) instance is currently suspended/offline. Use it only once it's back up, or run your own external server (Option B).
 
-Master-Bot's Heroku deployment downloads the **latest Lavalink v4 jar** at build time and starts it in the same eco dyno as the bot — no separate audio server to host. See the [Deployment Wiki](Deployment.md#-audio-engine-embedded-lavalink-on-heroku) for the full setup.
+### Option B: Private / Self-Hosted External Lavalink (Recommended)
+
+Run Lavalink v4 on a VPS or Docker you control (or any private instance), and point the bot at it. Audio never touches the Heroku dyno, so the eco tier's 512 MB memory limit is unaffected.
 
 In `.env`:
 
 ```env
 LAVA_ENABLED=true
-LAVA_EXTERNAL=false
-LAVA_HOST=localhost
-LAVA_PORT=2333
+LAVA_EXTERNAL=true
+LAVA_HOST=your-lavalink-host.com
+LAVA_PORT=443
 LAVA_PASS=youshallnotpass
-LAVA_SECURE=false
+LAVA_SECURE=true
 ```
+
+> ℹ️ **Running without music:** if your Lavalink server is offline, set `LAVA_ENABLED=false` — the bot and dashboard keep running normally, only music commands are disabled.
 
 ### Option C: Local Lavalink Server (For Local / Dedicated VPS Development)
 1. Download the latest **Lavalink v4** jar from the [Lavalink releases page](https://github.com/lavalink-devs/Lavalink/releases).
