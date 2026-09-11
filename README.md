@@ -13,14 +13,26 @@
 
 ## 🚀 Deployment
 
-Master-Bot deploys to Heroku as a single app (one eco dyno) hosting the **Discord bot** and the **Next.js dashboard**. Music requires a **Lavalink v4 server running externally** — either the public HELIX Origin server or a Lavalink you host yourself (Docker/VPS). See the [Deployment Wiki](wiki/Deployment.md).
+Master-Bot runs as a single Node.js process hosting the **Discord bot** and the **Next.js dashboard** — locally, on a VPS, or via Docker. Music requires a **Lavalink v4 server running externally** on a Lavalink server you host yourself (Docker/VPS/Local). See the [Deployment Wiki](wiki/Deployment.md).
+
+> 🏠 **Self-host only:** managed cloud platforms are intentionally not supported. Their OAuth/domain allowlists block fresh cloud subdomains (breaking dashboard login), and their paid tiers are a poor fit for an open-source bot. See the [Deployment Wiki](wiki/Deployment.md) for the rationale.
 
 | Platform | Notes |
 | :--- | :--- |
-| **Heroku** | Single eco dyno (flat **$5/mo**, no free tier) hosts bot + dashboard. Music needs an external Lavalink server. Full guide in the [Deployment Wiki](wiki/Deployment.md). |
-| **Docker / VPS** | Self-hosted `Dockerfile` + `docker-compose.yml` (Lavalink runs in its own container). See [Deployment Wiki](wiki/Deployment.md). |
+| **Docker / VPS** | Recommended. `Dockerfile` + `docker-compose.yml` run bot + dashboard and Lavalink in separate containers with persistent storage. Full guide in the [Deployment Wiki](wiki/Deployment.md). |
+| **Local** | `pnpm install && pnpm build && pnpm start` on any Node.js 20+ machine — see [Quick Start](#-quick-start-guide). |
 
-> 💡 **Audio Engine:** Master-Bot does **not** bundle Lavalink on Heroku — a Java server alongside Node exceeds the eco dyno's 512 MB limit. Connect to an external Lavalink (public HELIX Origin instance or self-hosted) with `LAVA_ENABLED=true`; set `LAVA_ENABLED=false` to run without music while offline.
+> 💡 **Audio Engine:** Master-Bot runs its bot + dashboard in a single Node process and connects to a **separate Lavalink v4 server** (self-hosted via Docker or dedicated VPS). Set `LAVA_ENABLED=true` to enable music; set it to `false` to run without music while your Lavalink is offline.
+
+### 🌐 Recommended Low-Cost Compatible VPS Providers
+
+| Provider | Starting Price | Key Benefits | Recommended Plan |
+| :--- | :--- | :--- | :--- |
+| [**Hetzner Cloud**](https://www.hetzner.com/cloud) | ~€3.79 / mo | High performance, fast NVMe, EU/US locations | CX22 (2 vCPU, 4 GB RAM) / CAX11 |
+| [**OVHcloud**](https://www.ovhcloud.com/en/vps/) | ~$4.20 / mo | Unmetered bandwidth, strong anti-DDoS protection | Starter / Value VPS |
+| [**DigitalOcean**](https://www.digitalocean.com/) | ~$4.00 - $6.00 / mo | 1-Click Docker droplets, low network latency | Basic Droplet (1-2 GB RAM) |
+| [**Linode (Akamai)**](https://www.linode.com/) | ~$5.00 / mo | High network reliability, 24/7 support | Nanode 1GB / Shared 2GB |
+| [**Vultr**](https://www.vultr.com/) | ~$3.50 - $5.00 / mo | 30+ worldwide datacenters, fast provisioning | Cloud Compute (1-2 GB RAM) |
 
 ---
 
@@ -40,7 +52,6 @@ Master-Bot/
 ├── wiki/                    # Complete Project Documentation & Deployment Guides
 ├── packages/db/prisma/       # Prisma schema + db.sqlite (auto-created on install)
 ├── application.yml.example  # Lavalink v4 Configuration Template (copy to application.yml)
-├── Procfile                 # Heroku process manifest (bot + dashboard)
 ├── Dockerfile               # Containerized single-service deployment
 └── docker-compose.yml       # Bot + Lavalink containers for VPS self-hosting
 ```
@@ -70,7 +81,7 @@ Master-Bot/
 
 - **Node.js**: `24.x` LTS recommended (`>=20.0.0` supported)
 - **pnpm**: `>=8.0.0` (`npm install -g pnpm`)
-- **Java**: Java 17+ (21 LTS recommended) — required only to self-host a Lavalink server (locally or via Docker/VPS). Heroku does not run Lavalink.
+- **Java**: Java 17+ (21 LTS recommended) — required only to self-host a Lavalink server (locally or via Docker/VPS).
 - **Database**: None — SQLite file (`db.sqlite`) is created automatically
 
 ---
@@ -143,7 +154,7 @@ Authorized playback defeats YouTube throttling/blocking. See [Music & Lavalink](
 
 ## 🐳 Docker Deployment
 
-A portable**Dockerfile** (`node:20-slim`, port `3000`) is included. For single-service container deployment, a cloud walkthrough, and persistence guidance, see [Deployment Wiki](wiki/Deployment.md).
+A portable **Dockerfile** (`node:20-slim`, port `3000`) is included. For single-service container deployment and persistence guidance, see [Deployment Wiki](wiki/Deployment.md).
 
 ---
 
@@ -157,7 +168,7 @@ Visit the [Wiki](wiki/Home.md) for full documentation:
 - ⌨️ [Commands Reference](wiki/Commands.md)
 - 🎵 [Music & Lavalink](wiki/Music.md)
 - 🌐 [Web Dashboard](wiki/Dashboard.md)
-- 🚀 [Deployment & Cloud Hosting](wiki/Deployment.md)
+- 🚀 [Deployment](wiki/Deployment.md)
 - ❓ [FAQ & Troubleshooting](wiki/FAQ.md)
 
 ---

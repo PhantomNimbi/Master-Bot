@@ -28,28 +28,11 @@ flowchart LR
 
 ## 🗄️ Lavalink Setup
 
-Master-Bot supports three Lavalink setup options:
+Master-Bot supports self-hosted Lavalink setups:
 
-### Option A: Public Lavalink Server Hosted by HELIX Origin (Quickest Setup)
+### Option A: Private / Self-Hosted External Lavalink (Recommended for VPS)
 
-If you want music functionality without deploying or hosting your own Lavalink server, you can use the free public Lavalink server hosted by **HELIX Origin**:
-
-```env
-LAVA_ENABLED=true
-LAVA_EXTERNAL=true
-LAVA_HOST="lavalink-server-4n9o.onrender.com"
-LAVA_PORT=443
-LAVA_PASS="youshallnotpass"
-LAVA_SECURE=true
-```
-
-> 📊 **Server Dashboard:** You can access live node information and server status directly from the dashboard at [https://lavalink-server-4n9o.onrender.com/](https://lavalink-server-4n9o.onrender.com/).
-
-> ⚠️ **HELIX Origin availability:** the public [lavalink-server-4n9o.onrender.com](https://lavalink-server-4n9o.onrender.com/) instance is currently suspended/offline. Use it only once it's back up, or run your own external server (Option B).
-
-### Option B: Private / Self-Hosted External Lavalink (Recommended)
-
-Run Lavalink v4 on a VPS or Docker you control (or any private instance), and point the bot at it. Audio never touches the Heroku dyno, so the eco tier's 512 MB memory limit is unaffected.
+Run Lavalink v4 on a dedicated VPS or Docker container you control (such as [HELIX-Origin/Lavalink-Server](https://github.com/HELIX-Origin/Lavalink-Server)), and point the bot at it. The bot process itself runs no audio code, so resource usage stays low.
 
 In `.env`:
 
@@ -64,7 +47,7 @@ LAVA_SECURE=true
 
 > ℹ️ **Running without music:** if your Lavalink server is offline, set `LAVA_ENABLED=false` — the bot and dashboard keep running normally, only music commands are disabled.
 
-### Option C: Local Lavalink Server (For Local / Dedicated VPS Development)
+### Option B: Local Lavalink Server (For Local / Dedicated Development)
 1. Download the latest **Lavalink v4** jar from the [Lavalink releases page](https://github.com/lavalink-devs/Lavalink/releases).
 2. Copy the **repo's** config — `cp application.yml.example application.yml` (do **not** use the stock `application.yml` from the Lavalink release; it's missing the fixes below — see [Lavalink Configuration](Lavalink.md)).
 3. Launch the server: `java -jar Lavalink.jar`

@@ -9,7 +9,7 @@ Master-Bot runs **Lavalink v4** with a **custom configuration** tracked in the r
 > cp application.yml.example application.yml
 > ```
 >
-> The Heroku build and Docker setup do this for you automatically — see [Deployment](Deployment.md).
+> The Docker setup and local scripts do this for you automatically — see [Deployment](Deployment.md).
 
 ## What our config fixes
 
@@ -32,7 +32,7 @@ Lavalink downloads these artifacts (plus the plugin's YouTube clients) from Mave
 
 ## Environment variables
 
-`application.yml` expands these at boot; provide them via `.env` / Heroku config vars:
+`application.yml` expands these at boot; provide them via `.env`:
 
 | Variable | Used for | Default |
 | --- | --- | --- |
@@ -46,14 +46,14 @@ Lavalink downloads these artifacts (plus the plugin's YouTube clients) from Mave
 | `SPOTIFY_CLIENT_ID` | Spotify → YouTube resolution | empty |
 | `SPOTIFY_CLIENT_SECRET` | Spotify → YouTube resolution | empty |
 
-> 💡 **Why `PORT` matters:** the template binds `server.port` to `${PORT:${LAVA_PORT:2333}}`. On hosts that inject a `PORT` value (e.g. Heroku), set `PORT`/`LAVA_PORT` so audio stays on the port your bot expects; locally it just defaults to `2333`.
+> 💡 **Why `PORT` matters:** the template binds `server.port` to `${PORT:${LAVA_PORT:2333}}`. On hosts that inject a `PORT` value, set `PORT`/`LAVA_PORT` so audio stays on the port your bot expects; locally it just defaults to `2333`.
 
 ## Where this config is used
 
 | Setup | How `application.yml` appears |
 | --- | --- |
 | **Local dev / VPS** | `pnpm dev` auto-starts Lavalink with the repo config when Java 17+ is detected (see [Music & Lavalink](Music.md#option-c-local-lavalink-server-for-local--dedicated-vps-development)). |
-| **External / Heroku** | Heroku does not run Lavalink (512 MB eco limit); your external server must be configured with this file as `application.yml`. |
+| **External server** | Your external Lavalink server must be configured with this file as `application.yml`. |
 | **Docker / VPS compose** | `docker-compose.yml` mounts the repo and starts Lavalink from our config in its own container. |
 
 ## Updating plugin versions
@@ -68,5 +68,5 @@ After changing the config, restart Lavalink so it re-downloads the plugin artifa
 ## Related pages
 
 - [Music & Lavalink](Music.md) — setup options and playback
-- [Deployment](Deployment.md) — Heroku (external Lavalink) + Docker deployment
+- [Deployment](Deployment.md) — Docker/VPS + local deployment
 - [FAQ & Troubleshooting](FAQ.md)

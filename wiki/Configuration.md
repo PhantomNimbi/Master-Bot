@@ -36,17 +36,16 @@ Master-Bot uses **SQLite** through **Prisma ORM**. The database is a single port
 | `YOUTUBE_CIPHER_URL` | `https://cipher.kikkia.dev/` | Remote YouTube signature-decipher endpoint. |
 | `YOUTUBE_CIPHER_PASSWORD` | — | Password for a self-hosted `yt-cipher` (leave empty for the public endpoint). |
 
-> 💡 **Public Lavalink Server (Hosted by HELIX Origin):**
-> If you don't wish to run or deploy a Lavalink server yourself, you can point Master-Bot to HELIX Origin's public instance:
+> 💡 **Dedicated / Self-Hosted Lavalink Server:**
+> Point Master-Bot to your self-hosted Lavalink instance (e.g. running via Docker or VPS):
 > ```env
 > LAVA_ENABLED=true
 > LAVA_EXTERNAL=true
-> LAVA_HOST="lavalink-server-4n9o.onrender.com"
-> LAVA_PORT=443
+> LAVA_HOST="your-vps-ip-or-domain"
+> LAVA_PORT=2333
 > LAVA_PASS="youshallnotpass"
-> LAVA_SECURE=true
+> LAVA_SECURE=false
 > ```
-> Live server status and configuration info can also be accessed at the [Lavalink Server Dashboard](https://lavalink-server-4n9o.onrender.com/).
 
 ## 🎧 Spotify (Metadata Resolution)
 

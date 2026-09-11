@@ -1,8 +1,8 @@
-# 🚀 Deployment & Cloud Hosting Guide
+# 🚀 Deployment Guide (Self-Hosted)
 
 Master-Bot runs as a consolidated, single-process Node.js runtime that hosts both the **Discord Bot Gateway** and the **Next.js Web Dashboard** on the exact same service and port (`PORT`, default `3000`).
 
-Thanks to the built-in zero-binary **`ioredis-mock`** cache and **SQLite persistence**, Master-Bot boots up instantly on any machine or cloud platform with a simple `pnpm install` and `pnpm start` — without installing an external Redis binary or managing a separate database server.
+Thanks to the built-in zero-binary **`ioredis-mock`** cache and **SQLite persistence**, Master-Bot boots up instantly on any machine or VPS with a simple `pnpm install` and `pnpm start` — without installing an external Redis binary or managing a separate database server.
 
 ---
 
@@ -21,8 +21,8 @@ flowchart TD
         DB[("SQLite Database<br/>packages/db/prisma/db.sqlite")]
     end
 
-    subgraph AudioEngine ["Audio Engine (same Heroku dyno)"]
-        Lavalink["Lavalink v4 Server<br/>(java -jar Lavalink.jar)"]
+    subgraph AudioEngine ["Audio Engine (Lavalink v4 Server)"]
+        Lavalink["Lavalink v4<br/>(java -jar Lavalink.jar or container)"]
     end
 
     Bot <--> Cache
@@ -36,17 +36,17 @@ flowchart TD
 - **Single Console Window:** No child-process console popups or separate terminal windows.
 - **Only Two Ports Required Across Entire System:**
   1. `PORT` (default `3000`): Unified web port shared by the Discord bot gateway, Next.js web dashboard (`/dashboard`), and health/keep-alive endpoints (`/health`).
-  2. `LAVA_PORT` (default `2333`): The external Lavalink audio server port (bot connects over WebSocket).
+  2. `LAVA_PORT` (default `2333`): The Lavalink audio server port (bot connects over WebSocket).
 - **Zero Redis Server Process:** In-process in-memory `ioredis-mock` shares live state seamlessly between the bot and dashboard with zero separate binaries, processes, or ports.
 - **SQLite Persistence Layer:** Single embedded file (`db.sqlite`) preserves all guild configurations, roles, tickets, and playlists across restarts without requiring an external database server or port.
 
 ---
 
-## 🎵 Audio Engine: External Lavalink (Heroku does not run it)
+## 🎵 Audio Engine: External Lavalink
 
-Master-Bot does **not** bundle a Lavalink server on Heroku: a Java audio server alongside Node exceeds the eco dyno's 512 MB memory limit (R14 crash), so the app hosts the **bot + dashboard only** and connects to an **external Lavalink v4** server.
+Master-Bot keeps the audio engine **separate** from the app process: the bot + dashboard run in one Node.js process, and music is served by a dedicated **Lavalink v4** server. Music commands require that server to be reachable.
 
-Connect to the public **HELIX Origin** instance (see [Music & Lavalink](Music.md)) or self-host Lavalink via Docker/VPS:
+Self-host Lavalink via Docker or a dedicated VPS (see [Music & Lavalink](Music.md)):
 
 ```env
 LAVA_ENABLED=true
@@ -59,117 +59,43 @@ LAVA_SECURE=true
 
 > ⚠️ **Configuration:** whichever server you use must run with a Lavalink v4 config equivalent to **Master-Bot's `application.yml.example`**, which contains custom fixes (YouTube multi-client + OAuth via the `youtube-plugin`, Spotify → YouTube resolution via `lavasrc`, tuned streaming buffers) that are **broken in Lavalink's stock default config**. Do **not** use the `application.yml` from the Lavalink release as-is — see [Lavalink Configuration](Lavalink.md).
 >
-> ℹ️ **While your Lavalink server is offline,** set `LAVA_ENABLED=false` on Heroku to run the bot and dashboard normally without music commands (no memory overhead, no crash risk).
+> ℹ️ **While your Lavalink server is offline,** set `LAVA_ENABLED=false` to run the bot and dashboard normally without music commands (no memory overhead, no crash risk).
 
 ---
 
-## ☁️ Supported Hosting Options
+## 📦 Hosting Options
+
+> 💡 **Why self-host only?** Master-Bot deliberately targets local / Docker / VPS hosting and does **not** document a managed cloud path.
+>
+> 1. **External API allowlists** — the OAuth/login flows the dashboard depends on (Discord, Google) are effectively restricted by browser-safe-browsing and OAuth allowlists to a handful of well-known domains. Freshly generated cloud subdomains (e.g. Heroku's random-suffix `*-<id>.herokuapp.com`, free DDNS names) get flagged as "dangerous sites" and **blocked**, breaking the dashboard login — the same blocklists that hit Lavalink's surrounding APIs. Only top-tier/self-owned domains escape it.
+> 2. **Pricing** — the paid tiers the remaining providers offer (e.g. Heroku Eco is a flat **$5/month**) don't make sense for an open-source bot with no revenue stream.
+>
+> Combined, that makes managed cloud hosting a poor fit — so this guide covers **free, self-controlled hosting only**.
 
 | Platform | Notes |
 | :--- | :--- |
-| **Heroku** | Recommended. One eco dyno hosts the bot + dashboard; Lavalink runs externally. Deployed entirely through the Heroku CLI (below). |
-| **Docker / VPS** | Self-hosted. `Dockerfile` + `docker-compose.yml` run bot + dashboard and Lavalink in dedicated containers with persistent storage. |
+| **Docker / VPS** | Recommended. `docker-compose.yml` runs the bot + dashboard and Lavalink in dedicated containers with persistent storage. |
+| **Local / bare VPS** | `pnpm install && pnpm build && pnpm start` on any Node.js 20+ machine; Lavalink started separately with Java 17+. |
+
+### 🌐 Recommended Low-Cost Compatible VPS Providers
+
+For high uptime, low latency, and dedicated unshared IP routing, the following budget-friendly VPS providers are recommended:
+
+| Provider | Starting Price | Key Benefits | Recommended Plan |
+| :--- | :--- | :--- | :--- |
+| [**Hetzner Cloud**](https://www.hetzner.com/cloud) | ~€3.79 / mo | Top price-to-performance, fast NVMe, EU/US locations | CX22 (2 vCPU, 4 GB RAM) / CAX11 |
+| [**OVHcloud**](https://www.ovhcloud.com/en/vps/) | ~$4.20 / mo | Unmetered bandwidth, anti-DDoS, global datacenters | Starter / Value VPS |
+| [**DigitalOcean**](https://www.digitalocean.com/) | ~$4.00 - $6.00 / mo | 1-Click Docker droplets, intuitive management | Basic Droplet (1-2 GB RAM) |
+| [**Linode (Akamai)**](https://www.linode.com/) | ~$5.00 / mo | High network reliability, 24/7 support | Nanode 1GB / Shared 2GB |
+| [**Vultr**](https://www.vultr.com/) | ~$3.50 - $5.00 / mo | 30+ worldwide datacenters, fast deployment | Cloud Compute (1-2 GB RAM) |
+
+> 💡 **Sizing Recommendation:**
+> - **Bot + Dashboard only:** 1 vCPU, 1 GB RAM.
+> - **Bot + Dashboard + Lavalink Audio Engine:** 2 vCPU, 2-4 GB RAM (e.g. Hetzner CX22 or OVH Starter).
 
 ---
 
-## 1. 🟪 Heroku (`heroku.com`)
-
-Heroku is the supported cloud platform. The app uses the official **`heroku/nodejs`** buildpack (pnpm). Everything is managed from the Heroku CLI — no dashboard clicks required.
-
-> 💰 **Pricing:** Heroku no longer offers a free tier. This deployment requires a paid **Eco dyno** — a flat **$5/month** subscription that provides a pool of **1,000 dyno-hours per month, shared by every Eco dyno in your account**. A credit card is required to run the app.
->
-> - Eco dynos **sleep after ~30 minutes of inactivity** to conserve the shared hour pool; Master-Bot's keep-alive pings keep the web process awake, so one bot easily fits in the 1,000 monthly hours. Watch the pool if you run *other* Eco apps in the same account.
-> - Eco plans allow **one dyno per process type** — the app runs bot + dashboard in a single `web` dyno, so this constraint is satisfied.
-> - The subscription renews on the 1st of each month; you're billed the full $5/month whether or not the app is used, and you can unsubscribe at any time. (See [Eco Dyno Hours](https://devcenter.heroku.com/articles/eco-dyno-hours).)
-
-### Step 1 — Install the Heroku CLI and log in
-
-```bash
-# macOS (Homebrew)
-brew tap heroku/brew && brew install heroku
-
-# Linux / WSL
-curl https://cli-assets.heroku.com/install.sh | sh
-
-# Windows
-winget install Heroku.HerokuCLI
-# or download the installer: https://devcenter.heroku.com/articles/heroku-cli
-
-heroku login
-```
-
-### Step 2 — Create the app and set buildpacks
-
-```bash
-heroku create your-master-bot-app
-
-# Node.js buildpack only (Java/Lavalink run externally, not on Heroku)
-heroku buildpacks:set heroku/nodejs
-```
-
-> ⚠️ **Use a custom domain.** Heroku now generates random-suffix URLs like `your-master-bot-app-<random8>.herokuapp.com`. These domains are frequently abused and **often get flagged by Google Safe Browsing**, which shows a bogus "dangerous site" warning in browsers (including during Discord login). Eco dynos support custom domains with free auto SSL (ACM) — add one before sharing the invite/auth links. Run `heroku apps:rename` if you want a cleaner app name.
-
-### Step 3 — Push your environment variables from `.env`
-
-The Heroku CLI reads `.env` files through the official `heroku-config` plugin — a single command imports every variable from your repo-root `.env`:
-
-```bash
-heroku plugins:install heroku-config
-heroku config:push --app your-master-bot-app
-```
-
-`config:push` **merges** your local values into the app's config vars (run `heroku help config:push` for the `-o` overwrite / `-c` delete-absent flags). Update a single value anytime with `heroku config:set KEY=value`.
-
-Make sure your `.env` contains at minimum:
-
-```env
-DATABASE_URL="file:./db.sqlite"
-DISCORD_TOKEN=
-DISCORD_CLIENT_ID=
-DISCORD_CLIENT_SECRET=
-NEXTAUTH_SECRET=            # random 32+ character string
-NEXTAUTH_URL="https://your-master-bot-app.herokuapp.com"
-PUBLIC_URL="https://your-master-bot-app.herokuapp.com"
-INTERNAL_URL="http://localhost:3000"
-LAVA_ENABLED=true      # set to false while your external Lavalink is offline
-```
-
-> 🚀 **pnpm prerequisites** — Master-Bot installs and runs with pnpm, and its runtime scripts depend on devDependencies (`prisma`, `dotenv-cli`). Disable dependency pruning on Heroku:
->
-> ```bash
-> heroku config:set PNPM_SKIP_PRUNING=true NODE_MODULES_CACHE=false
-> ```
->
-> 🔐 `.env` is git-ignored, so your secrets are never committed. Also push the optional API keys (YouTube, Spotify, Twitch, Klipy, News, Genius) and feature toggles listed in `.env.example` & the [Configuration Wiki](Configuration.md).
-
-### Step 4 — Deploy
-
-```bash
-git push heroku main
-```
-
-The build output shows the pnpm install/build, and finally the release. Once it's live:
-
-- **Dashboard:** `https://your-master-bot-app.herokuapp.com/dashboard`
-- **Health check:** `https://your-master-bot-app.herokuapp.com/health`
-- Add the OAuth redirect URI `<NEXTAUTH_URL>/api/auth/callback/discord` to your Discord app under **OAuth2 → Redirects**.
-
-### Useful Heroku commands
-
-```bash
-heroku logs --tail            # live logs
-heroku config                 # list config vars
-heroku config:pull            # fetch current config back into a local file
-heroku run pnpm db:push       # push schema changes (e.g. after pulling new code)
-heroku ps                     # dyno status / restarts
-```
-
-> [!WARNING]
-> **Ephemeral Filesystem:** Heroku dynos use an ephemeral filesystem. SQLite data is lost on restarts and redeploys, so take regular backups (see [Backups](#-backups)) or move persistence to an external database.
-
----
-
-## 2. 🐳 Docker / VPS Self-Hosting
+## 1. 🐳 Docker / VPS Self-Hosting
 
 Run Master-Bot on your own server/VPS for full control and persistent storage:
 
@@ -184,7 +110,7 @@ docker compose --env-file docker.env up -d --build
 
 ---
 
-## 🖥️ Local / VPS Production Launch
+## 2. 🖥️ Local / VPS Production Launch
 
 On a local machine or VPS (Ubuntu, Debian, macOS, Windows):
 
@@ -206,15 +132,13 @@ Once running:
 
 The SQLite database lives at `packages/db/prisma/db.sqlite`.
 
-- **Local / VPS:** stop the app (or use the SQLite online backup API) and copy the file:
-  ```bash
-  sqlite3 packages/db/prisma/db.sqlite ".backup 'backup-$(date +%F).db'"
-  ```
-- **Heroku (ephemeral):** pull a file off a running dyno with `heroku ps:copy`:
-  ```bash
-  heroku ps:copy packages/db/prisma/db.sqlite
-  ```
-  Schedule this regularly (e.g. a daily cron) — dynos recycle at least once every 24 hours and redeploys reset the filesystem.
+Stop the app (or use the SQLite online backup API) and copy the file:
+
+```bash
+sqlite3 packages/db/prisma/db.sqlite ".backup 'backup-$(date +%F).db'"
+```
+
+Schedule this regularly (e.g. a daily cron) on VPS deployments.
 
 ---
 
@@ -230,11 +154,10 @@ The SQLite database lives at `packages/db/prisma/db.sqlite`.
 | `PUBLIC_URL` | **Yes** | The public HTTPS URL used for the `/dashboard` command invite link. |
 | `DATABASE_URL` | No | SQLite file path (default `file:./db.sqlite`). |
 | `PORT` | No | Listening port for web dashboard and health check (default: `3000`). |
-| `KEEP_ALIVE_ENABLED` | No | Set to `true` to enable background HTTP pings for cloud hosts. |
+| `KEEP_ALIVE_ENABLED` | No | Set to `true` to enable background HTTP pings to keep the process warm. |
 | `LAVA_ENABLED` | No | Set to `true` to enable the audio engine (external Lavalink). |
 | `LAVA_EXTERNAL` | No | `true` when connecting to an external Lavalink server. |
 | `LAVA_HOST` | No | The external Lavalink hostname / IP. |
 | `LAVA_PORT` | No | Lavalink port (default `2333`; `443` for TLS external instances). |
 | `LAVA_PASS` | No | Lavalink password (must match `application.yml`). |
 | `LAVA_SECURE` | No | `true` for TLS (WSS) external instances. |
-| `PNPM_SKIP_PRUNING` | **Yes (Heroku)** | `true` — keeps pnpm devDependencies (prisma, dotenv-cli) at runtime. |

@@ -23,7 +23,7 @@
 
 ### Web Dashboard & Deployment
 - [**Web Dashboard**](Dashboard.md) — Next.js 15 dashboard, studios, and OAuth
-- [**Deployment**](Deployment.md) — production launch, Docker, and cloud hosting
+- [**Deployment**](Deployment.md) — production launch, Docker, and self-hosting
 
 ### Community
 - [**FAQ & Troubleshooting**](FAQ.md)
@@ -35,4 +35,3 @@
 
 - **Repository:** https://github.com/galnir/Master-Bot
 - **Lavalink v4 Releases:** https://github.com/lavalink-devs/Lavalink/releases
-- **HELIX Origin Lavalink Dashboard:** https://lavalink-server-4n9o.onrender.com/
