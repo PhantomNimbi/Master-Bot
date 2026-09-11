@@ -2,8 +2,7 @@ import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
 import { ZodError } from 'zod';
 import type { Session } from '@master-bot/auth';
-import { prisma } from '@master-bot/db';
-import Redis from 'ioredis';
+import { prisma, redis } from '@master-bot/db';
 import { env } from '~/env.mjs';
 
 interface CreateContextOptions {
@@ -13,23 +12,16 @@ interface CreateContextOptions {
 /**
  * Creates the inner TRPC context.
  * - `session`: the active Discord session (for authz)
- * - `prisma`: Prisma client for DB persistence
- * - `redis`: ioredis client for live data (bot's session, not DB)
+ * - `prisma`: Prisma client for SQLite DB persistence across restarts
+ * - `redis`: shared in-memory ioredis-mock client for live bot/dashboard communication
+ * - `bot`: direct reference to the in-process bot client
  */
 export const createInnerTRPCContext = (opts: CreateContextOptions) => {
-	const redis = process.env.REDIS_URL
-		? new Redis(process.env.REDIS_URL)
-		: new Redis({
-				host: process.env.REDIS_HOST || 'localhost',
-				port: Number.parseInt(process.env.REDIS_PORT!) || 6379,
-				password: process.env.REDIS_PASSWORD || '',
-				db: Number.parseInt(process.env.REDIS_DB!) || 0
-		  });
-
 	return {
 		session: opts.session,
 		prisma,
-		redis
+		redis,
+		bot: (globalThis as any).botClient || null
 	};
 };
 

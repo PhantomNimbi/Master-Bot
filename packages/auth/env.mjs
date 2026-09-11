@@ -16,8 +16,8 @@ export const env = createEnv({
 	},
 	client: {},
 	runtimeEnv: {
-		NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
-		NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+		NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || 'youshallnotpass',
+		NEXTAUTH_URL: process.env.NEXTAUTH_URL || process.env.PUBLIC_URL,
 		DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
 		DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET
 	},

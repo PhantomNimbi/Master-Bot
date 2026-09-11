@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: master-bot
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: pnpm install && pnpm build
+    startCommand: pnpm start
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: KEEP_ALIVE_ENABLED
+        value: "true"
+      - key: LAVA_ENABLED
+        value: "false"
+      - key: LAVA_EXTERNAL
+        value: "true"
+      - key: DATABASE_URL
+        value: "file:./db.sqlite"
+      - key: INTERNAL_URL
+        value: "http://localhost:10000"
+      - key: PUBLIC_URL
+        sync: false
+      - key: DISCORD_CALLBACK_URL
+        sync: false
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: DISCORD_CLIENT_ID
+        sync: false
+      - key: DISCORD_CLIENT_SECRET
+        sync: false
+      - key: NEXTAUTH_SECRET
+        generateValue: true

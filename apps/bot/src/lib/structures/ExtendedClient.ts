@@ -1,8 +1,8 @@
 import { SapphireClient } from '@sapphire/framework';
 import '@sapphire/plugin-hmr/register';
 import { QueueClient } from '../music/classes/QueueClient';
-import Redis from 'ioredis';
-import { PrismaClient } from '@prisma/client';
+import { prisma, redis } from '@master-bot/db';
+import type { PrismaClient } from '@master-bot/db';
 import {
 	IntentsBitField,
 	NewsChannel,
@@ -47,23 +47,16 @@ export class ExtendedClient extends SapphireClient {
 			],
 			logger: { level: 100 },
 			loadMessageCommandListeners: true,
-			hmr: {
-				enabled: process.env.NODE_ENV === 'development'
-			}
-		});
+			...(process.env.NODE_ENV === 'development'
+				? ({ hmr: { enabled: true } } as any)
+				: {})
+		} as any);
 
-		this.prisma = new PrismaClient();
+		this.prisma = prisma;
 		this.session = new SessionManager(this.prisma);
 
 		this.music = new QueueClient({
-			redis: process.env.REDIS_URL
-				? new Redis(process.env.REDIS_URL)
-				: new Redis({
-						host: process.env.REDIS_HOST || 'localhost',
-						port: Number.parseInt(process.env.REDIS_PORT!) || 6379,
-						password: process.env.REDIS_PASSWORD || '',
-						db: Number.parseInt(process.env.REDIS_DB!) || 0
-					}),
+			redis,
 			node: {
 				host:
 					process.env.LAVA_HOST && process.env.LAVA_HOST !== '0.0.0.0'

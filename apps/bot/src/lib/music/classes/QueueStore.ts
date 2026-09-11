@@ -71,17 +71,23 @@ export class QueueStore extends Collection<string, Queue> {
 		super();
 		this.redis = redis as any;
 		// Redis Errors
-		redis.on('error', err => {
-			Logger.error('Redis ' + err);
-		});
+		if (typeof this.redis?.on === 'function') {
+			this.redis.on('error', err => {
+				Logger.error('Redis ' + err);
+			});
+		}
 
 		for (const command of commands) {
 			const luaCode = getLuaScript(command.name);
-			if (luaCode) {
-				this.redis.defineCommand(command.name, {
-					numberOfKeys: command.keys,
-					lua: luaCode
-				});
+			if (luaCode && typeof this.redis?.defineCommand === 'function') {
+				try {
+					this.redis.defineCommand(command.name, {
+						numberOfKeys: command.keys,
+						lua: luaCode
+					});
+				} catch (cmdErr) {
+					Logger.warn(`Could not define custom Redis command ${command.name}: ${cmdErr}`);
+				}
 			}
 		}
 	}

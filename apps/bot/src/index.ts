@@ -253,6 +253,8 @@ if (isLavalinkEnabled) {
 	client.music.on('trackEnd', handleTrackCompletion);
 }
 
+import { startWebServer, stopWebServer } from './lib/server/webServer';
+
 const main = async () => {
 	try {
 		await client.session.init();
@@ -261,6 +263,13 @@ const main = async () => {
 		Logger.error('Bot failed to login / errored out: ', error);
 		client.destroy();
 		process.exit(1);
+	}
+
+	const webPort = Number.parseInt(process.env.PORT || '3000', 10);
+	try {
+		await startWebServer({ port: webPort, botClient: client });
+	} catch (webErr) {
+		Logger.error('Failed to initialize internal dashboard web service: ', webErr);
 	}
 
 	// Sync all actual Discord guilds to DB/Redis on ready (fix missing guild rows)
@@ -272,7 +281,8 @@ const main = async () => {
 				} catch {}
 				if (client.music.queues?.redis) {
 					await client.music.queues.redis.hset(
-						'guilds', gid,
+						'guilds',
+						gid,
 						JSON.stringify({ name: guild.name || 'Unknown', id: gid, icon: null })
 					);
 				}
@@ -280,9 +290,47 @@ const main = async () => {
 		} catch (e) {
 			Logger.warn('Guild sync note: ' + (e instanceof Error ? e.message : String(e)));
 		}
+
+		const dashboardPublicUrl =
+			process.env.PUBLIC_URL?.trim() || process.env.NEXTAUTH_URL?.trim();
+		const dashboardDisplay = dashboardPublicUrl
+			? `http://localhost:${webPort}/dashboard | Public: ${dashboardPublicUrl}/dashboard`
+			: `http://localhost:${webPort}/dashboard`;
+
+		console.log(`
+====================================================================
+   🤖 MASTER-BOT UNIFIED CONSOLE               
+====================================================================
+  Execution Mode:    ${process.env.NODE_ENV || 'production'}
+  Service Port:      ${webPort}
+  
+  Active Components:
+    • 🤖 Discord Bot:        READY (@${client.user?.tag || 'Master-Bot'})
+    • 🌐 Web Dashboard:       RUNNING (${dashboardDisplay})
+    • 🗄️  SQLite Database:     FILE (db.sqlite)
+    • ⚡ Redis Cache:         IN-MEMORY (ioredis-mock - In-Process)
+    • 💓 Keep-Alive Service:  ${process.env.KEEP_ALIVE_ENABLED !== 'false' ? 'ENABLED (10m interval)' : 'DISABLED'}
+    • 🎵 Audio Engine:        ${isLavalinkEnabled ? (process.env.LAVA_EXTERNAL === 'true' ? 'EXTERNAL (Connected)' : 'INTERNAL') : 'DISABLED (External required on cloud)'}
+  
+  Endpoints:
+    • Web Dashboard:         http://localhost:${webPort}/dashboard
+    • Health & Keep-Alive:   http://localhost:${webPort}/health
+====================================================================
+`);
 	});
 };
 
+const cleanup = () => {
+	Logger.info('🛑 Shutting down Master-Bot unified service...');
+	stopWebServer();
+	client.destroy();
+	process.exit(0);
+};
+
+process.on('SIGINT', cleanup);
+process.on('SIGTERM', cleanup);
+
 void main();
+
 
 

@@ -1,0 +1,62 @@
+{
+  "name": "Master-Bot",
+  "description": "High-performance Discord bot and Next.js dashboard with zero-binary ioredis-mock and SQLite persistence.",
+  "keywords": ["discord", "bot", "music", "dashboard", "nextjs", "typescript"],
+  "repository": "https://github.com/galnir/Master-Bot",
+  "logo": "https://raw.githubusercontent.com/galnir/Master-Bot/main/apps/dashboard/public/favicon.ico",
+  "success_url": "/dashboard",
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  },
+  "env": {
+    "NODE_ENV": {
+      "value": "production"
+    },
+    "DISCORD_TOKEN": {
+      "description": "Discord Bot Token from the Discord Developer Portal",
+      "required": true
+    },
+    "DISCORD_CLIENT_ID": {
+      "description": "Discord Application Client ID",
+      "required": true
+    },
+    "DISCORD_CLIENT_SECRET": {
+      "description": "Discord Application Client Secret",
+      "required": true
+    },
+    "NEXTAUTH_SECRET": {
+      "description": "Random 32+ character secret used to sign dashboard session tokens",
+      "generator": "secret"
+    },
+    "PUBLIC_URL": {
+      "description": "The public HTTPS URL of your deployed application (e.g. https://your-app.herokuapp.com)",
+      "required": false
+    },
+    "DISCORD_CALLBACK_URL": {
+      "description": "Public OAuth2 bot invite URL",
+      "required": false
+    },
+    "KEEP_ALIVE_ENABLED": {
+      "value": "true",
+      "required": false
+    },
+    "LAVA_ENABLED": {
+      "value": "false",
+      "description": "Set to false by default on cloud hosts (requires external Lavalink for music)",
+      "required": false
+    },
+    "LAVA_EXTERNAL": {
+      "value": "true",
+      "description": "Defaults to true for cloud deployments to connect to an external Lavalink instance",
+      "required": false
+    }
+  }
+}

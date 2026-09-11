@@ -1,11 +1,10 @@
-import Redis from 'ioredis';
-import type { RedisOptions } from 'ioredis';
+import type { Redis, RedisOptions } from 'ioredis';
 import { LavalinkManager, LavalinkNodeOptions } from 'lavalink-client';
 import { QueueStore } from './QueueStore';
 import { container } from '@sapphire/framework';
 
 export interface QueueClientOptions {
-	redis: Redis | RedisOptions;
+	redis: Redis | RedisOptions | any;
 	node: LavalinkNodeOptions;
 	clientId?: string;
 }
@@ -27,7 +26,7 @@ export class QueueClient extends LavalinkManager {
 
 		this.queues = new QueueStore(
 			this,
-			options.redis instanceof Redis ? options.redis : new Redis(options.redis)
+			options.redis as any
 		);
 
 		const patchNode = (node: any) => {

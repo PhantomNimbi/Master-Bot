@@ -4,11 +4,6 @@ const envSchema = z.object({
 	DISCORD_TOKEN: z.string(),
 	KLIPY_API: z.string().optional(),
 	NEWS_API: z.string().optional(),
-	// Redis
-	REDIS_HOST: z.string().optional(),
-	REDIS_PORT: z.string().optional(),
-	REDIS_PASSWORD: z.string().optional(),
-	REDIS_DB: z.string().optional(),
 	// Feature Toggles
 	LAVA_ENABLED: z.string().optional(),
 	GIFS_ENABLED: z.string().optional(),

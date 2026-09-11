@@ -30,7 +30,7 @@ Master-Bot uses **SQLite** through **Prisma ORM**. The database is a single port
 | `LAVA_PORT` | `2333` | Lavalink WebSocket/HTTP port. |
 | `LAVA_PASS` | `youshallnotpass` | Lavalink password (must match `application.yml`). |
 | `LAVA_SECURE` | `false` | `true` enables WSS/HTTPS (use when hosting remotely behind TLS). |
-| `LAVA_EXTERNAL` | `false` | `true` for an externally hosted Lavalink instance. |
+| `LAVA_EXTERNAL` | `false` | Set to `true` when connecting to an external Lavalink instance (such as [HELIX-Origin/Lavalink-Server](https://github.com/HELIX-Origin/Lavalink-Server)). |
 | `YOUTUBE_REFRESH_TOKEN` | — | YouTube OAuth 2.0 refresh token; auto-saved to `.youtube-oauth.json` after `/youtube-auth`. |
 | `YOUTUBE_API_KEY` | — | Optional YouTube Data API v3 key for richer track metadata. |
 | `YOUTUBE_CIPHER_URL` | `https://cipher.kikkia.dev/` | Remote YouTube signature-decipher endpoint. |

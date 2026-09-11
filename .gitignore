@@ -24,6 +24,8 @@ scratch/
 
 # Testing
 /coverage
+tests/
+vitest.config.*
 
 # Database
 */migrations/*

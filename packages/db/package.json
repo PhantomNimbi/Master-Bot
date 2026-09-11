@@ -1,10 +1,11 @@
 {
 	"name": "@master-bot/db",
 	"version": "0.1.0",
-	"main": "./index.ts",
-	"types": "./index.ts",
+	"main": "./index.js",
+	"types": "./index.d.ts",
 	"license": "ISC",
 	"scripts": {
+		"build": "tsc",
 		"clean": "git clean -xdf .turbo node_modules",
 		"db:generate": "pnpm with-env prisma generate",
 		"db:push": "pnpm with-env prisma db push --skip-generate --accept-data-loss",
@@ -15,9 +16,12 @@
 		"node": ">=20.0.0"
 	},
 	"dependencies": {
-		"@prisma/client": "^5.22.0"
+		"@prisma/client": "^5.22.0",
+		"ioredis": "^5.6.1",
+		"ioredis-mock": "^8.9.0"
 	},
 	"devDependencies": {
+		"@types/ioredis-mock": "^8.2.5",
 		"@types/node": "^20.19.43",
 		"dotenv-cli": "^7.4.4",
 		"prisma": "^5.22.0",

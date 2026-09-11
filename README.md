@@ -7,36 +7,65 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/galnir/Master-Bot/pulls)
 
-**Master-Bot** is a production-ready, high-performance Discord Music and Utility Bot with a full-featured **Next.js Web Dashboard**. Built with **TypeScript**, **Sapphire Framework**, **discord.js v14**, **Next.js 15**, **tRPC v11**, **Prisma ORM** (SQLite), and **Lavalink v4**.
+**Master-Bot** is a production-ready, high-performance Discord Music and Utility Bot with a full-featured **Next.js Web Dashboard**. Built with **TypeScript**, **Sapphire Framework**, **discord.js v14**, **Next.js 15**, **tRPC v11**, **Prisma ORM** (SQLite), **ioredis-mock** (zero external Redis binaries needed), and **Lavalink v4**.
+
+---
+
+## 🚀 One-Click Cloud Deployment (100% Free Tiers)
+
+Deploy Master-Bot instantly to your preferred cloud hosting platform with zero server setup. Powered by an in-memory `ioredis-mock` cache and zero-ops SQLite persistence, you don't need any external database or Redis instances.
+
+| Platform | Free Tier | Deploy Button |
+| :--- | :---: | :--- |
+| **Render** | ✅ 100% Free | [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/galnir/Master-Bot) |
+| **Railway** | ✅ Free Starter | [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2Fgalnir%2FMaster-Bot) |
+| **Heroku** | ✅ Eco Dyno | [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/galnir/Master-Bot) |
+| **Fly.io** | ✅ Free Tier | [![Deploy to Fly.io](https://img.shields.io/badge/Deploy%20to-Fly.io-24185b?style=for-the-badge&logo=flydotio&logoColor=white)](wiki/Deployment.md#3--flyio-flyio) |
+
+> 💡 **Audio Engine Notice:** One-click cloud free tiers do not run an internal Lavalink audio engine due to memory constraints. To enable music commands on cloud platforms, deploy an external Lavalink server using the one-click buttons below or connect to an existing instance. See the [Deployment Wiki](wiki/Deployment.md) for instructions.
+>
+> ⚠️ **Render Custom Domain Notice:** Render's default `*.onrender.com` URLs get falsely flagged by browser protections and Discord filters. Attach a free custom domain (e.g., from [ifreedomains.com](https://ifreedomains.com)) in Render's dashboard. See the [Render Setup Guide](wiki/Deployment.md#1--render-rendercom).
+
+### 🔊 One-Click External Lavalink Server Deployment
+
+Deploy the standalone [**HELIX-Origin Lavalink v4 Server**](https://github.com/HELIX-Origin/Lavalink-Server) (pre-configured with YouTube, remote cipher, and Spotify plugins) to free cloud hosting with one click:
+
+| Platform | Free Tier | Lavalink Deploy Button |
+| :--- | :---: | :--- |
+| **Render** | ✅ 100% Free | [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/HELIX-Origin/Lavalink-Server) |
+| **Railway** | ✅ Free Starter | [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2FHELIX-Origin%2FLavalink-Server) |
+| **Heroku** | ✅ Eco Dyno | [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/HELIX-Origin/Lavalink-Server) |
+| **Fly.io** | ✅ Free MicroVM | [![Deploy to Fly.io](https://img.shields.io/badge/Deploy%20to-Fly.io-24185b?style=for-the-badge&logo=flydotio&logoColor=white)](https://github.com/HELIX-Origin/Lavalink-Server#flyio-deployment) |
+
+Once deployed, simply copy your server domain into Master-Bot's `LAVA_HOST` environment variable with `LAVA_EXTERNAL=true`.
 
 ---
 
 ## 🏗️ Project Architecture & Structure
 
-Master-Bot is organized as a Turborepo workspace managed with `pnpm`:
+Master-Bot is organized as a unified Turborepo workspace managed with `pnpm`:
 
 ```text
 Master-Bot/
 ├── apps/
-│   ├── bot/                 # Sapphire & Discord.js v14 Bot Application
+│   ├── bot/                 # Sapphire & Discord.js v14 Bot Application + Internal Web Server
 │   └── dashboard/           # Next.js 15 Web Dashboard (Tailwind CSS, NextAuth, tRPC)
 ├── packages/
 │   ├── auth/                # Shared NextAuth.js (Discord OAuth) Configuration
 │   ├── config/              # Shared Tooling Config (eslint/, tailwind/)
-│   └── db/                  # Shared Prisma ORM Client & SQLite Schema
-├── scripts/
-│   ├── common.mjs           # Shared cross-platform port management & log writers
-│   ├── dev.mjs              # Unified Development Launcher & Service Manager
-│   └── start.mjs            # Unified Production Launcher & Service Manager
-├── wiki/                    # Project documentation (Setup, Configuration, Commands)
-├── logs/                    # Service-specific log files (bot.log, dashboard.log, lavalink.log)
+│   └── db/                  # Shared Prisma ORM Client (SQLite) & In-Memory Redis (ioredis-mock)
+├── wiki/                    # Complete Project Documentation & Deployment Guides
 ├── packages/db/prisma/       # Prisma schema + db.sqlite (auto-created on install)
 ├── application.yml.example  # Lavalink v4 Configuration Template (copy to application.yml)
-├── Dockerfile               # Containerized single-service deployment
-└── docker-compose.yml       # Stack orchestration helpers (legacy; see the Wiki)
+├── render.yaml              # Render 1-Click Free Tier Blueprint
+├── railway.json             # Railway 1-Click Deployment Specification
+├── app.json                 # Heroku 1-Click Deployment Manifest
+├── Procfile                 # Process manifest for Heroku and cloud managers
+├── fly.toml                 # Fly.io Free-Tier MicroVM Configuration
+└── Dockerfile               # Containerized single-service deployment
 ```
 
-> 🔄 **Note:** the project has migrated from a managed database server to **SQLite**. `docker-compose.yml` and the launcher helpers still contain some legacy service wiring that hasn't been migrated yet — for accurate deployment today, follow the [Deployment Wiki](wiki/Deployment.md).
+> 🔄 **Consolidated Runtime:** Master-Bot runs both the Discord bot gateway and the Next.js web dashboard inside a single Node.js process on port `PORT` (`/dashboard`), with a single console window and zero external Redis dependencies. For full deployment details, follow the [Deployment Wiki](wiki/Deployment.md).
 
 ---
 
@@ -61,7 +90,7 @@ Master-Bot/
 
 - **Node.js**: `>=20.0.0`
 - **pnpm**: `>=8.0.0` (`npm install -g pnpm`)
-- **Java**: Java 17+ (21 LTS recommended) — only required for a **local Lavalink** server (music)
+- **Java**: Java 17+ (21 LTS recommended) — only required for a **local Lavalink** server. If using an external server like [**HELIX-Origin/Lavalink-Server**](https://github.com/HELIX-Origin/Lavalink-Server), Java is not required on your machine.
 - **Database**: None — SQLite file (`db.sqlite`) is created automatically
 
 ---
@@ -88,10 +117,12 @@ cp .env.example .env
 
 Fill in your mandatory credentials:
 
+- `DATABASE_URL`: SQLite database file path (`file:./db.sqlite`)
+- `INTERNAL_URL`: Internal SSR dashboard URL (`http://localhost:3000`)
+- `PUBLIC_URL`: Public HTTPS dashboard URL (`https://your-domain.com`)
+- `DISCORD_CALLBACK_URL`: Public OAuth2 bot invite URL
 - `DISCORD_TOKEN`: Bot token from the Discord Developer Portal
 - `DISCORD_CLIENT_ID` & `DISCORD_CLIENT_SECRET`: Application OAuth2 credentials
-- `NEXTAUTH_SECRET`: Random 32+ character signing secret
-- `NEXTAUTH_URL`: Public dashboard URL (e.g. `http://localhost:3000`)
 
 Optional audio/feature keys (Spotify, YouTube, Twitch, News, Genius, Klipy) and the `LAVA_*` + feature-flag variables are documented in the [Configuration Wiki](wiki/Configuration.md).
 

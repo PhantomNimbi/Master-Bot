@@ -21,8 +21,12 @@ export class DashboardCommand extends Command {
 	public override async chatInputRun(
 		interaction: Command.ChatInputCommandInteraction
 	) {
-		const publicUrl = process.env.NEXTAUTH_URL || '';
-		const internalUrl = process.env.NEXTAUTH_URL_INTERNAL || '';
+		const publicUrl = process.env.PUBLIC_URL || process.env.NEXTAUTH_URL || '';
+		const internalUrl =
+			process.env.INTERNAL_URL ||
+			process.env.INTERNA_URL ||
+			process.env.NEXTAUTH_URL_INTERNAL ||
+			'';
 
 		if (!publicUrl && !internalUrl) {
 			return interaction.reply({

@@ -55,7 +55,10 @@ export const env = createEnv({
 		YOUTUBE_CIPHER_PASSWORD: process.env.YOUTUBE_CIPHER_PASSWORD,
 		SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
 		SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
-		NEXT_PUBLIC_INVITE_URL: process.env.NEXT_PUBLIC_INVITE_URL
+		NEXT_PUBLIC_INVITE_URL:
+			process.env.NEXT_PUBLIC_INVITE_URL ||
+			process.env.DISCORD_CALLBACK_URL ||
+			'https://discord.com/api/oauth2/authorize?client_id=placeholder&permissions=8&scope=bot'
 	},
 	skipValidation: !!process.env.CI || !!process.env.SKIP_ENV_VALIDATION
 });

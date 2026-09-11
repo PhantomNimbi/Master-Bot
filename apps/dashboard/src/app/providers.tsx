@@ -12,7 +12,12 @@ const getBaseUrl = () => {
 	if (typeof window !== 'undefined') return ''; // browser should use relative url
 	// if (env.VERCEL_URL) return env.VERCEL_URL; // SSR should use vercel url
 
-	return process.env.NEXTAUTH_URL_INTERNAL ?? `http://localhost:3000`; // dev SSR should use internal url
+	return (
+		process.env.INTERNAL_URL ??
+		process.env.INTERNA_URL ??
+		process.env.NEXTAUTH_URL_INTERNAL ??
+		`http://localhost:3000`
+	); // dev SSR should use internal url
 };
 
 export function TRPCReactProvider(props: { children: React.ReactNode }) {

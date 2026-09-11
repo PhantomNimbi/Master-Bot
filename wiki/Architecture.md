@@ -25,7 +25,6 @@ Master-Bot/
 │   ├── db/                        # Prisma schema, client generation, SQLite
 │   ├── auth/                      # NextAuth v5 (Discord OAuth + Prisma adapter)
 │   └── config/                    # shared ESLint & Tailwind presets
-├── scripts/                       # unified dev/start launchers (common.mjs)
 ├── packages/db/prisma/       # Prisma schema + db.sqlite (auto-created)
 ├── application.yml(.example)      # Lavalink v4 server config
 ├── docker.env / Dockerfile        # container deployment
@@ -183,6 +182,7 @@ sequenceDiagram
 2. `client.login()` connects to Discord; commands are registered.
 3. Feature flags from `.env` enable/disable modules (Lavalink, GIFs, Twitch, News, IGDB).
 4. Background schedulers start: reminders (`ReminderManager`, 30s tick), Twitch monitor, status rotation (`StatusManager`).
+5. Internal web server boots on `PORT` (`/dashboard` and `/health`), running Next.js inside the same Node.js process and sharing `ioredis-mock` and SQLite persistence.
 
 ---
 

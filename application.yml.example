@@ -3,7 +3,7 @@
 # See wiki/Lavalink.md for setup and deployment guide
 
 server:
-  port: 2333
+  port: ${PORT:${LAVA_PORT:2333}}
   address: 0.0.0.0
   undertow:
     buffer-size: 1024
@@ -20,7 +20,7 @@ lavalink:
       repository: "https://maven.topi.wtf/releases"
       snapshot: false
   server:
-    password: "youshallnotpass"
+    password: "${LAVA_PASS:youshallnotpass}"
     sources:
       youtube: false
       soundcloud:

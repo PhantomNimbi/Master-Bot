@@ -8,7 +8,7 @@ This guide walks you through installing, configuring, and launching **Master-Bot
 | --- | --- | --- |
 | **Node.js** | `>= 20.0` | Runtime for the bot and dashboard |
 | **pnpm** | `8.x` (repo pins `pnpm@8.6.7`) | Package manager for the workspace |
-| **Java** | `17+` | Only required to run a **local Lavalink** server for music (see [Music & Lavalink](Music.md)) |
+| **Java** | `17+` | Only required if running a **local Lavalink** server. Not needed if using an external server like [HELIX-Origin/Lavalink-Server](https://github.com/HELIX-Origin/Lavalink-Server) (see [Music & Lavalink](Music.md)) |
 | **Discord Application** | — | Bot token, client ID, and secret from the [Discord Developer Portal](https://discord.com/developers/applications) |
 
 > 💡 **Music is optional.** If you don't provide Lavalink (or set `LAVA_ENABLED=false`), every other feature still works.
@@ -69,9 +69,9 @@ See [**Configuration**](Configuration.md) for the complete reference of every va
 pnpm dev
 ```
 
-The unified launcher (`scripts/dev.mjs`) starts the **bot**, the **dashboard**, and — when `LAVA_ENABLED=true` with a valid Java runtime — a **local Lavalink** server. It prints a combined status console and writes rotating logs to `logs/`.
+`pnpm dev` launches the **consolidated runtime** in a single console window: the bot gateway, the Next.js web dashboard (`http://localhost:3000/dashboard`), and the in-memory `ioredis-mock` cache — without requiring any external Redis binary.
 
-Install Lavalink for local music:
+Install Lavalink for local music (optional):
 
 ```bash
 # Download the latest Lavalink v4 jar from the releases page,
@@ -83,8 +83,8 @@ java -jar Lavalink.jar
 ### Production
 
 ```bash
-pnpm build   # type-style compile of the whole workspace
-pnpm start   # runs the compiled bot + dashboard via the launcher
+pnpm build   # builds the Next.js dashboard and compiles the bot
+pnpm start   # runs the consolidated bot + internal dashboard in a single console window
 ```
 
 ### Individual Apps

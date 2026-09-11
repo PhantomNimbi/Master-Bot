@@ -28,22 +28,47 @@ flowchart LR
 
 ## 🗄️ Lavalink Setup
 
+Master-Bot supports two Lavalink hosting models:
+
+### Option A: 1-Click External Lavalink Server (Recommended for Cloud Hosting)
+Cloud free tiers (Render, Railway, Heroku, Fly.io) cannot run an internal Lavalink instance alongside the bot due to strict memory limits.
+
+You can deploy HELIX Origin's standalone **[Lavalink v4 Server](https://github.com/HELIX-Origin/Lavalink-Server)** with one click:
+
+| Platform | Free Tier | Deploy Button |
+| :--- | :---: | :--- |
+| **Render** | ✅ 100% Free | [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/HELIX-Origin/Lavalink-Server) |
+| **Railway** | ✅ Free Starter | [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2FHELIX-Origin%2FLavalink-Server) |
+| **Heroku** | ✅ Eco Dyno | [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/HELIX-Origin/Lavalink-Server) |
+| **Fly.io** | ✅ Free MicroVM | [![Deploy to Fly.io](https://img.shields.io/badge/Deploy%20to-Fly.io-24185b?style=for-the-badge&logo=flydotio&logoColor=white)](https://github.com/HELIX-Origin/Lavalink-Server/blob/main/wiki/Deployment.md#flyio) |
+
+Once deployed, set the following in Master-Bot's `.env`:
+```env
+LAVA_ENABLED=true
+LAVA_EXTERNAL=true
+LAVA_HOST="your-lavalink-server.onrender.com"
+LAVA_PORT=443
+LAVA_PASS="youshallnotpass"
+LAVA_SECURE=true
+```
+
+### Option B: Local Lavalink Server (For Local / Dedicated VPS Development)
 1. Download the latest **Lavalink v4** jar from the [Lavalink releases page](https://github.com/lavalink-devs/Lavalink/releases).
 2. Copy the repo's config: `cp application.yml.example application.yml`
 3. Launch the server: `java -jar Lavalink.jar`
 
-The example config ships with:
+The config template (`application.yml.example`) ships with:
 
 | Setting | Value |
 | --- | --- |
-| Server port | `2333` (matches `LAVA_PORT`) |
-| Server password | `youshallnotpass` (matches `LAVA_PASS`) |
+| Server port | `${PORT:${LAVA_PORT:2333}}` |
+| Server password | `${LAVA_PASS:youshallnotpass}` |
 | `youtubePlugin` | `1.18.2` |
 | `lavasrcPlugin` | `4.8.3` |
 | YouTube resolver | plugin with `remoteCipher` (`${YOUTUBE_CIPHER_URL:https://cipher.kikkia.dev/}`) and multi-client rotation: `TV`, `MUSIC`, `ANDROID_VR`, `IOS`, `WEB`, `WEBEMBEDDED` |
 | Native sources | `youtube: false` (handled by the plugin instead), Spotify/Local enabled |
 
-> **Running remote?** Set `LAVA_EXTERNAL=true`, `LAVA_SECURE=true` when behind TLS, and open port 2333. `pnpm dev` auto-launches a local Lavalink when Java is present and `LAVA_ENABLED=true`.
+> 💡 **Tip:** When `LAVA_EXTERNAL=false` and `LAVA_ENABLED=true`, `pnpm dev` will auto-launch a local Lavalink server if Java 17+ is detected on your system.
 
 ## ▶️ Playing & the Player Embed
 
