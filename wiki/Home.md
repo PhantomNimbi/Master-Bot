@@ -55,7 +55,6 @@ The bot keeps all runtime state — users, guilds, welcome messages, tickets, pl
 
 ## 📖 Continue Reading
 
-- Want to run it? → [**Getting Started**](Getting-Started.md)
-- Full command list? → [**Commands Reference**](Commands.md)
-- How data is stored? → [**Architecture**](Architecture.md)
-- Everything in the wiki is linked in the [**sidebar**](_Sidebar.md).
+- Want to run it? → [**Getting Started**](Getting-Started)
+- Full command list? → [**Commands Reference**](Commands)
+- How data is stored? → [**Architecture**](Architecture)

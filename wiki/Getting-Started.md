@@ -8,7 +8,7 @@ This guide walks you through installing, configuring, and launching **Master-Bot
 | --- | --- | --- |
 | **Node.js** | `>= 20.0` | Runtime for the bot and dashboard |
 | **pnpm** | `8.x` (repo pins `pnpm@8.6.7`) | Package manager for the workspace |
-| **Java** | `17+` | Only required if running a **local Lavalink** server. Not needed if using an external dedicated server like [HELIX-Origin/Lavalink-Server](https://github.com/HELIX-Origin/Lavalink-Server) (see [Music & Lavalink](Music.md)) |
+| **Java** | `17+` | Only required if running a **local Lavalink** server. Not needed if using an external dedicated server like [HELIX-Origin/Lavalink-Server](https://github.com/HELIX-Origin/Lavalink-Server) (see [Music & Lavalink](Music)) |
 | **Discord Application** | — | Bot token, client ID, and secret from the [Discord Developer Portal](https://discord.com/developers/applications) |
 
 > 💡 **Music is optional.** If you don't provide Lavalink (or set `LAVA_ENABLED=false`), every other feature still works.
@@ -59,7 +59,7 @@ NEXTAUTH_URL="http://localhost:3000"
 NEXT_PUBLIC_INVITE_URL="https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=8&scope=bot%20applications.commands"
 ```
 
-See [**Configuration**](Configuration.md) for the complete reference of every variable and feature flag.
+See [**Configuration**](Configuration) for the complete reference of every variable and feature flag.
 
 ## ▶️ Launch the Bot
 
@@ -76,7 +76,7 @@ Install Lavalink for local music (optional):
 ```bash
 # Download the latest Lavalink v4 jar from the releases page,
 # then copy the repo's config template (not Lavalink's stock application.yml —
-# it lacks the YouTube/Spotify fixes, see wiki/Lavalink.md):
+# it lacks the YouTube/Spotify fixes, see wiki/Lavalink):
 cp application.yml.example application.yml
 java -jar Lavalink.jar
 ```
@@ -111,4 +111,4 @@ Then run `/set` in the server to configure welcome messages, logging, tickets, t
 
 ## ❓ Problems?
 
-See the [**FAQ & Troubleshooting**](FAQ.md) page.
+See the [**FAQ & Troubleshooting**](FAQ) page.

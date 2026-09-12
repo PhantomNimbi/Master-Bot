@@ -9,7 +9,7 @@ Master-Bot runs **Lavalink v4** with a **custom configuration** tracked in the r
 > cp application.yml.example application.yml
 > ```
 >
-> The Docker setup and local scripts do this for you automatically — see [Deployment](Deployment.md).
+> The Docker setup and local scripts do this for you automatically — see [Deployment](Deployment).
 
 ## What our config fixes
 
@@ -67,6 +67,6 @@ After changing the config, restart Lavalink so it re-downloads the plugin artifa
 
 ## Related pages
 
-- [Music & Lavalink](Music.md) — setup options and playback
-- [Deployment](Deployment.md) — Docker/VPS + local deployment
-- [FAQ & Troubleshooting](FAQ.md)
+- [Music & Lavalink](Music) — setup options and playback
+- [Deployment](Deployment) — Docker/VPS + local deployment
+- [FAQ & Troubleshooting](FAQ)

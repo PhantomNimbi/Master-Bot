@@ -49,7 +49,7 @@ LAVA_SECURE=true
 
 ### Option B: Local Lavalink Server (For Local / Dedicated Development)
 1. Download the latest **Lavalink v4** jar from the [Lavalink releases page](https://github.com/lavalink-devs/Lavalink/releases).
-2. Copy the **repo's** config — `cp application.yml.example application.yml` (do **not** use the stock `application.yml` from the Lavalink release; it's missing the fixes below — see [Lavalink Configuration](Lavalink.md)).
+2. Copy the **repo's** config — `cp application.yml.example application.yml` (do **not** use the stock `application.yml` from the Lavalink release; it's missing the fixes below — see [Lavalink Configuration](Lavalink)).
 3. Launch the server: `java -jar Lavalink.jar`
 
 The config template (`application.yml.example`) ships with:

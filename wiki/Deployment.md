@@ -46,7 +46,7 @@ flowchart TD
 
 Master-Bot keeps the audio engine **separate** from the app process: the bot + dashboard run in one Node.js process, and music is served by a dedicated **Lavalink v4** server. Music commands require that server to be reachable.
 
-Self-host Lavalink via Docker or a dedicated VPS (see [Music & Lavalink](Music.md)):
+Self-host Lavalink via Docker or a dedicated VPS (see [Music & Lavalink](Music)):
 
 ```env
 LAVA_ENABLED=true
@@ -57,7 +57,7 @@ LAVA_PASS=youshallnotpass
 LAVA_SECURE=true
 ```
 
-> ⚠️ **Configuration:** whichever server you use must run with a Lavalink v4 config equivalent to **Master-Bot's `application.yml.example`**, which contains custom fixes (YouTube multi-client + OAuth via the `youtube-plugin`, Spotify → YouTube resolution via `lavasrc`, tuned streaming buffers) that are **broken in Lavalink's stock default config**. Do **not** use the `application.yml` from the Lavalink release as-is — see [Lavalink Configuration](Lavalink.md).
+> ⚠️ **Configuration:** whichever server you use must run with a Lavalink v4 config equivalent to **Master-Bot's `application.yml.example`**, which contains custom fixes (YouTube multi-client + OAuth via the `youtube-plugin`, Spotify → YouTube resolution via `lavasrc`, tuned streaming buffers) that are **broken in Lavalink's stock default config**. Do **not** use the `application.yml` from the Lavalink release as-is — see [Lavalink Configuration](Lavalink).
 >
 > ℹ️ **While your Lavalink server is offline,** set `LAVA_ENABLED=false` to run the bot and dashboard normally without music commands (no memory overhead, no crash risk).
 
@@ -120,7 +120,7 @@ pnpm build     # Builds Next.js dashboard and compiles bot
 pnpm start     # Starts consolidated bot + dashboard in a single console window
 ```
 
-For audio locally, start a Lavalink v4 server (Java 17+) in the workspace root after copying the config: `cp application.yml.example application.yml && java -jar Lavalink.jar` — see [Music & Lavalink](Music.md).
+For audio locally, start a Lavalink v4 server (Java 17+) in the workspace root after copying the config: `cp application.yml.example application.yml && java -jar Lavalink.jar` — see [Music & Lavalink](Music).
 
 Once running:
 - **Web Dashboard:** [http://localhost:3000/dashboard](http://localhost:3000/dashboard)

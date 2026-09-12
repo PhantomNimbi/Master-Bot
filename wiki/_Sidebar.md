@@ -7,27 +7,27 @@
 ## 📖 Wiki Index
 
 ### Getting Started
-- [**Getting Started**](Getting-Started.md) — prerequisites, installation, and first launch
-- [**Configuration**](Configuration.md) — full `.env` reference, feature flags, and API keys
+- [**Getting Started**](Getting-Started) — prerequisites, installation, and first launch
+- [**Configuration**](Configuration) — full `.env` reference, feature flags, and API keys
 
 ### Architecture & Reference
-- [**Architecture**](Architecture.md) — monorepo layout, session layer, and SQLite database
-- [**Commands Reference**](Commands.md) — every slash command, including `/set` subcommands
+- [**Architecture**](Architecture) — monorepo layout, session layer, and SQLite database
+- [**Commands Reference**](Commands) — every slash command, including `/set` subcommands
 
 ### Features
-- [**Music & Lavalink**](Music.md) — audio engine, filters, playlists, trivia, and YouTube OAuth
-- [**Moderation**](Moderation.md) — ban, kick, timeout, slowmode, purge, and audit logging
-- [**Support Tickets**](Tickets.md) — thread-based ticket system and transcripts
-- [**Welcome & Temp Channels**](Welcome-and-Temp-Channels.md) — join greetings and on-demand voice channels
-- [**Reminders & Twitch Alerts**](Reminders-and-Twitch.md) — scheduled reminders and live stream notifications
+- [**Music & Lavalink**](Music) — audio engine, filters, playlists, trivia, and YouTube OAuth
+- [**Moderation**](Moderation) — ban, kick, timeout, slowmode, purge, and audit logging
+- [**Support Tickets**](Tickets) — thread-based ticket system and transcripts
+- [**Welcome & Temp Channels**](Welcome-and-Temp-Channels) — join greetings and on-demand voice channels
+- [**Reminders & Twitch Alerts**](Reminders-and-Twitch) — scheduled reminders and live stream notifications
 
 ### Web Dashboard & Deployment
-- [**Web Dashboard**](Dashboard.md) — Next.js 15 dashboard, studios, and OAuth
-- [**Deployment**](Deployment.md) — production launch, Docker, and self-hosting
+- [**Web Dashboard**](Dashboard) — Next.js 15 dashboard, studios, and OAuth
+- [**Deployment**](Deployment) — production launch, Docker, and self-hosting
 
 ### Community
-- [**FAQ & Troubleshooting**](FAQ.md)
-- [**Contributing**](../CONTRIBUTING.md)
+- [**FAQ & Troubleshooting**](FAQ)
+- [**Contributing**](../CONTRIBUTING)
 
 ---
 

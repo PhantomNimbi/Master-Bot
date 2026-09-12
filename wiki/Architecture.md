@@ -186,4 +186,4 @@ sequenceDiagram
 
 ---
 
-See [**Database nuances**](Architecture.md#database-sqlite--prisma), [**Web Dashboard**](Dashboard.md), and [**Deployment**](Deployment.md) for the rest of the picture.
+See [**Database nuances**](Architecture.md#database-sqlite--prisma), [**Web Dashboard**](Dashboard), and [**Deployment**](Deployment) for the rest of the picture.

@@ -122,4 +122,4 @@ Requires `GIFS_ENABLED=true` and a GIF API key (`KLIPY_API`). Animated tenor/GIP
 | `/set volume` | `0–200` | Server-wide player volume. |
 | `/set view` | — | Review all current server settings in a panel. |
 
-> The interactive **web dashboard** mirrors every `/set` setting for servers where the bot is present — see [Web Dashboard](Dashboard.md).
+> The interactive **web dashboard** mirrors every `/set` setting for servers where the bot is present — see [Web Dashboard](Dashboard).

@@ -13,13 +13,13 @@
 
 ## 🚀 Deployment
 
-Master-Bot runs as a single Node.js process hosting the **Discord bot** and the **Next.js dashboard** — locally, on a VPS, or via Docker. Music requires a **Lavalink v4 server running externally** on a Lavalink server you host yourself (Docker/VPS/Local). See the [Deployment Wiki](wiki/Deployment.md).
+Master-Bot runs as a single Node.js process hosting the **Discord bot** and the **Next.js dashboard** — locally, on a VPS, or via Docker. Music requires a **Lavalink v4 server running externally** on a Lavalink server you host yourself (Docker/VPS/Local). See the [Deployment Wiki](wiki/Deployment).
 
-> 🏠 **Self-host only:** managed cloud platforms are intentionally not supported. Their OAuth/domain allowlists block fresh cloud subdomains (breaking dashboard login), and their paid tiers are a poor fit for an open-source bot. See the [Deployment Wiki](wiki/Deployment.md) for the rationale.
+> 🏠 **Self-host only:** managed cloud platforms are intentionally not supported. Their OAuth/domain allowlists block fresh cloud subdomains (breaking dashboard login), and their paid tiers are a poor fit for an open-source bot. See the [Deployment Wiki](wiki/Deployment) for the rationale.
 
 | Platform | Notes |
 | :--- | :--- |
-| **Docker / VPS** | Recommended. `Dockerfile` + `docker-compose.yml` run bot + dashboard and Lavalink in separate containers with persistent storage. Full guide in the [Deployment Wiki](wiki/Deployment.md). |
+| **Docker / VPS** | Recommended. `Dockerfile` + `docker-compose.yml` run bot + dashboard and Lavalink in separate containers with persistent storage. Full guide in the [Deployment Wiki](wiki/Deployment). |
 | **Local** | `pnpm install && pnpm build && pnpm start` on any Node.js 20+ machine — see [Quick Start](#-quick-start-guide). |
 
 > 💡 **Audio Engine:** Master-Bot runs its bot + dashboard in a single Node process and connects to a **separate Lavalink v4 server** (self-hosted via Docker or dedicated VPS). Set `LAVA_ENABLED=true` to enable music; set it to `false` to run without music while your Lavalink is offline.
@@ -56,7 +56,7 @@ Master-Bot/
 └── docker-compose.yml       # Bot + Lavalink containers for VPS self-hosting
 ```
 
-> 🔄 **Consolidated Runtime:** Master-Bot runs both the Discord bot gateway and the Next.js web dashboard inside a single Node.js process on port `PORT` (`/dashboard`), with a single console window and zero external Redis dependencies. For full deployment details, follow the [Deployment Wiki](wiki/Deployment.md).
+> 🔄 **Consolidated Runtime:** Master-Bot runs both the Discord bot gateway and the Next.js web dashboard inside a single Node.js process on port `PORT` (`/dashboard`), with a single console window and zero external Redis dependencies. For full deployment details, follow the [Deployment Wiki](wiki/Deployment).
 
 ---
 
@@ -115,7 +115,7 @@ Fill in your mandatory credentials:
 - `DISCORD_TOKEN`: Bot token from the Discord Developer Portal
 - `DISCORD_CLIENT_ID` & `DISCORD_CLIENT_SECRET`: Application OAuth2 credentials
 
-Optional audio/feature keys (Spotify, YouTube, Twitch, News, Genius, Klipy) and the `LAVA_*` + feature-flag variables are documented in the [Configuration Wiki](wiki/Configuration.md).
+Optional audio/feature keys (Spotify, YouTube, Twitch, News, Genius, Klipy) and the `LAVA_*` + feature-flag variables are documented in the [Configuration Wiki](wiki/Configuration).
 
 ### 3. Run the Stack
 
@@ -139,7 +139,7 @@ Authorized playback defeats YouTube throttling/blocking. See [Music & Lavalink](
 
 ## 📖 Available Commands
 
-> Master-Bot ships with **74 slash commands** across Music, Moderation, GIFs, Games, Utilities, News, and Reminders. For the complete, up-to-date list and the `/set` subcommands, see the [Commands Reference](wiki/Commands.md).
+> Master-Bot ships with **74 slash commands** across Music, Moderation, GIFs, Games, Utilities, News, and Reminders. For the complete, up-to-date list and the `/set` subcommands, see the [Commands Reference](wiki/Commands).
 
 | Category | Highlights |
 | --- | --- |
@@ -154,22 +154,22 @@ Authorized playback defeats YouTube throttling/blocking. See [Music & Lavalink](
 
 ## 🐳 Docker Deployment
 
-A portable **Dockerfile** (`node:20-slim`, port `3000`) is included. For single-service container deployment and persistence guidance, see [Deployment Wiki](wiki/Deployment.md).
+A portable **Dockerfile** (`node:20-slim`, port `3000`) is included. For single-service container deployment and persistence guidance, see [Deployment Wiki](wiki/Deployment).
 
 ---
 
 ## 📚 Documentation & Wiki
 
-Visit the [Wiki](wiki/Home.md) for full documentation:
+Visit the [Wiki](wiki/Home) for full documentation:
 
-- 🚀 [Getting Started](wiki/Getting-Started.md)
-- ⚙️ [Configuration & API Keys](wiki/Configuration.md)
-- 🏗️ [Architecture & Database](wiki/Architecture.md)
-- ⌨️ [Commands Reference](wiki/Commands.md)
-- 🎵 [Music & Lavalink](wiki/Music.md)
-- 🌐 [Web Dashboard](wiki/Dashboard.md)
-- 🚀 [Deployment](wiki/Deployment.md)
-- ❓ [FAQ & Troubleshooting](wiki/FAQ.md)
+- 🚀 [Getting Started](wiki/Getting-Started)
+- ⚙️ [Configuration & API Keys](wiki/Configuration)
+- 🏗️ [Architecture & Database](wiki/Architecture)
+- ⌨️ [Commands Reference](wiki/Commands)
+- 🎵 [Music & Lavalink](wiki/Music)
+- 🌐 [Web Dashboard](wiki/Dashboard)
+- 🚀 [Deployment](wiki/Deployment)
+- ❓ [FAQ & Troubleshooting](wiki/FAQ)
 
 ---
 
@@ -192,7 +192,7 @@ Visit the [Wiki](wiki/Home.md) for full documentation:
 
 ## 🤝 Contributing
 
-We welcome contributions of all kinds! Please read our [Contributing Guidelines](CONTRIBUTING.md) to get started with local setup, coding standards, and pull request workflows.
+We welcome contributions of all kinds! Please read our [Contributing Guidelines](CONTRIBUTING) to get started with local setup, coding standards, and pull request workflows.
 
 ---
 
