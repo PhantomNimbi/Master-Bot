@@ -81,7 +81,7 @@ The bot keeps all runtime state in an in-memory **`SessionManager`** (`apps/bot/
    - `NEXTAUTH_URL`: Dashboard URL (e.g. `http://localhost:3000`)
    - `LAVA_ENABLED`: Set to `true` if you wish to run and test audio playback.
 
-   See the [Configuration Wiki](../Master-Bot/Configuration) for every optional key and feature flag.
+   See the [Configuration Wiki](../wiki/Configuration) for every optional key and feature flag.
 
 4. **Lavalink Configuration (Optional for non-music development)**:
    If developing audio features, copy `application.yml.example` to `application.yml` and ensure `Lavalink.jar` (v4) is present in the workspace root.
@@ -223,7 +223,7 @@ All commit messages must strictly follow the [Conventional Commits](https://www.
 ## 💬 Community & Getting Help
 
 - **Repository**: [galnir/Master-Bot](https://github.com/galnir/Master-Bot)
-- **Documentation Wiki**: [Master-Bot Wiki](../Master-Bot/Home)
+- **Documentation Wiki**: [Master-Bot Wiki](../wiki/Home)
 - **Discussions & Issues**: [GitHub Issues](https://github.com/galnir/Master-Bot/issues)
 
 Thank you for helping make Master-Bot better for everyone! 🚀
