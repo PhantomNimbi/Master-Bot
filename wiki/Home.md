@@ -4,7 +4,7 @@
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
 [![pnpm](https://img.shields.io/badge/Package_Manager-pnpm-orange.svg)](https://pnpm.io/)
 [![Lavalink](https://img.shields.io/badge/Lavalink-v4.x-purple.svg)](https://github.com/lavalink-devs/Lavalink)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../LICENSE.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../LICENSE)
 
 **Master-Bot** is a production-ready Discord music, moderation, and utility bot with a full-featured **Next.js web dashboard**. It is built with **TypeScript**, **Sapphire Framework**, **discord.js v14**, **Prisma ORM** (SQLite), and **Lavalink v4** for high-fidelity audio.
 
