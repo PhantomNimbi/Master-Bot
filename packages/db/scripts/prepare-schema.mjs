@@ -8,6 +8,16 @@ const __dirname = path.dirname(__filename);
 // Load root .env file if DATABASE_URL is not set
 const rootDir = path.resolve(__dirname, '../../..');
 const envPath = path.join(rootDir, '.env');
+const examplePath = path.join(rootDir, '.env.example');
+
+if (!fs.existsSync(envPath) && fs.existsSync(examplePath)) {
+	try {
+		fs.copyFileSync(examplePath, envPath);
+		console.log('[prepare-schema] Created .env from .env.example');
+	} catch (err) {
+		console.warn('[prepare-schema] Could not copy .env.example:', err.message);
+	}
+}
 
 if (fs.existsSync(envPath)) {
 	try {
@@ -33,6 +43,11 @@ if (fs.existsSync(envPath)) {
 	} catch (err) {
 		console.warn('[prepare-schema] Could not parse .env:', err.message);
 	}
+}
+
+// Guarantee DATABASE_URL default if unset
+if (!process.env.DATABASE_URL) {
+	process.env.DATABASE_URL = 'file:./db.sqlite';
 }
 
 const rawDbUrl = process.env.DATABASE_URL?.trim() || '';

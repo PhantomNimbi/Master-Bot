@@ -1,0 +1,66 @@
+name: Wiki Sync
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'wiki/**'
+      - '.github/workflows/wiki.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sync-wiki:
+    name: Sync Wiki Documentation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Sync Wiki to GitHub Wiki Repository
+        env:
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          if [ -z "$PAT_TOKEN" ]; then
+            echo "::error::Secret PAT_TOKEN is not set in repository secrets. Please configure PAT_TOKEN with repo scope to enable GitHub Wiki synchronization."
+            exit 1
+          fi
+
+          WIKI_DIR="${GITHUB_WORKSPACE}/wiki"
+          TMP_DIR=$(mktemp -d)
+          WIKI_URL="https://x-access-token:${PAT_TOKEN}@github.com/${REPOSITORY}.wiki.git"
+
+          echo "Checking GitHub Wiki repository connection..."
+          if git clone "$WIKI_URL" "$TMP_DIR" 2>/dev/null; then
+            echo "Successfully cloned existing wiki repository."
+            find "$TMP_DIR" -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+            cp -a "$WIKI_DIR"/. "$TMP_DIR"/
+            cd "$TMP_DIR"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add -A
+            if git diff --staged --quiet; then
+              echo "Wiki is already up to date. No changes to push."
+            else
+              git commit -m "docs: sync wiki documentation [skip ci]"
+              git push origin HEAD
+              echo "Wiki synchronization completed successfully."
+            fi
+          else
+            echo "Wiki clone failed (wiki repository may be empty or newly enabled). Pushing fresh initial branch..."
+            cd "$TMP_DIR"
+            git init -b master
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            cp -a "$WIKI_DIR"/. "$TMP_DIR"/
+            git add -A
+            git commit -m "docs: initialize wiki documentation [skip ci]"
+            git push --force "$WIKI_URL" master:master || git push --force "$WIKI_URL" main:main
+            echo "Wiki initialization completed successfully."
+          fi

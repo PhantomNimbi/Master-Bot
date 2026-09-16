@@ -35,3 +35,10 @@ flowchart TD
 
 4. **Footer Consistency**:
    - Ensure every page includes navigation pointing to `Home.md` and related topics.
+
+5. **Automated GitHub Wiki Synchronization**:
+   - Changes committed to `wiki/**` on `main` automatically sync to the repository's GitHub Wiki via `.github/workflows/wiki.yml`.
+   - Requires repository secret `PAT_TOKEN` (Personal Access Token with `repo` scope).
+   - > [!NOTE]
+   - > GitHub Actions prevents secret names starting with `GITHUB_`, which is why the token is named `PAT_TOKEN`.
+

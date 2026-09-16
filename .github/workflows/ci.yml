@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build, Lint & Test
+    runs-on: ubuntu-latest
+
+    env:
+      CI: "true"
+      SKIP_ENV_VALIDATION: "true"
+      DATABASE_URL: "file:./db.sqlite"
+      DISCORD_TOKEN: "mock_discord_token_for_ci_pipeline"
+      DISCORD_CLIENT_ID: "mock_discord_client_id"
+      DISCORD_CLIENT_SECRET: "mock_discord_client_secret"
+      PUBLIC_URL: "http://localhost:3000"
+      INTERNAL_URL: "http://localhost:3000"
+      NEXTAUTH_SECRET: "youshallnotpass"
+      NEXTAUTH_URL: "http://localhost:3000"
+      LAVA_ENABLED: "false"
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8.6.7
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Setup Environment Variables
+        run: |
+          if [ ! -f .env ]; then
+            cp .env.example .env
+          fi
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test (Vitest)
+        run: pnpm test
+
+      - name: Type Check
+        run: pnpm type-check
+
+      - name: Build
+        run: pnpm build
+
