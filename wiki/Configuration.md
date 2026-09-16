@@ -31,7 +31,7 @@ Master-Bot uses **SQLite** through **Prisma ORM**. The database is a single port
 | `LAVA_PASS` | `youshallnotpass` | Lavalink password (must match `application.yml`). |
 | `LAVA_SECURE` | `false` | `true` enables WSS/HTTPS (use when hosting remotely behind TLS). |
 | `LAVA_EXTERNAL` | `false` | Set to `true` when connecting to an external Lavalink instance (such as the public HELIX Origin server or [HELIX-Origin/Lavalink-Server](https://github.com/HELIX-Origin/Lavalink-Server)). |
-| `YOUTUBE_REFRESH_TOKEN` | — | YouTube OAuth 2.0 refresh token; auto-saved to `.youtube-oauth.json` after `/youtube-auth`. |
+| `YOUTUBE_REFRESH_TOKEN` | — | YouTube OAuth 2.0 refresh token; auto-saved to `.youtube-oauth.json` during embedded Lavalink server startup authorization. |
 | `YOUTUBE_API_KEY` | — | Optional YouTube Data API v3 key for richer track metadata. |
 | `YOUTUBE_CIPHER_URL` | `https://cipher.kikkia.dev/` | Remote YouTube signature-decipher endpoint. |
 | `YOUTUBE_CIPHER_PASSWORD` | — | Password for a self-hosted `yt-cipher` (leave empty for the public endpoint). |
@@ -94,7 +94,7 @@ Acquiring API keys (all free):
 | **Discord** | [Developer Portal](https://discord.com/developers/applications) | Bot token, client ID/secret (required). |
 | **Twitch** | [Twitch Developer Console](https://dev.twitch.tv/console/apps) | `TWITCH_CLIENT_ID` / `TWITCH_CLIENT_SECRET` — live alerts + IGDB search. |
 | **Spotify** | [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) | `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET` — Spotify→YouTube resolution. |
-| **YouTube OAuth** | Google Cloud Console → OAuth consent screen | `YOUTUBE_REFRESH_TOKEN` via the bot's `/youtube-auth`. Needed for `/youtube-api` client playback (recommended, defeats YouTube throttling). |
+| **YouTube OAuth** | Google Cloud Console → OAuth consent screen | `YOUTUBE_REFRESH_TOKEN` captured during embedded Lavalink startup. Needed for `/youtube-api` client playback (recommended, defeats YouTube throttling). |
 | **NewsAPI** | [newsapi.org](https://newsapi.org/register) | `NEWS_API` — `/world-news`. |
 | **Genius** | [Genius API](https://genius.com/api-clients) | `GENIUS_API` — `/lyrics`. |
 | **Klipy** | [Klipy](https://klipy.com/) | `KLIPY_API` — anime reactions/GIFs. |

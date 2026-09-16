@@ -102,13 +102,13 @@ Playlists and their songs are persisted in the database (`Playlist` / `Song` mod
 
 `/music-trivia` starts a guess-the-song game built from the **artists currently in the queue**. Tracks play with the title/artist clues hidden while players answer; `/stop-trivia` ends it and posts the leaderboard. Powered by the bot's own trivia samples (`triviaSongs`/`triviaMatcher`).
 
-## 🔐 YouTube OAuth (Recommended)
+## 🔐 YouTube OAuth (Embedded Server Startup)
 
-Public YouTube playback is throttled and can be blocked. The bot can play through an **authorized YouTube account** instead:
+Public YouTube playback is throttled and can be blocked. The embedded Lavalink server streams through an **authorized YouTube account** instead:
 
-1. Run `/youtube-auth` and open the returned authorization URL.
-2. Log in with the YouTube account you want to stream through and approve the scopes.
-3. The bot stores the resulting refresh token in `.youtube-oauth.json` (also available as `YOUTUBE_REFRESH_TOKEN`) — playback now uses that account's session via the YouTube client.
+1. On bot startup, the embedded Lavalink server checks for `YOUTUBE_REFRESH_TOKEN` (or `.youtube-oauth.json`).
+2. If OAuth is configured (`YOUTUBE_CLIENT_ID`) and no token exists, the embedded server awaits device code authorization on the terminal before opening the audio gateway.
+3. Once authorized, the refresh token is saved automatically to `.youtube-oauth.json` and reused across restarts without manual intervention.
 
 ## 🧰 Troubleshooting
 

@@ -1,8 +1,8 @@
 # ⌨️ Commands Reference
 
-Master-Bot ships **74 slash commands** across five categories. All commands are slash-command native; `GIFS_ENABLED`, `TWITCH_ENABLED`, `NEWS_ENABLED`, and `IGDB_ENABLED` hide their categories when disabled.
+Master-Bot ships **73 slash commands** across five categories. All commands are slash-command native; `GIFS_ENABLED`, `TWITCH_ENABLED`, `NEWS_ENABLED`, and `IGDB_ENABLED` hide their categories when disabled.
 
-## 🎵 Music — 25 commands
+## 🎵 Music — 24 commands
 
 Requires Lavalink (`LAVA_ENABLED=true`) and the bot to be in a voice channel.
 
@@ -32,7 +32,6 @@ Requires Lavalink (`LAVA_ENABLED=true`) and the bot to be in a voice channel.
 | `/display-playlist` | Show the tracks in a playlist (paginated). |
 | `/delete-playlist` | Delete one of your playlists on this server. |
 | `/remove-from-playlist` | Remove a specific track from one of your playlists. |
-| `/youtube-auth` | Authorize a streaming YouTube account via OAuth (see [Music & Lavalink](Music.md#youtube-oauth)). |
 
 ## 🔨 Moderation — 5 commands
 

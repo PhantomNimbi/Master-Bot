@@ -67,7 +67,7 @@ Master-Bot/
 - **🎫 Thread-Based Support Ticket System:** Interactive ticket panel, thread management, a configurable manager role, and `.txt` transcript archiving.
 - **📜 Granular Audit Logging:** 20 event triggers across members, messages, channels, roles, voice, and moderation — tuned per server via `/set` or the dashboard.
 - **🗄️ Zero-Ops Database:** SQLite via Prisma. The schema is generated and pushed automatically on `pnpm install`; no database server to install or manage.
-- **🔑 Native YouTube Device-Flow OAuth:** `/youtube-auth` authorizes a streaming account; the refresh token persists to `.youtube-oauth.json` without rewriting `.env`.
+- **🎵 Embedded Lavalink Audio Architecture:** Powered by `@helix-origin/lavalink-server`, Lavalink v4 runs in-process and handles YouTube OAuth refresh token authorization directly during startup before launching the audio engine.
 - **🌐 Interactive Web Dashboard:** Next.js 15 App Router command center — per-server studios for welcome messages, audit logs, tickets, reminders, per-command toggles, music, broadcasts, integrations, and system telemetry.
 - **🎯 Feature Flags:** Individual bot modules (Lavalink audio, GIFs, Twitch, News, IGDB) can be enabled or disabled via environment variables.
 - **🚀 Cross-Platform Unified Launchers:** `pnpm dev` and `pnpm start` manage ports, route output to isolated log files (`logs/`), and present a clean console status UI.
@@ -126,11 +126,11 @@ Starts the bot, dashboard, and (when `LAVA_ENABLED=true` and Java is present) a 
 
 ---
 
-## 🎵 YouTube OAuth Setup
+## 🎵 YouTube OAuth & Audio Streaming
 
-1. Run `/youtube-auth` in Discord (or the terminal device-flow prompt at first launch).
-2. Open the returned URL, log in with the YouTube account you want to stream through, and approve the scopes.
-3. The bot stores the refresh token atomically in `.youtube-oauth.json` and keeps a `YOUTUBE_REFRESH_TOKEN` binding for Lavalink.
+1. At startup, the embedded Lavalink audio server checks for an existing `YOUTUBE_REFRESH_TOKEN` (or `.youtube-oauth.json`).
+2. If OAuth is configured (`YOUTUBE_CLIENT_ID`) and no refresh token exists, the embedded server awaits device authorization on the console before starting playback services.
+3. Once authorized, the refresh token is persisted for uninterrupted streaming and protection against YouTube rate limits.
 
 Authorized playback defeats YouTube throttling/blocking. See [Music & Lavalink](../../wiki/Music.md#youtube-oauth).
 
@@ -138,11 +138,11 @@ Authorized playback defeats YouTube throttling/blocking. See [Music & Lavalink](
 
 ## 📖 Available Commands
 
-> Master-Bot ships with **74 slash commands** across Music, Moderation, GIFs, Games, Utilities, News, and Reminders. For the complete, up-to-date list and the `/set` subcommands, see the [Commands Reference](../../wiki/Commands).
+> Master-Bot ships with **73 slash commands** across Music, Moderation, GIFs, Games, Utilities, News, and Reminders. For the complete, up-to-date list and the `/set` subcommands, see the [Commands Reference](../../wiki/Commands).
 
 | Category | Highlights |
 | --- | --- |
-| 🎵 **Music** | `/play`, `/queue`, `/shuffle`, `/jump`, `/seek`, `/volume`, `/lyrics`, `/bassboost`, `/music-trivia`, playlists, `/youtube-auth` |
+| 🎵 **Music** | `/play`, `/queue`, `/shuffle`, `/jump`, `/seek`, `/volume`, `/lyrics`, `/bassboost`, `/music-trivia`, playlists |
 | 🔨 **Moderation** | `/ban`, `/kick`, `/timeout`, `/slowmode`, `/purge` |
 | ⚙️ **Utility** | `/set`, `/help`, `/reminder`, `/poll`, `/weather`, `/translate`, `/world-news`, `/8ball`, `/reddit`, `/urban` |
 | 🎮 **Games** | `/connect-four`, `/tic-tac-toe`, `/rockpaperscissors`, `/game-search` |

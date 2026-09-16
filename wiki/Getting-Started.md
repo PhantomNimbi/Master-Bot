@@ -107,7 +107,7 @@ Then run `/set` in the server to configure welcome messages, logging, tickets, t
 
 - **Database:** `packages/db/prisma/db.sqlite` — created automatically (relative SQLite paths resolve against the Prisma schema). Back it up by copying this single file.
 - **Logs:** `logs/` — bot, dashboard, Lavalink, and combined logs.
-- **YouTube OAuth:** `.youtube-oauth.json` — auto-saved after first `/youtube-auth`.
+- **YouTube OAuth:** `.youtube-oauth.json` — auto-saved upon completing embedded Lavalink startup authorization.
 
 ## ❓ Problems?
 

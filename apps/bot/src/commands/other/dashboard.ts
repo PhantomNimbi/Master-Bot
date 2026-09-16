@@ -2,7 +2,7 @@ import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
-import { getApplicationOwnerUser } from '../../lib/music/youtubeOAuth';
+import { getApplicationOwnerUser } from '../../lib/structures/owner';
 
 @ApplyOptions<Command.Options>({
 	name: 'dashboard',

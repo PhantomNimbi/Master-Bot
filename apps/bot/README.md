@@ -10,7 +10,7 @@ The Discord client application for **Master-Bot**, built with [Sapphire Framewor
 apps/bot/
 ├── src/
 │   ├── index.ts                # Boot: session.init() → client.login()
-│   ├── commands/               # 74 Sapphire chat input (slash) commands
+│   ├── commands/               # 73 Sapphire chat input (slash) commands
 │   │   ├── gifs/               # Klipy & Waifu.im reaction commands
 │   │   ├── moderation/         # Ban, kick, purge, slowmode, timeout
 │   │   ├── music/              # Lavalink audio playback & playlist suite
@@ -21,10 +21,10 @@ apps/bot/
 │   │   ├── set/                # Per-feature /set subcommand handlers (welcome, logging, tickets…)
 │   │   ├── games/              # Connect 4, Tic-Tac-Toe, Rock-Paper-Scissors
 │   │   ├── gifs/               # Media scrapers & fetchers
-│   │   ├── music/              # Queue, QueueStore, TriviaSession, NowPlaying embeds, YouTube OAuth
+│   │   ├── music/              # Queue, QueueStore, TriviaSession, NowPlaying embeds
 │   │   ├── presence/           # Dynamic rotating presence status manager
 │   │   ├── reminders/          # Background reminder scheduler (30s tick)
-│   │   ├── structures/         # ExtendedClient, CommandHelp, HelpRegistry
+│   │   ├── structures/         # ExtendedClient, CommandHelp, HelpRegistry, Owner helper
 │   │   └── twitch/             # Twitch token and live stream checkers
 │   ├── listeners/              # Sapphire event listeners
 │   │   ├── guild/              # Guild member add/remove, guild create/delete
@@ -42,7 +42,7 @@ apps/bot/
 ## ⚡ Key Features & Subsystems
 
 1. **🎵 Lavalink v4 Audio Playback**:
-   - YouTube multi-client failover with `/youtube-auth` OAuth token capture (persisted to `.youtube-oauth.json`).
+   - YouTube multi-client failover with embedded Lavalink startup OAuth token capture (persisted to `.youtube-oauth.json`).
    - Spotify metadata resolution via `lavasrc-plugin`.
    - Free built-in SoundCloud track search and playback.
    - Interactive channel now-playing embeds with live progress bars.

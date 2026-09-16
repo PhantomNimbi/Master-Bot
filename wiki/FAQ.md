@@ -22,7 +22,7 @@ Lavalink isn't running or isn't reachable. Start it with `java -jar Lavalink.jar
 
 **Spotify links do nothing.** Add `SPOTIFY_CLIENT_ID` + `SPOTIFY_CLIENT_SECRET`.
 
-**YouTube throttles or blocks playback.** Complete `/youtube-auth` once so the bot streams through an authorized YouTube account (see [Music & Lavalink](Music.md#youtube-oauth)).
+**YouTube throttles or blocks playback.** Complete YouTube OAuth device authorization when the embedded Lavalink server prompts on startup, or supply `YOUTUBE_REFRESH_TOKEN` in `.env` (see [Music & Lavalink](Music.md#youtube-oauth)).
 
 **Playback works but there's no visual progress / embed.** The now-playing embed needs **Embed Links** permission in the channel.
 
