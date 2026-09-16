@@ -3,7 +3,6 @@ import superjson from 'superjson';
 import { ZodError } from 'zod';
 import type { Session } from '@master-bot/auth';
 import { prisma, redis } from '@master-bot/db';
-import { env } from '~/env.mjs';
 
 interface CreateContextOptions {
 	session: Session | null;

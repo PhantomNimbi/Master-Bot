@@ -10,13 +10,6 @@
 *.youtube-oauth.json
 
 # Local tracking plan (never commit)
-PLAN.md
-AGENTS.md
-agents/
-.agents/
-.gemini/
-.copilot/
-.opencode/
 scratch/
 
 # Turbo
@@ -24,8 +17,6 @@ scratch/
 
 # Testing
 /coverage
-tests/
-vitest.config.*
 
 # Database
 */migrations/*

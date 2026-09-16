@@ -12,27 +12,26 @@
 ---
 
 ## 🚀 Deployment
-
-Master-Bot runs as a single Node.js process hosting the **Discord bot** and the **Next.js dashboard** — locally, on a VPS, or via Docker. Music requires a **Lavalink v4 server running externally** on a Lavalink server you host yourself (Docker/VPS/Local). See the [Deployment Wiki](../../wiki/Deployment).
-
-> 🏠 **Self-host only:** managed cloud platforms are intentionally not supported. Their OAuth/domain allowlists block fresh cloud subdomains (breaking dashboard login), and their paid tiers are a poor fit for an open-source bot. See the [Deployment Wiki](../../wiki/Deployment) for the rationale.
+ 
+Master-Bot runs as a single Node.js process hosting the **Discord bot** and the **Next.js dashboard** — locally, on a VPS, or via Docker. For persistent SQLite storage, unthrottled networking, and dedicated resources, self-hosting on a low-cost VPS is recommended. Heroku is also supported as an optional cloud hosting choice. See the [Deployment Wiki](../../wiki/Deployment).
 
 | Platform | Notes |
 | :--- | :--- |
-| **Docker / VPS** | Recommended. `Dockerfile` + `docker-compose.yml` run bot + dashboard and Lavalink in separate containers with persistent storage. Full guide in the [Deployment Wiki](../../wiki/Deployment). |
+| **Docker / VPS** | **Recommended.** `Dockerfile` + `docker-compose.yml` run bot + dashboard and Lavalink in separate containers with persistent storage. Full guide in the [Deployment Wiki](../../wiki/Deployment). |
+| **Node.js / PM2 VPS** | Run natively on Ubuntu/Debian with PM2 process supervision and Caddy reverse proxy for automatic HTTPS. |
 | **Local** | `pnpm install && pnpm build && pnpm start` on any Node.js 20+ machine — see [Quick Start](#-quick-start-guide). |
-
-> 💡 **Audio Engine:** Master-Bot runs its bot + dashboard in a single Node process and connects to a **separate Lavalink v4 server** (self-hosted via Docker or dedicated VPS). Set `LAVA_ENABLED=true` to enable music; set it to `false` to run without music while your Lavalink is offline.
+| **Heroku (Optional Cloud)** | Available for users who specifically prefer cloud hosting. Requires external PostgreSQL (`DATABASE_URL`) due to ephemeral storage, and external Lavalink (`LAVA_EXTERNAL=true`). |
 
 ### 🌐 Recommended Low-Cost Compatible VPS Providers
 
-| Provider | Starting Price | Key Benefits | Recommended Plan |
+| Provider | Starting Price | Specs / Recommended Plan | Key Benefits |
 | :--- | :--- | :--- | :--- |
-| [**Hetzner Cloud**](https://www.hetzner.com/cloud) | ~€3.79 / mo | High performance, fast NVMe, EU/US locations | CX22 (2 vCPU, 4 GB RAM) / CAX11 |
-| [**OVHcloud**](https://www.ovhcloud.com/en/vps/) | ~$4.20 / mo | Unmetered bandwidth, strong anti-DDoS protection | Starter / Value VPS |
-| [**DigitalOcean**](https://www.digitalocean.com/) | ~$4.00 - $6.00 / mo | 1-Click Docker droplets, low network latency | Basic Droplet (1-2 GB RAM) |
-| [**Linode (Akamai)**](https://www.linode.com/) | ~$5.00 / mo | High network reliability, 24/7 support | Nanode 1GB / Shared 2GB |
-| [**Vultr**](https://www.vultr.com/) | ~$3.50 - $5.00 / mo | 30+ worldwide datacenters, fast provisioning | Cloud Compute (1-2 GB RAM) |
+| [**Hetzner Cloud**](https://www.hetzner.com/cloud) | ~€3.79 / mo | CX22 (2 vCPU, 4 GB RAM) | **Top value:** High NVMe speeds, 20 TB traffic, EU/US |
+| [**OVHcloud**](https://www.ovhcloud.com/en/vps/) | ~$4.20 / mo | Starter VPS (1 vCPU, 2 GB RAM) | Unmetered bandwidth, strong anti-DDoS protection |
+| [**DigitalOcean**](https://www.digitalocean.com/) | ~$4.00 - $6.00 / mo | Basic Droplet (1-2 GB RAM) | 1-Click Docker droplets, low network latency |
+| [**Linode (Akamai)**](https://www.linode.com/) | ~$5.00 / mo | Nanode 1GB / Shared 2GB | High network reliability, 24/7 technical support |
+| [**Vultr**](https://www.vultr.com/) | ~$3.50 - $5.00 / mo | Cloud Compute (1-2 GB RAM) | 32+ worldwide datacenters, fast provisioning |
+| [**Contabo**](https://contabo.com/) | ~$5.50 / mo | Cloud VPS S (4 vCPU, 8 GB RAM) | Maximum RAM per dollar; hosts bot + dashboard + audio all-in-one |
 
 ---
 
@@ -193,6 +192,15 @@ Visit the [Wiki](../../wiki/Home) for full documentation:
 ## 🤝 Contributing
 
 We welcome contributions of all kinds! Please read our [Contributing Guidelines](CONTRIBUTING) to get started with local setup, coding standards, and pull request workflows.
+
+---
+
+## ⚖️ Legal, Privacy & Security
+
+In accordance with Discord Developer Policies and open-source verification standards:
+- 🛡️ [**Privacy Policy**](PRIVACY.md) — Details on data collection, local SQLite/PostgreSQL storage, user rights, and automatic deletion on guild leave.
+- 📜 [**Terms of Service**](TOS.md) — Permitted usage, community guidelines compliance, disclaimers, and service terms.
+- 🔒 [**Security Policy**](SECURITY.md) — Vulnerability disclosure process, supported versions, and operational security guidelines.
 
 ---
 

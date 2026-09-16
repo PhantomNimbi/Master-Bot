@@ -103,14 +103,14 @@ export class PlayCommand extends Command {
 			});
 		}
 
-		let queue = music.queues.get(interaction.guildId!);
+		const queue = music.queues.get(interaction.guildId!);
 		await queue.setTextChannelID(interaction.channel!.id);
 
 		if (!queue.player || !queue.player.connected) {
 			await queue.connect(voiceChannel.id);
 		}
 
-		let tracks: Song[] = [];
+		const tracks: Song[] = [];
 		let message: string = '';
 
 		if (isCustomPlaylist == 'Yes') {

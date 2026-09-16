@@ -47,7 +47,7 @@ export class Connect4Game {
 		await game(player1, player2!);
 
 		async function game(player1: User, player2: User) {
-			let gameBoard: number[][] = [
+			const gameBoard: number[][] = [
 				[0, 0, 0, 0, 0, 0, 0], // row 6
 				[0, 0, 0, 0, 0, 0, 0],
 				[0, 0, 0, 0, 0, 0, 0],

@@ -68,7 +68,7 @@ export class LyricsCommand extends Command {
 			});
 
 			for (let i = 1; i <= lyricsIndex; ++i) {
-				let b = i - 1;
+				const b = i - 1;
 				if (lyrics.trim().slice(b * 4096, i * 4096).length !== 0) {
 					paginatedLyrics.addPageEmbed(embed => {
 						return embed.setDescription(lyrics.slice(b * 4096, i * 4096));

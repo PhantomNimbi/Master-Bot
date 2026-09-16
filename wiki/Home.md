@@ -4,57 +4,83 @@
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
 [![pnpm](https://img.shields.io/badge/Package_Manager-pnpm-orange.svg)](https://pnpm.io/)
 [![Lavalink](https://img.shields.io/badge/Lavalink-v4.x-purple.svg)](https://github.com/lavalink-devs/Lavalink)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../LICENSE)
+[![License: ISC](https://img.shields.io/badge/License-ISC-yellow.svg)](../LICENSE.md)
 
-**Master-Bot** is a production-ready Discord music, moderation, and utility bot with a full-featured **Next.js web dashboard**. It is built with **TypeScript**, **Sapphire Framework**, **discord.js v14**, **Prisma ORM** (SQLite), and **Lavalink v4** for high-fidelity audio.
+**Master-Bot** is an enterprise-grade, unified Discord music, moderation, and utility bot with an embedded **Next.js 15 Web Dashboard**. Built with **TypeScript**, **Sapphire Framework**, **discord.js v14**, **Prisma ORM** (supporting external PostgreSQL with zero-ops SQLite fallback), in-memory/external Redis caching, and an embedded **Lavalink v4** audio server powered by [`@helix-origin/lavalink-server`](https://github.com/HELIX-Origin/Lavalink-Server).
 
 ---
 
-## 🏗️ Architecture Overview
+## 🏗️ System Architecture
 
 ```mermaid
-flowchart LR
-    subgraph Apps
-        Bot["apps/bot<br/>(Sapphire Framework)"]
-        Dashboard["apps/dashboard<br/>(Next.js 15)"]
+flowchart TD
+    subgraph Clients [Clients & Web Endpoints]
+        DiscordGateway[Discord API Gateway]
+        BrowserClients[Web Dashboard Users]
+        VoiceGateway[Discord Voice WebSockets]
     end
 
-    subgraph Packages
-        DB["packages/db<br/>(Prisma Client)"]
-        Auth["packages/auth<br/>(NextAuth.js)"]
-        Config["packages/config<br/>(ESLint & Tailwind)"]
+    subgraph CoreService [Master-Bot Unified Service :3000]
+        WebServer[Internal HTTP / SSR Web Server]
+        BotClient[Sapphire Discord Client]
+        DashboardApp[Next.js 15 App Router & tRPC v11]
+        EmbeddedLavalink[Embedded Lavalink Server @helix-origin/lavalink-server]
+        SessionMgr[In-Memory SessionManager]
     end
 
-    Bot -->|"SessionManager<br/>(in-memory hub)"| DB
-    DB --> SQLiteDB[("SQLite Database<br/>db.sqlite")]
-    Dashboard --> Auth
-    Dashboard -->|tRPC + Prisma| DB
-    Dashboard --> Config
-    Bot --> Lavalink["Lavalink v4<br/>Audio Engine"]
+    subgraph DataStorage [Storage & Cache Tier with Fallback]
+        subgraph DatabaseTier [Database]
+            PG[(PostgreSQL External)]
+            SQLite[(SQLite: db.sqlite Fallback)]
+        end
+        subgraph CacheTier [Cache / Session State]
+            ExtRedis[(Redis External)]
+            MockRedis[ioredis-mock In-Process Fallback]
+        end
+    end
+
+    DiscordGateway <--> BotClient
+    BrowserClients <--> WebServer
+    WebServer <--> DashboardApp
+    DashboardApp <--> BotClient
+    BotClient <--> SessionMgr
+    SessionMgr <--> DataStorage
+    BotClient <--> EmbeddedLavalink
+    VoiceGateway <--> EmbeddedLavalink
 ```
-
-The bot keeps all runtime state — users, guilds, welcome messages, tickets, playlists, reminders, temp channels, and Twitch subscriptions — in an in-memory **SessionManager** that persists every change to SQLite through Prisma. Settings, playlists, and reminders survive bot restarts.
 
 ---
 
-## ⚡ Key Features
+## ⚡ Key Modernization Features
 
-- **🎵 High-Fidelity Audio:** Powered by Lavalink v4 with YouTube (multi-client + OAuth), Spotify metadata resolution (`lavasrc-plugin`), free built-in SoundCloud, Twitch, and Vimeo. Live player embeds with real-time progress bars and DSP filters (`/bassboost`, `/karaoke`, `/nightcore`, `/vaporwave`).
-- **📚 Custom Playlists:** Per-user playlists, scoped per server, via `/create-playlist`, `/save-to-playlist`, `/my-playlists`, `/display-playlist`, and `/delete-playlist`.
-- **🔨 Moderation Suite:** `/ban`, `/kick`, `/timeout`, `/slowmode`, and `/purge` with permission hierarchy validation.
-- **📜 Audit Logging:** 20 granular server event triggers across members, messages, channels, roles, voice, and moderation.
-- **🎫 Support Tickets:** Thread-based ticketing with interactive panels, custom greeting templates, manager roles, and `.txt` transcript archiving.
-- **👋 Welcome Messages:** Templated join greetings in any channel with `{user}`, `{server}`, `{position}` placeholders.
-- **🔊 Temp Voice Channels:** Users join a hub channel and get a private temporary voice channel on demand.
-- **⏰ Reminders:** Personal and per-server scheduled reminders delivered by DM with a 30-second background scheduler.
-- **🟣 Twitch Alerts:** Live stream notifications for managed streamers plus `/twitch-status`.
-- **🌐 Web Dashboard:** Next.js 15 command center for server settings, welcome/ticket/log design, music controls, broadcast composer, system telemetry, and reminders.
-- **🚀 Unified Launchers:** `pnpm dev` / `pnpm start` manage ports, route logs to `logs/`, optionally spawn Lavalink, and print a unified status console.
+- **🎵 Embedded High-Fidelity Audio:** Features an embedded Lavalink v4 server from [`@helix-origin/lavalink-server`](https://github.com/HELIX-Origin/Lavalink-Server), with YouTube OAuth support, Spotify metadata resolution (`lavasrc-plugin`), SoundCloud, and DSP audio filters (`/bassboost`, `/nightcore`, `/vaporwave`, `/karaoke`). Supports instant external node connection via `LAVA_EXTERNAL=true`.
+- **🗄️ Dual Database Architecture:** Native support for external PostgreSQL (`DATABASE_URL=postgresql://...`) with automatic, zero-configuration local fallback to SQLite (`file:./db.sqlite`).
+- **⚡ Dual Cache Architecture:** Seamlessly connects to external Redis instances (`REDIS_URL`) while automatically falling back to in-memory `ioredis-mock` if Redis is unconfigured or unreachable.
+- **🧪 Universal Testing Suite:** Preconfigured Vitest monorepo testing suite powered by [`@helix-origin/vitest-suite`](https://github.com/HELIX-Origin/vitest-suite) with dedicated Discord.js and Redis test doubles.
+- **🌐 Next.js 15 Web Dashboard:** Modern command center with 9 feature studios (Guild Management, Music Studio, Broadcaster, Audit Logs, Ticket Hub, Reminders, Command Controls, Welcome Greetings, and Telemetry).
+- **🤖 Autonomous Agent Ecosystem:** Complete [`.agents/`](../.agents) directory comprising specialized agents, production skills (including GitHub CLI and issue orchestration with Mermaid diagrams), standardized rules, and templates.
+- **🚀 Low-Cost VPS & Docker Self-Hosting:** Production-ready guides for budget-friendly VPS providers (Hetzner, OVHcloud, DigitalOcean, Linode, Vultr, Contabo) with persistent SQLite storage, unthrottled networking, and optional Heroku cloud support.
+
+---
+
+## 🤖 Autonomous Agent Ecosystem
+
+The repository is maintained and enhanced with a standardized multi-agent operating system defined in [`.agents/`](../.agents) and indexed in [`AGENTS.md`](../AGENTS.md):
+
+- 🐙 **GitHub CLI Expert (`gh-cli-expert`)**: Full command automation for issues, PRs, runs, and releases.
+- 📋 **Issue Orchestrator (`issue-orchestrator`)**: Creates human-readable issues with emojis, Mermaid diagrams, and separate child sub-issues.
+- 📚 **Wiki Management (`wiki-management`)**: Enforces relative wiki links, sidebar hierarchy, and navigation footers.
+- 🗄️ **Database Fallback Manager (`database-fallback`)**: Manages PostgreSQL/SQLite and Redis/`ioredis-mock` lifecycle.
 
 ---
 
 ## 📖 Continue Reading
 
-- Want to run it? → [**Getting Started**](Getting-Started)
-- Full command list? → [**Commands Reference**](Commands)
-- How data is stored? → [**Architecture**](Architecture)
+- Want to run the bot? → [**Getting Started**](Getting-Started)
+- Deep dive into components? → [**Architecture**](Architecture)
+- Complete slash command catalog? → [**Commands Reference**](Commands)
+- Configuring audio and plugins? → [**Music & Audio**](Music)
+- Web dashboard guide? → [**Web Dashboard**](Dashboard)
+- Production rollout? → [**Deployment**](Deployment)
+- Common questions? → [**FAQ & Troubleshooting**](FAQ)
+- Discord verification & legal policies? → [**Privacy Policy**](../PRIVACY.md) & [**Terms of Service**](../TOS.md)

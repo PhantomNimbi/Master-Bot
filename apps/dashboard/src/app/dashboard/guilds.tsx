@@ -44,6 +44,7 @@ export default function GuildsList() {
 						className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold text-white mb-4 shadow-lg overflow-hidden ${guild.icon ? '' : `bg-gradient-to-br ${GRADIENTS[index % GRADIENTS.length]}`}`}
 					>
 						{guild.icon ? (
+							// eslint-disable-next-line @next/next/no-img-element
 							<img
 								src={`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png?size=128`}
 								alt={guild.name}

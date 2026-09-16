@@ -10,7 +10,7 @@ export class NowPlayingEmbed {
 	volume: number;
 	queue?: Song[];
 	last?: Song;
-	paused?: Boolean;
+	paused?: boolean;
 
 	public constructor(
 		track: Song,
@@ -19,7 +19,7 @@ export class NowPlayingEmbed {
 		volume: number,
 		queue?: Song[],
 		last?: Song,
-		paused?: Boolean
+		paused?: boolean
 	) {
 		this.track = track;
 		this.position = position;

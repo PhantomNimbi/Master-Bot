@@ -17,7 +17,7 @@ export class TwitchStatusCommand extends Command {
 		const query = interaction.options.getString('streamer', true).toString();
 
 		try {
-			let user = await client.twitch.api.getUser({
+			const user = await client.twitch.api.getUser({
 				token: client.twitch.auth.access_token,
 				login: query
 			});
@@ -29,7 +29,7 @@ export class TwitchStatusCommand extends Command {
 				user_ids: [user.id]
 			});
 
-			let baseEmbed = new EmbedBuilder({
+			const baseEmbed = new EmbedBuilder({
 				author: {
 					name: `Status Check: ${
 						stream[0]?.type == 'live'

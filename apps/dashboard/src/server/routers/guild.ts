@@ -29,11 +29,15 @@ export const guildRouter = createTRPCRouter({
 			const redisGuilds = await ctx.redis.hgetall('guilds');
 			for (const [guildId, dataStr] of Object.entries(redisGuilds)) {
 				try {
-					const data = JSON.parse(dataStr as string);
-					liveGuilds[guildId] = { name: data.name, id: data.id, icon: data.icon || null };
-				} catch {}
+					const data = JSON.parse(dataStr);
+					liveGuilds[guildId] = { name: data.name, id: data.id, icon: data.icon ?? null };
+				} catch {
+					// ignore malformed cached JSON
+				}
 			}
-		} catch {}
+		} catch {
+			// ignore redis errors and rely on DB fallback
+		}
 
 		// Fall back to SQLite for persistence
 		const dbGuilds = await ctx.prisma.guild.findMany({
@@ -83,7 +87,9 @@ export const guildRouter = createTRPCRouter({
 			// Sync to Redis live state
 			try {
 				await ctx.redis.hset('guilds', id, JSON.stringify({ name, id }));
-			} catch {}
+			} catch {
+				// ignore redis sync failure
+			}
 
 			return { guild };
 		}),
@@ -105,7 +111,9 @@ export const guildRouter = createTRPCRouter({
 			// Remove from Redis live state
 			try {
 				await ctx.redis.hdel('guilds', id);
-			} catch {}
+			} catch {
+				// ignore redis sync failure
+			}
 
 			return { guild };
 		}),
@@ -132,7 +140,9 @@ export const guildRouter = createTRPCRouter({
 					data.volume = volume;
 					await ctx.redis.hset('guilds', guildId, JSON.stringify(data));
 				}
-			} catch {}
+			} catch {
+				// ignore redis sync failure
+			}
 
 			return { guild };
 		}),

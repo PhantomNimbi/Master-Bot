@@ -25,7 +25,7 @@ export class MusicSongPlayMessageListener extends Listener {
 		);
 		try {
 			await manageStageChannel(
-				channel.guild.members.me?.voice.channel!,
+				channel.guild.members.me?.voice?.channel as any,
 				channel.guild.members.me!,
 				queue
 			);

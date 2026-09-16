@@ -63,82 +63,179 @@ LAVA_SECURE=true
 
 ---
 
-## 📦 Hosting Options
+## 📦 Hosting Strategy: Low-Cost VPS vs. Cloud PaaS
 
-> 💡 **Why self-host only?** Master-Bot deliberately targets local / Docker / VPS hosting and does **not** document a managed cloud path.
+> [!IMPORTANT]
+> **Why Cloud PaaS Hosting (Render, Railway, Fly.io, etc.) is Not Ideal:**
+> 1. **Ephemeral File Storage**: PaaS containers wipe their local filesystem on every restart, redeploy, or dyno sleep cycle. This destroys SQLite persistence (`packages/db/prisma/db.sqlite`) unless you configure and pay for external managed database add-ons.
+> 2. **Process & Memory Throttling**: Discord gateway bots require persistent, low-latency WebSocket connections. Free and entry-tier cloud containers frequently sleep or throttle after periods of inactivity, dropping Discord voice and gateway sessions.
+> 3. **High Costs**: Running Node.js, Next.js App Router, and Lavalink audio requires 1.5–2 GB RAM. Cloud platforms charge steep monthly fees for this memory, whereas a dedicated VPS offers 4 GB RAM for as little as €3.79/month.
+> 4. **Domain & OAuth Reputation**: Default cloud subdomains (e.g., `*.herokuapp.com`, `*.onrender.com`) frequently suffer from automated safe-browsing blocks, breaking Discord OAuth and YouTube authentication.
 >
-> 1. **External API allowlists** — the OAuth/login flows the dashboard depends on (Discord, Google) are effectively restricted by browser-safe-browsing and OAuth allowlists to a handful of well-known domains. Freshly generated cloud subdomains (e.g. Heroku's random-suffix `*-<id>.herokuapp.com`, free DDNS names) get flagged as "dangerous sites" and **blocked**, breaking the dashboard login — the same blocklists that hit Lavalink's surrounding APIs. Only top-tier/self-owned domains escape it.
-> 2. **Pricing** — the paid tiers the remaining providers offer (e.g. Heroku Eco is a flat **$5/month**) don't make sense for an open-source bot with no revenue stream.
->
-> Combined, that makes managed cloud hosting a poor fit — so this guide covers **free, self-controlled hosting only**.
-
-| Platform | Notes |
-| :--- | :--- |
-| **Docker / VPS** | Recommended. `docker-compose.yml` runs the bot + dashboard and Lavalink in dedicated containers with persistent storage. |
-| **Local / bare VPS** | `pnpm install && pnpm build && pnpm start` on any Node.js 20+ machine; Lavalink started separately with Java 17+. |
-
-### 🌐 Recommended Low-Cost Compatible VPS Providers
-
-For high uptime, low latency, and dedicated unshared IP routing, the following budget-friendly VPS providers are recommended:
-
-| Provider | Starting Price | Key Benefits | Recommended Plan |
-| :--- | :--- | :--- | :--- |
-| [**Hetzner Cloud**](https://www.hetzner.com/cloud) | ~€3.79 / mo | Top price-to-performance, fast NVMe, EU/US locations | CX22 (2 vCPU, 4 GB RAM) / CAX11 |
-| [**OVHcloud**](https://www.ovhcloud.com/en/vps/) | ~$4.20 / mo | Unmetered bandwidth, anti-DDoS, global datacenters | Starter / Value VPS |
-| [**DigitalOcean**](https://www.digitalocean.com/) | ~$4.00 - $6.00 / mo | 1-Click Docker droplets, intuitive management | Basic Droplet (1-2 GB RAM) |
-| [**Linode (Akamai)**](https://www.linode.com/) | ~$5.00 / mo | High network reliability, 24/7 support | Nanode 1GB / Shared 2GB |
-| [**Vultr**](https://www.vultr.com/) | ~$3.50 - $5.00 / mo | 30+ worldwide datacenters, fast deployment | Cloud Compute (1-2 GB RAM) |
-
-> 💡 **Sizing Recommendation:**
-> - **Bot + Dashboard only:** 1 vCPU, 1 GB RAM.
-> - **Bot + Dashboard + Lavalink Audio Engine:** 2 vCPU, 2-4 GB RAM (e.g. Hetzner CX22 or OVH Starter).
+> **Recommendation**: Host Master-Bot on a **budget-friendly Linux VPS** (via Docker or PM2) for permanent file storage, fixed IP addresses, and 100% uptime. For users who specifically require cloud hosting, **Heroku** is supported as an optional alternative (see below).
 
 ---
 
-## 1. 🐳 Docker / VPS Self-Hosting
+## 🌐 Recommended Low-Cost VPS Providers & Hosts
 
-Run Master-Bot on your own server/VPS for full control and persistent storage:
+The following reputable, low-cost VPS providers offer excellent price-to-performance, unthrottled networking, and full root access for Master-Bot:
 
+| Provider | Starting Price | Specs / Recommended Plan | Key Advantages | Datacenter Regions |
+| :--- | :--- | :--- | :--- | :--- |
+| [**Hetzner Cloud**](https://www.hetzner.com/cloud) | **~€3.79 / mo** | **CX22** (2 vCPU, 4 GB RAM, 40 GB NVMe) | **Best overall value.** Exceptional CPU & NVMe speeds, 20 TB traffic. | Germany, Finland, USA |
+| [**OVHcloud**](https://www.ovhcloud.com/en/vps/) | **~$4.20 / mo** | **Starter VPS** (1 vCPU, 2 GB RAM, 20 GB SSD) | Unmetered bandwidth, industry-leading anti-DDoS mitigation. | US, Canada, Europe, APAC |
+| [**DigitalOcean**](https://www.digitalocean.com/) | **~$4.00 - $6.00 / mo** | **Basic Droplet** (1 vCPU, 1-2 GB RAM, 25 GB NVMe) | 1-Click Docker marketplace app, ultra-reliable network, easy snapshotting. | Global (NYC, SFO, AMS, SGP, etc.) |
+| [**Linode (Akamai)**](https://www.linode.com/) | **~$5.00 / mo** | **Nanode 1GB / Shared 2GB** (1-2 vCPU, 1-2 GB RAM) | 99.99% network SLA, 24/7 technical support, simple management. | Global (11+ locations) |
+| [**Vultr**](https://www.vultr.com/) | **~$3.50 - $5.00 / mo** | **Cloud Compute** (1 vCPU, 1-2 GB RAM, 25-32 GB NVMe) | Over 32+ global datacenter locations, instant hourly provisioning. | Global (32+ cities) |
+| [**Contabo**](https://contabo.com/) | **~$5.50 / mo** | **Cloud VPS S** (4 vCPU, 8 GB RAM, 50 GB NVMe) | Maximum RAM and vCPU per dollar. Ideal for bot + dashboard + Lavalink all in one. | US, EU, UK, Asia, Australia |
+
+### 💡 VPS Sizing Guide:
+- **Bot + Web Dashboard only (SQLite + ioredis-mock):** 1 vCPU, 1 GB RAM (e.g., DigitalOcean $4, Vultr $3.50).
+- **Bot + Dashboard + External Lavalink Audio Engine:** 2 vCPU, 2–4 GB RAM (e.g., Hetzner CX22, OVH Starter, Contabo VPS S).
+
+---
+
+## 1. 🐳 VPS Deployment via Docker Compose (Recommended)
+
+Docker Compose provides the cleanest, most isolated setup on any Linux VPS (Ubuntu/Debian):
+
+### Step 1: Install Docker & Docker Compose on your VPS
 ```bash
-cp .env.example .env          # fill in your credentials
+# Update and install Docker
+sudo apt update && sudo apt install -y docker.io docker-compose-v2
+sudo systemctl enable --now docker
+```
+
+### Step 2: Clone Master-Bot & Configure
+```bash
+git clone https://github.com/galnir/Master-Bot.git
+cd Master-Bot
+
+# Copy environment template and fill in your credentials
+cp .env.example .env
+nano .env
+```
+
+### Step 3: Launch Containers
+```bash
 docker compose --env-file docker.env up -d --build
 ```
 
-- `docker-compose.yml` starts **Master-Bot** (bot + dashboard on port `3000`) and a dedicated **Lavalink v4** container, wired together through the `lavalink` service name (`LAVA_HOST=lavalink` in `docker.env`).
-- SQLite persists in the `sqlite-data` volume (`/Master-Bot/packages/db/prisma`), so restarts do not lose data.
-- See [Docker Deployment](../README.md#-docker-deployment) for the container requirements.
+- Docker runs **Master-Bot** (`apps/bot` + `apps/dashboard`) on port `3000` and a dedicated **Lavalink v4** container on port `2333`.
+- SQLite persists in the named volume `sqlite-data` (`packages/db/prisma/db.sqlite`), surviving all container restarts and updates.
 
 ---
 
-## 2. 🖥️ Local / VPS Production Launch
+## 2. 🖥️ VPS Deployment via Node.js & PM2 (Native Performance)
 
-On a local machine or VPS (Ubuntu, Debian, macOS, Windows):
+If you prefer running directly on Ubuntu/Debian without Docker:
 
+### Step 1: Install Node.js 20+ and pnpm
 ```bash
-pnpm install   # Installs dependencies & pushes SQLite database schema
-pnpm build     # Builds Next.js dashboard and compiles bot
-pnpm start     # Starts consolidated bot + dashboard in a single console window
+# Install Node.js 20 LTS via NodeSource
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs git
+
+# Install pnpm and PM2 process supervisor
+sudo npm install -g pnpm pm2
 ```
 
-For audio locally, start a Lavalink v4 server (Java 17+) in the workspace root after copying the config: `cp application.yml.example application.yml && java -jar Lavalink.jar` — see [Music & Lavalink](Music).
+### Step 2: Install and Build Master-Bot
+```bash
+git clone https://github.com/galnir/Master-Bot.git
+cd Master-Bot
+cp .env.example .env
+nano .env
 
-Once running:
-- **Web Dashboard:** [http://localhost:3000/dashboard](http://localhost:3000/dashboard)
-- **Health Check:** [http://localhost:3000/health](http://localhost:3000/health)
+# Install dependencies and compile monorepo
+pnpm install
+pnpm build
+```
+
+### Step 3: Start with PM2
+```bash
+pm2 start pnpm --name "master-bot" -- start
+pm2 save
+pm2 startup
+```
+
+### Step 4: Optional SSL Reverse Proxy (Caddy)
+To expose your dashboard securely at `https://your-domain.com`:
+```bash
+sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+sudo apt update && sudo apt install -y caddy
+```
+Edit `/etc/caddy/Caddyfile`:
+```caddy
+your-domain.com {
+    reverse_proxy localhost:3000
+}
+```
+Reload Caddy: `sudo systemctl reload caddy`. Automatic Let's Encrypt SSL certificates are provisioned instantly.
 
 ---
 
-## 💾 Backups
+## 3. ☁️ Optional Cloud Hosting: Heroku
+
+For users who specifically prefer managed cloud hosting, Master-Bot can be deployed to **Heroku**.
+
+> [!WARNING]
+> **Heroku Considerations:**
+> - **Dyno Sleep:** Eco/Basic dynos sleep after 30 minutes of inactivity unless pinged. Set `KEEP_ALIVE_ENABLED=true` in your Heroku settings.
+> - **Ephemeral Storage:** Heroku dynos reset their filesystems upon restart. If you use Heroku, configure an external PostgreSQL database via `DATABASE_URL` (such as the Heroku Postgres add-on).
+> - **Lavalink Audio:** Due to memory constraints on 512 MB dynos, do not run embedded Lavalink on Heroku. Set `LAVA_EXTERNAL=true` and point to an external Lavalink audio host.
+
+### Heroku Setup Steps:
+1. **Create Heroku App:**
+   ```bash
+   heroku create my-master-bot
+   ```
+2. **Add Node.js Buildpack:**
+   ```bash
+   heroku buildpacks:set heroku/nodejs
+   ```
+3. **Provision PostgreSQL Database (Required for persistent storage on Heroku):**
+   ```bash
+   heroku addons:create heroku-postgresql:essential-0
+   ```
+4. **Configure Environment Variables:**
+   ```bash
+   heroku config:set DISCORD_TOKEN="your-discord-token" \
+     DISCORD_CLIENT_ID="your-client-id" \
+     DISCORD_CLIENT_SECRET="your-client-secret" \
+     NEXTAUTH_SECRET="random-32-char-secret" \
+     NEXTAUTH_URL="https://my-master-bot.herokuapp.com" \
+     PUBLIC_URL="https://my-master-bot.herokuapp.com" \
+     LAVA_EXTERNAL="true" \
+     LAVA_HOST="your-external-lavalink.com" \
+     LAVA_PORT="443" \
+     LAVA_PASS="youshallnotpass" \
+     LAVA_SECURE="true" \
+     KEEP_ALIVE_ENABLED="true"
+   ```
+5. **Deploy:**
+   ```bash
+   git push heroku main
+   ```
+
+---
+
+## 💾 Backups & Maintenance
 
 The SQLite database lives at `packages/db/prisma/db.sqlite`.
 
-Stop the app (or use the SQLite online backup API) and copy the file:
+To perform a hot backup while Master-Bot is running on your VPS:
 
 ```bash
 sqlite3 packages/db/prisma/db.sqlite ".backup 'backup-$(date +%F).db'"
 ```
 
-Schedule this regularly (e.g. a daily cron) on VPS deployments.
+Schedule this via a daily cron job (`crontab -e`):
+```cron
+0 3 * * * sqlite3 /path/to/Master-Bot/packages/db/prisma/db.sqlite ".backup '/path/to/backups/backup-\$(date +\%F).db'"
+```
 
 ---
 

@@ -46,7 +46,7 @@ export class TicTacToeGame {
 		player2Piece.src = Buffer.from(await player2Image.data);
 		await game(player1, player2!);
 		async function game(player1: User, player2: User) {
-			let gameBoard: number[][] = [
+			const gameBoard: number[][] = [
 				[0, 0, 0], //row 1
 				[0, 0, 0],
 				[0, 0, 0]

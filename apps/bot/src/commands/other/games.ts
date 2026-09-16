@@ -16,7 +16,7 @@ export class GamesCommand extends Command {
 	public override async chatInputRun(
 		interaction: Command.ChatInputCommandInteraction
 	) {
-		let maxPlayers = 2;
+		const maxPlayers = 2;
 		const playerMap = new Map();
 		const player1 = interaction.user;
 

@@ -128,8 +128,9 @@ export class RedditCommand extends Command {
 		sort: string,
 		timeFilter = 'day'
 	) {
+		let data: any;
 		try {
-			var data = await this.getData(subreddit, sort, timeFilter);
+			data = await this.getData(subreddit, sort, timeFilter);
 		} catch (error: any) {
 			return interaction.editReply(error);
 		}
@@ -144,7 +145,7 @@ export class RedditCommand extends Command {
 
 		for (let i = 0; i < data.children.length; i++) {
 			let color: ColorResolvable = 'Orange';
-			let redditPost = data.children[i];
+			const redditPost = data.children[i];
 
 			if (redditPost.data.over_18 && !isNsfwChannel) {
 				continue; // Skip NSFW posts in SFW channels

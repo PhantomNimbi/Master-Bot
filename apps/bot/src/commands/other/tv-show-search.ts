@@ -33,8 +33,9 @@ export class TVShowSearchCommand extends Command {
 		await interaction.deferReply();
 		const query = interaction.options.getString('query', true);
 
+		let data: any;
 		try {
-			var data = await this.getData(query);
+			data = await this.getData(query);
 		} catch (error: any) {
 			return interaction.editReply({ content: error });
 		}

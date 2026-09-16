@@ -254,8 +254,22 @@ if (isLavalinkEnabled) {
 }
 
 import { startWebServer, stopWebServer } from './lib/server/webServer';
+import {
+	startEmbeddedLavalink,
+	stopEmbeddedLavalink
+} from './lib/lavalink/embeddedLavalink';
+import { isUsingMockRedis, getDatabaseProvider } from '@master-bot/db';
 
 const main = async () => {
+	// Initialize embedded Lavalink if enabled and not marked external
+	if (isLavalinkEnabled && process.env.LAVA_EXTERNAL !== 'true') {
+		try {
+			await startEmbeddedLavalink();
+		} catch (lavaErr) {
+			Logger.warn('Embedded Lavalink initialization note: ', lavaErr);
+		}
+	}
+
 	try {
 		await client.session.init();
 		await client.login(env.DISCORD_TOKEN);
@@ -297,6 +311,14 @@ const main = async () => {
 			? `http://localhost:${webPort}/dashboard | Public: ${dashboardPublicUrl}/dashboard`
 			: `http://localhost:${webPort}/dashboard`;
 
+		const dbProviderName = getDatabaseProvider() === 'postgresql' ? 'POSTGRESQL (External)' : 'SQLITE (db.sqlite Fallback)';
+		const redisStatusName = isUsingMockRedis() ? 'IN-MEMORY (ioredis-mock Fallback)' : 'EXTERNAL REDIS (Connected)';
+		const audioStatusName = isLavalinkEnabled
+			? process.env.LAVA_EXTERNAL === 'true'
+				? 'EXTERNAL (Remote Node)'
+				: 'EMBEDDED (@helix-origin/lavalink-server)'
+			: 'DISABLED';
+
 		console.log(`
 ====================================================================
    🤖 MASTER-BOT UNIFIED CONSOLE               
@@ -307,10 +329,10 @@ const main = async () => {
   Active Components:
     • 🤖 Discord Bot:        READY (@${client.user?.tag || 'Master-Bot'})
     • 🌐 Web Dashboard:       RUNNING (${dashboardDisplay})
-    • 🗄️  SQLite Database:     FILE (db.sqlite)
-    • ⚡ Redis Cache:         IN-MEMORY (ioredis-mock - In-Process)
+    • 🗄️  Database Layer:     ${dbProviderName}
+    • ⚡ Redis Cache:         ${redisStatusName}
     • 💓 Keep-Alive Service:  ${process.env.KEEP_ALIVE_ENABLED !== 'false' ? 'ENABLED (10m interval)' : 'DISABLED'}
-    • 🎵 Audio Engine:        ${isLavalinkEnabled ? (process.env.LAVA_EXTERNAL === 'true' ? 'EXTERNAL (Connected)' : 'INTERNAL') : 'DISABLED (External required on cloud)'}
+    • 🎵 Audio Engine:        ${audioStatusName}
   
   Endpoints:
     • Web Dashboard:         http://localhost:${webPort}/dashboard
@@ -320,8 +342,9 @@ const main = async () => {
 	});
 };
 
-const cleanup = () => {
+const cleanup = async () => {
 	Logger.info('🛑 Shutting down Master-Bot unified service...');
+	await stopEmbeddedLavalink();
 	stopWebServer();
 	client.destroy();
 	process.exit(0);

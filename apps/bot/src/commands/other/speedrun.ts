@@ -57,7 +57,7 @@ export class SpeedRunCommand extends Command {
 			return interaction.reply({ content: 'No game was found.' });
 		}
 
-		let gameID: string = initial.data[0].id;
+		const gameID: string = initial.data[0].id;
 
 		let response;
 		try {
@@ -77,7 +77,7 @@ export class SpeedRunCommand extends Command {
 			initial.data.slice(0, 6).forEach((id: any) => {
 				gameNameArr.push(id.names.international);
 			});
-			let gameName = new EmbedBuilder()
+			const gameName = new EmbedBuilder()
 				.setColor('Green')
 				.setTitle(':mag: Search Results')
 				.setThumbnail(initial.data[0].assets['cover-medium'].uri)
@@ -295,7 +295,7 @@ export class SpeedRunCommand extends Command {
 
 	static convertTime(time: number) {
 		let str, hr, min: any, sec, ms: number | string | undefined;
-		let parts = time.toString().split('.');
+		const parts = time.toString().split('.');
 		ms = parts.length > 1 ? parseInt((parts[1] + '00').slice(0, 3)) : undefined;
 		sec = parseInt(parts[0]);
 		if (sec >= 60) {

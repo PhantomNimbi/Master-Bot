@@ -136,7 +136,7 @@ export async function notify(query: string[]) {
 												.then(async channel => {
 													const msgChannel = channel as MessageChannel;
 
-													for (let messageId in client.twitch.notifyList[entry]
+													for (const messageId in client.twitch.notifyList[entry]
 														.messageHandler![channelId]) {
 														await msgChannel?.messages
 															.edit(

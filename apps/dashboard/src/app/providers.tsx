@@ -14,7 +14,6 @@ const getBaseUrl = () => {
 
 	return (
 		process.env.INTERNAL_URL ??
-		process.env.INTERNA_URL ??
 		process.env.NEXTAUTH_URL_INTERNAL ??
 		`http://localhost:3000`
 	); // dev SSR should use internal url

@@ -1,6 +1,14 @@
 import { PrismaClient } from '@prisma/client';
 import RedisMock from 'ioredis-mock';
+import RealRedis from 'ioredis';
 export * from '@prisma/client';
+export function getDatabaseProvider() {
+    var _a;
+    const url = ((_a = process.env.DATABASE_URL) === null || _a === void 0 ? void 0 : _a.trim()) || '';
+    return url.startsWith('postgresql:') || url.startsWith('postgres:')
+        ? 'postgresql'
+        : 'sqlite';
+}
 const globalForPrisma = globalThis;
 export const prisma = globalForPrisma.prisma ||
     new PrismaClient({
@@ -11,17 +19,57 @@ export const prisma = globalForPrisma.prisma ||
 if (process.env.NODE_ENV !== 'production')
     globalForPrisma.prisma = prisma;
 const globalForRedis = globalThis;
-export function getRedisClient() {
-    if (globalForRedis.redis) {
-        return globalForRedis.redis;
-    }
-    // In-memory Redis mock running entirely in the same Node.js process as the bot.
-    // No external Redis server, container, or separate process is used or contacted.
+function createMockRedis() {
     const MockCtor = typeof RedisMock === 'function'
         ? RedisMock
         : RedisMock.default || RedisMock;
-    const client = new MockCtor();
-    globalForRedis.redis = client;
-    return client;
+    return new MockCtor();
+}
+export function getRedisClient() {
+    var _a, _b, _c;
+    if ((_a = globalForRedis.redisState) === null || _a === void 0 ? void 0 : _a.redis) {
+        return globalForRedis.redisState.redis;
+    }
+    const redisUrl = (_b = process.env.REDIS_URL) === null || _b === void 0 ? void 0 : _b.trim();
+    const redisHost = (_c = process.env.REDIS_HOST) === null || _c === void 0 ? void 0 : _c.trim();
+    const forceMock = process.env.REDIS_FALLBACK === 'true';
+    // If no external Redis is configured or forceMock is requested, use internal ioredis-mock directly
+    if (forceMock || (!redisUrl && !redisHost)) {
+        const mockClient = createMockRedis();
+        globalForRedis.redisState = { redis: mockClient, isMock: true };
+        return mockClient;
+    }
+    try {
+        const options = {
+            maxRetriesPerRequest: 2,
+            connectTimeout: 3000,
+            retryStrategy(times) {
+                if (times > 2)
+                    return null;
+                return Math.min(times * 200, 1000);
+            }
+        };
+        const realClient = redisUrl
+            ? new RealRedis(redisUrl, options)
+            : new RealRedis(Object.assign({ host: redisHost, port: process.env.REDIS_PORT ? Number.parseInt(process.env.REDIS_PORT, 10) : 6379, password: process.env.REDIS_PASSWORD || undefined }, options));
+        realClient.on('error', (err) => {
+            var _a;
+            if ((_a = globalForRedis.redisState) === null || _a === void 0 ? void 0 : _a.isMock)
+                return;
+            console.warn(`[packages/db] External Redis encountered error (${(err === null || err === void 0 ? void 0 : err.code) || (err === null || err === void 0 ? void 0 : err.message) || 'unknown'}). Active commands continue with fallback.`);
+        });
+        globalForRedis.redisState = { redis: realClient, isMock: false };
+        return realClient;
+    }
+    catch (err) {
+        console.warn(`[packages/db] Failed to initialize external Redis (${err === null || err === void 0 ? void 0 : err.message}). Falling back to internal ioredis-mock.`);
+        const fallback = createMockRedis();
+        globalForRedis.redisState = { redis: fallback, isMock: true };
+        return fallback;
+    }
+}
+export function isUsingMockRedis() {
+    var _a, _b;
+    return (_b = (_a = globalForRedis.redisState) === null || _a === void 0 ? void 0 : _a.isMock) !== null && _b !== void 0 ? _b : true;
 }
 export const redis = getRedisClient();

@@ -131,6 +131,18 @@ export default function HomePage() {
 					>
 						Dashboard
 					</Link>
+					<Link
+						href="/privacy"
+						className="hover:text-slate-300 transition-colors"
+					>
+						Privacy Policy
+					</Link>
+					<Link
+						href="/terms"
+						className="hover:text-slate-300 transition-colors"
+					>
+						Terms of Service
+					</Link>
 					<a
 						href="https://github.com/galnir/Master-Bot"
 						target="_blank"

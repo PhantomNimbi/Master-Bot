@@ -5,8 +5,8 @@ const DEFAULT_INVITE_URL =
 	'https://discord.com/api/oauth2/authorize?client_id=placeholder&permissions=8&scope=bot';
 
 const resolveInviteUrl = () =>
-	process.env.NEXT_PUBLIC_INVITE_URL ||
-	process.env.DISCORD_CALLBACK_URL ||
+	process.env.NEXT_PUBLIC_INVITE_URL ??
+	process.env.DISCORD_CALLBACK_URL ??
 	(process.env.DISCORD_CLIENT_ID
 		? `https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&permissions=8&scope=bot`
 		: DEFAULT_INVITE_URL);

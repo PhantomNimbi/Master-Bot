@@ -134,7 +134,7 @@ export class TwitchEmbed {
 						min
 				)
 				.setTimestamp(
-					this.change ? Date.now() : Date.parse(this.stream?.started_at!)
+					this.change ? Date.now() : Date.parse(this.stream?.started_at ?? '')
 				);
 
 			return onlineEmbed;
