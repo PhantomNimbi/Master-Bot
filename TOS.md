@@ -10,7 +10,7 @@ By inviting Master-Bot to a Discord server, managing the Bot via the web dashboa
 
 ## 1. 📜 License & Open-Source Nature
 
-Master-Bot is an open-source software project distributed under the terms of its repository license ([ISC / MIT License](LICENSE.md)). You are permitted to inspect, modify, and self-host the application in accordance with the license.
+Master-Bot is an open-source software project distributed under the terms of its repository license ([MIT License](LICENSE.md)). You are permitted to inspect, modify, and self-host the application in accordance with the license.
 
 ---
 

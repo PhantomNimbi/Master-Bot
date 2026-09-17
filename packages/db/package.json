@@ -3,7 +3,7 @@
 	"version": "0.1.0",
 	"main": "./index.js",
 	"types": "./index.d.ts",
-	"license": "ISC",
+	"license": "MIT",
 	"scripts": {
 		"build": "tsc",
 		"clean": "git clean -xdf .turbo node_modules",

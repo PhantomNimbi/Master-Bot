@@ -1,6 +1,7 @@
 {
 	"name": "master-bot-turbo",
 	"private": true,
+	"license": "MIT",
 	"engines": {
 		"node": ">=20.0.0"
 	},
