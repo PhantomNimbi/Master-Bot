@@ -15,7 +15,7 @@ Master-Bot runs **Lavalink v4** with a **custom configuration** tracked in the r
 
 | Area | Stock Lavalink default | Master-Bot's `application.yml.example` |
 | --- | --- | --- |
-| YouTube playback | single client, frequently throttled or age-locked | `youtube-plugin` with six rotating clients (`TV`, `MUSIC`, `ANDROID_VR`, `IOS`, `WEB`, `WEBEMBEDDED`), a `remoteCipher` resolver (`cipher.kikkia.dev`) and optional [YouTube OAuth](Music.md#-youtube-oauth-recommended) |
+| YouTube playback | single client, frequently throttled or age-locked | `youtube-plugin` with six rotating clients (`TV`, `MUSIC`, `ANDROID_VR`, `IOS`, `WEB`, `WEBEMBEDDED`), a `remoteCipher` resolver (`cipher.kikkia.dev`) and optional [YouTube OAuth](Music#youtube-oauth-embedded-server-startup) |
 | YouTube source | native `youtube` source is unreliable | native source disabled (`youtube: false`); playback handled by the plugin instead |
 | Spotify resolution | not resolvable at all | `lavasrc-plugin` with ISRC providers (`ytmsearch` / `ytsearch` by `%ISRC%`) so tracks, albums and playlists map to their YouTube counterparts |
 | Streaming quality | default buffering | tuned `bufferDurationMs: 400`, `frameBufferDurationMs: 10000`, `opusEncodingQuality: 10`, `resamplingQuality: HIGH` |
@@ -41,7 +41,7 @@ Lavalink downloads these artifacts (plus the plugin's YouTube clients) from Mave
 | `PORT` | overrides `LAVA_PORT` when set (see below) | — |
 | `YOUTUBE_CIPHER_URL` | remote cipher resolver for YouTube | `https://cipher.kikkia.dev/` |
 | `YOUTUBE_CIPHER_PASSWORD` | cipher resolver password | empty |
-| `YOUTUBE_REFRESH_TOKEN` | [YouTube OAuth](Music.md#-youtube-oauth-recommended) refresh token | empty |
+| `YOUTUBE_REFRESH_TOKEN` | [YouTube OAuth](Music#youtube-oauth-embedded-server-startup) refresh token | empty |
 | `YOUTUBE_SKIP_INIT` | skip YouTube OAuth initialization | `false` |
 | `SPOTIFY_CLIENT_ID` | Spotify → YouTube resolution | empty |
 | `SPOTIFY_CLIENT_SECRET` | Spotify → YouTube resolution | empty |
@@ -52,7 +52,7 @@ Lavalink downloads these artifacts (plus the plugin's YouTube clients) from Mave
 
 | Setup | How `application.yml` appears |
 | --- | --- |
-| **Local dev / VPS** | `pnpm dev` auto-starts Lavalink with the repo config when Java 17+ is detected (see [Music & Lavalink](Music.md#option-c-local-lavalink-server-for-local--dedicated-vps-development)). |
+| **Local dev / VPS** | `pnpm dev` auto-starts Lavalink with the repo config when Java 17+ is detected (see [Music & Lavalink](Music#option-b-local-lavalink-server-for-local--dedicated-development)). |
 | **External server** | Your external Lavalink server must be configured with this file as `application.yml`. |
 | **Docker / VPS compose** | `docker-compose.yml` mounts the repo and starts Lavalink from our config in its own container. |
 

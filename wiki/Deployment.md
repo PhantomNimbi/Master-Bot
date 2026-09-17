@@ -67,7 +67,7 @@ LAVA_SECURE=true
 
 > [!IMPORTANT]
 > **Why Cloud PaaS Hosting (Render, Railway, Fly.io, etc.) is Not Ideal:**
-> 1. **Ephemeral File Storage**: PaaS containers wipe their local filesystem on every restart, redeploy, or dyno sleep cycle. This destroys SQLite persistence (`packages/db/prisma/db.sqlite`) unless you configure and pay for external managed database add-ons.
+> 1. **Ephemeral File Storage**: PaaS containers wipe their local filesystem on every restart, redeploy, or dyno sleep cycle. This destroys SQLite persistence (`/data/database.db`) unless you configure and pay for external managed database add-ons.
 > 2. **Process & Memory Throttling**: Discord gateway bots require persistent, low-latency WebSocket connections. Free and entry-tier cloud containers frequently sleep or throttle after periods of inactivity, dropping Discord voice and gateway sessions.
 > 3. **High Costs**: Running Node.js, Next.js App Router, and Lavalink audio requires 1.5–2 GB RAM. Cloud platforms charge steep monthly fees for this memory, whereas a dedicated VPS offers 4 GB RAM for as little as €3.79/month.
 > 4. **Domain & OAuth Reputation**: Default cloud subdomains (e.g., `*.herokuapp.com`, `*.onrender.com`) frequently suffer from automated safe-browsing blocks, breaking Discord OAuth and YouTube authentication.

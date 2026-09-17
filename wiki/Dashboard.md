@@ -54,11 +54,11 @@ flowchart LR
     SUB["Studio forms (client)"] --> RQ["React Query mutations"]
     RQ --> T["tRPC router"]
     T --> P["Prisma Client"]
-    P --> DB[("SQLite db.sqlite")]
+    P --> DB[("SQLite: /data/database.db")]
     DB --> SM["Bot SessionManager<br/>(hydrated at boot)"]
     SM --> B["Discord bot behavior"]
 ```
 
-Because the bot **hydrates from the same SQLite file at every boot**, a setting you save in the dashboard is live the next time the bot picks it up (and vice versa for `/set`).
+Because the bot **hydrates from the database at every boot**, a setting you save in the dashboard is live the next time the bot picks it up (and vice versa for `/set`).
 
-> ⚠️ **Tip:** run the bot and dashboard from the same working directory / volume so both processes share `db.sqlite`. In container setups, mount it as a persistent volume — see [Deployment](Deployment).
+> ⚠️ **Tip:** In container setups, mount `/data` as a persistent volume — see [Deployment](Deployment).

@@ -34,7 +34,7 @@ flowchart LR
     S --> C["Post embed to welcome channel"]
 ```
 
-- A welcome-enabled server also creates the member's **`GuildMember` row** at join time (see [Architecture](Architecture.md#database-sqlite--prisma)).
+- A welcome-enabled server also creates the member's **`GuildMember` row** at join time (see [Architecture](Architecture#️-database-tier-db_uri--schema)).
 - The message is an embed built from the template; settings persist in SQLite via the session layer.
 
 ## 🔊 Temp Voice Channels

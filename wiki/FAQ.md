@@ -8,7 +8,7 @@
 - Verify `DISCORD_TOKEN` in `.env` and that the app didn't fail on a missing/optional API key.
 
 **Slash commands are missing entirely.**
-Re-invite the bot with the `applications.commands` OAuth scope alongside `bot` (see [Getting Started](Getting-Started.md#invite-the-bot)).
+Re-invite the bot with the `applications.commands` OAuth scope alongside `bot` (see [Getting Started](Getting-Started#discord-application-setup)).
 
 **Commands from a disabled module still show.**
 Register happens at boot — restart the bot after flipping a feature flag (`LAVA_ENABLED`, `GIFS_ENABLED`, `TWITCH_ENABLED`, `NEWS_ENABLED`, `IGDB_ENABLED`).
@@ -22,19 +22,19 @@ Lavalink isn't running or isn't reachable. Start it with `java -jar Lavalink.jar
 
 **Spotify links do nothing.** Add `SPOTIFY_CLIENT_ID` + `SPOTIFY_CLIENT_SECRET`.
 
-**YouTube throttles or blocks playback.** Complete YouTube OAuth device authorization when the embedded Lavalink server prompts on startup, or supply `YOUTUBE_REFRESH_TOKEN` in `.env` (see [Music & Lavalink](Music.md#youtube-oauth)).
+**YouTube throttles or blocks playback.** Complete YouTube OAuth device authorization when the embedded Lavalink server prompts on startup, or supply `YOUTUBE_REFRESH_TOKEN` in `.env` (see [Music & Lavalink](Music#youtube-oauth-embedded-server-startup)).
 
 **Playback works but there's no visual progress / embed.** The now-playing embed needs **Embed Links** permission in the channel.
 
 ## 🗄️ Data & Database
 
-**Where do settings, playlists, and reminders live?** In `packages/db/prisma/db.sqlite` — created automatically. Settings take effect after the bot hydrates at boot; save them and restart if something looks stale.
+**Where do settings, playlists, and reminders live?** In SQLite (`/data/database.db`) or PostgreSQL (`DB_URI`) — created automatically. Settings take effect after the bot hydrates at boot; save them and restart if something looks stale.
 
-**I want a clean slate.** Stop the bot, delete `packages/db/prisma/db.sqlite`, run `pnpm db:push`, and restart. (The file is recreated on next boot.)
+**I want a clean slate.** Stop the bot, delete `/data/database.db`, run `pnpm db:push`, and restart. (The file is recreated on next boot.)
 
 **SQLite errors like “database is locked” appear.** This usually means the bot/dashboard processes are pointing at different copies of the file, or a long-running transaction. Ensure both processes share the same directory/volume and aren't duplicated.
 
-**How do I back up?** Copy `db.sqlite` (ideally via `sqlite3 .backup`). See [Deployment](Deployment.md#backups).
+**How do I back up?** Copy `/data/database.db` (ideally via `sqlite3 .backup`). See [Deployment](Deployment#backups--maintenance).
 
 ## 🔐 Auth & Dashboard
 
