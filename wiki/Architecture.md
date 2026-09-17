@@ -79,7 +79,7 @@ flowchart TD
     end
 
     subgraph DataPersistence [Persistence Tier]
-        DB[(Prisma: DB_URI /data/database.db)]
+        DB[(Prisma: DB_URI /data/db.sqlite)]
     end
 
     Entry --> Session
@@ -117,7 +117,7 @@ flowchart TD
 ## 🗄️ Database Tier (`DB_URI`) & Schema
 
 Master-Bot features zero-ops database auto-configuration via `DB_URI`:
-- **SQLite (Default)**: Automatically prepares `packages/db/prisma/schema.prisma` with `provider = "sqlite"` and `file:/data/database.db`. Creates the directory on boot.
+- **SQLite (Default)**: Automatically prepares `packages/db/prisma/schema.prisma` with `provider = "sqlite"` and `file:/data/db.sqlite`. Creates the directory on boot.
 - **PostgreSQL**: When `DB_URI` begins with `postgresql://`, the prepare script sets `provider = "postgresql"` and prepares Prisma for external clustering.
 
 ```mermaid

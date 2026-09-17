@@ -39,19 +39,19 @@ export default function HomePage() {
 	];
 
 	return (
-		<div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-indigo-500 selection:text-white flex flex-col justify-between">
+		<div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground flex flex-col justify-between transition-colors duration-200">
 			{/* Navigation Header */}
-			<header className="px-6 py-4 border-b border-slate-800/80 backdrop-blur-md bg-slate-950/70 sticky top-0 z-50 flex items-center justify-between">
+			<header className="px-6 py-4 border-b border-border/80 backdrop-blur-md bg-background/70 sticky top-0 z-50 flex items-center justify-between">
 				<div className="flex items-center gap-3">
 					<Logo size="medium" />
-					<span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+					<span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
 						v2.0
 					</span>
 				</div>
 
 				<div className="flex items-center gap-4">
-					<div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
-						<span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+					<div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-medium">
+						<span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
 						All Systems Operational
 					</div>
 					<HeaderButtons />
@@ -60,19 +60,19 @@ export default function HomePage() {
 
 			{/* Hero Section */}
 			<main className="flex-1 flex flex-col items-center justify-center px-4 py-16 sm:py-24 max-w-7xl mx-auto w-full text-center">
-				<div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/80 border border-slate-800 text-slate-300 text-xs font-medium mb-8">
-					<Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+				<div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-card/80 border border-border text-muted-foreground text-xs font-medium mb-8 shadow-sm">
+					<Sparkles className="w-3.5 h-3.5 text-primary" />
 					<span>Enterprise Discord Management & Automation</span>
 				</div>
 
 				<h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight max-w-4xl leading-tight sm:leading-none">
 					The Ultimate Command Center for{' '}
-					<span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+					<span className="gradient-text">
 						Your Discord Communities
 					</span>
 				</h1>
 
-				<p className="mt-6 text-base sm:text-lg text-slate-400 max-w-2xl leading-relaxed">
+				<p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-2xl leading-relaxed">
 					Empower your servers with high-fidelity music, automated moderation,
 					live embed broadcasters, support ticket suites, and deep telemetry
 					diagnostics.
@@ -81,7 +81,7 @@ export default function HomePage() {
 				<div className="mt-10 flex flex-wrap items-center justify-center gap-4">
 					<Link
 						href="/dashboard"
-						className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2 group"
+						className="px-6 py-3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 transition-all flex items-center gap-2 group"
 					>
 						<span>Open Command Center</span>
 						<ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -91,9 +91,9 @@ export default function HomePage() {
 						href={env.NEXT_PUBLIC_INVITE_URL}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold text-sm border border-slate-700 transition-all flex items-center gap-2"
+						className="px-6 py-3 rounded-xl bg-secondary hover:bg-secondary/80 text-secondary-foreground font-semibold text-sm border border-border transition-all flex items-center gap-2"
 					>
-						<Bot className="w-4 h-4 text-indigo-400" />
+						<Bot className="w-4 h-4 text-primary" />
 						<span>Invite Master Bot</span>
 					</a>
 				</div>
@@ -103,15 +103,15 @@ export default function HomePage() {
 					{features.map((feat, idx) => (
 						<div
 							key={idx}
-							className="group p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 hover:bg-slate-900/80 transition-colors duration-200 shadow-md"
+							className="group p-6 rounded-2xl bg-card/60 border border-border hover:border-primary/50 hover:bg-card/80 transition-all duration-200 shadow-md backdrop-blur-sm"
 						>
-							<div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-105 transition-transform">
+							<div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
 								<feat.icon className="w-5 h-5" />
 							</div>
-							<h3 className="mt-4 text-base font-semibold text-slate-100">
+							<h3 className="mt-4 text-base font-semibold text-foreground">
 								{feat.title}
 							</h3>
-							<p className="mt-2 text-sm text-slate-400 leading-relaxed">
+							<p className="mt-2 text-sm text-muted-foreground leading-relaxed">
 								{feat.desc}
 							</p>
 						</div>
@@ -120,7 +120,7 @@ export default function HomePage() {
 			</main>
 
 			{/* Footer */}
-			<footer className="border-t border-slate-800/80 py-6 px-6 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-4 max-w-7xl mx-auto w-full">
+			<footer className="border-t border-border/80 py-6 px-6 text-center text-xs text-muted-foreground flex flex-col sm:flex-row items-center justify-between gap-4 max-w-7xl mx-auto w-full">
 				<p>
 					© {new Date().getFullYear()} Master-Bot. Open Source Community Edition.
 				</p>

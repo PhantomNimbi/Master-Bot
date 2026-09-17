@@ -53,8 +53,8 @@ A Discord Music and Utility Bot written in TypeScript using Sapphire, discord.js
 Create a `.env` file in the root directory by copying `.env.example`.
 
 ```env
-# Database (URI string: SQLite stored at /data/database.db, or external PostgreSQL)
-DB_URI="file:/data/database.db"
+# Database (URI string: SQLite stored at /data/db.sqlite, or external PostgreSQL)
+DB_URI="file:/data/db.sqlite"
 
 # Dashboard URLs
 # INTERNAL_URL binds to 0.0.0.0:3000 to listen on all interfaces, allowing public connections

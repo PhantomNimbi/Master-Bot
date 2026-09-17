@@ -37,7 +37,7 @@ Ensure your host environment meets the following specifications:
 ```mermaid
 flowchart LR
     Clone[1. Clone Repo] --> Install[2. pnpm install]
-    Install --> DBInit[Auto: Prepare Schema & /data/database.db]
+    Install --> DBInit[Auto: Prepare Schema & /data/db.sqlite]
     DBInit --> Config[3. Configure .env]
     Config --> Run[4. pnpm dev]
 ```
@@ -56,7 +56,7 @@ pnpm install
 `pnpm install` automatically runs the database bootstrap hook:
 - Compiles the Prisma schema for SQLite.
 - Creates the `/data` directory if missing.
-- Pushes the database schema directly to `/data/database.db`.
+- Pushes the database schema directly to `/data/db.sqlite`.
 
 ---
 
@@ -89,8 +89,8 @@ cp .env.example .env
 Populate your mandatory configuration settings:
 
 ```env
-# Database (URI string: SQLite stored at /data/database.db, or external PostgreSQL)
-DB_URI="file:/data/database.db"
+# Database (URI string: SQLite stored at /data/db.sqlite, or external PostgreSQL)
+DB_URI="file:/data/db.sqlite"
 
 # Dashboard URLs
 # INTERNAL_URL binds to 0.0.0.0:3000 to listen on all interfaces, allowing public connections
@@ -111,31 +111,28 @@ LAVA_EXTERNAL=false
 
 ---
 
-## ▶️ Launching the Stack
+## 🚀 Running the Application
 
-### Development Mode
+### Development Mode (Hot-Reloading)
 ```bash
 pnpm dev
 ```
-Starts the bot gateway, Next.js web dashboard (`http://localhost:3000/dashboard`), and in-memory cache in a single consolidated terminal window.
+- Launches the Sapphire Discord bot with `tsx watch`.
+- Launches the Next.js 15 Web Dashboard at `http://localhost:3000`.
+- Automatically initializes the embedded Lavalink v4 engine if Java 17+ is installed.
 
-### Production Mode
+### Production Build & Launch
 ```bash
-# 1. Build Next.js dashboard and compile bot TypeScript
+# Compile all TypeScript apps and packages:
 pnpm build
 
-# 2. Launch production server
+# Start the unified production cluster:
 pnpm start
 ```
 
----
-
-## 🧪 Testing & Quality Verification
-
-Master-Bot features automated unit testing powered by `@helix-origin/vitest-suite`:
-
+### Quality Assurance & Validation
 ```bash
-# Run all unit tests:
+# Run Vitest test suite:
 pnpm test
 
 # Verify TypeScript compilation across monorepo:
@@ -149,7 +146,7 @@ pnpm lint
 
 ## 🗃️ Where Data Lives
 
-- **Database**: `/data/database.db` — Single persistent SQLite database file (or external PostgreSQL database).
+- **Database**: `/data/db.sqlite` — Single persistent SQLite database file (or external PostgreSQL database).
 - **In-Memory Cache**: `ioredis-mock` runs in-process; connects to external Redis if `REDIS_URL` is set.
 - **Log Files**: `logs/` — Process logs for debugging and telemetry.
 

@@ -22,12 +22,12 @@ export default function Layout(props: { children: React.ReactNode }) {
 		<html lang="en" suppressHydrationWarning>
 			<body
 				className={[
-					'font-sans dark:bg-slate-900 bg-white h-screen',
+					'font-sans bg-background text-foreground min-h-screen',
 					fontSans.variable
 				].join(' ')}
 			>
 				<TRPCReactProvider>
-					<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+					<ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
 						<>{props.children}</>
 						<Toaster />
 					</ThemeProvider>

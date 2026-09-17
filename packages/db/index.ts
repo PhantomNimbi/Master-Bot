@@ -12,7 +12,7 @@ export function getDatabaseProvider(): 'postgresql' | 'sqlite' {
 		: 'sqlite';
 }
 
-const rawDbUrl = process.env.DB_URI?.trim() || 'file:/data/database.db';
+const rawDbUrl = process.env.DB_URI?.trim() || 'file:/data/db.sqlite';
 
 if (!process.env.DB_URI) {
 	process.env.DB_URI = rawDbUrl;
@@ -26,6 +26,12 @@ if (!rawDbUrl.startsWith('postgresql:') && !rawDbUrl.startsWith('postgres:')) {
 		const dir = path.dirname(dbFilePath);
 		if (dir && !fs.existsSync(dir)) {
 			fs.mkdirSync(dir, { recursive: true });
+		}
+		if (path.basename(dbFilePath) === 'db.sqlite' && !fs.existsSync(dbFilePath)) {
+			const legacyPath = path.join(dir, 'database.db');
+			if (fs.existsSync(legacyPath)) {
+				fs.copyFileSync(legacyPath, dbFilePath);
+			}
 		}
 	} catch {}
 }

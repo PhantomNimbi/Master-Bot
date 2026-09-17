@@ -333,7 +333,7 @@ const main = async () => {
 			? `http://${webHost}:${webPort}/dashboard | Public: ${dashboardPublicUrl}/dashboard`
 			: `http://${webHost}:${webPort}/dashboard`;
 
-		const dbProviderName = getDatabaseProvider() === 'postgresql' ? 'POSTGRESQL (External)' : 'SQLITE (/data/database.db Fallback)';
+		const dbProviderName = getDatabaseProvider() === 'postgresql' ? 'POSTGRESQL (External)' : 'SQLITE (/data/db.sqlite Fallback)';
 		const redisStatusName = isUsingMockRedis() ? 'IN-MEMORY (ioredis-mock Fallback)' : 'EXTERNAL REDIS (Connected)';
 		const audioStatusName = isLavalinkEnabled
 			? process.env.LAVA_EXTERNAL === 'true'

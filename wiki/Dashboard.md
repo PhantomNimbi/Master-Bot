@@ -47,6 +47,24 @@ sequenceDiagram
 | `/dashboard/integrations` | Link external services / manage credentials. |
 | `/dashboard/system` | Runtime health, version, uptime telemetry. |
 
+## 🎨 Visual Themes & Accent Schemes
+
+The dashboard features **7 visual themes** and **10 accent color schemes**:
+
+- **Visual Themes:**
+  - **Dark** (Default): Slate and charcoal midnight aesthetic.
+  - **Light**: Crisp daylight contrast.
+  - **Glassmorphism**: Translucent frosted cards with ambient radial glow gradients.
+  - **Cyberpunk**: Neon yellow, electric cyan border highlights, and tech grid styling.
+  - **Dracula**: Classic dark gothic purple with neon pink accents.
+  - **Nord**: Arctic frost palette with muted polar blue hues.
+  - **Emerald**: Deep evergreen forest with glowing mint highlights.
+
+- **Accent Color Schemes:**
+  - **Theme Default**, **Amethyst Purple**, **Ocean Blue**, **Emerald Green**, **Rose Pink**, **Amber Gold**, **Indigo Violet**, **Crimson Ruby**, **Teal Aqua**, **Sunset Coral**, **Electric Cyan**.
+
+Themes and accents can be selected dynamically from the header dropdown menu. Preferences are preserved in `localStorage` and can be set server-side via `DASHBOARD_THEME` and `DASHBOARD_COLOR_SCHEME`.
+
 ## ⚙️ Data Flow
 
 ```mermaid
@@ -54,7 +72,7 @@ flowchart LR
     SUB["Studio forms (client)"] --> RQ["React Query mutations"]
     RQ --> T["tRPC router"]
     T --> P["Prisma Client"]
-    P --> DB[("SQLite: /data/database.db")]
+    P --> DB[("SQLite: /data/db.sqlite")]
     DB --> SM["Bot SessionManager<br/>(hydrated at boot)"]
     SM --> B["Discord bot behavior"]
 ```

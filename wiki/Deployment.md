@@ -18,7 +18,7 @@ flowchart TD
     end
 
     subgraph Storage ["Persistence"]
-        DB[("SQLite Database<br/>/data/database.db")]
+        DB[("SQLite Database<br/>/data/db.sqlite")]
     end
 
     subgraph AudioEngine ["Audio Engine (Lavalink v4 Server)"]
@@ -38,7 +38,7 @@ flowchart TD
   1. `PORT` (default `3000`): Unified web port shared by the Discord bot gateway, Next.js web dashboard (`/dashboard`), and health/keep-alive endpoints (`/health`).
   2. `LAVA_PORT` (default `2333`): The Lavalink audio server port (bot connects over WebSocket).
 - **Zero Redis Server Process:** In-process in-memory `ioredis-mock` shares live state seamlessly between the bot and dashboard with zero separate binaries, processes, or ports.
-- **SQLite Persistence Layer:** Single embedded file (`/data/database.db`) preserves all guild configurations, roles, tickets, and playlists across restarts without requiring an external database server or port.
+- **SQLite Persistence Layer:** Single embedded file (`/data/db.sqlite`) preserves all guild configurations, roles, tickets, and playlists across restarts without requiring an external database server or port.
 
 ---
 
@@ -67,7 +67,7 @@ LAVA_SECURE=true
 
 > [!IMPORTANT]
 > **Why Cloud PaaS Hosting (Render, Railway, Fly.io, etc.) is Not Ideal:**
-> 1. **Ephemeral File Storage**: PaaS containers wipe their local filesystem on every restart, redeploy, or dyno sleep cycle. This destroys SQLite persistence (`/data/database.db`) unless you configure and pay for external managed database add-ons.
+> 1. **Ephemeral File Storage**: PaaS containers wipe their local filesystem on every restart, redeploy, or dyno sleep cycle. This destroys SQLite persistence (`/data/db.sqlite`) unless you configure and pay for external managed database add-ons.
 > 2. **Process & Memory Throttling**: Discord gateway bots require persistent, low-latency WebSocket connections. Free and entry-tier cloud containers frequently sleep or throttle after periods of inactivity, dropping Discord voice and gateway sessions.
 > 3. **High Costs**: Running Node.js, Next.js App Router, and Lavalink audio requires 1.5–2 GB RAM. Cloud platforms charge steep monthly fees for this memory, whereas a dedicated VPS offers 4 GB RAM for as little as €3.79/month.
 > 4. **Domain & OAuth Reputation**: Default cloud subdomains (e.g., `*.herokuapp.com`, `*.onrender.com`) frequently suffer from automated safe-browsing blocks, breaking Discord OAuth and YouTube authentication.
@@ -122,7 +122,7 @@ docker compose --env-file docker.env up -d --build
 ```
 
 - Docker runs **Master-Bot** (`apps/bot` + `apps/dashboard`) on port `3000` and a dedicated **Lavalink v4** container on port `2333`.
-- SQLite persists in the volume `/data` (`/data/database.db`), surviving all container restarts and updates.
+- SQLite persists in the volume `/data` (`/data/db.sqlite`), surviving all container restarts and updates.
 
 ---
 
@@ -224,17 +224,17 @@ For users who specifically prefer managed cloud hosting, Master-Bot can be deplo
 
 ## 💾 Backups & Maintenance
 
-The SQLite database lives at `/data/database.db`.
+The SQLite database lives at `/data/db.sqlite`.
 
 To perform a hot backup while Master-Bot is running on your VPS:
 
 ```bash
-sqlite3 /data/database.db ".backup 'backup-$(date +%F).db'"
+sqlite3 /data/db.sqlite ".backup 'backup-$(date +%F).db'"
 ```
 
 Schedule this via a daily cron job (`crontab -e`):
 ```cron
-0 3 * * * sqlite3 /data/database.db ".backup '/path/to/backups/backup-\$(date +\%F).db'"
+0 3 * * * sqlite3 /data/db.sqlite ".backup '/path/to/backups/backup-\$(date +\%F).db'"
 ```
 
 ---
@@ -249,7 +249,7 @@ Schedule this via a daily cron job (`crontab -e`):
 | `NEXTAUTH_SECRET` | **Yes** | 32+ character random string to sign auth session cookies. |
 | `PUBLIC_URL` | **Yes** | The public HTTPS URL of your application dashboard. |
 | `INTERNAL_URL` | **Yes** | Host/port binding (`0.0.0.0:3000`) ensuring the service listens on all network interfaces. |
-| `DB_URI` | No | Database connection URI string (default `file:/data/database.db` for SQLite; PostgreSQL supported). |
+| `DB_URI` | No | Database connection URI string (default `file:/data/db.sqlite` for SQLite; PostgreSQL supported). |
 | `PORT` | No | Listening port for web dashboard and health check (default: `3000`). |
 | `KEEP_ALIVE_ENABLED` | No | Set to `true` to enable background HTTP pings to keep the process warm. |
 | `LAVA_ENABLED` | No | Set to `true` to enable the audio engine (Lavalink v4). |

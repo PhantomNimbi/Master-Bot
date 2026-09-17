@@ -31,7 +31,7 @@ flowchart TD
     subgraph DataStorage [Storage & Cache Tier with Fallback]
         subgraph DatabaseTier [Database]
             PG[(PostgreSQL External)]
-            SQLite[(SQLite: /data/database.db Fallback)]
+            SQLite[(SQLite: /data/db.sqlite Fallback)]
         end
         subgraph CacheTier [Cache / Session State]
             ExtRedis[(Redis External)]
@@ -54,7 +54,7 @@ flowchart TD
 ## ⚡ Key Modernization Features
 
 - **🎵 Embedded High-Fidelity Audio:** Features an embedded Lavalink v4 server from [`@helix-origin/lavalink-server`](https://github.com/HELIX-Origin/Lavalink-Server), with YouTube OAuth support, Spotify metadata resolution (`lavasrc-plugin`), SoundCloud, and DSP audio filters (`/bassboost`, `/nightcore`, `/vaporwave`, `/karaoke`). Supports instant external node connection via `LAVA_EXTERNAL=true`.
-- **🗄️ Dual Database Architecture:** Native support for external PostgreSQL (`DB_URI=postgresql://...`) with automatic, zero-configuration local fallback to SQLite (`file:/data/database.db`).
+- **🗄️ Dual Database Architecture:** Native support for external PostgreSQL (`DB_URI=postgresql://...`) with automatic, zero-configuration local fallback to SQLite (`file:/data/db.sqlite`).
 - **⚡ Dual Cache Architecture:** Seamlessly connects to external Redis instances (`REDIS_URL`) while automatically falling back to in-memory `ioredis-mock` if Redis is unconfigured or unreachable.
 - **🧪 Universal Testing Suite:** Preconfigured Vitest monorepo testing suite powered by [`@helix-origin/vitest-suite`](https://github.com/HELIX-Origin/vitest-suite) with dedicated Discord.js and Redis test doubles.
 - **🌐 Next.js 15 Web Dashboard:** Modern command center with 9 feature studios (Guild Management, Music Studio, Broadcaster, Audit Logs, Ticket Hub, Reminders, Command Controls, Welcome Greetings, and Telemetry).

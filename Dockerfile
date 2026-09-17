@@ -2,7 +2,7 @@ FROM --platform=linux/amd64 node:20-slim
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV DB_URI="file:/data/database.db"
+ENV DB_URI="file:/data/db.sqlite"
 WORKDIR "/Master-Bot"
 
 # Default service port

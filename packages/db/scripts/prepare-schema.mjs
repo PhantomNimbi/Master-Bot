@@ -47,7 +47,7 @@ if (fs.existsSync(envPath)) {
 
 // Guarantee DB_URI default if unset
 if (!process.env.DB_URI) {
-	process.env.DB_URI = 'file:/data/database.db';
+	process.env.DB_URI = 'file:/data/db.sqlite';
 }
 
 const rawDbUrl = process.env.DB_URI?.trim() || '';
@@ -56,7 +56,7 @@ const isPostgres =
 
 const provider = isPostgres ? 'postgresql' : 'sqlite';
 
-// If SQLite, ensure the storage directory exists
+// If SQLite, ensure the storage directory exists and migrate legacy database if needed
 if (!isPostgres) {
 	try {
 		const filePath = rawDbUrl.replace(/^file:/, '');
@@ -64,6 +64,15 @@ if (!isPostgres) {
 		if (dir && !fs.existsSync(dir)) {
 			fs.mkdirSync(dir, { recursive: true });
 			console.log(`[prepare-schema] Created SQLite directory: ${dir}`);
+		}
+
+		// Backward-compatible migration: if target db.sqlite doesn't exist but legacy database.db exists, copy it
+		if (path.basename(filePath) === 'db.sqlite' && !fs.existsSync(filePath)) {
+			const legacyPath = path.join(dir, 'database.db');
+			if (fs.existsSync(legacyPath)) {
+				fs.copyFileSync(legacyPath, filePath);
+				console.log(`[prepare-schema] Migrated legacy database from ${legacyPath} to ${filePath}`);
+			}
 		}
 	} catch (e) {
 		console.warn(`[prepare-schema] Note: could not ensure SQLite directory: ${e.message}`);

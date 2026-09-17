@@ -55,7 +55,7 @@ describe('YouTube Alert Embeds & Session Management', () => {
 		let config: ReturnType<typeof createYouTubeConfigHandlers>;
 
 		beforeEach(() => {
-			process.env.DB_URI = process.env.DB_URI || 'file:/data/database.db';
+			process.env.DB_URI = process.env.DB_URI || 'file:/data/db.sqlite';
 			store = new SessionStore();
 			config = createYouTubeConfigHandlers(store);
 		});

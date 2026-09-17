@@ -302,7 +302,7 @@ sequenceDiagram
 ## 🗄️ Database & State Management
 
 Master-Bot uses a dual database and caching tier:
-- **`DB_URI`**: Automatically resolves connection strings. Defaults to zero-ops SQLite (`file:/data/database.db`) with production scaling to PostgreSQL (`postgresql://...`).
+- **`DB_URI`**: Automatically resolves connection strings. Defaults to zero-ops SQLite (`file:/data/db.sqlite`) with production scaling to PostgreSQL (`postgresql://...`).
 - **Prisma Client**: Shared via `@master-bot/db`. Run `pnpm db:generate` to regenerate types when schemas change.
 - **`SessionManager` (`client.session`)**: Provides instantaneous in-memory caching and Redis synchronization (`ioredis-mock` or external Redis).
 

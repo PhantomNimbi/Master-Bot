@@ -78,9 +78,9 @@ If you are self-hosting Master-Bot on a VPS or cloud instance, implement the fol
 - **OAuth Callback Whitelist**: In the Discord Developer Portal, strictly restrict `Redirect URIs` to your exact canonical domain (`https://your-domain.com/api/auth/callback/discord`).
 
 ### 4. 🗄️ Database & File Permissions
-- **SQLite Database**: Restrict filesystem permissions for `/data/database.db` so that only the service user running Node.js has read/write access:
+- **SQLite Database**: Restrict filesystem permissions for `/data/db.sqlite` so that only the service user running Node.js has read/write access:
   ```bash
-  chmod 600 /data/database.db
+  chmod 600 /data/db.sqlite
   ```
 - **External PostgreSQL / Redis**: If using external instances, enforce SSL/TLS encryption (`sslmode=require` or `rediss://`) and avoid using default superuser accounts.
 

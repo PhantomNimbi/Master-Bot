@@ -28,13 +28,13 @@ Lavalink isn't running or isn't reachable. Start it with `java -jar Lavalink.jar
 
 ## 🗄️ Data & Database
 
-**Where do settings, playlists, and reminders live?** In SQLite (`/data/database.db`) or PostgreSQL (`DB_URI`) — created automatically. Settings take effect after the bot hydrates at boot; save them and restart if something looks stale.
+**Where do settings, playlists, and reminders live?** In SQLite (`/data/db.sqlite`) or PostgreSQL (`DB_URI`) — created automatically. Settings take effect after the bot hydrates at boot; save them and restart if something looks stale.
 
-**I want a clean slate.** Stop the bot, delete `/data/database.db`, run `pnpm db:push`, and restart. (The file is recreated on next boot.)
+**I want a clean slate.** Stop the bot, delete `/data/db.sqlite`, run `pnpm db:push`, and restart. (The file is recreated on next boot.)
 
 **SQLite errors like “database is locked” appear.** This usually means the bot/dashboard processes are pointing at different copies of the file, or a long-running transaction. Ensure both processes share the same directory/volume and aren't duplicated.
 
-**How do I back up?** Copy `/data/database.db` (ideally via `sqlite3 .backup`). See [Deployment](Deployment#backups--maintenance).
+**How do I back up?** Copy `/data/db.sqlite` (ideally via `sqlite3 .backup`). See [Deployment](Deployment#backups--maintenance).
 
 ## 🔐 Auth & Dashboard
 

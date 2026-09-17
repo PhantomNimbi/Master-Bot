@@ -30,14 +30,14 @@ export default async function Layout({
 
 	return (
 		<div className="flex h-screen">
-			<section className="border-r border-slate-600 px-6 py-4">
+			<section className="border-r border-border px-6 py-4">
 				<Sidebar server_id={server_id} />
 			</section>
 			<section className="flex-1 flex flex-col">
-				<header className="flex justify-end px-6 py-4">
+				<header className="flex justify-end px-6 py-4 border-b border-border/40">
 					<HeaderButtons />
 				</header>
-				<main className="dark:bg-slate-800 bg-slate-300 flex-1 p-6 overflow-auto">
+				<main className="bg-background flex-1 p-6 overflow-auto">
 					{children}
 				</main>
 			</section>

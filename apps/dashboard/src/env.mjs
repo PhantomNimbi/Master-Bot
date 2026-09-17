@@ -17,10 +17,12 @@ export const env = createEnv({
 	 * built with invalid env vars.
 	 */
 	server: {
-		DB_URI: z.string().default('file:/data/database.db'),
+		DB_URI: z.string().default('file:/data/db.sqlite'),
 		DISCORD_TOKEN: z.string().optional(),
 		DISCORD_CLIENT_ID: z.string().default('placeholder_client_id'),
 		DISCORD_CLIENT_SECRET: z.string().default('placeholder_client_secret'),
+		DASHBOARD_THEME: z.string().default('dark'),
+		DASHBOARD_COLOR_SCHEME: z.string().default('default'),
 		LAVA_ENABLED: z.string().optional(),
 		GIFS_ENABLED: z.string().optional(),
 		TWITCH_ENABLED: z.string().optional(),
@@ -45,10 +47,12 @@ export const env = createEnv({
 	 * Destructure all variables from `process.env` to make sure they aren't tree-shaken away.
 	 */
 	runtimeEnv: {
-		DB_URI: process.env.DB_URI ?? 'file:/data/database.db',
+		DB_URI: process.env.DB_URI ?? 'file:/data/db.sqlite',
 		DISCORD_TOKEN: process.env.DISCORD_TOKEN,
 		DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
 		DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
+		DASHBOARD_THEME: process.env.DASHBOARD_THEME ?? 'dark',
+		DASHBOARD_COLOR_SCHEME: process.env.DASHBOARD_COLOR_SCHEME ?? 'default',
 		LAVA_ENABLED: process.env.LAVA_ENABLED,
 		GIFS_ENABLED: process.env.GIFS_ENABLED,
 		TWITCH_ENABLED: process.env.TWITCH_ENABLED,

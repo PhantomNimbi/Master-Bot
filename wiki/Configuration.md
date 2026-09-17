@@ -35,15 +35,24 @@ flowchart TD
 ## 🗄️ Database (`DB_URI`)
 
 ```env
-DB_URI="file:/data/database.db"
+DB_URI="file:/data/db.sqlite"
 ```
 
 Master-Bot uses **Prisma ORM** with a strict dual-database architecture:
-- **SQLite (Default Zero-Ops)**: When set to a `file:...` URI (e.g. `file:/data/database.db`), Master-Bot uses local SQLite storage. The directory is created automatically on boot. No external database server or Docker container is needed.
+- **SQLite (Default Zero-Ops)**: When set to a `file:...` URI (e.g. `file:/data/db.sqlite`), Master-Bot uses local SQLite storage. The directory is created automatically on boot. No external database server or Docker container is needed.
 - **PostgreSQL (Production Scaling)**: Set `DB_URI="postgresql://user:password@host:5432/dbname?schema=public"` for high-throughput multi-server production environments.
 
 > [!IMPORTANT]
 > The project strictly enforces a single environment variable: `DB_URI`. Redundant aliases such as `DATABASE_URL` or `DB_URL` are not supported.
+
+---
+
+## 🎨 Dashboard Theme & Appearance
+
+| Variable | Default | Options | Description |
+| :--- | :---: | :--- | :--- |
+| `DASHBOARD_THEME` | `dark` | `dark`, `light`, `glassmorphism`, `cyberpunk`, `dracula`, `nord`, `emerald` | Default visual theme rendered on first load. Users can toggle freely from the theme picker dropdown. |
+| `DASHBOARD_COLOR_SCHEME` | `default` | `default`, `purple`, `blue`, `emerald`, `rose`, `amber`, `indigo`, `crimson`, `teal`, `sunset`, `cyan` | Default accent color scheme overriding buttons, focus rings, and highlights. |
 
 ---
 

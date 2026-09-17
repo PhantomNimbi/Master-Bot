@@ -13,8 +13,8 @@ describe('Dual Database & Redis Fallback Architecture', () => {
 	});
 
 	describe('Database Provider Reflection', () => {
-		it('should detect SQLite provider when DB_URI is file:/data/database.db', () => {
-			process.env.DB_URI = 'file:/data/database.db';
+		it('should detect SQLite provider when DB_URI is file:/data/db.sqlite', () => {
+			process.env.DB_URI = 'file:/data/db.sqlite';
 			expect(getDatabaseProvider()).toBe('sqlite');
 		});
 
