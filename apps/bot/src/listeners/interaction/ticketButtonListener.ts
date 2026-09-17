@@ -7,12 +7,16 @@ import {
 	ButtonInteraction,
 	ButtonStyle,
 	ChannelType,
-	EmbedBuilder,
 	TextChannel,
 	ThreadAutoArchiveDuration,
 	ThreadChannel
 } from 'discord.js';
 import type { Interaction } from 'discord.js';
+import {
+	createTicketCreatedEmbed,
+	createTicketTranscriptEmbed,
+	createTicketClosedEmbed
+} from '../../lib/embeds/events/tickets/ticketEmbed';
 
 export const DEFAULT_TICKET_MESSAGE =
 	'👋 Hello {user}, thank you for contacting support in **{server}**!\n\n' +
@@ -131,37 +135,13 @@ export class TicketButtonListener extends Listener {
 				.replace(/\{username\}/g, user.username)
 				.replace(/\{server\}|\{guild\}/g, guild.name);
 
-			const ticketEmbed = new EmbedBuilder()
-				.setTitle(`🎫 Support Ticket: ${user.username}`)
-				.setDescription(formattedMessage)
-				.setColor(0x5865f2)
-				.addFields(
-					{
-						name: '👤 Opened By',
-						value: `${user.tag} (<@${user.id}>)`,
-						inline: true
-					},
-					{
-						name: '🕒 Opened At',
-						value: `<t:${Math.floor(Date.now() / 1000)}:f>`,
-						inline: true
-					}
-				);
-
-			if (ticketRoleId) {
-				ticketEmbed.addFields({
-					name: '🛡️ Support Role',
-					value: `<@&${ticketRoleId}>`,
-					inline: true
-				});
-			}
-
-			ticketEmbed
-				.setFooter({
-					text: `Ticket ID: ${thread.id} • Master-Bot Support`,
-					iconURL: guild.iconURL() || undefined
-				})
-				.setTimestamp();
+			const ticketEmbed = createTicketCreatedEmbed({
+				user,
+				guild,
+				thread,
+				message: formattedMessage,
+				ticketRoleId
+			});
 
 			const closeButton = new ButtonBuilder()
 				.setCustomId('ticket_close')
@@ -258,31 +238,10 @@ export class TicketButtonListener extends Listener {
 							name: `transcript-${thread.id}.txt`
 						});
 
-						const transcriptEmbed = new EmbedBuilder()
-							.setTitle(`📜 Ticket Transcript: ${thread.name}`)
-							.setColor(0x3498db)
-							.addFields(
-								{
-									name: '🎫 Thread',
-									value: `${thread.name} (\`${thread.id}\`)`,
-									inline: true
-								},
-								{
-									name: '🛡️ Closed By',
-									value: `${interaction.user.tag} (<@${interaction.user.id}>)`,
-									inline: true
-								},
-								{
-									name: '💬 Total Messages',
-									value: `${sortedMessages.length}`,
-									inline: true
-								}
-							)
-							.setFooter({
-								text: `Master-Bot Ticket Transcripts • ${guild.name}`,
-								iconURL: guild.iconURL() || undefined
-							})
-							.setTimestamp();
+						const transcriptEmbed = createTicketTranscriptEmbed({
+							thread,
+							closedBy: interaction.user
+						});
 
 						await transcriptChannel.send({
 							embeds: [transcriptEmbed],
@@ -297,14 +256,10 @@ export class TicketButtonListener extends Listener {
 				}
 			}
 
-			const closeEmbed = new EmbedBuilder()
-				.setTitle('🔒 Ticket Closed')
-				.setDescription(
-					`This ticket was closed by ${interaction.user.tag} (<@${interaction.user.id}>).\n\n` +
-						'This thread will now be locked and archived. If you require further assistance, please open a new ticket from the support channel.'
-				)
-				.setColor(0x95a5a6)
-				.setTimestamp();
+			const closeEmbed = createTicketClosedEmbed({
+				thread,
+				closedBy: interaction.user
+			});
 
 			await interaction.editReply({ embeds: [closeEmbed] });
 

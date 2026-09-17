@@ -8,7 +8,9 @@ import type {
 	TempChannel,
 	Ticket,
 	TwitchNotification,
-	UserRecord
+	UserRecord,
+	YouTubeNotification,
+	YouTubeTargetChannel
 } from './types';
 import {
 	DEFAULT_TICKET_MESSAGE,
@@ -27,6 +29,7 @@ export class SessionStore {
 	public ticketsMap: Map<string, Ticket> = new Map();
 	public tempChannels: Map<string, TempChannel> = new Map();
 	public twitchNotifications: Map<string, TwitchNotification> = new Map();
+	public youtubeNotifications: Map<string, YouTubeNotification> = new Map();
 	public playlistsMap: Map<string, Map<string, Playlist>> = new Map();
 	public remindersMap: Map<string, Reminder> = new Map();
 	public membersMap: Map<string, MemberRecord> = new Map();
@@ -117,6 +120,25 @@ export class SessionStore {
 				channelIds: this.parseArray(tn.channelIds),
 				live: tn.live,
 				sent: tn.sent
+			});
+		}
+
+		const dbYouTube = await this.db.youTubeNotify.findMany();
+		for (const yn of dbYouTube) {
+			let targets: YouTubeTargetChannel[] = [];
+			try {
+				targets = JSON.parse(yn.channelIds);
+			} catch {
+				targets = [];
+			}
+			this.youtubeNotifications.set(yn.channelId, {
+				channelId: yn.channelId,
+				channelTitle: yn.channelTitle,
+				logo: yn.logo || undefined,
+				lastVideoId: yn.lastVideoId || undefined,
+				lastStreamId: yn.lastStreamId || undefined,
+				isLive: yn.isLive,
+				channelIds: targets
 			});
 		}
 
@@ -362,6 +384,48 @@ export class SessionStore {
 				sent: false
 			};
 			this.twitchNotifications.set(userId, notification);
+		}
+		return notification;
+	}
+
+	public async ensureYouTubeRow(
+		notification: YouTubeNotification
+	): Promise<void> {
+		await this.db.youTubeNotify.upsert({
+			where: { channelId: notification.channelId },
+			create: {
+				channelId: notification.channelId,
+				channelTitle: notification.channelTitle,
+				logo: notification.logo ?? '',
+				lastVideoId: notification.lastVideoId ?? null,
+				lastStreamId: notification.lastStreamId ?? null,
+				isLive: notification.isLive,
+				channelIds: JSON.stringify(notification.channelIds)
+			},
+			update: {
+				channelTitle: notification.channelTitle,
+				logo: notification.logo ?? '',
+				lastVideoId: notification.lastVideoId ?? null,
+				lastStreamId: notification.lastStreamId ?? null,
+				isLive: notification.isLive,
+				channelIds: JSON.stringify(notification.channelIds)
+			}
+		});
+	}
+
+	public getOrCreateYouTubeNotification(
+		channelId: string,
+		channelTitle = ''
+	): YouTubeNotification {
+		let notification = this.youtubeNotifications.get(channelId);
+		if (!notification) {
+			notification = {
+				channelId,
+				channelTitle,
+				isLive: false,
+				channelIds: []
+			};
+			this.youtubeNotifications.set(channelId, notification);
 		}
 		return notification;
 	}

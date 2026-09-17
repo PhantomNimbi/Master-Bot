@@ -8,288 +8,83 @@ import {
 	type GuildMember
 } from 'discord.js';
 import Logger from '../../lib/logger';
-import { checkTwitchEnabled } from '../../lib/set/twitch';
-import {
-	handleWelcomeChannel,
-	handleWelcomeMessage,
-	handleWelcomeToggle,
-	handleWelcomeTest
-} from '../../lib/set/welcome';
-import {
-	handleTwitchAdd,
-	handleTwitchRemove,
-	handleTwitchList
-} from '../../lib/set/twitch';
-import {
-	handleLogChannel,
-	handleLogToggle,
-	handleLogDisable
-} from '../../lib/set/logging';
-import {
-	handleTicketChannel,
-	handleTicketToggle,
-	handleTicketPanel,
-	handleTicketTranscript,
-	handleTicketTranscriptDisable,
-	handleTicketRole,
-	handleTicketRoleDisable
-} from '../../lib/set/tickets';
-import { handleDefaultVolume } from '../../lib/set/volume';
-import { handleView } from '../../lib/set/view';
-
-const subcommandHandlers: Record<string, (interaction: ChatInputCommandInteraction) => Promise<unknown>> = {
-	'welcome-channel': handleWelcomeChannel,
-	'welcome-message': handleWelcomeMessage,
-	'welcome-toggle': handleWelcomeToggle,
-	'welcome-test': handleWelcomeTest,
-	'twitch-add': handleTwitchAdd,
-	'twitch-remove': handleTwitchRemove,
-	'twitch-list': handleTwitchList,
-	'log-channel': handleLogChannel,
-	'log-toggle': handleLogToggle,
-	'log-disable': handleLogDisable,
-	'ticket-channel': handleTicketChannel,
-	'ticket-toggle': handleTicketToggle,
-	'ticket-panel': handleTicketPanel,
-	'ticket-transcript': handleTicketTranscript,
-	'ticket-transcript-disable': handleTicketTranscriptDisable,
-	'ticket-role': handleTicketRole,
-	'ticket-role-disable': handleTicketRoleDisable,
-	'default-volume': handleDefaultVolume,
-	view: handleView
-};
+import { getSetOption, getAllSetOptions } from '../../lib/set/options/registry';
 
 @ApplyOptions<CommandOptions>({
 	name: 'set',
-	description: 'Configure server settings (Welcome, Twitch, Logging, Volume)',
+	description:
+		'Configure server settings (Welcome, Twitch, YouTube, Logging, Tickets, Volume)',
 	preconditions: ['GuildOnly', 'isCommandDisabled']
 })
 export class SetCommand extends Command {
 	public override registerApplicationCommands(
 		registry: Command.Registry
 	): void {
-		const twitchEnabled = checkTwitchEnabled();
-
 		registry.registerChatInputCommand(builder => {
 			builder
 				.setName(this.name)
 				.setDescription(this.description)
-				// Welcome Settings
-				.addSubcommand(sub =>
-					sub
-						.setName('welcome-channel')
-						.setDescription('Set the text channel for welcome greetings')
-						.addChannelOption(opt =>
-							opt
-								.setName('channel')
-								.setDescription('Target text channel')
-								.setRequired(true)
-								.addChannelTypes(ChannelType.GuildText)
+				.addStringOption(opt => {
+					opt
+						.setName('setting')
+						.setDescription('Setting to configure or view (defaults to view)')
+						.setRequired(false);
+
+					for (const setting of getAllSetOptions()) {
+						opt.addChoices({
+							name: `${setting.label} - ${setting.description}`.slice(0, 100),
+							value: setting.name
+						});
+					}
+					return opt;
+				})
+				.addChannelOption(opt =>
+					opt
+						.setName('channel')
+						.setDescription('Target text or forum channel')
+						.setRequired(false)
+						.addChannelTypes(
+							ChannelType.GuildText,
+							ChannelType.GuildForum
 						)
 				)
-				.addSubcommand(sub =>
-					sub
-						.setName('welcome-message')
-						.setDescription(
-							'Set custom welcome text ({user}, {username}, {server}, {position})'
-						)
-						.addStringOption(opt =>
-							opt
-								.setName('message')
-								.setDescription('Custom message text')
-								.setRequired(true)
-								.setMinLength(4)
-								.setMaxLength(500)
-						)
+				.addStringOption(opt =>
+					opt
+						.setName('value')
+						.setDescription('Text value (welcome message, Twitch streamer, YouTube handle)')
+						.setRequired(false)
 				)
-				.addSubcommand(sub =>
-					sub
-						.setName('welcome-toggle')
-						.setDescription('Enable or disable automatic welcome messages')
-						.addBooleanOption(opt =>
-							opt
-								.setName('enabled')
-								.setDescription('True to enable, False to disable')
-								.setRequired(true)
-						)
+				.addBooleanOption(opt =>
+					opt
+						.setName('enabled')
+						.setDescription('Enable or disable setting (for toggles)')
+						.setRequired(false)
 				)
-				.addSubcommand(sub =>
-					sub
-						.setName('welcome-test')
-						.setDescription(
-							'Send a test welcome message to preview your settings'
-						)
+				.addRoleOption(opt =>
+					opt
+						.setName('role')
+						.setDescription('Staff/moderator role (for ticket system)')
+						.setRequired(false)
 				)
-				// Logging Settings
-				.addSubcommand(sub =>
-					sub
-						.setName('log-channel')
-						.setDescription(
-							'Set the text channel for server audit / moderation logs'
-						)
-						.addChannelOption(opt =>
-							opt
-								.setName('channel')
-								.setDescription('Target text channel')
-								.setRequired(true)
-								.addChannelTypes(ChannelType.GuildText)
-						)
+				.addIntegerOption(opt =>
+					opt
+						.setName('number')
+						.setDescription('Numeric value (e.g. volume 1-100)')
+						.setRequired(false)
+						.setMinValue(1)
+						.setMaxValue(100)
 				)
-				.addSubcommand(sub =>
-					sub
-						.setName('log-toggle')
-						.setDescription('Enable or disable server audit / event logging')
-						.addBooleanOption(opt =>
-							opt
-								.setName('enabled')
-								.setDescription('Set logging active or inactive')
-								.setRequired(true)
+				.addStringOption(opt =>
+					opt
+						.setName('alerts')
+						.setDescription('YouTube alert type')
+						.setRequired(false)
+						.addChoices(
+							{ name: 'All (Streams & Uploads)', value: 'all' },
+							{ name: 'Live Streams Only', value: 'streams' },
+							{ name: 'Video Uploads Only', value: 'uploads' }
 						)
-				)
-				.addSubcommand(sub =>
-					sub
-						.setName('log-disable')
-						.setDescription('Disable server audit / event logging')
-				)
-				// Ticket System Settings
-				.addSubcommand(sub =>
-					sub
-						.setName('ticket-channel')
-						.setDescription(
-							'Set the text channel where the ticket panel will be located'
-						)
-						.addChannelOption(opt =>
-							opt
-								.setName('channel')
-								.setDescription('Target text channel')
-								.setRequired(true)
-								.addChannelTypes(ChannelType.GuildText)
-						)
-				)
-				.addSubcommand(sub =>
-					sub
-						.setName('ticket-toggle')
-						.setDescription('Enable or disable the support ticket system')
-						.addBooleanOption(opt =>
-							opt
-								.setName('enabled')
-								.setDescription('Set ticket system active or inactive')
-								.setRequired(true)
-						)
-				)
-				.addSubcommand(sub =>
-					sub
-						.setName('ticket-panel')
-						.setDescription(
-							'Post the interactive support ticket panel embed with button'
-						)
-				)
-				.addSubcommand(sub =>
-					sub
-						.setName('ticket-transcript')
-						.setDescription(
-							'Set channel where closed ticket transcript logs are archived'
-						)
-						.addChannelOption(opt =>
-							opt
-								.setName('channel')
-								.setDescription('Target transcript channel')
-								.setRequired(true)
-								.addChannelTypes(ChannelType.GuildText)
-						)
-				)
-				.addSubcommand(sub =>
-					sub
-						.setName('ticket-transcript-disable')
-						.setDescription('Disable automatic ticket transcript archival')
-				)
-				.addSubcommand(sub =>
-					sub
-						.setName('ticket-role')
-						.setDescription('Set the ticket manager role for support tickets')
-						.addRoleOption(opt =>
-							opt
-								.setName('role')
-								.setDescription('Role that manages support tickets')
-								.setRequired(true)
-						)
-				)
-				.addSubcommand(sub =>
-					sub
-						.setName('ticket-role-disable')
-						.setDescription('Remove/disable the ticket manager role')
-				)
-				// Volume Setting
-				.addSubcommand(sub =>
-					sub
-						.setName('default-volume')
-						.setDescription('Set default music playback volume for this server')
-						.addIntegerOption(opt =>
-							opt
-								.setName('volume')
-								.setDescription('Default volume level (1 - 100)')
-								.setRequired(true)
-								.setMinValue(1)
-								.setMaxValue(100)
-						)
-				)
-				// View Setting Overview
-				.addSubcommand(sub =>
-					sub
-						.setName('view')
-						.setDescription('View all current server configuration settings')
 				);
-
-			// Conditionally register Twitch subcommands only if Twitch is enabled
-			if (twitchEnabled) {
-				builder
-					.addSubcommand(sub =>
-						sub
-							.setName('twitch-add')
-							.setDescription('Add a Twitch streamer live alert to a channel')
-							.addStringOption(opt =>
-								opt
-									.setName('streamer')
-									.setDescription('Twitch streamer login/username')
-									.setRequired(true)
-							)
-							.addChannelOption(opt =>
-								opt
-									.setName('channel')
-									.setDescription('Channel to send live alerts to')
-									.setRequired(true)
-									.addChannelTypes(ChannelType.GuildText)
-							)
-					)
-					.addSubcommand(sub =>
-						sub
-							.setName('twitch-remove')
-							.setDescription(
-								'Remove a Twitch streamer live alert from a channel'
-							)
-							.addStringOption(opt =>
-								opt
-									.setName('streamer')
-									.setDescription('Twitch streamer login/username')
-									.setRequired(true)
-							)
-							.addChannelOption(opt =>
-								opt
-									.setName('channel')
-									.setDescription('Channel to remove alert from')
-									.setRequired(true)
-									.addChannelTypes(ChannelType.GuildText)
-							)
-					)
-					.addSubcommand(sub =>
-						sub
-							.setName('twitch-list')
-							.setDescription(
-								'View all active Twitch streamer alerts for this server'
-							)
-					);
-			}
-
 			return builder;
 		});
 	}
@@ -307,15 +102,15 @@ export class SetCommand extends Command {
 
 		await interaction.deferReply();
 
-		const subcommand = interaction.options.getSubcommand(true);
-		const handler = subcommandHandlers[subcommand];
+		const settingKey = interaction.options.getString('setting') ?? 'view';
+		const optionHandler = getSetOption(settingKey);
 
 		try {
-			if (handler) {
-				return await handler(interaction);
+			if (optionHandler) {
+				return await optionHandler.execute(interaction);
 			}
 			return await interaction.editReply({
-				content: ':warning: Unknown `/set` subcommand.'
+				content: `:warning: Unknown setting option: \`${settingKey}\`. Use \`/set\` to view settings.`
 			});
 		} catch (error) {
 			Logger.error(error);
@@ -336,111 +131,58 @@ export const help: CommandHelp = {
 	name: 'set',
 	category: 'other',
 	description:
-		'Configure server settings (Welcome, Twitch, Logging, Tickets, Volume)',
-	usage: '/set <subcommand>',
+		'Configure server settings (Welcome, Twitch, YouTube, Logging, Tickets, Volume)',
+	usage:
+		'/set [setting: Setting] [channel: #channel] [value: Text] [enabled: True/False] [role: @Role] [number: 1-100] [alerts: Type]',
 	examples: [
-		'/set welcome-channel channel: #welcome',
-		'/set welcome-message message: Welcome {user} to {server}!',
-		'/set welcome-toggle enabled: True',
-		'/set twitch-add streamer: shroud channel: #streams',
-		'/set log-channel channel: #mod-logs',
-		'/set log-toggle enabled: True',
-		'/set ticket-channel channel: #support',
-		'/set ticket-toggle enabled: True',
-		'/set ticket-panel',
-		'/set ticket-role role: @SupportTeam',
-		'/set default-volume volume: 80',
-		'/set view'
+		'/set',
+		'/set setting: view',
+		'/set setting: welcome-channel channel: #welcome',
+		'/set setting: welcome-message value: Welcome {user} to {server}!',
+		'/set setting: welcome-toggle enabled: True',
+		'/set setting: twitch-add value: shroud channel: #streams',
+		'/set setting: youtube-add value: @MrBeast channel: #videos alerts: all',
+		'/set setting: log-channel channel: #mod-logs',
+		'/set setting: ticket-channel channel: #support',
+		'/set setting: ticket-panel',
+		'/set setting: ticket-role role: @SupportTeam',
+		'/set setting: default-volume number: 80'
 	],
 	options: [
 		{
-			name: 'welcome-channel',
-			description: 'Set welcome channel',
+			name: 'setting',
+			description: 'Setting to view or configure (defaults to view)',
 			required: false
 		},
 		{
-			name: 'welcome-message',
-			description: 'Set custom welcome message',
+			name: 'channel',
+			description: 'Target text or forum channel',
 			required: false
 		},
 		{
-			name: 'welcome-toggle',
-			description: 'Toggle welcome greetings on/off',
+			name: 'value',
+			description:
+				'Text parameter (e.g. welcome message, streamer name, YouTube handle)',
 			required: false
 		},
 		{
-			name: 'welcome-test',
-			description: 'Send preview welcome message',
+			name: 'enabled',
+			description: 'Enable or disable toggle setting',
 			required: false
 		},
 		{
-			name: 'twitch-add',
-			description: 'Add streamer alert (if Twitch enabled)',
+			name: 'role',
+			description: 'Staff/moderator role for ticket system',
 			required: false
 		},
 		{
-			name: 'twitch-remove',
-			description: 'Remove streamer alert (if Twitch enabled)',
+			name: 'number',
+			description: 'Numeric value (e.g. volume 1-100)',
 			required: false
 		},
 		{
-			name: 'twitch-list',
-			description: 'List monitored streamers (if Twitch enabled)',
-			required: false
-		},
-		{
-			name: 'log-channel',
-			description: 'Set audit/moderation log channel',
-			required: false
-		},
-		{
-			name: 'log-disable',
-			description: 'Disable server event logging',
-			required: false
-		},
-		{
-			name: 'ticket-channel',
-			description: 'Set support ticket panel channel',
-			required: false
-		},
-		{
-			name: 'ticket-toggle',
-			description: 'Toggle support ticket system',
-			required: false
-		},
-		{
-			name: 'ticket-panel',
-			description: 'Post support ticket embed panel',
-			required: false
-		},
-		{
-			name: 'ticket-transcript',
-			description: 'Set ticket transcript archive channel',
-			required: false
-		},
-		{
-			name: 'ticket-transcript-disable',
-			description: 'Disable ticket transcript archiving',
-			required: false
-		},
-		{
-			name: 'ticket-role',
-			description: 'Set ticket manager role',
-			required: false
-		},
-		{
-			name: 'ticket-role-disable',
-			description: 'Disable ticket manager role',
-			required: false
-		},
-		{
-			name: 'default-volume',
-			description: 'Set default playback volume',
-			required: false
-		},
-		{
-			name: 'view',
-			description: 'View current settings overview',
+			name: 'alerts',
+			description: 'YouTube alert type (all, streams, uploads)',
 			required: false
 		}
 	]

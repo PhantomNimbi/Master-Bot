@@ -1,7 +1,8 @@
 import type { CommandHelp } from '../../lib/structures/CommandHelp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
-import { EmbedBuilder, GuildMember, PermissionFlagsBits } from 'discord.js';
+import { GuildMember, PermissionFlagsBits } from 'discord.js';
+import { createBanEmbed } from '../../lib/embeds/commands/moderation/banEmbed';
 
 @ApplyOptions<Command.Options>({
 	name: 'ban',
@@ -143,31 +144,11 @@ export class BanCommand extends Command {
 				reason: `${reason} | Moderator: ${interaction.user.tag}`
 			});
 
-			const embed = new EmbedBuilder()
-				.setTitle('🔨 Member Banned')
-				.setColor(0xed4245)
-				.setThumbnail(targetUser.displayAvatarURL())
-				.addFields(
-					{
-						name: '👤 User',
-						value: `${targetUser.tag} (<@${targetUser.id}>)`,
-						inline: true
-					},
-					{
-						name: '🛡️ Moderator',
-						value: `${interaction.user.tag} (<@${interaction.user.id}>)`,
-						inline: true
-					},
-					{
-						name: '📝 Reason',
-						value: reason,
-						inline: false
-					}
-				)
-				.setFooter({
-					text: `User ID: ${targetUser.id}`
-				})
-				.setTimestamp();
+			const embed = createBanEmbed({
+				targetUser,
+				moderator: interaction.user,
+				reason
+			});
 
 			return await interaction.editReply({ embeds: [embed] });
 		} catch (error) {

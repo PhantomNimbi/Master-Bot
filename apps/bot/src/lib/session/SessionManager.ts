@@ -6,6 +6,7 @@ import { createGuildDataHandlers } from './handlers/guildData';
 import { createWelcomeMessagesHandlers } from './handlers/welcomeMessages';
 import { createTicketsHandlers } from './handlers/tickets';
 import { createTwitchConfigHandlers } from './handlers/twitchConfig';
+import { createYouTubeConfigHandlers } from './handlers/youtubeConfig';
 import { createHubChannelsHandlers } from './handlers/hubChannels';
 import { createPlaylistsHandlers } from './handlers/playlists';
 import { createSongsHandlers } from './handlers/songs';
@@ -22,6 +23,7 @@ export type {
 	Ticket,
 	TempChannel,
 	TwitchNotification,
+	YouTubeNotification,
 	GuildRecord
 } from './types';
 
@@ -37,6 +39,7 @@ export class SessionManager {
 	public readonly welcomeMessages: ReturnType<typeof createWelcomeMessagesHandlers>;
 	public readonly tickets: ReturnType<typeof createTicketsHandlers>;
 	public readonly twitchConfig: ReturnType<typeof createTwitchConfigHandlers>;
+	public readonly youtubeConfig: ReturnType<typeof createYouTubeConfigHandlers>;
 	public readonly hubChannels: ReturnType<typeof createHubChannelsHandlers>;
 	public readonly playlists: ReturnType<typeof createPlaylistsHandlers>;
 	public readonly songs: ReturnType<typeof createSongsHandlers>;
@@ -52,6 +55,7 @@ export class SessionManager {
 		this.welcomeMessages = createWelcomeMessagesHandlers(this.store);
 		this.tickets = createTicketsHandlers(this.store);
 		this.twitchConfig = createTwitchConfigHandlers(this.store, guildData);
+		this.youtubeConfig = createYouTubeConfigHandlers(this.store);
 		this.hubChannels = createHubChannelsHandlers(this.store);
 		this.playlists = createPlaylistsHandlers(this.store);
 		this.songs = createSongsHandlers(this.store);

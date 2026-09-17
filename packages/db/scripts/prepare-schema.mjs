@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load root .env file if DATABASE_URL is not set
+// Load root .env file if DB_URI is not set
 const rootDir = path.resolve(__dirname, '../../..');
 const envPath = path.join(rootDir, '.env');
 const examplePath = path.join(rootDir, '.env.example');
@@ -45,16 +45,31 @@ if (fs.existsSync(envPath)) {
 	}
 }
 
-// Guarantee DATABASE_URL default if unset
-if (!process.env.DATABASE_URL) {
-	process.env.DATABASE_URL = 'file:./db.sqlite';
+// Guarantee DB_URI default if unset
+if (!process.env.DB_URI) {
+	process.env.DB_URI = 'file:/data/database.db';
 }
 
-const rawDbUrl = process.env.DATABASE_URL?.trim() || '';
+const rawDbUrl = process.env.DB_URI?.trim() || '';
 const isPostgres =
 	rawDbUrl.startsWith('postgresql:') || rawDbUrl.startsWith('postgres:');
 
 const provider = isPostgres ? 'postgresql' : 'sqlite';
+
+// If SQLite, ensure the storage directory exists
+if (!isPostgres) {
+	try {
+		const filePath = rawDbUrl.replace(/^file:/, '');
+		const dir = path.dirname(filePath);
+		if (dir && !fs.existsSync(dir)) {
+			fs.mkdirSync(dir, { recursive: true });
+			console.log(`[prepare-schema] Created SQLite directory: ${dir}`);
+		}
+	} catch (e) {
+		console.warn(`[prepare-schema] Note: could not ensure SQLite directory: ${e.message}`);
+	}
+}
+
 const schemaPath = path.resolve(__dirname, '../prisma/schema.prisma');
 
 const schemaContent = `generator client {
@@ -63,7 +78,7 @@ const schemaContent = `generator client {
 
 datasource db {
     provider = "${provider}"
-    url      = env("DATABASE_URL")
+    url      = env("DB_URI")
 }
 
 // Necessary for Next auth
@@ -214,6 +229,16 @@ model TwitchNotify {
     live       Boolean  @default(false)
     channelIds String
     sent       Boolean
+}
+
+model YouTubeNotify {
+    channelId    String   @id
+    channelTitle String
+    logo         String?
+    lastVideoId  String?
+    lastStreamId String?
+    isLive       Boolean  @default(false)
+    channelIds   String   // JSON array of { channelId: string, alertType: string }
 }
 
 model Reminder {

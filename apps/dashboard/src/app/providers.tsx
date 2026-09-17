@@ -10,13 +10,15 @@ import { api } from '~/utils/api';
 
 const getBaseUrl = () => {
 	if (typeof window !== 'undefined') return ''; // browser should use relative url
-	// if (env.VERCEL_URL) return env.VERCEL_URL; // SSR should use vercel url
 
-	return (
+	const internal =
 		process.env.INTERNAL_URL ??
 		process.env.NEXTAUTH_URL_INTERNAL ??
-		`http://localhost:3000`
-	); // dev SSR should use internal url
+		'0.0.0.0:3000';
+
+	return internal.startsWith('http://') || internal.startsWith('https://')
+		? internal
+		: `http://${internal}`;
 };
 
 export function TRPCReactProvider(props: { children: React.ReactNode }) {

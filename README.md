@@ -20,7 +20,7 @@ Master-Bot runs as a single Node.js process hosting the **Discord bot** and the 
 | **Docker / VPS** | **Recommended.** `Dockerfile` + `docker-compose.yml` run bot + dashboard and Lavalink in separate containers with persistent storage. Full guide in the [Deployment Wiki](../../wiki/Deployment). |
 | **Node.js / PM2 VPS** | Run natively on Ubuntu/Debian with PM2 process supervision and Caddy reverse proxy for automatic HTTPS. |
 | **Local** | `pnpm install && pnpm build && pnpm start` on any Node.js 20+ machine — see [Quick Start](#-quick-start-guide). |
-| **Heroku (Optional Cloud)** | Available for users who specifically prefer cloud hosting. Requires external PostgreSQL (`DATABASE_URL`) due to ephemeral storage, and external Lavalink (`LAVA_EXTERNAL=true`). |
+| **Heroku (Optional Cloud)** | Available for users who specifically prefer cloud hosting. Requires external PostgreSQL (`DB_URI`) due to ephemeral storage, and external Lavalink (`LAVA_EXTERNAL=true`). |
 
 ### 🌐 Recommended Low-Cost Compatible VPS Providers
 
@@ -107,8 +107,8 @@ cp .env.example .env
 
 Fill in your mandatory credentials:
 
-- `DATABASE_URL`: SQLite database file path (`file:./db.sqlite`)
-- `INTERNAL_URL`: Internal SSR dashboard URL (`http://localhost:3000`)
+- `DB_URI`: SQLite database file path (`file:/data/database.db`) or PostgreSQL URI (`postgresql://...`)
+- `INTERNAL_URL`: Internal dashboard host/port format (`0.0.0.0:3000`)
 - `PUBLIC_URL`: Public HTTPS dashboard URL (`https://your-domain.com`)
 - `DISCORD_CALLBACK_URL`: Public OAuth2 bot invite URL
 - `DISCORD_TOKEN`: Bot token from the Discord Developer Portal

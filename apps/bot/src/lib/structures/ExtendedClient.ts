@@ -4,6 +4,7 @@ import { QueueClient } from '../music/classes/QueueClient';
 import { prisma, redis } from '@master-bot/db';
 import type { PrismaClient } from '@master-bot/db';
 import {
+	ForumChannel,
 	IntentsBitField,
 	NewsChannel,
 	TextChannel,
@@ -119,7 +120,12 @@ export class ExtendedClient extends SapphireClient {
 		this.leaveTimers = {};
 	}
 }
-export type MessageChannel = TextChannel | ThreadChannel | NewsChannel | null;
+export type MessageChannel =
+	| TextChannel
+	| ThreadChannel
+	| NewsChannel
+	| ForumChannel
+	| null;
 
 declare module '@sapphire/framework' {
 	interface SapphireClient {

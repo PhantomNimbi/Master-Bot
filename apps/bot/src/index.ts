@@ -8,6 +8,7 @@ import {
 import { ReminderManager } from './lib/reminders/ReminderManager';
 import { StatusManager } from './lib/presence/StatusManager';
 import { notify } from './lib/twitch/notifyChannels';
+import { startYouTubeMonitor, stopYouTubeMonitor } from './lib/youtube/notifyYouTube';
 import Logger from './lib/logger';
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
@@ -112,6 +113,9 @@ client.on(Events.ClientReady, async () => {
 			setTimeout(() => void initTwitch(), 3000);
 		}
 	}
+
+	// Initialize YouTube stream and video upload alerts
+	startYouTubeMonitor(client);
 });
 
 // Sapphire Framework Error Events
@@ -279,9 +283,25 @@ const main = async () => {
 		process.exit(1);
 	}
 
-	const webPort = Number.parseInt(process.env.PORT || '3000', 10);
+	let webHost = '0.0.0.0';
+	let webPort = Number.parseInt(process.env.PORT || '3000', 10);
+
+	if (process.env.INTERNAL_URL) {
+		const cleanInternal = process.env.INTERNAL_URL.replace(/^https?:\/\//, '');
+		const parts = cleanInternal.split(':');
+		if (parts.length === 2) {
+			webHost = parts[0] || '0.0.0.0';
+			const parsedPort = Number.parseInt(parts[1], 10);
+			if (!Number.isNaN(parsedPort)) {
+				webPort = parsedPort;
+			}
+		} else if (parts.length === 1 && !Number.isNaN(Number.parseInt(parts[0], 10))) {
+			webPort = Number.parseInt(parts[0], 10);
+		}
+	}
+
 	try {
-		await startWebServer({ port: webPort, botClient: client });
+		await startWebServer({ host: webHost, port: webPort, botClient: client });
 	} catch (webErr) {
 		Logger.error('Failed to initialize internal dashboard web service: ', webErr);
 	}
@@ -308,10 +328,10 @@ const main = async () => {
 		const dashboardPublicUrl =
 			process.env.PUBLIC_URL?.trim() || process.env.NEXTAUTH_URL?.trim();
 		const dashboardDisplay = dashboardPublicUrl
-			? `http://localhost:${webPort}/dashboard | Public: ${dashboardPublicUrl}/dashboard`
-			: `http://localhost:${webPort}/dashboard`;
+			? `http://${webHost}:${webPort}/dashboard | Public: ${dashboardPublicUrl}/dashboard`
+			: `http://${webHost}:${webPort}/dashboard`;
 
-		const dbProviderName = getDatabaseProvider() === 'postgresql' ? 'POSTGRESQL (External)' : 'SQLITE (db.sqlite Fallback)';
+		const dbProviderName = getDatabaseProvider() === 'postgresql' ? 'POSTGRESQL (External)' : 'SQLITE (/data/database.db Fallback)';
 		const redisStatusName = isUsingMockRedis() ? 'IN-MEMORY (ioredis-mock Fallback)' : 'EXTERNAL REDIS (Connected)';
 		const audioStatusName = isLavalinkEnabled
 			? process.env.LAVA_EXTERNAL === 'true'
@@ -333,6 +353,7 @@ const main = async () => {
     • ⚡ Redis Cache:         ${redisStatusName}
     • 💓 Keep-Alive Service:  ${process.env.KEEP_ALIVE_ENABLED !== 'false' ? 'ENABLED (10m interval)' : 'DISABLED'}
     • 🎵 Audio Engine:        ${audioStatusName}
+    • 📺 YouTube Alerts:      ACTIVE
   
   Endpoints:
     • Web Dashboard:         http://localhost:${webPort}/dashboard
@@ -344,6 +365,7 @@ const main = async () => {
 
 const cleanup = async () => {
 	Logger.info('🛑 Shutting down Master-Bot unified service...');
+	stopYouTubeMonitor();
 	await stopEmbeddedLavalink();
 	stopWebServer();
 	client.destroy();

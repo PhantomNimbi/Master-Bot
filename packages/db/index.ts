@@ -6,10 +6,28 @@ import type Redis from 'ioredis';
 export * from '@prisma/client';
 
 export function getDatabaseProvider(): 'postgresql' | 'sqlite' {
-	const url = process.env.DATABASE_URL?.trim() || '';
+	const url = process.env.DB_URI?.trim() || '';
 	return url.startsWith('postgresql:') || url.startsWith('postgres:')
 		? 'postgresql'
 		: 'sqlite';
+}
+
+const rawDbUrl = process.env.DB_URI?.trim() || 'file:/data/database.db';
+
+if (!process.env.DB_URI) {
+	process.env.DB_URI = rawDbUrl;
+}
+
+if (!rawDbUrl.startsWith('postgresql:') && !rawDbUrl.startsWith('postgres:')) {
+	try {
+		const fs = require('node:fs');
+		const path = require('node:path');
+		const dbFilePath = rawDbUrl.replace(/^file:/, '');
+		const dir = path.dirname(dbFilePath);
+		if (dir && !fs.existsSync(dir)) {
+			fs.mkdirSync(dir, { recursive: true });
+		}
+	} catch {}
 }
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };

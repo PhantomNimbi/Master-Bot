@@ -2,34 +2,34 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { getDatabaseProvider, isUsingMockRedis, getRedisClient, redis } from '@master-bot/db';
 
 describe('Dual Database & Redis Fallback Architecture', () => {
-	const originalDbUrl = process.env.DATABASE_URL;
+	const originalDbUri = process.env.DB_URI;
 	const originalRedisUrl = process.env.REDIS_URL;
 	const originalRedisHost = process.env.REDIS_HOST;
 
 	afterEach(() => {
-		process.env.DATABASE_URL = originalDbUrl;
+		process.env.DB_URI = originalDbUri;
 		process.env.REDIS_URL = originalRedisUrl;
 		process.env.REDIS_HOST = originalRedisHost;
 	});
 
 	describe('Database Provider Reflection', () => {
-		it('should detect SQLite provider when DATABASE_URL is file:./db.sqlite', () => {
-			process.env.DATABASE_URL = 'file:./db.sqlite';
+		it('should detect SQLite provider when DB_URI is file:/data/database.db', () => {
+			process.env.DB_URI = 'file:/data/database.db';
 			expect(getDatabaseProvider()).toBe('sqlite');
 		});
 
-		it('should detect SQLite provider when DATABASE_URL is unset or empty', () => {
-			delete process.env.DATABASE_URL;
+		it('should detect SQLite provider when DB_URI is unset or empty', () => {
+			delete process.env.DB_URI;
 			expect(getDatabaseProvider()).toBe('sqlite');
 		});
 
-		it('should detect PostgreSQL provider when DATABASE_URL starts with postgresql://', () => {
-			process.env.DATABASE_URL = 'postgresql://postgres:secret@localhost:5432/masterbot';
+		it('should detect PostgreSQL provider when DB_URI starts with postgresql://', () => {
+			process.env.DB_URI = 'postgresql://postgres:secret@localhost:5432/masterbot';
 			expect(getDatabaseProvider()).toBe('postgresql');
 		});
 
-		it('should detect PostgreSQL provider when DATABASE_URL starts with postgres://', () => {
-			process.env.DATABASE_URL = 'postgres://user:password@host:5432/dbname';
+		it('should detect PostgreSQL provider when DB_URI starts with postgres://', () => {
+			process.env.DB_URI = 'postgres://user:password@host:5432/dbname';
 			expect(getDatabaseProvider()).toBe('postgresql');
 		});
 	});

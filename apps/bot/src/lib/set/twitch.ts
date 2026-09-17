@@ -23,8 +23,17 @@ export const handleTwitchAdd: SetHandler = async interaction => {
 	}
 	const { client } = container;
 	const guildId = interaction.guildId!;
-	const streamerName = interaction.options.getString('streamer', true);
-	const channelData = interaction.options.getChannel('channel', true);
+	const streamerName =
+		interaction.options.getString('value') ??
+		interaction.options.getString('streamer');
+	const channelData = interaction.options.getChannel('channel');
+
+	if (!streamerName || !channelData) {
+		return await interaction.editReply({
+			content:
+				':x: Please provide both `value` (streamer name) and `channel` (Discord channel).\n> Example: `/set setting: twitch-add value: shroud channel: #streams`'
+		});
+	}
 
 	let user: any;
 	try {
@@ -106,8 +115,17 @@ export const handleTwitchRemove: SetHandler = async interaction => {
 	}
 	const { client } = container;
 	const guildId = interaction.guildId!;
-	const streamerName = interaction.options.getString('streamer', true);
-	const channelData = interaction.options.getChannel('channel', true);
+	const streamerName =
+		interaction.options.getString('value') ??
+		interaction.options.getString('streamer');
+	const channelData = interaction.options.getChannel('channel');
+
+	if (!streamerName || !channelData) {
+		return await interaction.editReply({
+			content:
+				':x: Please provide both `value` (streamer name) and `channel` (Discord channel).\n> Example: `/set setting: twitch-remove value: shroud channel: #streams`'
+		});
+	}
 
 	let user: any;
 	try {

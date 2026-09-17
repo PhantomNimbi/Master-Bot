@@ -81,18 +81,18 @@ All moderation commands validate member **roles** (target can't be the guild own
 | `/fortune` | Random fortune cookie. |
 | `/insult` | Amusing insult for a member. |
 
-## 😂 GIFs & Reactions — 12 commands
+## 🎭 Fun & Reactions — 1 consolidated command
 
-Requires `GIFS_ENABLED=true` and a GIF API key (`KLIPY_API`). Animated tenor/GIPHY-style GIFs and anime reactions:
+Requires `GIFS_ENABLED=true` and a GIF API key (`KLIPY_API`). All GIF and reaction functionality is unified into a single `/gif` command with modular submodules in `src/lib/gifs/options/`:
 
-| Command | Command | Command |
+| Command | Usage | Description |
 | --- | --- | --- |
-| `/gif` | `/anime` | `/cat` |
-| `/waifu` | `/slap` | `/doggo` |
-| `/hug` | `/pat` | `/gintama` |
-| `/jojo` | `/baka` | `/amongus` |
+| `/gif` | `/gif [tag: Tag] [query: Keyword] [target: @User]` | Display a reaction GIF, search GIFs, or get a random GIF (default). |
 
-## 🟣 Twitch — 1 command
+**Available preset tags:**
+`amongus`, `anime`, `baka`, `cat`, `doggo`, `gintama`, `hug`, `jojo`, `pat`, `slap`, `waifu`. Reaction tags support the optional `target: @User` parameter.
+
+## 🟣 Twitch & YouTube Alerts — 1 command
 
 | Command | Description |
 | --- | --- |
@@ -100,25 +100,39 @@ Requires `GIFS_ENABLED=true` and a GIF API key (`KLIPY_API`). Animated tenor/GIP
 
 ---
 
-## `/set` Subcommands
+## ⚙️ `/set` Configuration Hub — Single Command with Options
 
-`/set` is the server configuration hub. Requires `ManageGuild` permission.
+`/set` is the server configuration hub. Requires `ManageGuild` permission. To keep registered commands well within Discord limits, `/set` uses options instead of subcommands:
 
-| Subcommand | Options | What it does |
+```txt
+/set [setting: Setting] [channel: #channel] [value: Text] [enabled: True/False] [role: @Role] [number: 1-100] [alerts: Type]
+```
+
+Running `/set` with no options defaults to displaying the server settings overview (`view`).
+
+| Setting Option | Required / Optional Parameters | What it does |
 | --- | --- | --- |
-| `/set welcome set-channel` | `channel` | Set the welcome message channel. |
-| `/set welcome set-message` | `message` | Set the welcome message template (`{user}`, `{server}`, `{position}`). |
-| `/set welcome toggle` | — | Enable/disable welcome messages. |
-| `/set twitch add` | `streamer` + options | Add a streamer to live-alert monitoring. |
-| `/set twitch remove` | `streamer` | Stop monitoring a streamer. |
-| `/set twitch list` | — | Paginated list of monitored streamers. |
-| `/set logging set-channel` | `channel` | Set the audit-log channel. |
-| `/set logging toggle-log-channel` | — | Enable/disable audit logs. |
-| `/set tickets set-ticket-channel` | `channel` | Where ticket panels/buttons are posted. |
-| `/set tickets set-transcript-channel` | `channel` | Where ticket transcripts are archived. |
-| `/set tickets set-ticket-role` | `role` | Role allowed to manage/view tickets. |
-| `/set tickets toggle-tickets` | — | Enable/disable the ticket system. |
-| `/set volume` | `0–200` | Server-wide player volume. |
-| `/set view` | — | Review all current server settings in a panel. |
+| `view` | — | Review all current server settings in an overview panel (default). |
+| `welcome-channel` | `channel: #channel` | Set the text channel for welcome greetings. |
+| `welcome-message` | `value: "Message"` | Set custom welcome greeting (`{user}`, `{server}`, `{memberCount}`). |
+| `welcome-toggle` | `enabled: True/False` | Enable or disable welcome greetings. |
+| `welcome-test` | — | Send a test welcome greeting in the configured channel. |
+| `twitch-add` | `value: "streamer"`, `channel: #channel` | Add streamer to alert monitoring (supports text & forum channels). |
+| `twitch-remove` | `value: "streamer"`, `channel: #channel` | Remove streamer from alert monitoring. |
+| `twitch-list` | — | List monitored Twitch streamers. |
+| `youtube-add` | `value: "@channel"`, `channel: #channel`, `[alerts: all/streams/uploads]` | Add YouTube alert for streams and uploads (supports text & forum channels). |
+| `youtube-remove` | `value: "@channel"`, `channel: #channel` | Remove YouTube alert subscription. |
+| `youtube-list` | — | List monitored YouTube channels. |
+| `log-channel` | `channel: #channel` | Set the audit/moderation log channel. |
+| `log-toggle` | `enabled: True/False` | Enable or disable audit logging. |
+| `log-disable` | — | Disable audit logging. |
+| `ticket-channel` | `channel: #channel` | Set support ticket panel channel. |
+| `ticket-toggle` | `enabled: True/False` | Enable or disable the support ticket system. |
+| `ticket-panel` | — | Post the interactive support ticket creation embed panel. |
+| `ticket-transcript` | `channel: #channel` | Set channel to archive closed ticket transcripts. |
+| `ticket-transcript-disable` | — | Disable transcript archiving. |
+| `ticket-role` | `role: @Role` | Set staff/moderator role with ticket management permissions. |
+| `ticket-role-disable` | — | Remove assigned ticket staff role. |
+| `default-volume` | `number: 1–100` | Set default playback volume for the server. |
 
 > The interactive **web dashboard** mirrors every `/set` setting for servers where the bot is present — see [Web Dashboard](Dashboard).

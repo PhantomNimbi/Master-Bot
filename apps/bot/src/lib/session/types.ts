@@ -70,6 +70,23 @@ export interface TwitchNotification {
 	sent: boolean;
 }
 
+export type YouTubeAlertType = 'all' | 'streams' | 'uploads';
+
+export interface YouTubeTargetChannel {
+	channelId: string;
+	alertType: YouTubeAlertType;
+}
+
+export interface YouTubeNotification {
+	channelId: string;
+	channelTitle: string;
+	logo?: string;
+	lastVideoId?: string;
+	lastStreamId?: string;
+	isLive: boolean;
+	channelIds: YouTubeTargetChannel[];
+}
+
 export interface GuildRecord {
 	id: string;
 	name: string;

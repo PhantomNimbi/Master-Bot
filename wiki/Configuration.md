@@ -5,10 +5,10 @@ Everything is configured through a single `.env` file at the workspace root (cop
 ## 🗄️ Database
 
 ```env
-DATABASE_URL="file:./db.sqlite"
+DB_URI="file:/data/database.db"
 ```
 
-Master-Bot uses **SQLite** through **Prisma ORM**. The database is a single portable file (`db.sqlite`, created automatically at `packages/db/prisma/db.sqlite` — relative paths resolve against the Prisma schema). No separate database server is required.
+Master-Bot uses **SQLite** through **Prisma ORM** (defaulting to `/data/database.db`) or **PostgreSQL** (`postgresql://...`). The database schema is automatically prepared and pushed at startup. No separate database server is required for SQLite.
 
 ## 🤖 Discord / NextAuth
 
@@ -16,8 +16,8 @@ Master-Bot uses **SQLite** through **Prisma ORM**. The database is a single port
 | --- | --- | --- |
 | `DISCORD_TOKEN` | ✅ | Bot token from the Discord Developer Portal. |
 | `NEXTAUTH_SECRET` | ✅ | Random 32+ char secret that signs dashboard session tokens. |
-| `NEXTAUTH_URL` | ✅ | Canonical public dashboard URL (e.g. `http://localhost:3000` or `https://domain.com`). |
-| `NEXTAUTH_URL_INTERNAL` | — | Internal SSR URL for dashboard requests (default `http://localhost:3000`). |
+| `PUBLIC_URL` | ✅ | Canonical public dashboard URL (e.g. `https://your-domain.com`). |
+| `INTERNAL_URL` | ✅ | Internal dashboard host/port format (`0.0.0.0:3000`) for binding and SSR. |
 | `NEXT_PUBLIC_INVITE_URL` | ✅ | Public OAuth2 bot invite URL used by the dashboard. |
 | `DISCORD_CLIENT_ID` | ✅ | Discord application client ID (dashboard OAuth). |
 | `DISCORD_CLIENT_SECRET` | ✅ | Discord application client secret (dashboard OAuth). |
@@ -31,8 +31,9 @@ Master-Bot uses **SQLite** through **Prisma ORM**. The database is a single port
 | `LAVA_PASS` | `youshallnotpass` | Lavalink password (must match `application.yml`). |
 | `LAVA_SECURE` | `false` | `true` enables WSS/HTTPS (use when hosting remotely behind TLS). |
 | `LAVA_EXTERNAL` | `false` | Set to `true` when connecting to an external Lavalink instance (such as the public HELIX Origin server or [HELIX-Origin/Lavalink-Server](https://github.com/HELIX-Origin/Lavalink-Server)). |
-| `YOUTUBE_REFRESH_TOKEN` | — | YouTube OAuth 2.0 refresh token; auto-saved to `.youtube-oauth.json` during embedded Lavalink server startup authorization. |
-| `YOUTUBE_API_KEY` | — | Optional YouTube Data API v3 key for richer track metadata. |
+| `YOUTUBE_CLIENT_ID` | — | Google Cloud OAuth Client ID for YouTube stream alerts and OAuth authentication. |
+| `YOUTUBE_CLIENT_SECRET` | — | Google Cloud OAuth Client Secret for YouTube stream alerts. |
+| `YOUTUBE_REFRESH_TOKEN` | — | YouTube OAuth 2.0 refresh token; used for stream alerts and embedded Lavalink. |
 | `YOUTUBE_CIPHER_URL` | `https://cipher.kikkia.dev/` | Remote YouTube signature-decipher endpoint. |
 | `YOUTUBE_CIPHER_PASSWORD` | — | Password for a self-hosted `yt-cipher` (leave empty for the public endpoint). |
 

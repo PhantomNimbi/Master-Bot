@@ -1,13 +1,30 @@
+var _a;
 import { PrismaClient } from '@prisma/client';
 import RedisMock from 'ioredis-mock';
 import RealRedis from 'ioredis';
 export * from '@prisma/client';
 export function getDatabaseProvider() {
     var _a;
-    const url = ((_a = process.env.DATABASE_URL) === null || _a === void 0 ? void 0 : _a.trim()) || '';
+    const url = ((_a = process.env.DB_URI) === null || _a === void 0 ? void 0 : _a.trim()) || '';
     return url.startsWith('postgresql:') || url.startsWith('postgres:')
         ? 'postgresql'
         : 'sqlite';
+}
+const rawDbUrl = ((_a = process.env.DB_URI) === null || _a === void 0 ? void 0 : _a.trim()) || 'file:/data/database.db';
+if (!process.env.DB_URI) {
+    process.env.DB_URI = rawDbUrl;
+}
+if (!rawDbUrl.startsWith('postgresql:') && !rawDbUrl.startsWith('postgres:')) {
+    try {
+        const fs = require('node:fs');
+        const path = require('node:path');
+        const dbFilePath = rawDbUrl.replace(/^file:/, '');
+        const dir = path.dirname(dbFilePath);
+        if (dir && !fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+    }
+    catch (_b) { }
 }
 const globalForPrisma = globalThis;
 export const prisma = globalForPrisma.prisma ||

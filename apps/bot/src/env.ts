@@ -4,6 +4,7 @@ const envSchema = z.object({
 	DISCORD_TOKEN: z.string(),
 	KLIPY_API: z.string().optional(),
 	NEWS_API: z.string().optional(),
+	DB_URI: z.string().optional(),
 	// Feature Toggles
 	LAVA_ENABLED: z.string().optional(),
 	GIFS_ENABLED: z.string().optional(),
@@ -16,7 +17,8 @@ const envSchema = z.object({
 	LAVA_PORT: z.string().optional(),
 	LAVA_PASS: z.string().optional(),
 	LAVA_SECURE: z.string().optional(),
-	YOUTUBE_API_KEY: z.string().optional(),
+	YOUTUBE_CLIENT_ID: z.string().optional(),
+	YOUTUBE_CLIENT_SECRET: z.string().optional(),
 	YOUTUBE_REFRESH_TOKEN: z.string().optional(),
 	YOUTUBE_CIPHER_URL: z.string().optional(),
 	YOUTUBE_CIPHER_PASSWORD: z.string().optional(),

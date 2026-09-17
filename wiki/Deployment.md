@@ -122,7 +122,7 @@ docker compose --env-file docker.env up -d --build
 ```
 
 - Docker runs **Master-Bot** (`apps/bot` + `apps/dashboard`) on port `3000` and a dedicated **Lavalink v4** container on port `2333`.
-- SQLite persists in the named volume `sqlite-data` (`packages/db/prisma/db.sqlite`), surviving all container restarts and updates.
+- SQLite persists in the volume `/data` (`/data/database.db`), surviving all container restarts and updates.
 
 ---
 
@@ -184,7 +184,7 @@ For users who specifically prefer managed cloud hosting, Master-Bot can be deplo
 > [!WARNING]
 > **Heroku Considerations:**
 > - **Dyno Sleep:** Eco/Basic dynos sleep after 30 minutes of inactivity unless pinged. Set `KEEP_ALIVE_ENABLED=true` in your Heroku settings.
-> - **Ephemeral Storage:** Heroku dynos reset their filesystems upon restart. If you use Heroku, configure an external PostgreSQL database via `DATABASE_URL` (such as the Heroku Postgres add-on).
+> - **Ephemeral Storage:** Heroku dynos reset their filesystems upon restart. If you use Heroku, configure an external PostgreSQL database via `DB_URI` (such as the Heroku Postgres add-on).
 > - **Lavalink Audio:** Due to memory constraints on 512 MB dynos, do not run embedded Lavalink on Heroku. Set `LAVA_EXTERNAL=true` and point to an external Lavalink audio host.
 
 ### Heroku Setup Steps:
@@ -224,17 +224,17 @@ For users who specifically prefer managed cloud hosting, Master-Bot can be deplo
 
 ## 💾 Backups & Maintenance
 
-The SQLite database lives at `packages/db/prisma/db.sqlite`.
+The SQLite database lives at `/data/database.db`.
 
 To perform a hot backup while Master-Bot is running on your VPS:
 
 ```bash
-sqlite3 packages/db/prisma/db.sqlite ".backup 'backup-$(date +%F).db'"
+sqlite3 /data/database.db ".backup 'backup-$(date +%F).db'"
 ```
 
 Schedule this via a daily cron job (`crontab -e`):
 ```cron
-0 3 * * * sqlite3 /path/to/Master-Bot/packages/db/prisma/db.sqlite ".backup '/path/to/backups/backup-\$(date +\%F).db'"
+0 3 * * * sqlite3 /data/database.db ".backup '/path/to/backups/backup-\$(date +\%F).db'"
 ```
 
 ---
@@ -249,7 +249,7 @@ Schedule this via a daily cron job (`crontab -e`):
 | `NEXTAUTH_SECRET` | **Yes** | 32+ character random string to sign auth session cookies. |
 | `NEXTAUTH_URL` | **Yes** | The public HTTPS URL of your application dashboard. |
 | `PUBLIC_URL` | **Yes** | The public HTTPS URL used for the `/dashboard` command invite link. |
-| `DATABASE_URL` | No | SQLite file path (default `file:./db.sqlite`). |
+| `DB_URI` | No | Database connection URI string (default `file:/data/database.db`). |
 | `PORT` | No | Listening port for web dashboard and health check (default: `3000`). |
 | `KEEP_ALIVE_ENABLED` | No | Set to `true` to enable background HTTP pings to keep the process warm. |
 | `LAVA_ENABLED` | No | Set to `true` to enable the audio engine (external Lavalink). |

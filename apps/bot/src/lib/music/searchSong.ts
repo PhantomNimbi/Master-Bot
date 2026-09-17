@@ -11,7 +11,7 @@ function hasSpotifyKeys(): boolean {
 }
 
 function hasYouTubeKeys(): boolean {
-	return !!(env.YOUTUBE_API_KEY || env.YOUTUBE_REFRESH_TOKEN);
+	return !!(env.YOUTUBE_CLIENT_ID || env.YOUTUBE_REFRESH_TOKEN);
 }
 
 function hasAnyAudioKeys(): boolean {
@@ -63,7 +63,7 @@ export default async function searchSong(
 				!hasYouTubeKeys()
 			) {
 				displayMessage =
-					':x: YouTube playback is disabled because no `YOUTUBE_API_KEY` or `YOUTUBE_REFRESH_TOKEN` is configured in `.env`.';
+					':x: YouTube playback is disabled because no `YOUTUBE_CLIENT_ID` or `YOUTUBE_REFRESH_TOKEN` is configured in `.env`.';
 				return [displayMessage, tracks];
 			}
 

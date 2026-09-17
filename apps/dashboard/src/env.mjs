@@ -17,9 +17,7 @@ export const env = createEnv({
 	 * built with invalid env vars.
 	 */
 	server: {
-		DATABASE_URL: z
-			.string()
-			.default('file:./db.sqlite'),
+		DB_URI: z.string().default('file:/data/database.db'),
 		DISCORD_TOKEN: z.string().optional(),
 		DISCORD_CLIENT_ID: z.string().default('placeholder_client_id'),
 		DISCORD_CLIENT_SECRET: z.string().default('placeholder_client_secret'),
@@ -28,7 +26,8 @@ export const env = createEnv({
 		TWITCH_ENABLED: z.string().optional(),
 		NEWS_ENABLED: z.string().optional(),
 		IGDB_ENABLED: z.string().optional(),
-		YOUTUBE_API_KEY: z.string().optional(),
+		YOUTUBE_CLIENT_ID: z.string().optional(),
+		YOUTUBE_CLIENT_SECRET: z.string().optional(),
 		YOUTUBE_REFRESH_TOKEN: z.string().optional(),
 		YOUTUBE_CIPHER_URL: z.string().optional(),
 		YOUTUBE_CIPHER_PASSWORD: z.string().optional(),
@@ -46,7 +45,7 @@ export const env = createEnv({
 	 * Destructure all variables from `process.env` to make sure they aren't tree-shaken away.
 	 */
 	runtimeEnv: {
-		DATABASE_URL: process.env.DATABASE_URL,
+		DB_URI: process.env.DB_URI ?? 'file:/data/database.db',
 		DISCORD_TOKEN: process.env.DISCORD_TOKEN,
 		DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
 		DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
@@ -55,7 +54,8 @@ export const env = createEnv({
 		TWITCH_ENABLED: process.env.TWITCH_ENABLED,
 		NEWS_ENABLED: process.env.NEWS_ENABLED,
 		IGDB_ENABLED: process.env.IGDB_ENABLED,
-		YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY,
+		YOUTUBE_CLIENT_ID: process.env.YOUTUBE_CLIENT_ID,
+		YOUTUBE_CLIENT_SECRET: process.env.YOUTUBE_CLIENT_SECRET,
 		YOUTUBE_REFRESH_TOKEN: process.env.YOUTUBE_REFRESH_TOKEN,
 		YOUTUBE_CIPHER_URL: process.env.YOUTUBE_CIPHER_URL,
 		YOUTUBE_CIPHER_PASSWORD: process.env.YOUTUBE_CIPHER_PASSWORD,

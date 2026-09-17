@@ -3,11 +3,11 @@ import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import {
 	ChannelType,
-	EmbedBuilder,
 	GuildMember,
 	PermissionFlagsBits,
 	TextChannel
 } from 'discord.js';
+import { createSlowmodeEmbed } from '../../lib/embeds/commands/moderation/slowmodeEmbed';
 
 @ApplyOptions<Command.Options>({
 	name: 'slowmode',
@@ -90,28 +90,11 @@ export class SlowmodeCommand extends Command {
 				`Slowmode adjusted by ${interaction.user.tag}`
 			);
 
-			const embed = new EmbedBuilder()
-				.setTitle('⏱️ Slowmode Updated')
-				.setColor(seconds > 0 ? 0x3498db : 0x2ecc71)
-				.addFields(
-					{
-						name: '📢 Channel',
-						value: `<#${targetChannel.id}>`,
-						inline: true
-					},
-					{
-						name: '⏳ Rate Limit',
-						value:
-							seconds === 0 ? '**Disabled** (0s)' : `**${seconds}s** per user`,
-						inline: true
-					},
-					{
-						name: '🛡️ Moderator',
-						value: `${interaction.user.tag} (<@${interaction.user.id}>)`,
-						inline: false
-					}
-				)
-				.setTimestamp();
+			const embed = createSlowmodeEmbed({
+				channelId: targetChannel.id,
+				seconds,
+				moderator: interaction.user
+			});
 
 			return await interaction.editReply({ embeds: [embed] });
 		} catch (error) {

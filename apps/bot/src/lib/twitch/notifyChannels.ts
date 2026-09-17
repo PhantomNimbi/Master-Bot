@@ -2,7 +2,12 @@ import { MessageChannel } from './../structures/ExtendedClient';
 import type { TwitchGame, TwitchStream } from './twitchAPI-types';
 import { TwitchEmbed } from './TwitchEmbed';
 import { container } from '@sapphire/framework';
-import type { Message } from 'discord.js';
+import {
+	ChannelType,
+	ForumChannel,
+	ThreadChannel,
+	type Message
+} from 'discord.js';
 import Logger from '../logger';
 
 // Twitch ids are non changeable, usernames are not good for reference
@@ -69,9 +74,11 @@ export async function notify(query: string[]) {
 							// Run through ChannelIds List of Entry/Streamer
 							for (const channelToMsg of client.twitch.notifyList[entry]
 								.sendTo) {
-								const channel = client.channels.cache.get(
-									channelToMsg
-								) as MessageChannel;
+								const channel =
+									(client.channels.cache.get(channelToMsg) as MessageChannel) ??
+									((await client.channels
+										.fetch(channelToMsg)
+										.catch(() => null)) as MessageChannel);
 
 								if (channel) {
 									const twitchMsg = new TwitchEmbed(
@@ -82,26 +89,71 @@ export async function notify(query: string[]) {
 										false, // Offline
 										false // Stream Update
 									);
+									const embed = await twitchMsg.TwitchEmbed();
 
-									await channel
-										.send({
-											embeds: [await twitchMsg.TwitchEmbed()]
-										})
-										.then((message: Message) => {
-											// Store the channel and Message ID
+									if (channel.type === ChannelType.GuildForum) {
+										const forum = channel as ForumChannel;
+										const postTitle = `🔴 ${stream.user_name} is LIVE: ${stream.title || 'Twitch Stream'}`;
+										const safeTitle =
+											postTitle.length > 100
+												? `${postTitle.slice(0, 97)}...`
+												: postTitle;
+
+										try {
+											const thread = await forum.threads.create({
+												name: safeTitle,
+												message: {
+													content: `🔴 **${stream.user_name}** is now live on Twitch!\nhttps://twitch.tv/${stream.user_name}`,
+													embeds: [embed]
+												}
+											});
+
 											if (
 												!client.twitch.notifyList[entry].messageHandler[
-													message.channel.id
+													thread.id
 												]
 											)
 												client.twitch.notifyList[entry].messageHandler[
-													message.channel.id
-												] = [message.id];
+													thread.id
+												] = [thread.id];
 											else
 												client.twitch.notifyList[entry].messageHandler[
-													message.channel.id
-												].push(message.id);
-										});
+													thread.id
+												].push(thread.id);
+										} catch (forumErr) {
+											Logger.error(
+												`Failed to create forum thread alert for ${stream.user_name}:`,
+												forumErr
+											);
+										}
+									} else if ('send' in channel) {
+										await channel
+											.send({
+												content: `🔴 **${stream.user_name}** is now live on Twitch!\nhttps://twitch.tv/${stream.user_name}`,
+												embeds: [embed]
+											})
+											.then((message: Message) => {
+												// Store the channel and Message ID
+												if (
+													!client.twitch.notifyList[entry].messageHandler[
+														message.channel.id
+													]
+												)
+													client.twitch.notifyList[entry].messageHandler[
+														message.channel.id
+													] = [message.id];
+												else
+													client.twitch.notifyList[entry].messageHandler[
+														message.channel.id
+													].push(message.id);
+											})
+											.catch(err =>
+												Logger.error(
+													`Failed to send stream alert to channel ${channel.id}:`,
+													err
+												)
+											);
+									}
 								}
 							}
 							client.twitch.notifyList[entry].messageSent = true;
@@ -134,24 +186,49 @@ export async function notify(query: string[]) {
 											await client.channels
 												.fetch(channelId)
 												.then(async channel => {
-													const msgChannel = channel as MessageChannel;
-
 													for (const messageId in client.twitch.notifyList[entry]
 														.messageHandler![channelId]) {
-														await msgChannel?.messages
-															.edit(
-																client.twitch.notifyList[entry].messageHandler[
-																	channelId
-																][messageId],
-																{
+														const targetMsgId =
+															client.twitch.notifyList[entry].messageHandler![
+																channelId
+															][messageId];
+
+														if (channel?.isThread()) {
+															const thread = channel as ThreadChannel;
+															const starter =
+																(await thread.messages
+																	.fetch(targetMsgId)
+																	.catch(() => null)) ||
+																(await thread
+																	.fetchStarterMessage()
+																	.catch(() => null));
+															if (starter) {
+																await starter
+																	.edit({
+																		embeds: [await twitchMsg.TwitchEmbed()]
+																	})
+																	.catch(error =>
+																		Logger.error(
+																			'Failed to Edit Stream Notification ' +
+																				error
+																		)
+																	);
+															}
+														} else if (
+															channel?.isTextBased() &&
+															'messages' in channel
+														) {
+															await (channel as any).messages
+																.edit(targetMsgId, {
 																	embeds: [await twitchMsg.TwitchEmbed()]
-																}
-															)
-															.catch(error =>
-																Logger.error(
-																	'Failed to Edit Stream Notification ' + error
-																)
-															);
+																})
+																.catch((error: unknown) =>
+																	Logger.error(
+																		'Failed to Edit Stream Notification ' +
+																			error
+																	)
+																);
+														}
 													}
 												});
 										}
@@ -180,23 +257,49 @@ export async function notify(query: string[]) {
 							for (const channelId in client.twitch.notifyList[entry]
 								.messageHandler) {
 								await client.channels.fetch(channelId).then(async channel => {
-									const msgChannel = channel as MessageChannel;
 									for (const messageId in client.twitch.notifyList[entry]
 										.messageHandler[channelId]) {
-										await msgChannel?.messages
-											.edit(
-												client.twitch.notifyList[entry].messageHandler[
-													channelId
-												][messageId],
-												{
+										const targetMsgId =
+											client.twitch.notifyList[entry].messageHandler[channelId][
+												messageId
+											];
+
+										if (channel?.isThread()) {
+											const thread = channel as ThreadChannel;
+											const starter =
+												(await thread.messages
+													.fetch(targetMsgId)
+													.catch(() => null)) ||
+												(await thread
+													.fetchStarterMessage()
+													.catch(() => null));
+											if (starter) {
+												await starter
+													.edit({
+														embeds: [await twitchMsg.TwitchEmbed()]
+													})
+													.catch(error =>
+														Logger.error(
+															'Failed to Edit Offline Stream Notification ' +
+																error
+														)
+													);
+											}
+										} else if (
+											channel?.isTextBased() &&
+											'messages' in channel
+										) {
+											await (channel as any).messages
+												.edit(targetMsgId, {
 													embeds: [await twitchMsg.TwitchEmbed()]
-												}
-											)
-											.catch(error =>
-												Logger.error(
-													'Failed to Edit Offline Stream Notification ' + error
-												)
-											);
+												})
+												.catch((error: unknown) =>
+													Logger.error(
+														'Failed to Edit Offline Stream Notification ' +
+															error
+													)
+												);
+										}
 									}
 								});
 							}
