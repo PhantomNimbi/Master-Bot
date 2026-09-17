@@ -17,7 +17,7 @@ Master-Bot uses **SQLite** through **Prisma ORM** (defaulting to `/data/database
 | `DISCORD_TOKEN` | ✅ | Bot token from the Discord Developer Portal. |
 | `NEXTAUTH_SECRET` | ✅ | Random 32+ char secret that signs dashboard session tokens. |
 | `PUBLIC_URL` | ✅ | Canonical public dashboard URL (e.g. `https://your-domain.com`). |
-| `INTERNAL_URL` | ✅ | Internal dashboard host/port format (`0.0.0.0:3000`) for binding and SSR. |
+| `INTERNAL_URL` | ✅ | Internal dashboard host/port (`0.0.0.0:3000`). Binds to `0.0.0.0` to listen on all network interfaces so public connections via `PUBLIC_URL` can reach the service. |
 | `NEXT_PUBLIC_INVITE_URL` | ✅ | Public OAuth2 bot invite URL used by the dashboard. |
 | `DISCORD_CLIENT_ID` | ✅ | Discord application client ID (dashboard OAuth). |
 | `DISCORD_CLIENT_SECRET` | ✅ | Discord application client secret (dashboard OAuth). |

@@ -283,6 +283,8 @@ const main = async () => {
 		process.exit(1);
 	}
 
+	// Binding to 0.0.0.0 listens on all network interfaces rather than localhost only,
+	// allowing public connections routed via reverse proxy or PUBLIC_URL to reach the dashboard.
 	let webHost = '0.0.0.0';
 	let webPort = Number.parseInt(process.env.PORT || '3000', 10);
 
