@@ -13,24 +13,24 @@
 
 ### 🏛️ Architecture & Systems
 - [🏗️ **Architecture**](Architecture) — Unified single-process runtime & storage
-- [🗄️ **Database & Fallbacks**](Architecture#database-layer) — Dual PostgreSQL & SQLite
-- [⚡️ **Cache & State**](Architecture#cache-layer) — External Redis & `ioredis-mock`
-- [📜 **Commands Reference**](Commands) — Complete catalog of 74 slash commands
+- [🗄️ **Database & Fallbacks**](Architecture#database-tier-db_uri--schema) — Dual PostgreSQL & SQLite
+- [⚡️ **Cache & State**](Architecture#session-layer--state-management) — External Redis & `ioredis-mock`
+- [📜 **Commands Reference**](Commands) — Complete catalog of slash commands & `/set` options
 
 ### 🎵 Audio & Features
 - [🎵 **Music & Audio**](Music) — Embedded Lavalink v4, filters & playlists
 - [🛡️ **Moderation**](Moderation) — Ban, timeout, slowmode & audit logging
 - [🎫 **Support Tickets**](Tickets) — Thread tickets & `.txt` transcripts
 - [👋 **Welcome & Temp Channels**](Welcome-and-Temp-Channels) — Greetings & dynamic voice hubs
-- [⏰ **Reminders & Twitch Alerts**](Reminders-and-Twitch) — Scheduled events & stream alerts
+- [⏰ **Reminders & Stream Alerts**](Reminders-and-Twitch) — Scheduled reminders, YouTube & Twitch alerts
 
 ### 🌐 Dashboard & Deployment
 - [💻 **Web Dashboard**](Dashboard) — Next.js 15 App Router, tRPC v11 & 9 Studios
-- [🚀 **Deployment Guide**](Deployment) — Docker, Low-Cost VPS & Self-Hosting (Optional Heroku)
+- [🚀 **Deployment Guide**](Deployment) — Docker, Low-Cost VPS & Self-Hosting
 
-### 🤖 Developer & Legal Policies
-- [🤖 **Agent Ecosystem**](Home#autonomous-agent-ecosystem) — Operating topology, rules & skills
-- [🧪 **Testing Suite**](Getting-Started#running-tests) — `@helix-origin/vitest-suite` testing toolkit
+### 🛠️ Developer & Legal Policies
+- [🛠️ **Developer Guide**](Development-Guide) — Creating commands, listeners & features
+- [🧪 **Testing Suite**](Getting-Started#testing--quality-verification) — `@helix-origin/vitest-suite` testing toolkit
 - [🛡️ **Privacy Policy**](../PRIVACY.md) — Data collection, retention & deletion rights
 - [📜 **Terms of Service**](../TOS.md) — Service terms, permitted use & liability
 - [🔒 **Security Policy**](../SECURITY.md) — Vulnerability reporting, advisories & hardening

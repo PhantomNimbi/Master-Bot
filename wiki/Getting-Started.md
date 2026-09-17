@@ -1,114 +1,167 @@
-# 🚀 Getting Started
+# 🚀 Getting Started with Master-Bot
 
-This guide walks you through installing, configuring, and launching **Master-Bot** for the first time.
+This guide walks you through system prerequisites, installation, environment configuration, and launching **Master-Bot** for local development and self-hosting.
+
+---
+
+## 📑 Table of Contents
+1. [Prerequisites](#-prerequisites)
+2. [Step-by-Step Installation](#-step-by-step-installation)
+3. [Discord Application Setup](#-discord-application-setup)
+4. [Environment Configuration](#-environment-configuration)
+5. [Launching the Stack](#-launching-the-stack)
+6. [Testing & Quality Verification](#-testing--quality-verification)
+7. [Where Data Lives](#-where-data-lives)
+8. [Related Guides](#-related-guides)
+
+---
 
 ## ✅ Prerequisites
 
-| Requirement | Version | Purpose |
-| --- | --- | --- |
-| **Node.js** | `>= 20.0` | Runtime for the bot and dashboard |
-| **pnpm** | `8.x` (repo pins `pnpm@8.6.7`) | Package manager for the workspace |
-| **Java** | `17+` | Only required if running a **local Lavalink** server. Not needed if using an external dedicated server like [HELIX-Origin/Lavalink-Server](https://github.com/HELIX-Origin/Lavalink-Server) (see [Music & Lavalink](Music)) |
-| **Discord Application** | — | Bot token, client ID, and secret from the [Discord Developer Portal](https://discord.com/developers/applications) |
+Ensure your host environment meets the following specifications:
 
-> 💡 **Music is optional.** If you don't provide Lavalink (or set `LAVA_ENABLED=false`), every other feature still works.
+| Requirement | Supported Version | Purpose |
+| :--- | :--- | :--- |
+| **Node.js** | `>= 20.0.0` (v24 LTS recommended) | JavaScript/TypeScript runtime for bot and dashboard. |
+| **pnpm** | `>= 8.0.0` (repository pins `pnpm@8.6.7`) | Fast, disk-efficient package manager. |
+| **Java** | `Java 17+` (Adoptium / Temurin 21 recommended) | Only required if running a local Lavalink v4 audio engine. |
+| **Discord App** | Developer Portal Account | Bot token, client ID, and secret. |
 
-## 📦 Installation
+> [!TIP]
+> Master-Bot operates with zero external database dependencies for local setups. SQLite persistence and in-memory Redis caching (`ioredis-mock`) are initialized automatically.
 
+---
+
+## 📦 Step-by-Step Installation
+
+```mermaid
+flowchart LR
+    Clone[1. Clone Repo] --> Install[2. pnpm install]
+    Install --> DBInit[Auto: Prepare Schema & /data/database.db]
+    DBInit --> Config[3. Configure .env]
+    Config --> Run[4. pnpm dev]
+```
+
+### 1. Clone the repository
 ```bash
-# 1. Clone the repository
 git clone https://github.com/galnir/Master-Bot.git
-
-# 2. Enter the project
 cd Master-Bot
+```
 
-# 3. Install dependencies (runs the database bootstrap automatically)
+### 2. Install dependencies & initialize database
+```bash
 pnpm install
 ```
 
-`pnpm install` triggers a `postinstall` hook that runs `db:generate && db:push`, which:
+`pnpm install` automatically runs the database bootstrap hook:
+- Compiles the Prisma schema for SQLite.
+- Creates the `/data` directory if missing.
+- Pushes the database schema directly to `/data/database.db`.
 
-1. Generates the **Prisma Client** for the workspace.
-2. **Creates and migrates** the SQLite database (`db.sqlite`) with every table the bot needs.
+---
 
-No separate database server is required — nothing to install, nothing to manage.
-
-## 🔐 Create a Discord Application
+## 🔐 Discord Application Setup
 
 1. Open the [Discord Developer Portal](https://discord.com/developers/applications) and click **New Application**.
-2. Go to **Bot** → **Reset Token** → copy your **bot token**.
-3. Under **OAuth2 → General**, copy the **Client ID** and **Client Secret**.
-4. Under **OAuth2 → URL Generator**, select the `bot` and `applications.commands` scopes, then generate a local invite URL.
+2. Under the **Bot** tab:
+   - Click **Reset Token** and save your `DISCORD_TOKEN`.
+   - Enable **Privileged Gateway Intents**:
+     - ✅ **Presence Intent**
+     - ✅ **Server Members Intent**
+     - ✅ **Message Content Intent**
+3. Under the **OAuth2 → General** tab:
+   - Copy your **Client ID** (`DISCORD_CLIENT_ID`) and **Client Secret** (`DISCORD_CLIENT_SECRET`).
+   - Add your redirect callback: `https://your-domain.com/api/auth/callback/discord` (or `http://localhost:3000/api/auth/callback/discord` for local dev).
+4. Under **OAuth2 → URL Generator**:
+   - Select scopes: `bot` and `applications.commands`.
+   - Select permissions: `Administrator` (recommended for full feature suite, or standard moderation and voice permissions).
 
-## ⚙️ Configure the Environment
+---
 
-Copy the template and fill in your values:
+## ⚙️ Environment Configuration
+
+Copy `.env.example` to `.env`:
 
 ```bash
 cp .env.example .env
 ```
 
-At a minimum, set:
+Populate your mandatory configuration settings:
 
 ```env
-DISCORD_TOKEN="your-bot-token"
-NEXTAUTH_SECRET="a-long-random-string-of-at-least-32-chars"
+# Database (URI string: SQLite stored at /data/database.db, or external PostgreSQL)
+DB_URI="file:/data/database.db"
+
+# Dashboard URLs
+# INTERNAL_URL binds to 0.0.0.0:3000 to listen on all interfaces, allowing public connections
+INTERNAL_URL="0.0.0.0:3000"
+PUBLIC_URL="http://localhost:3000"
+DISCORD_CALLBACK_URL="https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=8&scope=bot%20applications.commands"
+
+# Discord Bot Credentials
+DISCORD_TOKEN="your-discord-bot-token"
 DISCORD_CLIENT_ID="your-client-id"
 DISCORD_CLIENT_SECRET="your-client-secret"
-NEXTAUTH_URL="http://localhost:3000"
-NEXT_PUBLIC_INVITE_URL="https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=8&scope=bot%20applications.commands"
+NEXTAUTH_SECRET="your-random-32-char-secret"
+
+# Audio & Lavalink
+LAVA_ENABLED=true
+LAVA_EXTERNAL=false
 ```
 
-See [**Configuration**](Configuration) for the complete reference of every variable and feature flag.
+---
 
-## ▶️ Launch the Bot
+## ▶️ Launching the Stack
 
-### Development
-
+### Development Mode
 ```bash
 pnpm dev
 ```
+Starts the bot gateway, Next.js web dashboard (`http://localhost:3000/dashboard`), and in-memory cache in a single consolidated terminal window.
 
-`pnpm dev` launches the **consolidated runtime** in a single console window: the bot gateway, the Next.js web dashboard (`http://localhost:3000/dashboard`), and the in-memory `ioredis-mock` cache — without requiring any external Redis binary.
-
-Install Lavalink for local music (optional):
-
+### Production Mode
 ```bash
-# Download the latest Lavalink v4 jar from the releases page,
-# then copy the repo's config template (not Lavalink's stock application.yml —
-# it lacks the YouTube/Spotify fixes, see wiki/Lavalink):
-cp application.yml.example application.yml
-java -jar Lavalink.jar
+# 1. Build Next.js dashboard and compile bot TypeScript
+pnpm build
+
+# 2. Launch production server
+pnpm start
 ```
 
-### Production
+---
+
+## 🧪 Testing & Quality Verification
+
+Master-Bot features automated unit testing powered by `@helix-origin/vitest-suite`:
 
 ```bash
-pnpm build   # builds the Next.js dashboard and compiles the bot
-pnpm start   # runs the consolidated bot + internal dashboard in a single console window
+# Run all unit tests:
+pnpm test
+
+# Verify TypeScript compilation across monorepo:
+pnpm type-check
+
+# Run linter and boundary validation:
+pnpm lint
 ```
 
-### Individual Apps
-
-You can also drive each app directly:
-
-```bash
-pnpm --filter bot dev          # bot only
-pnpm --filter dashboard dev    # dashboard only
-```
-
-## 🔗 Invite the Bot
-
-Use your generated invite URL to add the bot to a server with **Administrator** permissions (or the subset you prefer; the bot requires `Send Messages`, `Embed Links`, `Manage Messages`, `Manage Channels`, `Manage Roles`, `Manage Threads`, `Connect`, and `Speak` for its core features).
-
-Then run `/set` in the server to configure welcome messages, logging, tickets, twitch alerts, and volume — and `/help` to see the full command list.
+---
 
 ## 🗃️ Where Data Lives
 
-- **Database:** `packages/db/prisma/db.sqlite` — created automatically (relative SQLite paths resolve against the Prisma schema). Back it up by copying this single file.
-- **Logs:** `logs/` — bot, dashboard, Lavalink, and combined logs.
-- **YouTube OAuth:** `.youtube-oauth.json` — auto-saved upon completing embedded Lavalink startup authorization.
+- **Database**: `/data/database.db` — Single persistent SQLite database file (or external PostgreSQL database).
+- **In-Memory Cache**: `ioredis-mock` runs in-process; connects to external Redis if `REDIS_URL` is set.
+- **Log Files**: `logs/` — Process logs for debugging and telemetry.
 
-## ❓ Problems?
+---
 
-See the [**FAQ & Troubleshooting**](FAQ) page.
+## 🔗 Related Guides
+- [Home](Home) — Return to wiki main page
+- [Configuration Reference](Configuration) — Detailed explanation of all `.env` options
+- [Architecture](Architecture) — System design and data layer deep dive
+- [Commands Reference](Commands) — Slash commands and `/set` options
+- [Developer Guide](Development-Guide) — How to add new commands and listeners
+- [Deployment](Deployment) — Production VPS and Docker deployment guide
+
+---
+[Home](Home) • [Documentation Index](Home) • [GitHub Repository](https://github.com/galnir/Master-Bot)

@@ -1,79 +1,124 @@
-# 🏗️ Architecture
+# 🏗️ Architecture & System Topology
 
-Master-Bot is a **pnpm/Turbo monorepo**. Shared packages and two applications live under `apps/` and `packages/`.
+Master-Bot is engineered as a unified **Turborepo** monorepo running both the **Discord Bot Gateway** and the **Next.js Web Dashboard** inside a single Node.js process, supported by a dual-database persistence tier (`DB_URI`) and an in-memory/external caching layer.
 
-## 📁 Project Structure
+---
 
-```txt
+## 📑 Table of Contents
+1. [Monorepo Workspace Structure](#-monorepo-workspace-structure)
+2. [Package Responsibilities](#-package-responsibilities)
+3. [Single-Process Unified Runtime](#-single-process-unified-runtime)
+4. [Session Layer & State Management](#-session-layer--state-management)
+5. [🗄️ Database Tier (`DB_URI`) & Schema](#️-database-tier-db_uri--schema)
+6. [Command & Submodule Architecture](#-command--submodule-architecture)
+7. [Bootstrap & Lifecycle Sequence](#-bootstrap--lifecycle-sequence)
+8. [Related Guides](#-related-guides)
+
+---
+
+## 📁 Monorepo Workspace Structure
+
+```text
 Master-Bot/
 ├── apps/
-│   ├── bot/                       # Discord bot (Sapphire Framework)
+│   ├── bot/                       # Discord bot application (Sapphire Framework & discord.js v14)
 │   │   └── src/
-│   │       ├── index.ts           # boot: session.init() → client.login()
-│   │       ├── commands/          # slash commands (music, moderation, other, gifs, twitch)
-│   │       ├── listeners/         # guild, interaction, music, tempchannels events
+│   │       ├── index.ts           # Unified process boot: session → login → web server
+│   │       ├── commands/          # Slash commands categorized (fun, moderation, music, other)
+│   │       ├── listeners/         # Gateway event listeners (guild, interaction, music, tickets)
 │   │       └── lib/
-│   │           ├── session/       # SessionManager (runtime state hub)
-│   │           ├── music/         # Queue, QueueStore, TriviaSession, embeds, YouTube OAuth
-│   │           ├── twitch/        # Twitch API client & notify orchestrator
-│   │           ├── reminders/     # ReminderManager scheduler
-│   │           ├── presence/      # StatusManager rotating presences
-│   │           ├── structures/    # ExtendedClient, CommandHelp, HelpRegistry
-│   │           └── games/ / gifs/ # mini-games & GIF search
-│   └── dashboard/                 # Next.js 15 management dashboard
+│   │           ├── embeds/        # Standardized rich embed factory
+│   │           ├── gifs/          # Consolidated /gif option handlers & tag registry
+│   │           ├── set/           # Consolidated /set option handlers & settings registry
+│   │           ├── lavalink/      # Embedded Lavalink v4 integration (@helix-origin/lavalink-server)
+│   │           ├── music/         # Audio queue management, filters, and playlists
+│   │           ├── youtube/       # YouTube OAuth, RSS parser, and stream monitor
+│   │           ├── twitch/        # Twitch API client and stream monitor
+│   │           ├── reminders/     # ReminderManager background scheduler
+│   │           ├── server/        # Internal HTTP web server & health pinger
+│   │           └── session/       # SessionManager, SessionStore, and state handlers
+│   └── dashboard/                 # Next.js 15 App Router & tRPC v11 web dashboard
 ├── packages/
-│   ├── db/                        # Prisma schema, client generation, SQLite
-│   ├── auth/                      # NextAuth v5 (Discord OAuth + Prisma adapter)
-│   └── config/                    # shared ESLint & Tailwind presets
-├── packages/db/prisma/       # Prisma schema + db.sqlite (auto-created)
-├── application.yml(.example)      # Lavalink v4 server config
-├── docker.env / Dockerfile        # container deployment
-└── .env.example                   # environment template
+│   ├── auth/                      # NextAuth.js v5 with Discord OAuth provider & Prisma adapter
+│   ├── config/                    # Shared ESLint and Tailwind presets
+│   └── db/                        # Shared Prisma ORM client & ioredis-mock cache fallback
+├── tests/unit/                    # Comprehensive Vitest test suite (@helix-origin/vitest-suite)
+├── application.yml.example        # Lavalink v4 configuration blueprint
+├── Dockerfile & docker.env        # Containerized production blueprint
+└── .env.example                   # Master environment variable template
 ```
+
+---
 
 ## 📦 Package Responsibilities
 
-| Package | Stack | Role |
-| --- | --- | --- |
-| `apps/bot` | Sapphire Framework 4.x, discord.js v14 | Slash commands, listeners, audio engine, schedulers. |
-| `apps/dashboard` | Next.js 15, tRPC v11, React Query, Tailwind | Web management for server studios. |
-| `packages/db` | Prisma ORM (SQLite) | Declares the schema; exports the typed `PrismaClient`. |
-| `packages/auth` | NextAuth v5 (beta), `@auth/prisma-adapter` | Discord OAuth; augments `Session` with `user.id` + `user.discordId`; upserts users by Discord ID. |
-| `packages/config` | ESLint, Tailwind | Shared lint/design presets consumed by workspaces. |
+| Package | Technology Stack | Responsibility |
+| :--- | :--- | :--- |
+| `apps/bot` | Sapphire 4.x, discord.js v14 | Discord gateway, slash commands, audio routing, background monitors. |
+| `apps/dashboard` | Next.js 15, React 18, Tailwind, tRPC v11 | Responsive web management studios for server configuration. |
+| `packages/db` | Prisma ORM 5.x | Database connection, schema compilation, and client distribution. |
+| `packages/auth` | NextAuth.js, Discord OAuth | Secure web session tokens and user identity linking. |
+| `packages/config` | ESLint, TypeScript, Tailwind | Unified monorepo linting, typing, and style configurations. |
 
-## 🧠 Session Layer: How State Is Stored
+---
 
-The bot does **not** hit the database on every command. All runtime state lives in an in-memory **`SessionManager`** (`apps/bot/src/lib/session/SessionManager.ts`), which acts as a typed read/write hub:
+## ⚡ Single-Process Unified Runtime
+
+Master-Bot avoids fragile multi-process architectures by hosting both the Discord bot and the Next.js web application inside one single Node.js process:
 
 ```mermaid
 flowchart TD
-    Cmd["Commands & Listeners"]
-    Cmd -->|reads / writes| SM["SessionManager<br/>(in-memory stores)"]
-    SM -->|"mutate → serial persistQueue"| P["Prisma Client"]
-    P --> DB2[("SQLite<br/>db.sqlite")]
-    DB2 -->|"hydration on boot<br/>(session.init())"| SM
+    subgraph HostSystem [Master-Bot Service :3000]
+        Entry[apps/bot/src/index.ts]
+        BotGateway[Sapphire Discord Gateway]
+        WebServer[Internal HTTP Web Server]
+        NextApp[Next.js 15 App Router Engine]
+        LavalinkInternal[Embedded Lavalink Server v4]
+        Session[In-Memory SessionManager]
+        Cache[ioredis-mock In-Memory Cache]
+    end
+
+    subgraph DataPersistence [Persistence Tier]
+        DB[(Prisma: DB_URI /data/database.db)]
+    end
+
+    Entry --> Session
+    Entry --> BotGateway
+    Entry --> WebServer
+    WebServer --> NextApp
+    BotGateway <--> LavalinkInternal
+    BotGateway <--> Session
+    NextApp <--> Cache
+    Session <--> Cache
+    Session --> DB
 ```
 
-- **Hydration:** `session.init()` loads every store from SQLite **before** `client.login()`, so all data is present at first connection.
-- **Writes:** mutating a store updates memory synchronously and queues the database write through a serial `persistQueue`, preserving foreign-key ordering (`User → Guild → GuildMember → …`).
-- **Resilience:** a failed write is logged; the in-memory state still works. Persistence is fire-and-forget, never blocking a command.
+---
 
-### Public Stores
+## 🧠 Session Layer & State Management
 
-| Store | Type | Contents |
-| --- | --- | --- |
-| `users` | `Map` | Bot users, keyed by Discord ID, tracking `dbId`. |
-| `guildData` | `Map` | Per-guild settings (volume, logs, welcome, tickets, twitch…). |
-| `members` | `Map` | Per-guild member rows (created on join, removed on leave). |
-| `welcomeMessages` / `tickets` / `hubChannels` | `Map` | Server-level feature state. |
-| `playlists` / `songs` | `Map` | Custom playlists (per guild+user) and their tracks. |
-| `twitchConfig` | `Map` | Streamer subscriptions + notification settings. |
-| `reminders` | `Map` | Scheduled reminders with repeat rules. |
-| `commands` | `Map` | Slash command usage/registry info. |
+The bot does **not** execute blocking database queries during command execution. All live server configurations and active states reside in memory within the **`SessionManager`**:
 
-## 🗄️ Database (SQLite + Prisma)
+```mermaid
+flowchart TD
+    Command[Slash Command Execution] -->|Read / Write| SM[SessionManager in Memory]
+    SM -->|Immediate Sync| Cache[In-Memory Redis Cache]
+    SM -->|Async Mutation| Queue[Serial persistQueue]
+    Queue -->|Order-Preserving Write| Prisma[Prisma ORM Client]
+    Prisma --> DB[(Database: SQLite or PostgreSQL)]
+    DB -->|Hydration on Startup| SM
+```
 
-The schema lives in `packages/db/prisma/schema.prisma`. SQLite offers zero-ops persistence and easy backups (copy `db.sqlite`). Run migrations with `pnpm db:push`; explore data with `pnpm db:studio`.
+- **Hydration at Boot**: When `session.init()` runs during startup, all server settings, custom playlists, reminder schedules, and stream alert configurations are loaded into memory.
+- **Asynchronous Persistence**: Database writes are placed onto a FIFO `persistQueue` that enforces relational integrity (`User → Guild → GuildMember`) without delaying Discord interaction responses.
+
+---
+
+## 🗄️ Database Tier (`DB_URI`) & Schema
+
+Master-Bot features zero-ops database auto-configuration via `DB_URI`:
+- **SQLite (Default)**: Automatically prepares `packages/db/prisma/schema.prisma` with `provider = "sqlite"` and `file:/data/database.db`. Creates the directory on boot.
+- **PostgreSQL**: When `DB_URI` begins with `postgresql://`, the prepare script sets `provider = "postgresql"` and prepares Prisma for external clustering.
 
 ```mermaid
 erDiagram
@@ -81,109 +126,95 @@ erDiagram
     USER ||--o{ GUILDMEMBER : "member of"
     USER ||--o{ REMINDER : "schedules"
     USER ||--o{ TICKET : "creates"
-    USER ||--o{ TEMPCHANNEL : "owns"
     GUILD ||--o{ GUILDMEMBER : "contains"
     GUILD ||--o{ PLAYLIST : "scopes"
     GUILD ||--o{ REMINDER : "scopes"
     GUILD ||--o{ TICKET : "hosts"
-    GUILD ||--o{ TEMPCHANNEL : "hosts"
     GUILD ||--o{ TWITCHNOTIFY : "monitors"
+    GUILD ||--o{ YOUTUBENOTIFY : "monitors"
     PLAYLIST ||--o{ SONG : "contains"
 
     USER {
-        string discordId "unique"
+        string discordId PK
         string name
         datetime createdAt
     }
     GUILD {
-        string id "snowflake PK"
+        string id PK
         string name
-        string ownerId
         int volume
-        string notifyList
         string logChannel
         boolean logChannelEnabled
-        string logEvents
         string welcomeMessage
         boolean welcomeMessageEnabled
         string ticketChannel
         boolean ticketEnabled
     }
-    GUILDMEMBER {
-        string guildId "composite PK"
-        string userId "composite PK"
-        datetime joinedAt
-    }
     PLAYLIST {
         string name
         string userId
-        string guildId "unique(user, guild, name)"
+        string guildId
     }
     SONG {
-        int id "autoincrement PK"
+        int id PK
         string title
         int length
         string identifier
-        int playlistId "FK → songs cascade"
+        int playlistId FK
     }
     REMINDER {
-        int id "autoincrement PK"
+        int id PK
         datetime dateTime
         string event
         boolean repeat
         string userId
-        string guildId "FK → guild cascade"
+        string guildId FK
     }
-    TICKET {
-        string threadId "PK"
-        string guildId
-        string creatorId
-        datetime createdAt
-        boolean closed
-    }
-    TEMPCHANNEL {
-        string guildId
-        string ownerId
-        string id "voice channel PK"
-    }
-    TWITCHNOTIFY {
-        string userId
+    YOUTUBENOTIFY {
+        string channelId PK
+        string title
         string channelIds
-        boolean live
-        boolean sent
+        boolean isLive
     }
 ```
-
-**Key design decisions**
-
-- **Per-guild scoping:** playlists are unique per `(userId, guildId, name)`; reminders belong to a guild via the `ReminderGuild` relation. Two servers can have the same playlist name or reminder without collisions.
-- **Member lifecycle:** when a user joins a guild, a `GuildMember` row is created; when they leave, the bot cascades-deletes their tickets, temp channels, playlists + songs, reminders, and Twitch subscriptions for that guild (see `clearUserGuildData`).
-- **Cascade integrity:** `Song→Playlist`, `Playlist→Guild/User`, `Reminder→Guild`, `Ticket/TempChannel/GuildMember→Guild` all use `onDelete: Cascade`, keeping SQLite consistent under `persistQueue`.
-
-## 🔀 Data Flow Behind a Command
-
-```mermaid
-sequenceDiagram
-    participant U as Discord User
-    participant B as Bot
-    participant SM as SessionManager
-    participant DB as SQLite
-    U->>B: /set welcome channel #general
-    B->>B: preconditions (permission gate)
-    B->>SM: guildData.setLogChannel(guildId, ...)
-    SM->>SM: update memory (immediate)
-    SM->>DB: persistQueue → prisma.update(...)
-    B->>U: ✅ Confirmed ephemeral reply
-```
-
-## 🌐 Bootstrap Sequence
-
-1. `session.init()` hydrates all stores from SQLite.
-2. `client.login()` connects to Discord; commands are registered.
-3. Feature flags from `.env` enable/disable modules (Lavalink, GIFs, Twitch, News, IGDB).
-4. Background schedulers start: reminders (`ReminderManager`, 30s tick), Twitch monitor, status rotation (`StatusManager`).
-5. Internal web server boots on `PORT` (`/dashboard` and `/health`), running Next.js inside the same Node.js process and sharing `ioredis-mock` and SQLite persistence.
 
 ---
 
-See [**Database nuances**](Architecture.md#database-sqlite--prisma), [**Web Dashboard**](Dashboard), and [**Deployment**](Deployment) for the rest of the picture.
+## 🧩 Command & Submodule Architecture
+
+Commands avoid bloated monolith files by adopting the **Modular Option Submodules** pattern:
+- **Consolidated Slash Commands**: Single command registration with options (`/gif [tag]`, `/set [option]`) keeps the bot well within Discord's 100 application command ceiling.
+- **Submodules in `lib/`**: Individual options are isolated into discrete TypeScript files under `src/lib/<feature>/options/`, managed through a typed `registry.ts`.
+- **Themed Embeds**: Rich messages are generated through factory functions in `src/lib/embeds/` ensuring visual consistency.
+
+---
+
+## 🚀 Bootstrap & Lifecycle Sequence
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Main as index.ts (main)
+    participant Session as SessionManager
+    participant Discord as Discord Gateway
+    participant Audio as Lavalink Audio
+    participant Web as Next.js Web Server
+
+    Main->>Audio: Start embedded Lavalink v4 (if enabled)
+    Main->>Session: session.init() (hydrate from DB_URI)
+    Main->>Discord: client.login(DISCORD_TOKEN)
+    Discord-->>Main: Ready Event fired
+    Main->>Web: startWebServer(INTERNAL_URL 0.0.0.0:3000)
+    Main->>Session: Start background monitors (YouTube, Twitch, Reminders)
+```
+
+---
+
+## 🔗 Related Guides
+- [Home](Home) — Return to wiki main page
+- [Developer Guide](Development-Guide) — How to add new commands and listeners
+- [Configuration](Configuration) — Master `.env` reference
+- [Deployment](Deployment) — Production self-hosting and container deployment
+
+---
+[Home](Home) • [Documentation Index](Home) • [GitHub Repository](https://github.com/galnir/Master-Bot)

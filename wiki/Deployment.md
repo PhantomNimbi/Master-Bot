@@ -18,7 +18,7 @@ flowchart TD
     end
 
     subgraph Storage ["Persistence"]
-        DB[("SQLite Database<br/>packages/db/prisma/db.sqlite")]
+        DB[("SQLite Database<br/>/data/database.db")]
     end
 
     subgraph AudioEngine ["Audio Engine (Lavalink v4 Server)"]
@@ -38,7 +38,7 @@ flowchart TD
   1. `PORT` (default `3000`): Unified web port shared by the Discord bot gateway, Next.js web dashboard (`/dashboard`), and health/keep-alive endpoints (`/health`).
   2. `LAVA_PORT` (default `2333`): The Lavalink audio server port (bot connects over WebSocket).
 - **Zero Redis Server Process:** In-process in-memory `ioredis-mock` shares live state seamlessly between the bot and dashboard with zero separate binaries, processes, or ports.
-- **SQLite Persistence Layer:** Single embedded file (`db.sqlite`) preserves all guild configurations, roles, tickets, and playlists across restarts without requiring an external database server or port.
+- **SQLite Persistence Layer:** Single embedded file (`/data/database.db`) preserves all guild configurations, roles, tickets, and playlists across restarts without requiring an external database server or port.
 
 ---
 
@@ -247,14 +247,17 @@ Schedule this via a daily cron job (`crontab -e`):
 | `DISCORD_CLIENT_ID` | **Yes** | Discord Application Client ID. |
 | `DISCORD_CLIENT_SECRET` | **Yes** | Discord Application Client Secret. |
 | `NEXTAUTH_SECRET` | **Yes** | 32+ character random string to sign auth session cookies. |
-| `NEXTAUTH_URL` | **Yes** | The public HTTPS URL of your application dashboard. |
-| `PUBLIC_URL` | **Yes** | The public HTTPS URL used for the `/dashboard` command invite link. |
-| `DB_URI` | No | Database connection URI string (default `file:/data/database.db`). |
+| `PUBLIC_URL` | **Yes** | The public HTTPS URL of your application dashboard. |
+| `INTERNAL_URL` | **Yes** | Host/port binding (`0.0.0.0:3000`) ensuring the service listens on all network interfaces. |
+| `DB_URI` | No | Database connection URI string (default `file:/data/database.db` for SQLite; PostgreSQL supported). |
 | `PORT` | No | Listening port for web dashboard and health check (default: `3000`). |
 | `KEEP_ALIVE_ENABLED` | No | Set to `true` to enable background HTTP pings to keep the process warm. |
-| `LAVA_ENABLED` | No | Set to `true` to enable the audio engine (external Lavalink). |
-| `LAVA_EXTERNAL` | No | `true` when connecting to an external Lavalink server. |
-| `LAVA_HOST` | No | The external Lavalink hostname / IP. |
+| `LAVA_ENABLED` | No | Set to `true` to enable the audio engine (Lavalink v4). |
+| `LAVA_EXTERNAL` | No | Set to `true` when connecting to an external Lavalink server. |
+| `LAVA_HOST` | No | The Lavalink hostname / IP. |
 | `LAVA_PORT` | No | Lavalink port (default `2333`; `443` for TLS external instances). |
 | `LAVA_PASS` | No | Lavalink password (must match `application.yml`). |
-| `LAVA_SECURE` | No | `true` for TLS (WSS) external instances. |
+| `LAVA_SECURE` | No | Set to `true` for TLS (WSS) remote instances. |
+| `YOUTUBE_CLIENT_ID` | No | Google Cloud OAuth Client ID for YouTube stream alerts and authentication. |
+| `YOUTUBE_CLIENT_SECRET` | No | Google Cloud OAuth Client Secret for YouTube stream alerts. |
+| `YOUTUBE_REFRESH_TOKEN` | No | YouTube OAuth 2.0 refresh token for stream alerts and Lavalink. |
