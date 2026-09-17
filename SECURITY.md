@@ -8,12 +8,15 @@ The **Master-Bot** team takes the security of our application, self-hosters, ser
 
 ## 🛡️ Supported Versions
 
-We provide active security updates, bug fixes, and dependency patches for the following versions:
+We maintain security updates and patches aligned with the Master-Bot project:
 
 | Version | Supported | Status | Notes |
 | :--- | :---: | :--- | :--- |
-| **v2.x (Modernization Fork)** | ✅ Yes | **Active Support** | Monorepo architecture (Next.js 15, discord.js v14, Lavalink v4, dual SQLite/PG). |
-| **v1.x (Legacy Multi-Process)** | ❌ No | **End of Life (EOL)** | Deprecated. Users are strongly urged to migrate to v2.x. |
+| **Main Monorepo** | ✅ Yes | **Active** | Next.js 15, discord.js v14, Lavalink v4, dual SQLite/PG. |
+| **Legacy Multi-Process** | ❌ No | **End of Life (EOL)** | Older historical layouts prior to unified monorepo modernization. |
+
+> [!NOTE]
+> This fork exists for the purpose of fixing issues, adding improvements, and submitting pull requests back to the upstream repository ([galnir/Master-Bot](https://github.com/galnir/Master-Bot)). Security patches developed here are contributed upstream to benefit the entire community.
 
 ---
 
@@ -78,9 +81,9 @@ If you are self-hosting Master-Bot on a VPS or cloud instance, implement the fol
 - **OAuth Callback Whitelist**: In the Discord Developer Portal, strictly restrict `Redirect URIs` to your exact canonical domain (`https://your-domain.com/api/auth/callback/discord`).
 
 ### 4. 🗄️ Database & File Permissions
-- **SQLite Database**: Restrict filesystem permissions for `packages/db/prisma/db.sqlite` so that only the service user running Node.js has read/write access:
+- **SQLite Database**: Restrict filesystem permissions for `/data/database.db` so that only the service user running Node.js has read/write access:
   ```bash
-  chmod 600 packages/db/prisma/db.sqlite
+  chmod 600 /data/database.db
   ```
 - **External PostgreSQL / Redis**: If using external instances, enforce SSL/TLS encryption (`sslmode=require` or `rediss://`) and avoid using default superuser accounts.
 
