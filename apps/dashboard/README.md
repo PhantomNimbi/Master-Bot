@@ -45,5 +45,5 @@ pnpm --filter @master-bot/dashboard dev
 > ⚠️ The dashboard and bot **must share the same `db.sqlite`** — run them from the same directory or mount one persistent volume in containers.
 
 ## 📚 Wiki
-
-See the [Web Dashboard](https://github.com/galnir/Master-Bot/wiki/Dashboard) page for the full architecture and studios overview.
+ 
+See the [Web Dashboard](../../../wiki/Dashboard) page for the full architecture and studios overview.

@@ -80,4 +80,4 @@ pnpm dev
 
 ## 📚 Wiki
 
-See [Music & Lavalink](https://github.com/galnir/Master-Bot/wiki/Music) and the [Commands Reference](https://github.com/galnir/Master-Bot/wiki/Commands) for feature documentation.
+See [Music & Lavalink](../../../wiki/Music) and the [Commands Reference](../../../wiki/Commands) for feature documentation.

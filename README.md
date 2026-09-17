@@ -84,7 +84,7 @@ TWITCH_CLIENT_ID=""
 TWITCH_CLIENT_SECRET=""
 ```
 
-> 📖 **Full Configuration Guide:** Detailed documentation for all optional APIs, Lavalink nodes, and feature toggles is in the [Configuration Wiki](wiki/Configuration.md).
+> 📖 **Full Configuration Guide:** Detailed documentation for all optional APIs, Lavalink nodes, and feature toggles is in the [Configuration Wiki](../../wiki/Configuration).
 
 ---
 
@@ -101,22 +101,23 @@ Master-Bot features slash commands across Music, Moderation, Utility, Entertainm
 | 😂 **Fun & GIFs** | Consolidated `/gif` command with modular tag options (`/gif [tag] [query] [target]`), `/8ball`, `/rps`, `/urban` | `/gif tag: hug target: @friend` |
 | ℹ️ **General** | `/help`, `/dashboard`, `/reminder`, `/poll`, `/weather`, `/translate`, `/game-search`, `/world-news` | `/help` |
 
-> 📖 **Complete Command Reference:** See the [Commands Wiki](wiki/Commands.md) for full descriptions, arguments, and permission requirements.
+> 📖 **Complete Command Reference:** See the [Commands Wiki](../../wiki/Commands) for full descriptions, arguments, and permission requirements.
 
 ---
 
 ## 📚 Documentation & Wiki
 
-Comprehensive guides and architectural documentation are available in the [Wiki](wiki/Home.md):
+Comprehensive guides and architectural documentation are available in the [Wiki](../../wiki/Home):
 
-- 🚀 [Getting Started](wiki/Getting-Started.md) — Prerequisites, installation, and first boot
-- ⚙️ [Configuration](wiki/Configuration.md) — Environment variables, API keys, and feature flags
-- 🏗️ [Architecture](wiki/Architecture.md) — Monorepo design, zero-ops SQLite fallback, and Redis caching
-- ⌨️ [Commands Reference](wiki/Commands.md) — Detailed breakdown of all commands and `/set` options
-- 🎵 [Music & Lavalink](wiki/Music.md) — Embedded Lavalink v4, YouTube OAuth, and audio filters
-- 🌐 [Web Dashboard](wiki/Dashboard.md) — Next.js 15 App Router features and Discord OAuth2 setup
-- 🚀 [Deployment](wiki/Deployment.md) — Docker, Linux VPS (PM2/Caddy), and hosting options
-- ❓ [FAQ & Troubleshooting](wiki/FAQ.md) — Solutions to common issues and questions
+- 🚀 [Getting Started](../../wiki/Getting-Started) — Prerequisites, installation, and first boot
+- ⚙️ [Configuration](../../wiki/Configuration) — Environment variables, API keys, and feature flags
+- 🏗️ [Architecture](../../wiki/Architecture) — Monorepo design, zero-ops SQLite fallback, and Redis caching
+- ⌨️ [Commands Reference](../../wiki/Commands) — Detailed breakdown of all commands and `/set` options
+- 🎵 [Music & Lavalink](../../wiki/Music) — Embedded Lavalink v4, YouTube OAuth, and audio filters
+- 🌐 [Web Dashboard](../../wiki/Dashboard) — Next.js 15 App Router features and Discord OAuth2 setup
+- 🛠️ [Developer Guide](../../wiki/Development-Guide) — Extending commands, listeners, and background monitors
+- 🚀 [Deployment](../../wiki/Deployment) — Docker, Linux VPS (PM2/Caddy), and hosting options
+- ❓ [FAQ & Troubleshooting](../../wiki/FAQ) — Solutions to common issues and questions
 
 ---
 
