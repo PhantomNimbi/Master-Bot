@@ -122,9 +122,8 @@ Comprehensive guides and architectural documentation are available in the [Wiki]
 
 ## Contributing
 
-Contributions, bug fixes, and feature proposals are warmly welcomed!
-
-This fork exists for the purpose of developing improvements, fixing issues, and submitting pull requests back to the upstream repository ([galnir/Master-Bot](https://github.com/galnir/Master-Bot)). Please feel free to open issues or PRs.
+Fork it and submit a pull request!
+Contributions, bug fixes, and feature proposals are warmly welcomed. Please see [`CONTRIBUTING.md`](CONTRIBUTING.md) for guidelines and development workflows.
 
 ---
 

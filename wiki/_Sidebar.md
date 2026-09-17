@@ -42,4 +42,4 @@
 ## 🔗 Ecosystem Repositories
 - 📦 **Standalone Audio**: [HELIX-Origin/Lavalink-Server](https://github.com/HELIX-Origin/Lavalink-Server)
 - 🧪 **Vitest Suite**: [HELIX-Origin/vitest-suite](https://github.com/HELIX-Origin/vitest-suite)
-- 🤖 **Upstream Bot**: [galnir/Master-Bot](https://github.com/galnir/Master-Bot)
+- 🤖 **GitHub Repository**: [galnir/Master-Bot](https://github.com/galnir/Master-Bot)

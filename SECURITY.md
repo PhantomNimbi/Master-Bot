@@ -15,9 +15,6 @@ We maintain security updates and patches aligned with the Master-Bot project:
 | **Main Monorepo** | ✅ Yes | **Active** | Next.js 15, discord.js v14, Lavalink v4, dual SQLite/PG. |
 | **Legacy Multi-Process** | ❌ No | **End of Life (EOL)** | Older historical layouts prior to unified monorepo modernization. |
 
-> [!NOTE]
-> This fork exists for the purpose of fixing issues, adding improvements, and submitting pull requests back to the upstream repository ([galnir/Master-Bot](https://github.com/galnir/Master-Bot)). Security patches developed here are contributed upstream to benefit the entire community.
-
 ---
 
 ## 🚨 Reporting a Vulnerability

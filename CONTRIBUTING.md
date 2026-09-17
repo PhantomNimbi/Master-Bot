@@ -51,7 +51,7 @@ The bot keeps all runtime state in an in-memory **`SessionManager`** (`apps/bot/
 - **Node.js**: `>=20.0.0`
 - **pnpm**: `>=8.0.0` (`npm install -g pnpm`)
 - **Java**: Java 17 or higher (Java 21 LTS recommended) — only for a local Lavalink v4 (music)
-- **Database**: None — SQLite (`db.sqlite`) is created automatically on install
+- **Database**: None — SQLite (`/data/database.db`) is created automatically on install
 
 ### Setup Steps
 
